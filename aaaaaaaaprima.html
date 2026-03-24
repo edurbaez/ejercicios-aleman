@@ -372,15 +372,14 @@
 
         };
 
-        /* =========================
-        ESTADO ÚNICO
-        ========================= */
+        /* ========================= STATE ========================= */
         const State = {
-        setKey: "cap1",
-        es: [],
-        de: [],
+        setKey: "",
+        es: [], de: [],
         vistos: [],
-        erroresSet: new Set(), // guarda indices con error (para no duplicar)
+        erroresSet: new Set(),
+        aciertos: 0,
+        errores: 0,
         modoAuto: true,
         modoDual: false,
         dualFlip: false,
@@ -388,43 +387,52 @@
         timerId: null,
         seconds: 0,
         currentIndex: null,
-        optionIdxs: []
+        optionIdxs: [],
+        selectionLock: false,
+        roundToken: 0,
         };
 
-        /* =========================
-        HELPERS / DOM
-        ========================= */
+        /* ========================= HELPERS ========================= */
         const $ = (id) => document.getElementById(id);
+        const safeText = (el, txt) => { if (el) el.textContent = txt ?? ""; };
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
-        function safeText(el, txt) {
-        if (!el) return;
-        el.textContent = txt ?? "";
+        function resetCounters() {
+        State.aciertos = 0; State.errores = 0;
+        safeText($("aciertos"), "0"); safeText($("errores"), "0");
         }
 
-        function shuffleUniqueIndexes(length, count, forcedIndex = null) {
-        const set = new Set();
+        function incrementCounter(id) {
+        State[id]++;
+        safeText($(id), String(State[id]));
+        }
+
+        function resetTimer() {
+        stopTimer();
+        State.timerStarted = false; State.seconds = 0;
+        safeText($("tiempo"), "00:00");
+        }
+
+        // Garantiza que forcedIndex esté incluido exactamente una vez (Fisher-Yates)
+        function shuffleUniqueIndexes(length, count, forcedIndex) {
+        const set = new Set([forcedIndex]);
         while (set.size < count) set.add(Math.floor(Math.random() * length));
         const arr = [...set];
-
-        if (forcedIndex !== null) {
-            const pos = Math.floor(Math.random() * count);
-            arr[pos] = forcedIndex;
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
         return arr;
         }
 
         function nextUnseenIndex() {
         if (!State.de.length) return 0;
-
-        // reset cuando esté casi agotado
         if (State.vistos.length >= State.de.length - 3) State.vistos = [];
-
-        let tries = 0;
-        let idx = Math.floor(Math.random() * State.de.length);
-        while (State.vistos.includes(idx) && tries < 20) {
+        let idx, tries = 0;
+        do {
             idx = Math.floor(Math.random() * State.de.length);
             tries++;
-        }
+        } while (State.vistos.includes(idx) && tries < 20);
         State.vistos.push(idx);
         return idx;
         }
@@ -434,7 +442,6 @@
         LISTA (única para ambas)
         ========================= */
         function renderLista(esArr, deArr) {
-        document.getElementById("lista")    
         const table = $("lista");
         if (!table) return;
 
@@ -474,29 +481,15 @@
         State.es = [...DATA[key].es];
         State.de = [...DATA[key].de];
 
-        // reset de estado de juego
         State.vistos = [];
         State.erroresSet.clear();
         State.currentIndex = null;
         State.optionIdxs = [];
 
-        // reset marcadores
-        if ($("aciertos")) safeText($("aciertos"), "0");
-        if ($("errores")) safeText($("errores"), "0");
-
-        // timer (no auto start)
-        stopTimer();
-        State.timerStarted = false;
-        State.seconds = 0;
-        if ($("tiempo")) safeText($("tiempo"), "00:00");
-
-        // render tabla
+        resetCounters();
+        resetTimer();
         renderLista(State.es, State.de);
-
-        // pintar primera palabra para repetición
         renderRepeatNext();
-
-        // pintar primera ronda de selección
         renderSelectionNext();
         }
 
@@ -507,7 +500,7 @@
         const app = document.querySelector(".app");
         if (!app) return;
 
-        let bar = document.getElementById("sets-bar");
+        let bar = $("sets-bar");
         if (!bar) {
             bar = document.createElement("div");
             bar.id = "sets-bar";
@@ -526,160 +519,83 @@
         });
         }
 
-        /* =========================
- /* =========================
-   SELECCIÓN MÚLTIPLE (versión estable sin helpers externos)
-   ========================= */
+        /* ========================= SELECCIÓN MÚLTIPLE ========================= */
+        function renderSelectionNext() {
+        if (!State.es.length) return;
+        State.selectionLock = false;
+        State.roundToken++;
+        const idx = nextUnseenIndex();
+        State.currentIndex = idx;
+        State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
+        safeText($("palabra"), State.es[idx]);
+        ["op1","op2","op3","op4"].forEach((id, slot) => {
+            const el = $(id);
+            if (!el) return;
+            el.textContent = State.de[State.optionIdxs[slot]];
+            el.dataset.wordIndex = String(State.optionIdxs[slot]);
+            el.dataset.roundToken = String(State.roundToken);
+        });
+        }
 
-/* Asegúrate de que estas propiedades existan en State */
-State.selectionLock = false;
-State.roundToken = 0;
+        function flashGrid(color) {
+        const grid = document.querySelector(".options-grid");
+        if (!grid) return;
+        grid.style.background = color;
+        setTimeout(() => (grid.style.background = ""), 200);
+        }
 
-function renderSelectionNext() {
-  if (!State.es.length || !State.de.length) return;
+        function handleSelectionPick(chosenIdx, token) {
+        if (State.currentIndex === null || State.selectionLock) return;
+        if (String(token) !== String(State.roundToken)) return;
+        State.selectionLock = true;
+        if (!State.timerStarted) startTimer();
+        if (chosenIdx === State.currentIndex) {
+            flashGrid("green");
+            incrementCounter("aciertos");
+        } else {
+            flashGrid("red");
+            if (!State.erroresSet.has(State.currentIndex)) {
+            State.erroresSet.add(State.currentIndex);
+            incrementCounter("errores");
+            }
+        }
+        renderSelectionNext();
+        }
 
-  State.selectionLock = false;
-  State.roundToken++;
+        function bindSelectionEvents() {
+        const grid = document.querySelector(".options-grid");
+        if (!grid || grid.dataset.bound === "1") return;
+        grid.dataset.bound = "1";
+        grid.addEventListener("click", (e) => {
+            const opt = e.target.closest(".option");
+            if (!opt) return;
+            const chosen = parseInt(opt.dataset.wordIndex, 10);
+            if (Number.isNaN(chosen)) return;
+            handleSelectionPick(chosen, opt.dataset.roundToken);
+        });
+        }
 
-  const idx = nextUnseenIndex();
-  State.currentIndex = idx;
-
-  State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
-
-  safeText($("palabra"), State.es[idx]);
-
-  const ids = ["op1", "op2", "op3", "op4"];
-  ids.forEach((id, slot) => {
-    const el = $(id);
-    if (!el) return;
-
-    const wordIndex = State.optionIdxs[slot];
-
-    el.textContent = State.de[wordIndex];
-    el.dataset.wordIndex = String(wordIndex);
-    el.dataset.roundToken = String(State.roundToken);
-  });
-}
-
-function markOptionsBackground(color) {
-  const cont =
-    document.getElementById("opciones") ||
-    document.querySelector("#seleccion-multiple .options-grid") ||
-    document.querySelector(".options-grid");
-
-  if (!cont) return;
-
-  cont.style.background = color;
-  setTimeout(() => (cont.style.background = ""), 200);
-}
-
-function handleSelectionPick(chosenWordIndex, token) {
-  if (State.currentIndex === null) return;
-
-  // Evita doble conteo
-  if (State.selectionLock) return;
-  if (String(token) !== String(State.roundToken)) return;
-
-  State.selectionLock = true;
-
-  // NO modificar lógica del timer
-  if (!State.timerStarted) startTimer();
-
-  const correct = chosenWordIndex === State.currentIndex;
-
-  if (correct) {
-    markOptionsBackground("green");
-
-    const acEl = $("aciertos");
-    if (acEl) {
-      acEl.textContent = String(
-        parseInt(acEl.textContent || "0", 10) + 1
-      );
-    }
-  } else {
-    markOptionsBackground("red");
-
-    if (!State.erroresSet.has(State.currentIndex)) {
-      State.erroresSet.add(State.currentIndex);
-
-      const erEl = $("errores");
-      if (erEl) {
-        erEl.textContent = String(
-          parseInt(erEl.textContent || "0", 10) + 1
-        );
-      }
-    }
-  }
-
-  renderSelectionNext();
-}
-
-function bindSelectionEvents() {
-  const cont =
-    document.getElementById("opciones") ||
-    document.querySelector("#seleccion-multiple .options-grid") ||
-    document.querySelector(".options-grid");
-
-  if (!cont) return;
-
-  if (cont.dataset.bound === "1") return;
-  cont.dataset.bound = "1";
-
-  cont.addEventListener("click", (e) => {
-    const opt = e.target.closest("#op1,#op2,#op3,#op4,.option");
-    if (!opt) return;
-
-    const chosen = parseInt(opt.dataset.wordIndex, 10);
-    const token = opt.dataset.roundToken;
-
-    if (Number.isNaN(chosen)) return;
-
-    handleSelectionPick(chosen, token);
-  });
-}
-
-        /* =========================
-        TIMER (para selección)
-        ========================= */
+        /* ========================= TIMER ========================= */
         function startTimer() {
         if (State.timerId) return;
-
         State.timerStarted = true;
         State.timerId = setInterval(() => {
-            const ac = parseInt(($("aciertos")?.textContent || "0"), 10);
-            if (ac >= 50) {
-            stopTimer();
-            return;
-            }
-
+            if (State.aciertos >= 50) { stopTimer(); return; }
             State.seconds++;
             const m = Math.floor(State.seconds / 60);
             const s = State.seconds % 60;
-            safeText($("tiempo"), String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"));
+            safeText($("tiempo"), String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0"));
         }, 1000);
         }
 
         function stopTimer() {
-        if (State.timerId) clearInterval(State.timerId);
+        clearInterval(State.timerId);
         State.timerId = null;
         }
 
-        /* Llama esto en tu init (o reemplaza la llamada anterior) */
-        bindSelectionEvents();
-        renderSelectionNext();
-
-
-
-
-
-
-
-        /* =========================
-        REPETICIÓN (speech)
-        ========================= */
+        /* ========================= REPETICIÓN (speech) ========================= */
         function renderRepeatNext() {
-        if (!State.es.length || !State.de.length) return;
-
+        if (!State.es.length) return;
         const idx = nextUnseenIndex();
         safeText($("p1"), State.es[idx]);
         safeText($("p2"), State.de[idx]);
@@ -690,105 +606,55 @@ function bindSelectionEvents() {
         return new Promise((resolve) => {
             const u = new SpeechSynthesisUtterance(text);
             u.lang = lang;
-            u.onend = resolve;
-            u.onerror = resolve;
+            u.onend = u.onerror = resolve;
             speechSynthesis.speak(u);
         });
         }
 
         async function speakLoop() {
-        // si auto está apagado, hace solo un disparo
-        if (!State.modoAuto) {
-            await speakOnce($("p2")?.textContent || "", "de");
-            return;
-        }
-
-        // en auto: sigue leyendo continuamente
         while (State.modoAuto) {
-            // dual alterna DE/ES; si no, solo DE
-            if (!State.modoDual) {
             await speakOnce($("p2")?.textContent || "", "de");
+            if (State.modoDual) await speakOnce($("p1")?.textContent || "", "es");
             await wait(500);
             renderRepeatNext();
-            continue;
-            }
-
-            // dual: alternar ES/DE
-            if (!State.dualFlip) {
-            await speakOnce($("p2")?.textContent || "", "de");
-            State.dualFlip = true;
-            } else {
-            await speakOnce($("p1")?.textContent || "", "es");
-            State.dualFlip = false;
-            await wait(500);
-            renderRepeatNext();
-            }
-
             await wait(300);
         }
         }
 
-        function wait(ms) {
-        return new Promise((r) => setTimeout(r, ms));
-        }
-
-        /* Controles repetición */
         function bindRepeatControls() {
-        const btnAuto = $("auto");
-        const btnDual = $("dual");
-        const btnLeer = $("leer");
-
-        if (btnAuto) {
-            btnAuto.addEventListener("click", () => {
+        $("auto")?.addEventListener("click", () => {
             State.modoAuto = !State.modoAuto;
-            btnAuto.textContent = State.modoAuto ? "Auto: ON" : "Auto: OFF";
-            btnAuto.className = State.modoAuto ? "btn btn-secondary" : "btn btn-danger";
-            });
-        }
-
-        if (btnDual) {
-            btnDual.addEventListener("click", () => {
+            $("auto").textContent = State.modoAuto ? "Auto: ON" : "Auto: OFF";
+            $("auto").className = State.modoAuto ? "btn btn-secondary" : "btn btn-danger";
+        });
+        $("dual")?.addEventListener("click", () => {
             State.modoDual = !State.modoDual;
             State.dualFlip = false;
-            btnDual.textContent = State.modoDual ? "ES-DE" : "DE";
-            btnDual.className = State.modoDual ? "btn btn-secondary" : "btn btn-danger";
-            });
-        }
-
-        if (btnLeer) {
-            btnLeer.addEventListener("click", async () => {
-            // si ya está hablando, cortar
+            $("dual").textContent = State.modoDual ? "ES-DE" : "DE";
+            $("dual").className = State.modoDual ? "btn btn-secondary" : "btn btn-danger";
+        });
+        $("leer")?.addEventListener("click", async () => {
             if (speechSynthesis.speaking) speechSynthesis.cancel();
-
-            // inicia lectura; si auto=true entra en loop
             if (State.modoAuto) {
-                speakLoop();
+            speakLoop();
+            } else if (State.modoDual) {
+            await speakOnce($("p2")?.textContent || "", "de");
+            await speakOnce($("p1")?.textContent || "", "es");
             } else {
-                // one-shot
-                if (State.modoDual) {
-                await speakOnce($("p2")?.textContent || "", "de");
-                await speakOnce($("p1")?.textContent || "", "es");
-                } else {
-                await speakOnce($("p2")?.textContent || "", "de");
-                }
+            await speakOnce($("p2")?.textContent || "", "de");
             }
-            });
-        }
+        });
         }
 
-        /* =========================
-        INIT
-        ========================= */
-        function initUnifiedApp() {
+        /* ========================= INIT ========================= */
+        function init() {
         mountSetButtons();
         bindSelectionEvents();
         bindRepeatControls();
-
-        // set inicial compartido
         setActiveSet("lista1");
         }
 
-        document.addEventListener("DOMContentLoaded", initUnifiedApp);
+        document.addEventListener("DOMContentLoaded", init);
         </script>    
 </body>
 </html>

@@ -397,23 +397,27 @@
         const safeText = (el, txt) => { if (el) el.textContent = txt ?? ""; };
         const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
+        // Pone aciertos y errores a 0 en State y en el DOM.
         function resetCounters() {
         State.aciertos = 0; State.errores = 0;
         safeText($("aciertos"), "0"); safeText($("errores"), "0");
         }
 
+        // Suma 1 al contador indicado ("aciertos" o "errores") en State y actualiza el DOM.
         function incrementCounter(id) {
         State[id]++;
         safeText($(id), String(State[id]));
         }
 
+        // Detiene el intervalo, reinicia segundos a 0 y muestra "00:00".
         function resetTimer() {
         stopTimer();
         State.timerStarted = false; State.seconds = 0;
         safeText($("tiempo"), "00:00");
         }
 
-        // Garantiza que forcedIndex esté incluido exactamente una vez (Fisher-Yates)
+        // Devuelve un array de `count` índices únicos que siempre incluye `forcedIndex`.
+        // Construye un Set partiendo de forcedIndex y lo mezcla con Fisher-Yates.
         function shuffleUniqueIndexes(length, count, forcedIndex) {
         const set = new Set([forcedIndex]);
         while (set.size < count) set.add(Math.floor(Math.random() * length));
@@ -425,6 +429,8 @@
         return arr;
         }
 
+        // Elige un índice aleatorio que no haya salido recientemente (lista "vistos").
+        // Reinicia "vistos" cuando quedan menos de 3 palabras sin ver.
         function nextUnseenIndex() {
         if (!State.de.length) return 0;
         if (State.vistos.length >= State.de.length - 3) State.vistos = [];
@@ -441,6 +447,8 @@
         /* =========================
         LISTA (única para ambas)
         ========================= */
+        // Rellena la tabla #lista con los pares DE/ES ordenados alfabéticamente por alemán.
+        // Escapa HTML de cada celda para evitar inyección de etiquetas.
         function renderLista(esArr, deArr) {
         const table = $("lista");
         if (!table) return;
@@ -462,6 +470,7 @@
         `;
         }
 
+        // Convierte caracteres especiales HTML en entidades para mostrarlos como texto plano.
         function escapeHtml(s) {
         return String(s)
             .replaceAll("&", "&amp;")
@@ -474,6 +483,8 @@
         /* =========================
         SELECTOR DE BASE (único)
         ========================= */
+        // Carga el set de palabras indicado por key, reinicia estado y renderiza todas las vistas.
+        // Limpia vistos, errores y contadores, luego muestra lista, repetición y selección.
         function setActiveSet(key) {
         if (!DATA[key]) return;
 
@@ -496,6 +507,8 @@
         /* =========================
         BOTONES DE SETS (único)
         ========================= */
+        // Crea botones dinámicos para cada lista en DATA y los añade al panel superior.
+        // Cada botón al hacer click carga su respectivo set de palabras.
         function mountSetButtons() {
         const app = document.querySelector(".app");
         if (!app) return;
@@ -520,6 +533,8 @@
         }
 
         /* ========================= SELECCIÓN MÚLTIPLE ========================= */
+        // Muestra la siguiente palabra española y 4 opciones en alemán (1 correcta + 3 aleatorias).
+        // Usa nextUnseenIndex para evitar repeticiones recientes y mezcla las opciones.
         function renderSelectionNext() {
         if (!State.es.length) return;
         State.selectionLock = false;
@@ -537,6 +552,8 @@
         });
         }
 
+        // Cambia temporalmente el fondo del grid de opciones al color indicado (feedback visual).
+        // Se usa verde para acierto y rojo para error; dura 200ms.
         function flashGrid(color) {
         const grid = document.querySelector(".options-grid");
         if (!grid) return;
@@ -544,6 +561,8 @@
         setTimeout(() => (grid.style.background = ""), 200);
         }
 
+        // Procesa la opción elegida por el usuario: compara índices y actualiza contadores.
+        // Inicia el timer en la primera respuesta; flash verde/rojo da feedback visual inmediato.
         function handleSelectionPick(chosenIdx, token) {
         if (State.currentIndex === null || State.selectionLock) return;
         if (String(token) !== String(State.roundToken)) return;
@@ -562,6 +581,8 @@
         renderSelectionNext();
         }
 
+        // Vincula el evento click al grid de opciones para capturar la selección del usuario.
+        // Usa dataset.bound para evitar registrar múltiples listeners en la misma cuadrícula.
         function bindSelectionEvents() {
         const grid = document.querySelector(".options-grid");
         if (!grid || grid.dataset.bound === "1") return;
@@ -576,6 +597,8 @@
         }
 
         /* ========================= TIMER ========================= */
+        // Inicia un intervalo que incrementa los segundos y actualiza el display cada segundo.
+        // Se detiene automáticamente cuando se alcanzan 50 aciertos.
         function startTimer() {
         if (State.timerId) return;
         State.timerStarted = true;
@@ -588,12 +611,15 @@
         }, 1000);
         }
 
+        // Detiene el intervalo del timer y limpia la referencia para permitir reinicio limpio.
         function stopTimer() {
         clearInterval(State.timerId);
         State.timerId = null;
         }
 
         /* ========================= REPETICIÓN (speech) ========================= */
+        // Muestra el siguiente par de palabras español-alemán en las etiquetas p1 y p2.
+        // Usa nextUnseenIndex para evitar repeticiones consecutivas.
         function renderRepeatNext() {
         if (!State.es.length) return;
         const idx = nextUnseenIndex();
@@ -601,6 +627,8 @@
         safeText($("p2"), State.de[idx]);
         }
 
+        // Utiliza la Web Speech API para leer el texto en el idioma indicado una sola vez.
+        // Devuelve una Promise que se resuelve al terminar o si ocurre un error.
         function speakOnce(text, lang) {
         if (!text) return Promise.resolve();
         return new Promise((resolve) => {
@@ -611,6 +639,8 @@
         });
         }
 
+        // Bucle async que lee palabras automáticamente mientras modoAuto esté activo.
+        // Lee alemán (y español si modoDual está ON), espera y avanza a la siguiente palabra.
         async function speakLoop() {
         while (State.modoAuto) {
             await speakOnce($("p2")?.textContent || "", "de");
@@ -621,6 +651,8 @@
         }
         }
 
+        // Vincula eventos a los botones Auto, Dual y Leer para controlar el modo repetición.
+        // Alterna los estados modoAuto/modoDual y gestiona la reproducción de voz.
         function bindRepeatControls() {
         $("auto")?.addEventListener("click", () => {
             State.modoAuto = !State.modoAuto;
@@ -647,6 +679,7 @@
         }
 
         /* ========================= INIT ========================= */
+        // Punto de entrada: crea botones de sets, vincula eventos y carga la lista1 por defecto.
         function init() {
         mountSetButtons();
         bindSelectionEvents();

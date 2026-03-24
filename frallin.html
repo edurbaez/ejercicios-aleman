@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#009578">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="ed192.png">
+    <link rel="icon" href="ed192.png"> 
+    <title>frances</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            padding: 0%;
+            margin: 0%;
+            background-color: #f4f4f4;
+        }
+        pntrelativo{
+            position: relative;
+        }
+        a {
+            text-decoration: inherit;
+            color: inherit;
+        }
+        
+        .img50p {
+            max-height: 400px;
+            min-height: 400px;
+            /*background-image: url(../img/pin_wolf.jpg);
+            background-position-x: center;
+            background-position-y: -100px;*/
+        }
+        
+        ul {
+            margin: 0%;
+            padding: 0%;
+            padding-bottom: 20px;
+        }
+        /*--- button-----*/
+         
+        .button1 {
+            height: 38px;
+            background: #e8491d;
+            border: 0;
+            padding: 0 20px 0 20px;
+            color: white;
+        }
+        
+        .dark {
+            /*un embellesedor para donde lo considere, puedo hace tantos uiera en los ajustes genrl*/
+            background-color: #35424a;
+            color: #ffffff;
+        }
+        /*general de todo los contenedores*/
+        
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        header {
+            background: #35424a;
+            color: white;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #e8491d 3px solid;
+
+        }
+        
+        header .marca {
+            float: left;
+        }
+        
+        header nav {
+            float: right;
+            margin-top: 25px;
+            padding-bottom: 20px;
+        }
+        
+        header a {
+            color: white;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+            padding-bottom: 20px;
+        }
+        
+        header li {
+            float: left;
+            display: inline;
+            padding: 0 20px 20px 20px;
+            /* cada valor es un lado del padding*/
+            /*border: 2px red solid;/*kitar*/
+        }
+        /*resaltar los que esta en span*/
+        
+        .resaltado,
+        .resaltar a {
+            color: #e8491d;
+            font-weight: bold;
+        }
+        
+        header a:hover {
+            color: black;
+            font-weight: bold;
+            background: #e8491d;
+            padding: 010px 20px 50px 20px;
+        }
+        /*--------presentacion-------*/
+        
+        .presentasion {
+            min-height: 500px;
+            /*cambiar imagen de fondo por una que haga contraste*/
+            background: url('img/brain.jpg') no-repeat 0 -200px;
+            background-size: cover;
+            /* para que la imagen cubra el espacio*/
+            background-color: #35424a;
+            /*si la imagen no cubre el espacio*/
+            background-position-x: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .presentasion h1 {
+            margin-top: 100px;
+            font-size: 55px;
+            margin-bottom: 10px;
+        }
+        
+        .presentasion p {
+            font-size: 20px;
+        }
+        /*formulario para suscrpcion*/
+        
+        .sucripcion {
+            padding: 15px;
+            color: #ffffff;
+            background: #35424a;
+        }
+        
+        .sucripcion h1 {
+            float: left;
+        }
+        
+        .sucripcion form {
+            float: right;
+            margin-top: 15px;
+        }
+        
+        .sucripcion input[type="email"] {
+            padding: 4px;
+            height: 25px;
+            width: 200px;
+        }
+        /*lo que siue es el diseño del boton pero para poder 
+        reutilizarlo lo ponder en los estilos genreales arriba*/
+        
+        .cajas {
+            margin-top: 20px;
+            align-items: center;
+            display: flex row;
+            
+        }
+        
+        
+        .caja {
+            float: left;
+            text-align: center;
+            flex: 1 1 30%;
+            padding-bottom: 10px;
+            /*border: 2px grey solid;/*kitar*/
+        }
+        
+        .caja img {
+            height: 200px;
+            /*colocando un alto espacifico me aseguro que todo lo que esta debajo permanesca a la misma altura */
+        }
+        /*========articulos============*/
+        
+        aside {
+            float: right;
+            width: 30%;
+            margin-top: 20px;
+            border: 2px grey solid;
+            /*kitar*/
+        }
+        
+        .rtcls {
+            float: left;
+            width: 69%;
+            /*border: 2px grey solid;/*kitar*/
+        }
+        /*=======contacto=========*/
+        
+        .rtcls ul {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        
+        .rtcls li {
+            list-style: none;
+            background-color: #e6e6e6;
+            border: #ccc9c9 2px solid;
+            margin-bottom: 5px;
+        }
+        
+        .rtcls li p {
+            margin-left: 20px;
+        }
+        
+        aside input,
+        textarea {
+            width: 90%;
+            margin-left: 2%;
+            padding: 5px;
+        }
+        /*----footer-----*/
+        
+        footer {
+            padding: 20px;
+            margin-top: 20px;
+            color: #ffffff;
+            background-color: #e8491d;
+            text-align: center;
+            font-size: 20px;
+        }
+        /*=========  media queries   =============*/
+        
+        @media(max-width: 568px) {
+            header .marca,
+            header nav,
+            header nav li,
+            aside,
+            .rtcls {
+                float: none;
+                text-align: center;
+                width: 100%;
+            }
+            .presentasion h1 {
+                margin-top: 30px;
+            }
+            .caja {
+                float: none;
+                margin: auto;
+            }
+            aside .button1 {
+                width: 100%;
+            }
+        }
+        /*___=================0====*/
+        /*======50phrases=====*/
+        
+        .frases ul {
+            overflow: hidden;
+        }
+        
+        .frases b {
+            float: right;
+            text-align: left;
+            margin-right: 20px;
+        }
+        
+        body {
+            background: blanchedalmond;
+            text-align: center;
+        }
+        
+        h1 {
+            text-align: center;
+        }
+        
+        .frase {
+            margin: 5px;
+            padding: 0;
+        }
+        
+        .frase p {
+            padding: 5px;
+            margin: 0;
+        }
+        #btnleer{
+            padding: 15px;
+        }
+
+        .btnshadow{
+            box-shadow: 2px 1px 3px rgb(20,20,20,.6);
+        }
+        #dual{
+            position: absolute; left:10px;border:solid 1px grey;background: rgb(240,240,230,05);box-shadow: 2px 1px 3px rgb(20,20,20,.6)
+        }
+        /*-----------selecion de palabras------------*/
+        
+        .grande {
+            background-color: gray;
+            position: relative;
+            margin: auto;
+            width: 90%;
+            font-size: 20px;
+            top: 30px;
+            text-transform: uppercase;
+            font-weight: bold;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            color: white;
+            /*text-shadow:1px 18px 6px rgba(16, 16, 16, 0.40) ;*/
+        }
+        
+        #palabra span {
+            background-color: white;
+            color: black;
+            width: 30%;
+            padding: 10px 20px 10px 20px;
+            margin-top: 40px;
+            box-shadow: 4px 2px 5px black;
+        }
+        
+        #option {
+            display: flex;
+            flex-flow: row wrap;
+            padding: 10px;
+            margin: 10px;
+            font-size: 20px;
+        }
+        
+        #op1,
+        #op2,
+        #op3,
+        #op4 {
+            padding: 10px;
+            font-size: 15px;
+            margin: 5px;
+            width: 20%;
+            border: 5px solid black;
+            flex: 1 1 40%;
+            background-color: gray;
+            box-shadow: 4px 2px 5px black;
+        }
+        
+        .puntaje {
+            margin-bottom: 10px;
+        }
+        
+        #puntos {
+            color: black;
+            margin-bottom: 10px;
+        }
+        
+        #timer {
+            margin-left: 10px;
+            text-align: left;
+        }
+        
+        .respuesta {
+            border: blanchedalmond 2px solid;
+            display: flex;
+            margin: auto;
+            align-items: center;
+            font-size: 15px;
+        }
+        
+        #respuestac,
+        #pregunta {
+            padding: 5px;
+            margin: 2px;
+            border: 1px solid black;
+            border-radius: 5px;
+            flex: auto;
+            font-size: inherit;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <div class="marca">
+                <h1><span class="resaltado">practicas</span> de frances</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li class="resaltar"><a href="frallin.html">home</a></li>
+                    <li><a href="articulos.html">articulos</a></li>
+                    <li><a href="contacto.html">contacto</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <div id="frases_glosario" style="display: none;">
+        <div class="container">
+            <div class="info">
+                <h1 id="activ">primera lista de oraciones</h1>
+                <p>haciendo click en el texto podras escuchar la pronunciacion de la oracion, escucha con mucha atencion.</p>
+                <div id="botonera">
+                    <button id="btn5" onclick="packs(1)">pack1</button>
+                    <button id="btn5" onclick="packs(2)">pack2</button>
+                    <button id="btn5" onclick="packs(3)">pack3</button>
+                    <button onclick="packs(4)">pack4</button>
+                    <button id="btn5" onclick="packs(5)">pack5</button>
+                    <button onclick="packs(6)">pack6</button>
+                    <button onclick="packs(7)">pack7</button>
+                    <button onclick="packs(8)">pack8</button>
+                    <button onclick="packs(9)">pack9</button>
+                    <button onclick="packs(10)">pack10</button>
+                </div>
+                <div id="g100botonera">
+                    <button id="btn5" onclick="g100pack(1)">verbos</button>
+                    <button id="btn5" onclick="g100pack(2)">gls100_2</button>
+                    <button id="btn5" onclick="g100pack(3)">gls100_3</button>
+                    <button onclick="g100pack(4)">gls100_4</button>
+                    <button id="btn5" onclick="g100pack(5)">gls100_5</button>
+                    <button onclick="g100pack(6)">gls100_6</button>
+                    <button onclick="g100pack(7)">gls100_7</button>
+                    <button onclick="g100pack(8)">gls100_8</button>
+                    <button onclick="g100pack(9)">gls100_9</button>
+                    <button onclick="g100pack(10)">gls100_10</button>
+                </div>
+
+            </div>
+        </div>
+        <section style="display: flex;">
+
+            <div id="frases" style="flex:auto">
+                <div class="frase" id="frase1" onclick="fras1()" style="border: rgb(46, 41, 41) 1px solid;">
+                    <p class="espanol">selecciona un pack</p>
+                    <hr>
+                    <p class="prt">selecciona un pack</p>
+                </div>
+                <div class="frase" id="frase2" onclick="fras2()" style="border: rgb(160, 105, 105) 1px solid;">
+                    <p class="espanol">selecciona un pack</p>
+                    <hr>
+                    <p class="prt">selecciona un pack</p>
+                </div>
+                <div class="frase" id="frase3" onclick="fras3()" style="border: rgb(190, 94, 94) 1px solid;">
+                    <p class="espanol">selecciona un pack</p>
+                    <hr>
+                    <p class="prt">selecciona un pack</p>
+                </div>
+                <div class="frase" id="frase4" onclick="fras4()" style="border: rgb(165, 33, 33) 1px solid;">
+                    <p class="espanol">selecciona un pack</p>
+                    <hr>
+                    <p class="prt">selecciona un pack</p>
+                </div>
+                <div class="frase" id="frase5" onclick="fras5()" style="border: rgb(235, 11, 11) 1px solid;">
+                    <p class="espanol">selecciona un pack</p>
+                    <hr>
+                    <p class="prt">selecciona un pack</p>
+                </div>
+            </div>
+            <div class="botone">
+                <div class="num">
+                    <h3 id="contar" style="background-color: black;color: white;">0</h3>
+                </div>
+                <button id="simulanclick" onclick="random()" style="height: 80%;">cambiar</button>
+
+            </div>
+
+        </section>
+
+        <div id="lecturauto">
+            <div id="dual" style="position: absolute">es+</div>
+            
+            <button id="menos" onclick="">.    -    .</button><span>------</span> <button id="btnleer" onclick="auto('a')">.    leer    .</button><span>------</span></samp><button id="mas" onclick="">.    +    .</button>
+        </div>
+
+    </div>
+
+    <div id="selecionplb" style="display: none; text-align: center;">
+        <div class="grande">
+            <div id="timer">time <span id="min">00</span>:<span id="seg">00</span></div>
+            <div class="puntaje" style="float: right;width: 100%;text-align: right;">scrore <span id="puntos" style="margin-left: 10px;margin-right: 10px;">0</span></div>
+            <div Id="palabra" onclick="show()"><span>comenzar</span></div>
+            <div id="option">
+                <div id="op1" class="o" lang="pt-br" onclick="">plbr1</div>
+                <div id="op2" class="o" lang="pt-br" onclick="">plbr2</div>
+                <div id="op3" class="o" lang="pt-br" onclick="">plbr3</div>
+                <div id="op4" class="o" lang="pt-br" onclick="">plbr4</div>
+            </div>
+            <div class="respuesta">
+                <div id="pregunta">------------ </div>
+                <div id="respuestac" onclick="rptt()">----------- </div>
+            </div>
+            <div id="efectividad" style="display: inline; border: orangered 2px solid; min-width: 20px; min-height: 40px;">
+                <span>acierto</span><span id="acierto" style="border: black 2px solid;">0</span>
+                <span>fallo</span><span id="fallo" style="border: black 2px solid;">0</span>
+                <span>%-acierto</span><span id="tasa" style="border: black 2px solid;">100</span>
+            </div>
+
+        </div>
+
+    </div>
+    <div id="listado" style="text-align: center;">
+        <h3>ver glosario de terminos</h3>
+        <ul style="border:solid red 2px" onclick="llenar()" id="ejemplo">click</ul>
+    </div>
+    <div class="cajas">
+        <div class="container">
+            <div class="caja">
+                <div id="glosario" onclick="gls100()">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>verbos</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="gls100(2)">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>adjetivos</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="gls100(3)">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>sustantivos</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="gls100(4)">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>glosario P100-4</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="gls100(5)">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>glosario P100-5</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="verb400()">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>400 verbos</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="glosario" onclick="gls()">
+                    <img src="../img/brain.jpg" height="" alt="">
+                    <h3>glosario</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="packoraciones" onclick="packoraciones()">
+                    <img src="../img/brain.jpg" alt="">
+                    <h3>oraciones</h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+            <div class="caja">
+                <div id="selecionplb" onclick="selecionplb()">
+                    <img src="../img/brain.jpg" alt="">
+                    <h3>selecion de palabras </h3>
+                </div>
+                <p>prespagar la pag de documento</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    </div>
+    <script>
+        var id= id=>document.getElementById(id);
+        
+         //pra glorarioa 100¨*10´ 
+        const paragls = ["ser, estar", "tener, haber", "yo", "de", "no", "no (negación)", "el", "la", "tu", "vosotros, usted", "él", "y", "a, para", "un, uno", "la, le", "quien", "ir", "las", "en", "esto, eso", "hacer", "todo", "se (on parle français = se habla francés), alguien", "que", "este", "una", "mis", "de", "para", "sí (mismo)", "unos, unas", "decir", "poder", "querer", "pero", "me", "nosotros", "en", "ella", "saber", "de (de + el), partitivo (du pain =  pan)", "donde", "hay (il y a = hay), ahí (j'y arrive = ya llego (ahí))", "te", "bien", "ver", "más", "no", "ti", "mi", "al (a + le)", "con", "me", "si", "que", "deber, tener que", "sí", "ellos", "como, cómo", "s'", "venir", "sobre, acerca de", "ti", "aquí", "nada", "(a) él", "bueno", "allí, aquí", "seguir", "porqué, por qué", "hablar", "tomar", "esta", "cuando, cuándo", "entonces", "cosa", "por", "su", "creer", "querer", "tener que, ser necesario", "cómo, qué", "muy", "o", "pasar, cruzar, transcurrir", "pensar", "también", "jamás", "esperar (de tiempo)", "encontrar", "dejar", "pequeño", "gracias", "incluso", "su (en femenino, su madre = sa mère)", "tu (en femenino, tu casa = ta maison)", "otro", "llegar", "estos, esos (masculino)", "dar", "mirar", "todavía", "llamar",  "¿Qué ves? (¿Qué / Quién es lo que ves?)", "¿Quién lo dijo? (¿Quién es el que lo dijo?)", "¿Qué te gusta? (¿Qué es lo que te gusta?)", "¿Cuándo viene? (¿Cuándo es que viene?)", "poco", "hombre", "marcharse, irse", "mi", "siempre", "día", "mujer", "tiempo", "ahora", "nuestro", "vida", "dos", "poner, ponerse (ropa)", "quedarse, permanecer, continuar siendo", "sin", "solamente, único (le seul endroit = el único lugar)", "detener, detenerse", "realmente, de verdad", "conocer", "algunos", "seguro", "matar", "morir", "pedir, preguntar", "justo, apenas", "puede ser, quizás", "dios", "vez", "oh", "padre", "entender, comprender", "salir", "persona", "año", "demasiado", "en casa de, en (chez le boucher = en la carnicería)", "chica", "(à + les) a los", "mundo", "amigo", "verdad, verdadero", "tras, después", "mal", "necesitar, (j'ai besoin de = necesito)", "acuerdo", "sus (en singular)", "antes, antes que", "señor", "niño", "alto, grande", "oír", "aquí (también, interjeccción común)", "buscar", "hora", "mejor", "tus", "ayudar", "madre", "ya", "lindo, guapo, bello", "probar, intentar", "cual", "vuestros, sus", "desde, desde hace", "alguien", "mucho, mucha", "regresar", "pues, entonces", "gustar", "casa", "personas, gente", "noche", "ah", "noche", "apellido (nombre es prénom)", "hola, buenos días", "jugar", "su (de ellos/ellas)", "terminar", "miedo", "muerte", "porque", "perder", "mamá", "oler, sentir, percibir", "sí", "volver a, regresar", "nuestros", "primero", "problema", "dinero", "qué, cuál (en femenino)", "vivir", "devolver (a)", "último, pasado, anterior", "sujetar, mantener, tener", "este (en masculino); este (femenino)", "mano", "este", "rápidamente", "olvidar", "aire", "hola", "hijo", "trabajar", "menos", "cabeza", "golpe", "escuchar", "razón", "comer", "amor", "entrar", "cuyo, cuya", "nuevo", "convertirse en", "eh", "comenzar, empezar", "mierda", "momento, rato", "coche", "viejo", "mañana", "revisar, volver a ver", "ellas", "pagar", "loco", "disparar, tirar (de)", "abrir", "ojo", "hecho (participio de hacer)", "cambiar", "pregunta", "caer, caerse", "suficiente, bastante", "joder, follar (coloquial)", "excusar, excusarse", "asunto, negocio", "dormir", "cuánto", "hermano", "trabajo", "idea", "eh", "después, luego", "familia", "cosa", "tres", "tan, tanto", "recuerdo, souvenir", "ni", "todos; todas", "ocupar", "entre", "ok, de acuerdo", "caminar", "oportunidad, suerte", "hoy", "enviar, mandar", "historia", "joven", "tarde", "aprender", "minuto", "beber", "mantener", "algunos/as", "tipo", "puerta", "mostrar", "tío", "sentar, sentarse, tomar asiento", "llevar", "atención", "año", "bajo, debajo de", "listo, preparado", "contra", "orar, rogar, rezar", "durante, mientras que", "meses", "mejor", "servir", "señora", "puta", "escribir", "parte, trozo", "agua", "sangre", "sitio", "esperar (de esperanza)", "pleno", "afligir, afiligirse, entristecer, entristecerse", "ellos (pronombre sujeto)", "encontrar", "ciudad", "tierra", "ganar", "semana", "comprar", "mucho tiempo", "tío", "habitación", "¡eh!", "lado", "derecho (lado)", "recordar, volver a llamar", "leer", "caso", "palabra", "solamente", "aquí (está)", "subir, trepar, escalar", "desolado (je suis désolé = lo siento)", "dejar, abandonar", "policía", "continuación (la suite = la continuación), varios", "mañana", "llevar", "tocar", "continuar", "delante", "fuerte", "grueso", "al final", "perdón", "marido", "allí, allá", "importar", "papá", "tren", "faltar, extrañar, echar de menos", "decir, contar", "junto, juntos", "malo", "película", "responder", "niño, adolescente", "querido", "cuerpo", "aquel", "otros", "feliz, contento", "lejos", "algún, alguno", "pobre", "guardar, salvar", "cada", "volver, regresar", "su (de ellos)", "encontrar", "corazón", "volar, robar", "cerrar", "ya qué, puesto que", "valer", "bajar, descender", "fuego", "doctor, médico", "bastar", "manera, modo", "importante", "parecer", "súper, estupendo", "contar, calcular", "hacia, alrededor de", "bonito, lindo", "punto", "negro", "ayer", "perro", "guerra", "genero", "casarse", "arma", "causa", "lugar", "orden", "poner, colocar, quitarse", "resto", "pie", "envidia, ganas (tengo ganas = j'ai envie)", "cerca", "final", "mira, ¡vaya!", "preocuparse, preocupar", "otros, de otras cosas (des choses et d'autres = de esto y lo otro)", "mover, moverse", "más bien", "llevar", "foto", "decidir", "así, de este modo", "enero", "cierto, algún", "ninguna", "vender", "escuela", "querido, caro", "jefe, chef (de cocina)", "girar", "junio", "esconder", "trabajo", "país", "esos, aquellos (pronombre demostrativo plural masculino)", "posible", "explicar", "batir", "septiembre", "pena, castigo, dificultad", "libro", "actuar, tratar", "imaginar", "torre, tour, viaje, paseo, vuelta", "encantar, adorar", "verdad", "recibir", "simpático, amable", "lanzar", "llorar", "bebé", "parte", "noticia, nueva, novela corta", "juego", "traer", "instante, momento", "padre, pariente, familiar", "duro", "servicio", "placer", "prometer", "mentira", "hermana", "pronto (hasta pronto = à bientôt)", "cama", "tan (comparativo, tan grande = tellement grand)", "utilizar", "lugar", "acostar, acostarse", "casi", "fuera", "pasado", "preferir", "contenido", "detrás de", "estúpido, tonto, lástima (es una lástima = c'est con)", "regalar, offrecer", "rey", "cristal, vidrio", "despertar, despertarse", "ayuda", "primero, en primer lugar", "día, jornada", "preparar", "número", "permitir", "devolver", "quitar, sacar", "calma", "ceder, relajarse, abandonar", "elegir, escoger", "música", "conducir", "falta, culpa, error", "calmar", "cenar", "matrimonio", "despacho, escritorio, oficina", "carretera", "cantar", "secreto", "desaparecer", "levantar, alzar, subir", "arriba, dorso, parte superior", "presentar", "aceptar", "beso, follar, echar un polvo", "si no, por lo demás", "tonto, idiota", "largo", "café", "propio, limpio", "confianza", "cinco", "buenas noches", "cuenta", "teléfono", "romper, superar, vencer", "siguiente", "golpear", "fácil", "sueño", "compañero, novio", "enfermo", "calle", "bajo", "carta", "ignorar, pasar por alto", "celebración, fiesta", "cortar", "espíritu, mente", "callar, callarse", "señor", "poli (policía)", "a veces", "capitán", "edad", "tanto como, igual que (comparativo)", "fuerza", "pieza, obra (teatro, etc)", "cuatro", "culo", "difícil", "brazo", "engañar, equivocarse", "sobre todo", "parecer, parecerse", "jurar", "plan", "prisión", "sucio", "correr", "alto", "estado", "julio", "devolver, volver a poner, restablecer", "mapa, tarjeta, carta, menú", "paz", "exactamente", "gracioso, curioso", "rechazar", "desde", "presidente", "curso, cursillo, clase", "grave", "terminar", "cielo", "en todas partes", "alma", "jefe", "divertir, divertirse", "esa, aquella", "cara", "interesar, interesarse", "reconocer", "reír", "médico", "respecto", "perdonar", "opinión, parecer, juicio", "dar un beso, abrazar, besar", "regreso, retorno", "la cual", "sencillo, simple", "danzar, bailar", "existir", "diferente", "frecuente, a menudo", "luz", "estupendo", "libre", "dólar", "seguramente", "igual, semejante, así", "hospital", "este", "salir bien, lograr, tener éxito", "extraño", "voz", "proteger", "honor", "temprano, pronto", "equipo", "advertir, prevenir", "caballo", "en otra parte", "el cual", "maestro", "avión", "abril", "final", "vivir, habitar", "hambre", "a continuación", "uno, el uno", "frío", "normal", "molestar", "retomar", "tío", "precio", "retraso", "destruir", "regalo", "agosto", "empujar", "cara, lado", "boca, cara", "camino", "viviente", "general", "barco", "millón", "bolso", "imposible", "segundo", "bestia, animal, tonto, estúpido", "descubrir", "error", "sol", "viaje", "saltar", "soñar", "detestar", "claro", "FALSO", "parecer", "bola, pelota", "impedir", "mantener", "pelo", "papel", "presente", "tema, asunto", "suponer, asumir", "tranquilo", "nuevo", "casar, casarse", "blanco, blanca", "mesa", "toda", "diez", "llave, clave", "agente", "acercar, acercarse", "octubre", "significado, sentido", "temer", "seis", "mensaje", "gritar, llorar", "sala", "invitar", "efecto", "pensar, reflexionar", "especie, clase", "organizar, arreglar", "nacer", "¡hola!, hola", "bosque, madera, leña", "propósito, plan, intención", "campamento", "clase", "hotel", "principio, début", "sufrir", "pierna", "agradecer", "elección", "seguridad", "abogado", "capturar, atrapar", "cliente", "actual", "apresurar, apresurarse, mandar, enviar", "pueblo", "dama", "comprobar, verificar", "abandonar", "periódico", "grave, serio", "quemar", "oro", "ley", "noviembre", "fondo", "niño", "dinero (coloquial)", "situación", "mayo", "salvo, excepto", "accidente", "duda", "escena", "soldado", "enamorado, amante", "asegurar", "evidencia, prueba", "humano", "mar", "silencio", "tele", "víctima", "completamente", "puta (coloquial)", "guardia, guarda, gendarme", "febrero", "asesinato", "grupo", "crimen", "tratar", "suavemente, dulcemente", "herir, hacer daño", "coronel", "palabra, discurso", "triste", "vergüenza", "rojo", "despejar, desocupar", "noche, velada", "peligroso", "ejército", "hilar, rasgar, salir con prisas", "arriesgar", "espalda", "llamada", "visita", "llevar", "flor", "atacar", "esquina", "príncipe", "peor", "burdel", "profesor", "fumar", "repetir", "hábito, costumbre", "firmar", "fichar, fijar, vigilar, hacer (coloquial)", "merecer", "respuesta", "quedar con, reunirse con", "discutir", "pueblo", "sin embargo", "avanzar", "tontería, estupidez", "descansar", "escapar", "forma", "ruido", "cada", "diablo", "ejemplo", "carga", "gato", "enemigo", "diciembre", "niño", "cita", "de pie", "obligar", "agujero", "acompañar", "ventana", "atreverse, osar", "impresión", "interior", "boca", "línea", "absolutamente", "dulce", "lamentar", "pared", "infierno", "demostrar", "caja", "salud", "cubrir", "magnífico", "obtener", "cocina", "vista", "terrible", "evitar", "piel", "cabrón, hijo de puta", "consejo", "bromear", "alrededor", "vino", "exacto", "transferir, despedir", "soportar", "ajustar", "dedo", "extraño", "gracia", "desear", "misión", "crear", "canción", "amigo, colega (coloquial)", "vigilar", "simplemente", "empezar de nuevo", "vestido", "caliente", "billete", "especial", "medio", "simpático", "buque", "yo mismo", "costar", "sorpresa", "correos", "incluido", "cumpleaños", "signo", "robo, hurto, asalto, atraco", "color", "imagen", "apuesta", "es (3a persona), este (punto cardinal)", "árbol", "cerveza", "ms (señora)", "pescado, pez", "según", "tiene (verbo haber, 3a persona)", "interés", "teniente", "peligro", "pertenecer (a)", "notar observar, darse cuenta", "animal", "fallar, perder, faltar", "retirar, retirarse", "borde, orilla", "intentar, tratar de", "libertad", "regla", "banco", "maravilloso", "orgulloso", "compartir", "clase", "carpeta", "sentir, experimentar", "felicidad", "defender", "meta, gol", "tira, cinta", "fatigar, fatigarse", "radio", "predecir", "aquél", "compañero, camarada", "dudar", "pájaro", "viento", "búsqueda, investigación", "apreciar", "sistema", "firme", "capaz", "huir", "aburrimiento", "tía", "héroe", "dentro, adentro", "excelente", "lástima, piedad", "apartamento", "trabajar (coloquial)", "respirar", "entero, completo", "recuperar", "dolor", "liberar", "sentimiento", "abuelo", "sociedad, empresa", "lanzar", "nariz", "alegría", "relación", "testigo", "actor", "mitad", "increíble", "baño", "durar", "mercado", "lavar", "diente", "allí dentro", "señorita", "dirección", "primo", "rico", "compañía, empresa", "sonar, tocar el timbre, llamar", "zapato", "oreja", "abuela", "antiguo, anticuado", "arte", "adivinar", "inútil", "arrebatar, embelesar", "broma", "futuro", "belleza", "correa", "curso", "la manera", "cruzar", "experiencia", "cuidado", "excepto, sin incluir (hors taxes = sin impuestos)", "patio, corte (cortejo)", "izquierdo, torpe", "estúpido", "retener, conservar", "lista", "volver a subir, remontar", "realizar, darse cuenta", "burlar, burlarse", "estudio", "instalar", "valentía, coraje", "azul", "ayuda (au secours! = auxilio)", "medio", "proponer", "contacto", "inspector", "bonito, lindo", "proyecto", "probablemente", "papel (actor)", "riesgo", "acción", "ángel", "avance", "interesante", "entre (varios)", "lengua, idioma", "llevar, transportar", "té", "cólera", "partida, salida", "época", "contratar, hacerse responsable", "ladrón", "detener, cesar", "fallo, error, perjuicio", "vacante, vacío", "allá arriba", "máquina", "significar", "reparar", "construir", "pan", "bar", "cagar (coloquial)", "club", "verano", "horrible", "aprovechar", "piedra", "llover", "varios", "zorra, golfa (coloquial)", "tal", "espejo", "decisión", "juez", "control", "separar", "siete", "enfermedad", "barrio", "desear", "a través", "lástima (c'est dommage = es una lástima)", "cigarrillo", "entrenar", "respetar", "marido", "montón", "huir", "dirigir", "pinchar, reventar", "hilo", "lucha", "perseguir", "pieza, trozo", "iglesia", "director", "solicitud, demanda", "fuerza", "bomba", "esperanza", "asesino", "crecer", "domingo", "marzo",];
+        const parargls = ["être", "avoir", "je", "de", "ne", "pas", "le", "la", "tu", "vous", "il", "et", "à", "un", "l'", "qui", "aller", "les", "en", "ça", "faire", "tout", "on", "que", "ce", "une", "mes", "d'", "pour", "se", "des", "dire", "pouvoir", "vouloir", "mais", "me", "nous", "dans", "elle", "savoir", "du", "où", "y", "t'", "bien", "voir", "plus", "non", "te", "mon", "au", "avec", "moi", "si", "quoi", "devoir", "oui", "ils", "comme", "s'", "venir", "sur", "toi", "ici", "rien", "lui", "bon", "là", "suivre", "pourquoi", "parler", "prendre", "cette", "quand", "alors", "chose", "par", "son", "croire", "aimer", "falloir", "comment", "très", "ou", "passer", "penser", "aussi", "jamais", "attendre", "trouver", "laisser", "petit", "merci", "même", "sa", "ta", "autre", "arriver", "ces", "donner", "regarder", "encore", "appeler", "Qui est-ce que tu vois?", "Qui est -ce qui l' a dit?", "Qu' est-ce qui te plait?", "Quand est-ce qu' il vient?", "peu", "homme", "partir", "ma", "toujours", "jour", "femme", "temps", "maintenant", "notre", "vie", "deux", "mettre, se mettre", "rester", "sans", "seul", "arrêter, s'arrêter", "vraiment", "connaître", "quelque", "sûr", "tuer", "mourir", "demander", "juste", "peut-être", "dieu", "fois", "oh", "père", "comprendre", "sortir", "personne", "an", "trop", "chez", "fille", "aux", "monde", "ami", "vrai", "après", "mal", "besoin (avoir)", "accord", "ses", "avant", "monsieur", "enfant", "grand", "entendre", "voilà", "chercher", "heure", "mieux", "tes", "aider", "mère", "déjà", "beau", "essayer", "quel", "vos", "depuis", "quelqu'un", "beaucoup", "revenir", "donc", "plaire", "maison", "gens", "nuit", "ah", "soir", "nom", "bonjour", "jouer", "leur", "finir", "peur", "mort", "parce que", "perdre", "maman", "sentir", "oui", "rentrer", "nos", "premier", "problème", "argent", "quelle", "vivre", "rendre", "dernier", "tenir", "cet, cette", "main", "cela", "vite", "oublier", "air", "salut", "fils", "travailler", "moins", "tête", "coup", "écouter", "raison", "manger", "amour", "entrer", "dont", "nouveau", "devenir", "hein", "commencer", "merde", "moment", "voiture", "vieux", "demain", "revoir", "elles", "payer", "fou", "tirer", "ouvrir", "oeil", "fait", "changer", "question", "tomber", "assez", "foutre", "excuser, s'excuser", "affaire", "dormir", "combien", "frère", "travail", "idée", "eh", "puis", "famille", "truc", "trois", "tant", "souvenir", "ni", "tous, toutes", "occuper", "entre", "ok", "marcher", "chance", "aujourd'hui", "envoyer", "histoire", "jeune", "tard", "apprendre", "minute", "boire", "garder", "quelques", "type", "porte", "montrer", "mec", "asseoir, s'asseoir", "porter", "attention", "année", "sous", "prêt", "contre", "prier", "pendant", "mois", "meilleur", "servir", "madame", "putain", "écrire", "part", "eau", "sang", "place", "espérer", "plein", "désoler, se désoler", "eux", "retrouver", "ville", "terre", "gagner", "semaine", "acheter", "longtemps", "gars", "chambre", "hé", "côté", "droit", "rappeler", "lire", "cas", "mot", "seulement", "voici", "monter", "désolé", "quitter", "police", "suite", "matin", "emmener", "toucher", "continuer", "devant", "fort", "gros", "enfin", "pardon", "mari", "là-bas", "importer", "papa", "train", "manquer", "raconter", "ensemble", "mauvais", "film", "répondre", "garçon", "chéri", "corps", "celui", "autres", "heureux", "loin", "aucun", "pauvre", "sauver", "chaque", "retourner", "leurs", "rencontrer", "coeur", "voler", "fermer", "car", "valoir", "descendre", "feu, semáforo", "docteur", "suffire", "façon", "important", "sembler", "super", "compter", "vers", "joli", "point", "noir", "hier", "chien", "guerre", "genre", "marier, se marier", "arme", "cause", "endroit", "ordre", "poser, se poser", "reste", "pied", "envie", "près", "fin", "tiens", "inquiéter, s'inquiéter", "d'autres", "bouger, se bouger", "plutôt", "apporter", "photo", "décider", "ainsi", "janvier", "certain", "aucune", "vendre", "école", "cher", "chef", "tourner", "juin", "cacher", "boulot", "pays", "ceux", "possible", "expliquer", "battre", "septembre", "peine", "livre", "agir", "imaginer", "tour", "adorer", "vérité", "recevoir", "gentil", "jeter", "pleurer", "bébé", "partie", "nouvelle", "jeu", "amener", "instant", "parent", "dur", "service", "plaisir", "promettre", "mentir", "soeur (sœur)", "bientôt", "lit", "tellement", "utiliser", "lieu", "coucher, se coucher", "presque", "dehors", "passé", "préférer", "content", "derrière", "con", "offrir", "roi", "verre", "réveiller, se réveiller", "aide", "d'abord", "journée", "préparer", "numéro", "permettre", "ramener", "enlever", "calme", "lâcher", "choisir", "musique", "conduire", "faute", "calmer", "dîner", "mariage", "bureau", "route", "chanter", "secret", "disparaître", "lever", "dessus", "présenter", "accepter", "baiser", "sinon", "idiot", "long", "café", "propre", "confiance", "cinq", "bonsoir", "compte", "téléphone", "casser", "prochain", "frapper", "facile", "rêve", "copain", "malade", "rue", "bas", "lettre", "ignorer", "fête", "couper", "esprit", "taire, se taire", "seigneur", "flic", "parfois", "capitaine", "âge", "autant", "force", "pièce", "quatre", "cul", "difficile", "bras", "tromper, se tromper", "surtout", "ressembler, se rassembler", "jurer", "plan", "prison", "sale", "courir", "haut", "état", "juillet", "remettre", "carte", "paix", "exactement", "drôle", "refuser", "dès", "président", "cours", "grave", "terminer", "ciel", "partout", "âme", "patron", "amuser, s'amuser", "celle", "visage", "intéresser, s'intéresser", "reconnaître", "rire", "médecin", "rapport", "pardonner", "avis", "embrasser", "retour", "laquelle", "simple", "danser", "exister", "différent", "souvent", "lumière", "génial", "libre", "dollar", "sûrement", "pareil", "hôpital", "ceci", "réussir", "bizarre", "voix", "protéger", "honneur", "tôt", "équipe", "prévenir", "cheval", "ailleurs", "lequel", "maître", "avion", "avril", "bout", "habiter", "faim", "ensuite", "l'un", "froid", "normal", "déranger", "reprendre", "oncle", "prix", "retard", "détruire", "cadeau", "août", "pousser", "face", "gueule", "chemin", "vivant", "général", "bateau", "million", "sac", "impossible", "seconde", "bête", "découvrir", "erreur", "soleil", "voyage", "sauter", "rêver", "détester", "clair", "faux", "paraître", "balle", "empêcher", "maintenir", "cheveu", "papier", "présent", "sujet", "supposer", "tranquille", "neuf", "épouser, s'épouser", "blanc", "table", "toute", "dix", "clé", "agent", "approcher, s'approcher", "octobre", "sens", "craindre", "six", "message", "crier", "salle", "inviter", "effet", "réfléchir", "espèce", "arranger", "naître", "allô", "bois", "propos", "camp", "sorte", "hôtel", "début", "souffrir", "jambe", "remercier", "choix", "sécurité", "avocat", "attraper", "client", "courant", "se dépêcher, dépêcher", "peuple", "dame", "vérifier", "abandonner", "journal", "sérieux", "brûler", "or", "loi", "novembre", "fond", "gosse", "fric", "situation", "mai", "sauf", "accident", "doute", "scène", "soldat", "amoureux", "assurer", "preuve", "humain", "mer", "silence", "télé", "victime", "complètement", "pute", "garde", "février", "meurtre", "groupe", "crime", "traiter", "doucement", "blesser", "colonel", "parole", "triste", "honte", "rouge", "dégager", "soirée", "dangereux", "armée", "filer", "risquer", "dos", "appel", "visite", "mener", "fleur", "attaquer", "coin", "prince", "pire", "bordel", "professeur", "fumer", "répéter", "habitude", "signer", "ficher", "mériter", "réponse", "rejoindre", "discuter", "village", "pourtant", "avancer", "connerie", "reposer", "échapper", "forme", "bruit", "chacun", "diable", "exemple", "charger", "chat", "ennemi", "décembre", "gamin", "rendez-vous", "debout", "obliger", "trou", "accompagner", "fenêtre", "oser", "impression", "intérieur", "bouche", "ligne", "absolument", "doux", "regretter", "mur", "enfer", "prouver", "boîte", "santé", "couvrir", "magnifique", "obtenir", "cuisine", "vue", "terrible", "éviter", "peau", "salaud", "conseil", "plaisanter", "autour", "vin", "exact", "virer", "supporter", "régler", "doigt", "étrange", "grâce", "souhaiter", "mission", "créer", "chanson", "pote", "surveiller", "simplement", "recommencer", "robe", "chaud", "billet", "spécial", "moyen", "sympa", "vaisseau", "moi-même", "coûter", "surprise", "poste", "compris", "anniversaire", "signe", "vol", "couleur", "image", "parier", "est", "arbre", "bière", "mme (madame)", "poisson", "selon", "a", "intérêt", "lieutenant", "danger", "appartenir", "remarquer", "animal", "rater", "retirer, se retirer", "bord", "tenter", "liberté", "règle", "banque", "merveilleux", "fier", "partager", "classe", "dossier", "ressentir", "bonheur", "défendre", "but", "bande", "fatiguer, se fatiguer", "radio", "prévoir", "celui-là", "camarade", "douter", "oiseau", "vent", "recherche", "apprécier", "système", "ferme", "capable", "fuir", "ennui", "tante", "héros", "dedans", "excellent", "pitié", "appartement", "bosser", "respirer", "entier", "récupérer", "douleur", "libérer", "sentiment", "grand-père", "société", "lancer", "nez", "joie", "relation", "témoin", "acteur", "moitié", "incroyable", "bain", "durer", "marché", "laver", "dent", "là-dedans", "mademoiselle", "adresse", "cousin", "riche", "compagnie", "sonner", "chaussure", "oreille", "grand-mère", "ancien", "art", "deviner", "inutile", "ravir", "blague", "avenir", "beauté", "laisse", "course", "manière", "traverser", "expérience", "soin", "hors", "cour", "gauche", "stupide", "retenir", "liste", "remonter", "réaliser", "moquer, se moquer", "étudier", "installer", "courage", "bleu", "secours", "milieu", "proposer", "contact", "inspecteur", "mignon", "projet", "probablement", "rôle", "risque", "action", "ange", "avance", "intéressant", "parmi", "langue", "emporter", "thé", "colère", "départ", "époque", "engager", "voleur", "cesser", "tort", "vacance", "là-haut", "machine", "signifier", "réparer", "construire", "pain", "bar", "chier", "club", "été", "horrible", "profiter", "pierre", "pleuvoir", "plusieurs", "salope", "tel", "glace", "décision", "juge", "contrôle", "séparer", "sept", "maladie", "quartier", "désirer", "a travers", "dommage", "cigarette", "traîner", "respecter", "époux", "tas", "enfuir", "diriger", "crever", "fil", "combat", "poursuivre", "morceau", "église", "directeur", "demande", "forcer", "bombe", "espoir", "tueur", "grandir", "dimanche", "mars",];
+       
+
+
+        //glosario 100
+            var pgls100 = ["ser", "tener", "HACER", "decir", "fuerza", "ir", "ver", "saber", "querer", "venir", "deber", "llevar", "dar", "necesitar", "hablar", "poner", "aprobar", "mirar", "entender", "permanecer", "sostener", "llevar", "llegar", "dejar", "salir", "volver", "convertirse", "ingresar", "morir", "vivir", "esperar por", "seguir", "devolver", "saber", "creer", "llamar", "buscar", "sentir", "encontrar", "trabajar", "escuchar", "respuesta", "tener éxito", "jugar", "pagar", "leer", "beber", "comer", "elegir", "Detener", "decidir", "escuchar", "perder", "ganar", "crear", "explicar", "atender", "caer", "abierto", "cerca", "gustar", "enviar", "ofrecer", "volar", "conducir", "correr", "mostrar", "esperanza", "valer la pena", "moverse", "descubrir", "cambiar", "producir", "adivinar", "preparar", "comprar", "cantar", "reír", "sonrisa", "escribir", "describir", "reflexionar sobre", "preguntar", "caminar", "llorar", "gritar", "cortar", "complacer", "establecer", "brillar", "saltar", "guardar", "deslizar", "romper", "golpear", "ahorrar", "doblar", "mezcla", "trepar", "romper", "arreglar", "nadar", "evitar", "prestar", "aumentar", "más bajo", "instalar", "retirar", "sorpresa", "confrontar", "demoler", "planta", "fluir", "entregar", "comentar", "repetir", "gastar", "firmar", "palo", "peine", "reaccionar", "empujar", "compartir", "tirar", "aprender", "pintar", "construir", "quemar", "llenar", "afeitar", "directo", "esconder", "unirse", "aumentar", "abordar", "explosión", "informe", "causa", "clasificar", "aplaudir", "bajar", "retener", "cruzar", "empezar de nuevo", "hurgar", "perforar", "arrepentirse", "condenar", "susurro", "completo", "bucear", "atrapar", "apoyo", "merecer", "admirar", "matar", "explorar", "engañar", "inventar", "orar", "odiar"];
+            var rgls100 = ["être", "avoir", "faire", "dire", "pouvoir", "aller", "voir", "savoir", "vouloir", "venir", "devoir", "prendre", "donner", "falloir", "parler", "mettre", "passer", "regarder", "comprendre", "rester", "tenir", "porter", "arriver", "partir", "sortir", "revenir", "devenir", "entrer", "mourir", "vivre", "attendre", "suivre", "rendre", "connaître", "croire", "appeler", "chercher", "sentir", "trouver", "travailler", "écouter", "répondre", "réussir", "jouer", "payer", "lire", "boire", "manger", "choisir", "arrêter", "décider", "entendre", "perdre", "gagner", "créer", "expliquer", "servir", "tomber", "ouvrir", "fermer", "aimer", "envoyer", "offrir", "voler", "conduire", "courir", "montrer", "espérer", "valoir", "bouger", "découvrir", "changer", "produire", "deviner", "préparer", "acheter", "chanter", "rire", "sourire", "écrire", "décrire", "réfléchir", "demander", "marcher", "pleurer", "crier", "couper", "plaire", "poser", "briller", "sauter", "ranger", "glisser", "casser", "frapper", "sauver", "tourner", "mélanger", "grimper", "rompre", "fixer", "nager", "éviter", "prêter", "augmenter", "baisser", "installer", "retirer", "surprendre", "affronter", "démolir", "planter", "couler", "livrer", "remarquer", "répéter", "dépenser", "signer", "coller", "peigner", "réagir", "pousser", "partager", "tirer", "apprendre", "peindre", "construire", "brûler", "remplir", "raser", "diriger", "cacher", "rejoindre", "élever", "attaquer", "éclater", "signaler", "causer", "classer", "applaudir", "descendre", "retenir", "traverser", "recommencer", "fouiller", "percer", "regretter", "condamner", "murmurer", "compléter", "plonger", "attraper", "supporter", "mériter", "admirer", "tuer", "explorer", "tricher", "inventer", "prier", "détester"];
+            //glosario 100
+            var pgls100_2 =["Bien", "grande", "pequeño", "nuevo", "viejo", "bonito", "largo", "feliz", "triste", "rico", "pobre", "VERDADERO", "falso", "suave", "amargo", "luz", "alto", "abajo", "corto", "claro", "oscuro", "fuerte", "débil", "abierto", "granja", "pesado", "inteligente", "tonto", "curioso", "tímido", "sincero", "respetuoso", "ideal", "fatiga", "inteligente", "enfermo", "impresionante", "deprimido", "relajado", "aburrido", "enojado", "Lo siento", "diferente", "conocido", "gratis", "difícil", "calma", "joven", "activo", "neto", "caliente", "suave", "departamento", "lento", "rápido", "visible", "similar", "grueso", "caprichoso", "cierto", "negligente", "extraño", "aislado", "cariñoso", "extraño", "inútil", "brillante", "normal", "antiguo", "pequeño", "enorme", "convencido", "desagradable", "entretenido", "brillante", "creativo", "simple", "importante", "principal", "último", "ancho", "elegante", "frío", "sonriente", "grave", "distante", "sucio", "seco", "dinámico", "común", "indiferente", "automático", "asombroso", "razonable", "vasto", "persistente", "ocupado", "pesimista", "optimista", "determinado", "delicado", "vigilante", "enojado", "divertido", "básico", "agradable", "feroz", "económico", "inusual", "peligroso", "divino", "desgraciado", "insignificante", "violento", "necesario", "único", "común", "tradicional", "moderno", "particular", "clásico", "imposible", "reciente", "eficaz", "inmenso", "habitual", "significativo", "feliz", "extra", "famoso", "desconocido", "inflexible", "imprevisible", "educado", "flexible", "obvio", "horrible", "injusto", "arrogante", "leal", "hermoso"];
+            var rgls100_2 =  ["bon", "grand", "petit", "nouveau", "vieux", "joli", "long", "heureux", "triste", "riche", "pauvre", "vrai", "faux", "doux", "amer", "léger", "haut", "bas", "court", "clair", "sombre", "fort", "faible", "ouvert", "fermé", "lourd", "intelligent", "idiot", "curieux", "timide", "sincère", "respectueux", "idéal", "fatigué", "sage", "malade", "génial", "déprimé", "décontracté", "ennuyé", "fâché", "désolé", "différent", "connu", "libre", "difficile", "calme", "jeune", "actif", "net", "chaud", "mou", "plat", "lent", "rapide", "visible", "similaire", "épais", "capricieux", "certain", "négligent", "étranger", "isolé", "affectueux", "bizarre", "inutile", "brillant", "normal", "ancien", "peu", "formidable", "convaincu", "désagréable", "divertissant", "éclatant", "créatif", "simple", "important", "principal", "dernier", "large", "élégant", "froid", "souriant", "sérieux", "lointain", "sale", "sec", "vif", "ordinaire", "indifférent", "automatique", "incroyable", "raisonnable", "vaste", "persistant", "occupé", "pessimiste", "optimiste", "déterminé", "délicat", "vigilant", "fou", "amusant", "essentiel", "agréable", "féroce", "économique", "insolite", "dangereux", "divin", "malheureux", "insignifiant", "violent", "nécessaire", "unique", "commun", "traditionnel", "moderne", "particulier", "classique", "impossible", "récent", "efficace", "immense", "habituel", "significatif", "joyeux", "extra", "célèbre", "inconnu", "inflexible", "imprévisible", "poli", "flexible", "évident", "horrible", "injuste", "hautain", "loyal", "beau"];
+            //glosario 100
+            var pgls100_3 =["hombre", "mujer", "niño", "día", "cosa", "tiempo", "vida", "mano", "mundo", "año", "trabajar", "caso", "punto", "ojo", "corazón", "historia", "familia", "camino", "palabra", "escuela", "lugar", "necesidad", "puerta", "idea", "banda", "amigo", "minuto", "asunto", "placer", "dinero", "persona", "momento", "acción", "relación", "voz", "país", "guerra", "número", "sueño", "mirada", "salud", "parte", "mensaje", "imagen", "memoria", "caminar", "red", "servicio", "miedo", "dominio", "éxito", "elección", "tierra", "role", "detalle", "equipo", "seguridad", "comunidad", "contacto", "solución", "luz", "temperatura", "forma", "documento", "futuro", "nivel", "juego", "proceso", "programa", "respuesta", "visita", "operación", "artículo", "personaje", "mesa", "jefe", "sentimiento", "tema", "método", "tendencia", "desarrollo", "balance", "medida", "apuntar", "influencia", "producto", "base", "efecto", "estilo", "sistema", "ejemplo", "ocupación", "realidad", "continente", "estación", "pregunta", "proyecto", "actitud", "región", "verdad", "respeto", "espacio", "audiencia", "impacto", "fortaleza", "capacidad", "desafío", "modelo", "sustancia", "propiedad", "riesgo", "dirección", "unidad", "acuerdo", "intención", "firmar", "dimensión", "pedido", "oportunidad", "cambiar", "observación", "escalera", "confianza", "ambiente", "recurso", "situación", "condición", "oportunidad", "resultado", "movimiento", "impresión", "reflexión", "informe", "causa", "observación", "estructura", "volumen", "concepto", "número", "interés", "apariencia", "objetivo", "símbolo", "duración", "moda", "función", "origen"];
+            var rgls100_3 = ["homme", "femme", "enfant", "jour", "chose", "temps", "vie", "main", "monde", "an", "travail", "cas", "point", "oeil", "cœur", "histoire", "famille", "chemin", "mot", "école", "lieu", "besoin", "porte", "idée", "groupe", "ami", "minute", "problème", "plaisir", "argent", "personne", "moment", "action", "relation", "voix", "pays", "guerre", "numéro", "rêve", "regard", "santé", "partie", "message", "image", "mémoire", "marché", "réseau", "service", "peur", "domaine", "succès", "choix", "terre", "rôle", "détail", "équipe", "sécurité", "communauté", "contact", "solution", "lumière", "température", "forme", "document", "avenir", "niveau", "jeu", "processus", "programme", "réponse", "visite", "opération", "article", "caractère", "table", "chef", "sentiment", "thème", "méthode", "tendance", "développement", "équilibre", "mesure", "but", "influence", "produit", "base", "effet", "style", "système", "exemple", "profession", "réalité", "continent", "saison", "question", "projet", "attitude", "région", "vérité", "respect", "espace", "public", "impact", "force", "capacité", "défi", "modèle", "substance", "propriété", "risque", "direction", "unité", "disposition", "intention", "signe", "dimension", "demande", "opportunité", "changement", "observation", "échelle", "confiance", "environnement", "ressource", "situation", "condition", "chance", "résultat", "mouvement", "impression", "réflexion", "rapport", "cause", "constat", "structure", "volume", "concept", "nombre", "intérêt", "aspect", "objectif", "symbole", "durée", "mode", "fonction", "origine"]; 
+            //glosario 100
+            var pgls100_4 =Object.assign([],paragls.slice(600,799));
+            var rgls100_4 =Object.assign([],parargls.slice(600,799)) ;
+            //glosario 100
+            var pgls100_5 =Object.assign([],paragls.slice(800,999));
+            var rgls100_5 =Object.assign([],parargls.slice(800,999)) ;
+            //glosario 100
+        var pgls100_6 = Object.assign([],paragls.slice(500,599));
+        var rgls100_6 = Object.assign([],parargls.slice(500,599));
+        //glosario 100
+        var pgls100_7 =Object.assign([],paragls.slice(600,699));
+        var rgls100_7 =Object.assign([],parargls.slice(600,699)) ;
+        //glosario 100
+        var pgls100_8 =Object.assign([],paragls.slice(700,799));
+        var rgls100_8 =Object.assign([],parargls.slice(700,799)) ;
+        //glosario 100
+        var pgls100_9 =Object.assign([],paragls.slice(800,899));
+        var rgls100_9 =Object.assign([],parargls.slice(800,899)) ;      
+        //glosario 100
+        var pgls100_10 =Object.assign([],paragls);
+        var rgls100_10 =Object.assign([],parargls);
+
+
+        var paqueteactivo = "";
+        
+        
+       
+        //pack1
+        var ppack1 = ["hola mi niña", "que le vas a pedir al niño jesus", "estas de vacaciones", "hola bebe", "quiero verte", "tu papa te quiere", "como esta tu mami", "soy tu abuela", "quiero hablar contigo", "es bueno verte", "hazme un video", "que lindo hablas", "te mando saludos", "navidad", "allí", "aquí", "entiendo un poco", "sabes escribir", "puedes leer ", "tu nombre", "pensando en ti", "te extraño", "que linda eres", "esta bonita", "voy a comer", "ya comiste", "que comiste hoy", "donde esta tu mami", "estoy aprendiendo", "para hablar contigo", "es simple", "mi celular", "tu lenguaje", "hacer algo ", "quiero hacer algo diferente", "algo nuevo", "para aprender", "porque no", "esta muy bien", "puedo hacer mucho", "mas oportunidades", "recuerda", "dime lo que piensas", "estoy pensando en ti", "quiere café", "disculpame", "con permiso", "puedo hablar?", "donde vives?", "tengo familia en ….", "asi no!", "porque haces eso?", "deja eso!", "muchas gracias", "donde te veo?", "a que hora hablamos?", "hola linda", "como estas amigo?", "espera porfavor!", "habla conmigo", "estas molesto?", "te sientes bien?", "estas enfermo?", "necesitas ayuda?", "me puedes ayudar?", "dame un poco", "quieres un poco?", "yo invito!", "estoy trabajando", "es aburrido", "estoy tranquilo", "buscando un cambio", "pienso vivir alla", "quiero vivir alla!", "no puedo!", "tu puedes!", "estoy esperando por ti!", "puedo ayudar!", "me permite!", "quiero saber mas!", "puedo, aprender algo nuevo", "algunas palabras son difíciles", "aveces es dificil", "después hablamos!", "en la casa hablamos!", "dios te bendiga", "mi nieta bella!", "recuerda lo que digo!", "como digo….", "que me dijiste?", "no entiendo!", "me entiendes?", "yo no se", "yo se", "puedes parar aquí", "gracias", "felicidades", "feliz dia!", "que rapido!", "muy lento"];
+        var rpack1 = ["Bonjour ma fille", "Qu'allez-vous demander au bébé Jésus?", "tu es en vacances", "salut bébé", "je veux te voir", "ton père t'aime", "Comment va ta mère", "je suis ta grand-mère", "Je veux vous parler", "Content de te voir", "fais moi une vidéo", "comme tu parles mignon", "Je t'envoie des salutations", "Noël", "Là", "ici", "je comprends un peu", "tu sais écrire", "tu peux lire", "ton nom", "en train de penser à toi", "tu me manques", "comme tu es belle", "Elle est belle", "je vais manger", "tu as déjà mangé", "Qu'est-ce que tu as mangé aujourd'hui", "Où est ta mère", "je suis en train d'apprendre", "pour parler avec toi", "est simple", "Mon portable", "Votre langue", "faire quelque chose", "Je veux faire quelque chose de différent", "quelque nouveau", "pour apprendre", "Pourquoi pas", "est bien", "Je peux faire beaucoup", "plus de chances", "rappelles toi", "dis-moi ce que tu penses", "je pense à toi", "veut du café", "Excusez-moi", "excuse moi", "je peux parler?", "où vis tu?", "J'ai de la famille en….", "Donc, non!", "«Pourquoi faites-vous cela?", "Laissez ça!", "Merci beaucoup", "Où est-ce que je te vois?", "À quelle heure parle-t-on?", "salut jolie", "Comment allez-vous ami?", "S'il vous plaît attendez!", "me parler", "Êtes-vous contrarié?", "Vous sentez-vous bien?", "Êtes-vous malade?", "Avez-vous besoin d'aide?", "Pouvez-vous m'aider?", "me donner un peu", "Voulez-vous un peu?", "J'invite!", "Je travaille", "C'est ennuyeux", "Je suis calme", "À la recherche d'un changement", "Je prévois de vivre là-bas", "Je veux y vivre!", "Je ne peux pas!", "Vous pouvez!", "Je t'attends!", "Je peux aider!", "Cela me permet!", "Je veux en savoir plus!", "Je peux apprendre quelque chose de nouveau", "Certains mots sont difficiles", "Parfois, c'est difficile", "Ensuite, nous parlons!", "Dans la maison, nous parlons!", "dieu te bénisse", "Ma belle petite-fille!", "Rappelez-vous ce que je dis!", "Comme je le dis ...", "Qu'est-ce que vous avez dit?", "je ne comprends pas!", "tu me comprends?", "je ne sais pas", "je sais", "tu peux t'arrêter ici", "Merci", "toutes nos félicitations", "bonne journée!", "à quelle vitesse!", "très lent"];
+        //pack3
+        var ppack2 = ["escribe todos los dias", "lee todos los dias", "di algo todos los dias", "no te quedes callado", "dime lo que quieras", "habla con libertad", "estoy sentado", "estoy parado", "estoy solo", "estoy con alguien", "ahora no puedo", "más tarde te veo", "despues de salír", "estoy en mi casa", "no es mi casa", "piensa con claridad", "habla lento", "disculpa no entiendo", "me puede entender?", "puede hablar más lento?", "te agradezco", "estoy intentando", "puedo hacerlo mejor", "se que puedo", "tengo dudas", "tengo razon para intentar", "voy a seguir", "seguire practicando", "estoy mejorando", "gracias por tu ayuda", "cual es tu direccion?", "estoy en la calle", "Salí de casa", "estoy fuera", "cuenta conmigo", "te vere algun dia", "te veo pronto", "ya estoy listo", "te llamo…(mañana, despues, x.dia)", "en mi cuarto", "en la sala", "estoy cocinando", "me estoy vistiendo", "se arregló", "estas lista para salir", "va a la escuela", "es mi hijo", "es tu tio", "es tuyo?", "comprendo", "a veces", "un favor", "me permite", "me puede ayudar?", "es tu hijo", "es tu compañero", "trabaja contigo", "trabaja conmigo", "eres el primero", "estas al final", "eres la última", "quiero que aprendas", "voy a practicar contigo", "todo lo que pueda", "para que mejores", "para mejorar", "lo haremos mejor", "quiero ser útil", "si puedes!", "lo hacemos juntos", "me gustaria", "que bien ", "estoy alegre", "me gusta esta idea", "creo que es bueno", "me voy a esforzar", "voy a aprender mucho", "aveces me cuesta entender", "te entiendo!", "que chevere", "asi me gusta", "no me gusta", "ayudame un poco", "si como no", "me gustaría ayudarte", "que lindo dia", "verdad que si!", "es verdad", "tu crees?", "si eso creo!", "yo también", "me agrada ", "es buena idea", "que piensas?", "estoy cansado", "estoy con mi familia", "con quien estas?", "mi hermano", "viendo television!", "que haces?"];
+        var rpack2 = ["Écrivez tous les jours", "Lire tous les jours", "Dis quelque chose tous les jours", "Ne restez pas silencieux", "dis moi ce que tu veux", "pourparlers", "Je suis assise", "Je suis debout", "Je suis seul", "Je suis avec quelqu'un", "Maintenant je ne peux pas", "Plus tard je te vois", "après avoir quitté", "Je suis à la maison", "Ce n'est pas ma maison", "Il pense clairement", "parle lentement", "désolé, je ne comprends pas", "pouvez-vous comprendre", "peut parler plus lentement", "Je te remercie", "j'essaie", "je peux faire mieux", "Je sais que je peux", "j'ai des doutes", "J'ai raison d'essayer", "Je vais continuer", "Je continuerai à pratiquer", "Je vais mieux", "Merci pour ton aide", "quelle est ton adresse", "Je suis dans la rue", "j'ai quitté la maison", "je suis dehors", "compte sur moi", "Je te verrai un jour", "À bientôt", "je suis prêt maintenant", "Je t'appellerai ... (demain, après, x.day)", "dans ma chambre", "dans la salle", "je suis en train de cuisiner", "je suis en train de m'habiller", "a été réparé", "êtes-vous prêt à aller", "va à l'école", "c'est mon fils", "Est ton oncle", "c'est à toi", "Je comprends", "parfois", "une faveur", "Excusez-moi", "Aidez moi", "C'est ton fils", "est votre partenaire", "travailler avec toi", "travailler avec moi", "vous êtes le premier", "vous êtes à la fin", "vous êtes le dernier", "je veux que tu apprends", "ja vais pratiquer avec toi", "tout ce que ja peux", "pour le mieux", "améliorer", "nous le ferons mieux", "je veux être utile", "si tu peux", "nous le faisons ensemble", "je voudrais", "C'est génial!", "je suis content", "j'aime cette idée", "je pense que c'est bien", "ja vais m'efforcer", "je vais apprendre beaucoup", "parfois, je trouve difficile de comprendre", "je te comprends", "c'est cool", "donc je l'aime", "Je n'aime pas", "aidez-moi un peu", "oui bien sûr", "Je voudrais vous aider", "Quelle belle journée!", "Vrai, oui!", "C'est vrai", "Croyez-vous?", "Si je pense!", "Moi aussi", "j'apprécie", "c'est une bonne idée", "Que pensez-vous?", "Je suis fatigué", "Je suis avec ma famille", "Qui es-tu?", "mon frère", "Regarder la télévision!", "Que faites-vous?"];
+        
+        //pack3
+        var ppack3 = ["vaya para afuera!", "no hay problema", "esta chevere", "que bueno", "Felicitaciones", "estás muy bien", "me alegro por ti", "estoy contento", "estoy relajado", "estoy acostado", "puedo descansar", "fue amable", "es muy amable(amigable)", "eres agradable", "me agrada saber de ti", "que bueno saber de ti", "me gusta aprender ", "esta fácil", "es fácil", "tuve oportunidad", "habla un poco", "puede ir conmigo", "estás solo", "como es tu familia", "salir un rato", "estar con amigos", "me gusta", "vamos a comer", "fue un buen día", "estoy aburrido", "quiero descansar", "te gusta ", "que bien, gracias", "estoy de acuerdo", "vamos a almorzar", "te gustó?", "me ayuda", "está ordenado", "es tu novio(a)", "es tu amigo(a)", "apurate", "estoy a tiempo", "es tarde", "es temprano", "llegar a tiempo", "soy responsable", "sea respetuoso", "ser amable", "es amigable", "es muy bueno", "quiero", "no quiero", "puedo ", "no puedo", "tu también", "enserio? Que bien", "hola, como estas?", "estoy muy bien", "y tu como estas?", "me alegro de verte", "que bueno verte", "estás ocupado", "estoy disponible", "nos vemos más tarde", "eso me gustaría", "que agradable", "opino lo mismo", "es una sorpresa", "muy interesante", "también me gusta", "te veo luego", "voy a mi casa", "voy en camino", "nos vemos allá", "espero verte pronto", "es bueno saber de ti", "es complicado", "eso me gusta!", "es la verdad", "leer un poco", "leer es importante", "hacer algo cada dia", "estas bien?", "que vas hacer hoy?", "como te llamas?", "me llamo…", "bonito nombre", "qué idiomas hablas?", "buenos dias", "donde queda….", "disculpe", "me alegra", "es bueno saber", "puedo hacerlo", "quiero aprender mas", "tengo un telefono", "el clima es calido en mi pais", "como es donde vives?", "vivo en…", "me ayudas"];
+        var rpack3 = ["sors!", "pas de problème", "c'est cool", "ce bien", "mes félicitations", "Tu es très bon!", "Je suis content pour toi", "je suis heureux", "Je suis détendue", "Je suis au lit", "Je peux me reposer", "il était gentil", "C'est très sympathique (amical)", "tu es gentil", "J'aime savoir sur toi", "Bon de savoir à votre sujet!", "J'aime apprendre", "C'est facile!", "est facile", "J'ai eu une opportunité", "parler un peu", "peut aller avec moi", "vous êtes seul", "comment va ta famille", "sortir", "Être avec des amis", "j'apprécie, J'aime ça!", "Nous allons manger", "C'était un bon jour", "Je m'ennuie", "Je veux me reposer.", "vous aimez", "Bien, merci", "J'accepte", "Nous allons déjeuner", "L'avez-vous aimé?", "Aidez-moi", "Il est commandé", "est ton petit ami, est votre petite amie", "Est-ce ton ami?", "se presser", "Je suis à l'heure", "il est tard", "il est tôt", "arrivé a temps", "Je suis responsable", "être respectueux", "Être gentil", "est sympathique", "C'est très bien!", "Je veux", "Je ne veux pas", "mai l", "Je ne peux pas", "vous aussi", "au sérieux? C'est génial!", "Bonjour, comment vas-tu?", "Je vais bien", "Et comment vas-tu?", "Je suis content de te voir", "content de te voir", "Êtes-vous occupé?", "Je suis disponible", "À plus tard", "Ça me plairait", "comme c'est gentil", "J'ai le même avis", "C'est une surprise", "très intéressant", "J'aime aussi ça", "à plus tard", "rentrer à la maison", "Je suis en route", "On se voit là!", "J'espère te voir bientot", "C'est bon de savoir sur toi", "c'est compliqué", "J'aime ça!", "C'est la vérité!", "Lire un peu!", "Lire est important!", "faire quelque chose tous les jours", "Est ce que tu vas bien?", "Qu'est-ce que tu vas faire aujourd'hui?", "Comment tu t'appelles?", "Je m'appelle ...", "joli nom", "Quelles langues parlez-vous?", "bonjour", "Où c'est ...", "désolé", "Je suis heureux", "C'est bon de savoir", "Je peux le faire", "Je veux apprendre plus", "J'ai un téléphone", "Le climat est chaud dans mon pays", "Comment est l'endroit où vous vivez?", "Je vis dans ...", "Tu m'aides"];
+        //pack4
+        var ppack4 = ["por favor!", "vamos a hablar", "hablemos más tarde", "despues de un mes", "puedo decir ", "varias oraciones", "aprendi varias palabras", "hice practicas cortas", "entre 10 y 20 minutos", "es interesante", "las posibilidades", "que tenemos", "para aprender cosas nuevas", "todos los dia", "voy a seguir aprendiendo", "por dos meses mas", "quiero mejores resultados", "me alegro de verte!", "tenga buen día", "tienes muchas oportunidades para aprender", "muchas oportunidades", "puedes encontrar algo para decir", "porque crees eso?", "no hago nada especial", "sólo práctica", "no tengo ningún método especial", "deberíamos hacer una práctica", "para aprender alemán", "practicar todos los días", "yo también puedo", "definitivamente!", "vamos a comer!", "qué vas a hacer hoy?", "puedes ayudarme con eso?", "quiero eso por favor!", "no estaba haciendo nada", "hago un mes de práctica de idioma alemán", "es muy interesante", "por un tiempo", "voy a estudiar alemán", "estuve estudiando por un mes", "estudio, estudié, estudiare", "sólo estudia un poco", "por favor habla despacio!", "no puedo entenderte!", "tu, usted", "por mi está bien!", "esta semana!", "me gusta este día", "eso es todo!", "es mejor así", "hola bella", "estoy bien!", "tiempo libre", "estoy libre", "sé algunas palabras", "casi todo", "que tengas un buen dia!", "puedes hacerme un favor?", "de nada!", "cuál es mejor?", "quiero saber un poco más", "tengo algo que hacer ahora", "qué significa eso?", "deberías tener más confianza", "cada vez puedo hacerlo mejor!", "una cosa diferente", "rápido por favor", "alguien me puede dar un consejo", "que cuentas?", "puedes esperar un rato?", "quiero hacer mi pronunciación mejor!", "despues de ti!", "siempre tenemos un camino", "mejora todos los dias", "puedo saber que estas haciendo?", "Recibir un consejo", "La gente tiene diferentes puntos de vista.", "En ese momento no lo sabía", "Soy una persona, por lo tanto, puedo fallar.", "No pienso en el pasado", "Aprendizaje requiere esfuerzo", "No necesito mucho", "no tengo mucho", "No tienes que diculparte!", "Parece un poco tímido", "cual es tu opinión?", "Aprendi sólo hasta ahora!", "Mientras tengo tiempo!", "Practica una y otra vez", "Aprender es la causa de saber.", "invierte tu tiempo!", "¡Mantente concentrado!", "Me gustaría visitar alemánia", "Me gustaría mantener mi nivel en alemán", "Quiero conocer más sobre este idioma.", "Llegaré a saber más sobre estas culturas.", "Hablaré mejor con el tiempo", "Si es difícil, solo respira, y continúa practicando.", "¡Sigo aprendiendo todos los días!", "es posible", "es imposible", "es parte del pasado!", "Déjame aprender de ti"];
+        var rpack4 = ["S'il vous plait!", " on va parler", " parlons plus tard", " Après un mois", " je peux dire", " plusieurs phrases", " j'ai appris plusieurs mots", " J'ai fait de courtes pratiques", " entre 10 et 20 minutes", " c'est intéressant", " les possibilités", " Ce que nous avons", " apprendre de nouvelles choses", " tous les jours", " je vais continuer à apprendre", " pendant encore deux mois", " je veux de meilleurs résultats", " je suis heureux de te voir!", " Passez une bonne journée", " vous avez de nombreuses occasions d'apprendre", " beaucoup d'opportunités", " peux-tu trouver quelque chose à dire", " parce que tu crois ça ?", " je ne fais rien de spécial", " juste pratiquer", " je n'ai pas de méthode spéciale", " nous devrions faire une pratique", " apprendre l'allemand", " A pratiquer tous les jours", " je peux aussi", " absolument!", " Allons manger!", " Qu'est-ce que tu vas faire aujourd'hui?", " pouvez-vous m'aider avec ça?", " Je veux ça s'il te plait !", " je ne faisais rien", " Je fais un mois de pratique de la langue allemande", " c'est très intéressant", " pour un temps", " je vais étudier l'allemand", " j'étudiais depuis un mois", " j'étudie, j'étudie, j'étudie", " étudie juste un peu", " s'il te plaît, parle doucement!", " Je ne peux pas vous comprendre!", " Tu vous", " pour moi c'est bien!", " cette semaine!", " j'aime ce jour", " c'est tout!", "c'est mieux comme ça", "Bonjour belle", "je vais bien!", "temps libre", "Je suis libre", "je connais quelques mots", "presque tout", "tu as une bonne journée!", "Peut tu me rendre un service?", "de rien!", "Quel est meilleur?", "je veux en savoir un peu plus", "J'ai quelque chose à faire maintenant", "Qu'est-ce que ça veut dire?", "tu devrais avoir plus confiance", "à chaque fois je peux faire mieux !", "une chose différente", "dépêche-toi s'il te plaît", "quelqu'un peut-il me donner des conseils", "Quoi de neuf?", "pouvez-vous attendre un peu?", "Je veux améliorer ma prononciation !", "après toi!", "nous avons toujours un moyen", "s'améliore chaque jour", "Puis-je savoir ce que vous faites ?", "Prendre conseil", "Les gens ont des points de vue différents.", "A cette époque je ne savais pas", "Je suis une personne, donc je peux échouer.", "je ne pense pas au passé", "Apprendre demande des efforts", "je n'ai pas besoin de beaucoup", "je n'ai pas beaucoup", "Vous n'avez pas à vous excuser !", "Semble un peu timide", "quel est ton opinion?", "Je n'ai appris que pour l'instant !", "Tant que j'ai le temps !", "Pratiquez encore et encore", "L'apprentissage est la cause de la connaissance.", "investissez votre temps !", "Reste concentré!", "Je voudrais visiter l'Allemagne", "Je souhaite maintenir mon niveau en allemand", "Je veux en savoir plus sur cette langue.", "Je vais en savoir plus sur ces cultures.", "je parlerai mieux avec le temps", "Si c'est difficile, respirez et continuez à vous entraîner.", "Je continue d'apprendre tous les jours !", "c'est possible", "c'est impossible", "ça fait partie du passé !", "Laisse moi apprendre de toi"];
+
+        //pack5
+        const parapack = ["es como caminar", "todos menos yo", "es su dia", "no sabes que hacer", "eso es de él", "no fue con intencio", "para aprender mas", "estoy en casa", "a veces son buenos", "con amistades", "estas con ellos", "puede ser bueno", "en clases", "uno de estos dias", "tiene tiempo de sobra", "no es este dia", "a partir de los ejercicios", "por medio de la practica", "sirve el café caliente", "aprende otra palabra", "me gusta pero no lo hago", "que bueno conocerte", "algunos dias de practica", "así es esto", "el tiempo no espera", "como esta usted", "ahora o ahora", "tuvo un buen dia", "te quiero o te supero", "de vez en cuando", "hecho a la medida", "hoy y siempre", "aquello no es tuyo", "comer en silecio", "nosotros somos trabajadores", "todo se puede hacer", "no me voy a quedar fuera", "si no es hoy sera otro día", "fueron buenos tiempos", "es que no tengo tiempo", "si se puede hacer", "es de ellos", "todos tenemos tiempo", "ahora si", "fuerza de voluntad y disciplina", "disciplinado como siempre", "eso es lo que dijo", "solo tenemos una vida", "practica cada vez que puedas", "lo importante es decir algo cada día", "eres lo que haces con disciplina", "trabajar en conjunto", "uno dos tres cuatro cinco", "ella quiere hablar", "respirar aire", "no esta bien", "también quiero aprender", "aprender es como jugar", "un pequeño esfuerzo", "no hay fin", "poner, colocar", "estoy en casa", "ahora puedo leer en otro idioma", "me puede dar una mano", "un barco en el puerto", "es un gran problema", "la idea es sumar palabras a tu vocabulario", "añadir valor a tu vida", "no es lo mismo", "las plantas necesitan tierra", "estoy aquí, aprendiendo", "el tiempo es necesario", "eso es grande", "el es alto", "tal situacion es normal", "puede seguir este camino", "quiero actuar lo mejor posible", "eprende porque quiero", "puedo preguntar algo", "naranja es una fruta", "la gente puede cambiar", "fui amable", "me gusta la luz", "es un tipo ayuda", "el es papá", "puede necesitar ayuda", "donde esta tu casa", "tomar una imagen", "probar nuevas expresiones", "todos nosotros", "hacerlo de nuevo", "ese animal es un , perro", "el punto es aprender", "mi madre es buena persona", "vivimos en el mundo", "estar cerca de ti", "construir una habilidad", "conducir un coche", "el planeta tierra", "es tu abuelo", "en cualquier momento", "hacer algo nuevo hoy", "tengo mucho trabajo", "me das una parte", "hacer tu parte", "obtener mas habilidad", "estoy cerda del lugar", "lo hecho, hecho esta", "puedo vivir tranquilo", "donde podemos hablar", "despues de", "volver a salir", "quiero un poco", "apenas estoy empezando", "invito una ronda", "actua como hombre", "ser mejor este año", "ella vino para hablar", "tener mas exposicion", "intenta cada dia", "es bueno saber", "es mi tiempo", "puedo dar mas de mi", "es nuestro problema", "debajo de eso", "me gusta tu nombre", "es muy lindo", "a través de la practica", "justo lo que quiero", "llenar un formulario", "aprender frases", "es un gran metodo", "intenta no suponer", "decir mas cosas", "puedes ayudar", "bajo presion", "camina en linea", "diferir", "es mi turno", "todo tiene causa", "esta muy facil", "puede significar muchas cosas", "antes de mejorar", "hacer una mudanza", "tengo derecho", "es como un niño", "el es viejo", "también es bueno", "no es lo mismo", "ella es buena", "todo esta bien", "ir allí", "cuando quieras", "estoy arriba", "usar el conocimiento", "su tiempo", "no har manera", "esta sobre la mesa", "muchos días", "después de leer", "ellos son buenos", "me gusta escribir", "es lo que haria", "es como caminar", "es así de simple", "estos días", "su mascota", "un largo camino", "puedes hacer todo", "una cosa diferente", "vea la diferencia", "él tiempo no perdona", "son los dos", "tiene mucho que ver", "debes mirar con atencion", "lee más", "un buen día", "podría seguir", "tengo que ir", "voy a venir", "quien lo hizo", "es un número", "hacer sonido", "si o no", "repetir más", "somos personas", "es mi tiempo", "sobre la mesa", "el sabe", "bebe agua diario", "que puedo hacer", "hacer una llamada", "ser el primero", "saber que", "puede ser", "bajo la mesa", "esta a mi lado", "ha sido una buena persona", "estoy aquí ahora",];
+        const rparapack= ["c'est comme marcher", "tout sauf moi", "C'est ton jour", "tu ne sais pas quoi faire", "ça vient de lui", "ce n'était pas avec l'intention", "pour apprendre plus", "je suis à la maison", "parfois ils sont bons", "avec des amis", "tu es avec eux", "peut-être bon", "en cours", "un de ces jours", "a du temps à perdre", "ce n'est pas ce jour", "des exercices", "par la pratique", "servir du café chaud", "apprendre un autre mot", "J'aime ça mais je n'aime pas", "content de te rencontrer", "quelques jours de pratique", "ainsi est-ce", "Le temps n'attend pas", "comment allez-vous", "maintenant ou maintenant", "il a passé une bonne journée", "Je t'aime ou je t'oublie", "de temps en temps", "fait sur mesure", "aujourd'hui et toujours", "ce n'est pas le tien", "manger en silence", "nous sommes des travailleurs", "Tout peut être fait", "je ne vais pas rester dehors", "si ce n'est pas aujourd'hui ce sera un autre jour", "c'était du bon temps", "je n'ai pas le temps", "Ça peut être fait", "c'est d'eux", "nous avons tous le temps", "maintenant oui", "volonté et discipline", "discipliné comme toujours", "C'est ce qu'il a dit", "nous n'avons qu'une vie", "pratiquer chaque fois que vous le pouvez", "l'important c'est de dire quelque chose tous les jours", "tu es ce que tu fais avec discipline", "travailler ensemble", "Un Deux Trois Quatre Cinq", "elle veut parler", "air respirable", "ce n'est pas bien", "je veux aussi apprendre", "apprendre c'est comme jouer", "un petit effort", "il n'y a pas de fin", "mettre, placer", "je suis à la maison", "maintenant je peux lire dans une autre langue", "Peux-tu me donner un coup de main", "un navire dans le port", "c'est un gros problème", "l'idée est d'ajouter des mots à votre vocabulaire", "ajouter de la valeur à votre vie", "ce n'est pas pareil", "les plantes ont besoin de terre", "je suis ici en train d'apprendre", "il faut du temps", "c'est gros", "il est grand", "une telle situation est normale", "peut aller par ici", "Je veux faire de mon mieux", "apprendre parce que je veux", "Je peux poser une question", "l'orange est un fruit", "les gens peuvent changer", "j'étais gentil", "j'aime la lumière", "c'est un gars d'aide", "il est papa", "peut avoir besoin d'aide", "où est ta maison", "prendre une photo", "essayer de nouvelles expressions", "nous tous", "Refais-le", "cet animal est un chien", "le but est d'apprendre", "ma mère est une bonne personne", "nous vivons dans le monde", "être près de toi", "construire une compétence", "conduire une voiture", "la planète Terre", "est ton grand-père", "à n'importe quel moment", "faire quelque chose de nouveau aujourd'hui", "j'ai beaucoup de travail", "donne moi un rôle", "faites votre part", "obtenir plus de compétences", "Je suis fermé à l'endroit", "ce qui est fait est fait", "je peux vivre en paix", "où pouvons-nous parler", "après que", "sortir à nouveau", "J'en veux", "je viens de commencer", "J'invite un tour", "agir comme un homme", "être mieux cette année", "elle est venue parler", "avoir plus d'exposition", "essayer tous les jours", "c'est bon à savoir", "c'est mon temps", "Je peux donner plus de moi", "c'est notre problème", "sous ça", "J'aime ton prénom", "Il est très mignon", "par la pratique", "juste ce que je veux", "remplir un formulaire", "apprendre des phrases", "c'est une super méthode", "essayez de ne pas deviner", "dire plus de choses", "pouvez-vous aider", "sous pression", "marcher en ligne", "différer", "c'est mon tour", "tout a une cause", "c'est très facile", "peut signifier beaucoup de choses", "avant la mise à niveau", "faire un geste", "j'ai le droit", "il est comme un enfant", "il est vieux", "C'est aussi bon", "ce n'est pas pareil", "Elle est bonne", "Tout est bien", "Va là-bas", "quand tu veux", "Je suis debout", "utiliser les connaissances", "son temps", "certainement pas", "c'est sur la table", "plusieurs jours", "après lire", "ils sont bons", "J'aime écrire", "est ce que je ferais", "c'est comme marcher", "C'est si facile", "ces jours", "ton animal de compagnie", "un long chemin", "tu peux tout faire", "une chose différente", "regarde la différence", "il le temps ne pardonne pas", "ils sont tous les deux", "a beaucoup à faire", "tu dois regarder attentivement", "Lire la suite", "un bon jour", "je pourrais continuer", "Je dois y aller", "je vais venir", "qui l'a fait", "c'est un nombre", "faites du bruit", "Oui ou non", "répéter plus", "nous sommes le peuple", "c'est mon temps", "sur la table", "Il sait", "boire de l'eau quotidiennement", "Qu'est-ce que je peux faire", "faire un appel", "Soyez le premier", "savoir que", "Peut être", "sous la table", "c'est à mes côtés", "il a été une bonne personne", "Je suis là maintenant",];
+        
+        //pack5
+        var ppack5 = Object.assign([], parapack.slice(0,100));
+        var rpack5 = Object.assign([],rparapack.slice(0,100)); 
+        //pack5
+        var ppack6 = Object.assign([], parapack.slice(100, 200));
+        var rpack6 = Object.assign([],rparapack.slice(100, 200)); 
+        
+        //pack7
+        var ppack7 = ["por favor!", "vamos a hablar", "hablemos más tarde", "despues de un mes", "puedo decir ", "varias oraciones", "aprendi varias palabras", "hice practicas cortas", "entre 10 y 20 minutos", "es interesante", "las posibilidades", "que tenemos", "para aprender cosas nuevas", "todos los dia", "voy a seguir aprendiendo", "por dos meses mas", "quiero mejores resultados", "me alegro de verte!", "tenga buen día", "tienes muchas oportunidades para aprender", "muchas oportunidades", "puedes encontrar algo para decir", "porque crees eso?", "no hago nada especial", "sólo práctica", "no tengo ningún método especial", "deberíamos hacer una práctica", "para aprender alemán", "practicar todos los días", "yo también puedo", "definitivamente!", "vamos a comer!", "qué vas a hacer hoy?", "puedes ayudarme con eso?", "quiero eso por favor!", "no estaba haciendo nada", "hago un mes de práctica de idioma alemán", "es muy interesante", "por un tiempo", "voy a estudiar alemán", "estuve estudiando por un mes", "estudio, estudié, estudiare", "sólo estudia un poco", "por favor habla despacio!", "no puedo entenderte!", "tu, usted", "por mi está bien!", "esta semana!", "me gusta este día", "eso es todo!"];
+        var rpack7 = []; 
+        //pack8
+        var ppack8 = new Array("es mejor así", "hola bella", "estoy bien!", "tiempo libre", "estoy libre", "sé algunas palabras", "casi todo", "que tengas un buen dia!", "puedes hacerme un favor?", "de nada!", "cuál es mejor?", "quiero saber un poco más", "tengo algo que hacer ahora", "qué significa eso?", "deberías tener más confianza", "cada vez puedo hacerlo mejor!", "una cosa diferente", "apurate por davor", "alguien me puede dar un consejo", "que cuentas?", "puedes esperar un rato?", "quiero hacer mi pronunciación mejor!", "despues de ti!", "siempre tenemos un camino", "mejora todos los dias", "puedo saber que estas haciendo?", "Recibir un consejo", "La gente tiene diferentes puntos de vista.", "En ese momento no lo sabía", "Soy una persona, por lo tanto, puedo fallar.", "No pienso en el pasado", "Aprendizaje requiere esfuerzo", "No necesito mucho", "no tengo mucho", "No tienes que diculparte!", "Parece un poco tímido", "cual es tu opinión?", "Aprendi sólo hasta ahora!", "Mientras tengo tiempo!", "Practica una y otra vez", "Aprender es la causa de saber.", "invierte tu tiempo!", "¡Mantente concentrado!", "Me gustaría visitar alemánia", "Me gustaría mantener mi nivel en alemán", "Quiero conocer más sobre este idioma.", "Llegaré a saber más sobre estas culturas.", "Hablaré mejor con el tiempo", "Si es difícil, solo respira, y continúa practicando.", "¡Sigo aprendiendo todos los días!");
+        var rpack8 = [];
+        //pack9
+        var ppack9 = ["es como caminar", "todos menos yo", "es su dia", "no sabes que hacer", "eso es de él", "no fue con intencio", "para aprender mas", "estoy en casa", "a veces son buenos", "con amistades", "estas con ellos", "puede ser bueno", "en clases", "uno de estos dias", "tiene tiempo de sobra", "no es este dia", "a partir de los ejercicios", "por medio de la practica", "sirve el café caliente", "aprende otra palabra", "me gusta pero no lo hago", "que bueno conocerte", "algunos dias de practica", "así es esto", "el tiempo no espera", "como esta usted", "ahora o ahora", "tuvo un buen dia", "te quiero o te supero", "de vez en cuando", "hecho a la medida", "hoy y siempre", "aquello no es tuyo", "comer en silecio", "nosotros somos trabajadores", "todo se puede hacer", "no me voy a quedar fuera", "si no es hoy sera otro día", "fueron buenos tiempos", "es que no tengo tiempo", "si se puede hacer", "es de ellos", "todos tenemos tiempo", "ahora si", "fuerza de voluntad y disciplina", "disciplinado como siempre", "eso es lo que dijo", "solo tenemos una vida", "practica cada vez que puedas", "lo importante es decir algo cada día", "eres lo que haces con disciplina", "trabajar en conjunto", "uno dos tres cuatro cinco", "ella quiere hablar", "respirar aire", "no esta bien", "también quiero aprender", "aprender es como jugar", "un pequeño esfuerzo", "no hay fin", "poner, colocar", "estoy en casa", "ahora puedo leer en otro idioma", "me puede dar una mano", "un barco en el puerto", "es un gran problema", "la idea es sumar palabras a tu vocabulario", "añadir valor a tu vida", "no es lo mismo", "las plantas necesitan tierra", "estoy aquí, aprendiendo", "el tiempo es necesario", "eso es grande", "el es alto", "tal situacion es normal", "puede seguir este camino", "quiero actuar lo mejor posible", "eprende porque quiero", "puedo preguntar algo", "naranja es una fruta", "la gente puede cambiar", "fui amable", "me gusta la luz", "es un tipo ayuda", "el es papá", "puede necesitar ayuda", "donde esta tu casa", "tomar una imagen", "probar nuevas expresiones", "todos nosotros", "hacerlo de nuevo", "ese animal es un , perro", "el punto es aprender", "mi madre es buena persona", "vivimos en el mundo", "estar cerca de ti", "construir una habilidad", "conducir un coche", "el planeta tierra", ];
+        var rpack9 = ["c'est comme marcher", "tout sauf moi", "C'est ton jour", "tu ne sais pas quoi faire", "ça vient de lui", "ce n'était pas avec l'intention", "pour apprendre plus", "je suis à la maison", "parfois ils sont bons", "avec des amis", "tu es avec eux", "peut-être bon", "en cours", "un de ces jours", "a du temps à perdre", "ce n'est pas ce jour", "des exercices", "par la pratique", "servir du café chaud", "apprendre un autre mot", "J'aime ça mais je n'aime pas", "content de te rencontrer", "quelques jours de pratique", "ainsi est-ce", "Le temps n'attend pas", "comment allez-vous", "maintenant ou maintenant", "il a passé une bonne journée", "Je t'aime ou je t'oublie", "de temps en temps", "fait sur mesure", "aujourd'hui et toujours", "ce n'est pas le tien", "manger en silence", "nous sommes des travailleurs", "Tout peut être fait", "je ne vais pas rester dehors", "si ce n'est pas aujourd'hui ce sera un autre jour", "c'était du bon temps", "je n'ai pas le temps", "Ça peut être fait", "c'est d'eux", "nous avons tous le temps", "maintenant oui", "volonté et discipline", "discipliné comme toujours", "C'est ce qu'il a dit", "nous n'avons qu'une vie", "pratiquer chaque fois que vous le pouvez", "l'important c'est de dire quelque chose tous les jours", "tu es ce que tu fais avec discipline", "travailler ensemble", "Un Deux Trois Quatre Cinq", "elle veut parler", "air respirable", "ce n'est pas bien", "je veux aussi apprendre", "apprendre c'est comme jouer", "un petit effort", "il n'y a pas de fin", "mettre, placer", "je suis à la maison", "maintenant je peux lire dans une autre langue", "Peux-tu me donner un coup de main", "un navire dans le port", "c'est un gros problème", "l'idée est d'ajouter des mots à votre vocabulaire", "ajouter de la valeur à votre vie", "ce n'est pas pareil", "les plantes ont besoin de terre", "je suis ici en train d'apprendre", "il faut du temps", "c'est gros", "il est grand", "une telle situation est normale", "peut aller par ici", "Je veux faire de mon mieux", "apprendre parce que je veux", "Je peux poser une question", "l'orange est un fruit", "les gens peuvent changer", "j'étais gentil", "j'aime la lumière", "c'est un gars d'aide", "il est papa", "peut avoir besoin d'aide", "où est ta maison", "prendre une photo", "essayer de nouvelles expressions", "nous tous", "Refais-le", "cet animal est un chien", "le but est d'apprendre", "ma mère est une bonne personne", "nous vivons dans le monde", "être près de toi", "construire une compétence", "conduire une voiture", "la planète Terre", ];
+        //pack10
+        var ppack10 = ["es como caminar", "todos menos yo", "es su dia", "no sabes que hacer", "eso es de él", "no fue con intencio", "para aprender mas", "estoy en casa", "a veces son buenos", "con amistades", "estas con ellos", "puede ser bueno", "en clases", "uno de estos dias", "tiene tiempo de sobra", "no es este dia", "a partir de los ejercicios", "por medio de la practica", "sirve el café caliente", "aprende otra palabra", "me gusta pero no lo hago", "que bueno conocerte", "algunos dias de practica", "así es esto", "el tiempo no espera", "como esta usted", "ahora o ahora", "tuvo un buen dia", "te quiero o te supero", "de vez en cuando", "hecho a la medida", "hoy y siempre", "aquello no es tuyo", "comer en silecio", "nosotros somos trabajadores", "todo se puede hacer", "no me voy a quedar fuera", "si no es hoy sera otro día", "fueron buenos tiempos", "es que no tengo tiempo", "si se puede hacer", "es de ellos", "todos tenemos tiempo", "ahora si", "fuerza de voluntad y disciplina", "disciplinado como siempre", "eso es lo que dijo", "solo tenemos una vida", "practica cada vez que puedas", "lo importante es decir algo cada día", "eres lo que haces con disciplina", "trabajar en conjunto", "uno dos tres cuatro cinco", "ella quiere hablar", "respirar aire", "no esta bien", "también quiero aprender", "aprender es como jugar", "un pequeño esfuerzo", "no hay fin", "poner, colocar", "estoy en casa", "ahora puedo leer en otro idioma", "me puede dar una mano", "un barco en el puerto", "es un gran problema", "la idea es sumar palabras a tu vocabulario", "añadir valor a tu vida", "no es lo mismo", "las plantas necesitan tierra", "estoy aquí, aprendiendo", "el tiempo es necesario", "eso es grande", "el es alto", "tal situacion es normal", "puede seguir este camino", "quiero actuar lo mejor posible", "eprende porque quiero", "puedo preguntar algo", "naranja es una fruta", "la gente puede cambiar", "fui amable", "me gusta la luz", "es un tipo ayuda", "el es papá", "puede necesitar ayuda", "donde esta tu casa", "tomar una imagen", "probar nuevas expresiones", "todos nosotros", "hacerlo de nuevo", "ese animal es un , perro", "el punto es aprender", "mi madre es buena persona", "vivimos en el mundo", "estar cerca de ti", "construir una habilidad", "conducir un coche", "el planeta tierra", ];
+        var rpack10 = ["c'est comme marcher", "tout sauf moi", "C'est ton jour", "tu ne sais pas quoi faire", "ça vient de lui", "ce n'était pas avec l'intention", "pour apprendre plus", "je suis à la maison", "parfois ils sont bons", "avec des amis", "tu es avec eux", "peut-être bon", "en cours", "un de ces jours", "a du temps à perdre", "ce n'est pas ce jour", "des exercices", "par la pratique", "servir du café chaud", "apprendre un autre mot", "J'aime ça mais je n'aime pas", "content de te rencontrer", "quelques jours de pratique", "ainsi est-ce", "Le temps n'attend pas", "comment allez-vous", "maintenant ou maintenant", "il a passé une bonne journée", "Je t'aime ou je t'oublie", "de temps en temps", "fait sur mesure", "aujourd'hui et toujours", "ce n'est pas le tien", "manger en silence", "nous sommes des travailleurs", "Tout peut être fait", "je ne vais pas rester dehors", "si ce n'est pas aujourd'hui ce sera un autre jour", "c'était du bon temps", "je n'ai pas le temps", "Ça peut être fait", "c'est d'eux", "nous avons tous le temps", "maintenant oui", "volonté et discipline", "discipliné comme toujours", "C'est ce qu'il a dit", "nous n'avons qu'une vie", "pratiquer chaque fois que vous le pouvez", "l'important c'est de dire quelque chose tous les jours", "tu es ce que tu fais avec discipline", "travailler ensemble", "Un Deux Trois Quatre Cinq", "elle veut parler", "air respirable", "ce n'est pas bien", "je veux aussi apprendre", "apprendre c'est comme jouer", "un petit effort", "il n'y a pas de fin", "mettre, placer", "je suis à la maison", "maintenant je peux lire dans une autre langue", "Peux-tu me donner un coup de main", "un navire dans le port", "c'est un gros problème", "l'idée est d'ajouter des mots à votre vocabulaire", "ajouter de la valeur à votre vie", "ce n'est pas pareil", "les plantes ont besoin de terre", "je suis ici en train d'apprendre", "il faut du temps", "c'est gros", "il est grand", "une telle situation est normale", "peut aller par ici", "Je veux faire de mon mieux", "apprendre parce que je veux", "Je peux poser une question", "l'orange est un fruit", "les gens peuvent changer", "j'étais gentil", "j'aime la lumière", "c'est un gars d'aide", "il est papa", "peut avoir besoin d'aide", "où est ta maison", "prendre une photo", "essayer de nouvelles expressions", "nous tous", "Refais-le", "cet animal est un chien", "le but est d'apprendre", "ma mère est une bonne personne", "nous vivons dans le monde", "être près de toi", "construire une compétence", "conduire une voiture", "la planète Terre", ];
+
+
+
+
+        //400 verbos
+        var p400 =["mejor", "abrir", "acepta", "acostado", "además", "aire", "ambos", "animado",];
+        var r400 = [];
+
+ 
+        //glosario
+        const glosario = ["a", "hasta pronto", "además de ti", "intento", "usando", "dentro", "nos vemos", "hasta luego", "acerca de, al respecto", "a traves de", "disparates", "abuso", "acuerdo", "adicional", "direccion", "admitir", "agradable", "ayudar", "añadir", "ir", "dejalo ir", "dejalo ir, vámonos", "luego, después", "simpatico, amigable", "amigo", "amante", "suelto", "año", "ansiedad", "traer", "aprender", "aprobación", "despues", "la tarde", "despues de ti", "dinero", "parar", "llegada", "sentarse", "sientate", "espere", "atención", "ninguno", "mas alla", "incrementar", "hoy", "además, tambien", "alrededor", "otro", "antes", "ventaja", "con", "con suerte", "avión", "tener", "necesitar", "charlar", "muchos", "bien hecho", "porsupuesto", "bienvenido", "broma", "azul", "beber", "buen trabajo", "hola", "buena suerte", "buen dia", "boca", "moverse", "tienda", "genial", "ruido", "quemar", "eso depende", "no importa", "capaz", "carrera", "catalogar", "este día", "no es nada", "esta noche", "esto", "este", "esto es", "está bien", "esta bien!", "es fácil", "es impresionante", "está aquí", "está allá", "asi es la vida", "es para ti", "es todo", "eso es todo?", "es verdad", "esta semana", "cuarto", "cambio", "capitulo", "cada", "gato", "caliente", "camino", "buscar", "caballo", "perro", "escoger", "tonterías", "cosas", "claramente", "corazón", "recoger", "cuanto", "cuanto cuesta?", "como", "empezar", "comó", "común", "comparar", "concentrado", "concentracion", "conducta", "conflicto", "comodidad", "conexión", "conciencia", "asesor", "conservar", "considerar", "fondo", "sigue practicando", "correr", "crítica", "cocina", "cocinar", "culpa", "cultural", "de", "dama", "peligroso", "en", "de, desde(lugar)", "básico", "de nada", "pararse", "decepcionar", "defender", "defensa", "fuera de", "bota", "diente", "depositar", "molestar", "ültimo", "detras", "las cosas", "adelante", "volverse", "alegrate", "debería", "generalmente", "diferencia", "diferente", "dificultad", "decir", "cuentame", "discurso", "discusion", "discutir", "discutir.", "adivina que?", "diez minutos", "dolor", "así", "dar", "patada", "amable", "dramatico", "descanso, descansar", "dificil", "agua", "falla", "económico", "escuchar", "escribir", "asustado", "no lo es", "imperio", "de ninguna manera", "además", "en todos los lugares", "en todo", "aùn mejor", "aun no", "molesto", "infancia", "aburrido", "registro", "guardar", "oir", "entre", "enviar", "balance, equilibrio", "estás ocupado?", "está", "y", "establecer", "piso", "etiqueta", "asombro", "ser", "estar confundido", "evaluar", "despierto", "evento", "obviamente", "discúlpeme", "ejercicio", "experiencia", "experto", "explique", "expresiones", "extraer", "facíl", "hacer", "compromiso", "cuidado", "hecho", "ten cuidado", "carga", "harina", "ventana", "haria", "filtrar", "final", "terminar", "funcional", "forma", "fuertemente", "fortuna", "golpear", "frecuencia", "frío", "niño", "retener", "pastel,torta", "izquierda", "gente", "hielo", "gobierno", "grande", "usual", "bien", "vacilar, dudar", "ayer", "horrible", "aqui", "es tarde", "ahi", "inmediatamente", "impresionar", "incrementar, incremento", "independiente", "informar", "preocupacion", "instante", "interaccion", "interior", "tengo", "me gusta", "yo", "entiendo", "debo irme", "me disculpo", "no sé", "lo prometo", "yo sé", "estoy en casa", "lo siento", "estoy perdido", "ya veo", "ojalá", "unirse", "estoy de acuerdo", "hasta", "justo", "yo quiero", "por hay", "depresion", "disciplina", "permiteme", "almuerzo", "lo necesario", "ingresos", "lider", "lector", "lectura", "lento", "escalera", "lugar", "lugares", "limite", "leer", "cama", "literalmente puedes", "libro", "entregarte", "localizar", "lejos", "rentar un servicio", "usuario", "lujoso", "ahora", "pero", "casa", "mal", "enfermedad", "comer", "caminar", "mañana", "mismo", "memoria", "mentalmente", "mentir", "gracias", "muchas gracias", "preguntarse", "mejor mañana", "lindo", "minuto", "modo", "patron", "modulo", "mi", "yo tambien", "menos", "dios mio", "mi objetivo", "mostrar", "palabra", "medio", "pared", "susurro", "musica", "no te muevas", "nariz", "nivel", "sustantivo", "varios", "no", "nocion", "nosotros", "ya veremos", "noche", "número", "propósito", "metas", "vamos", "opuesto", "opcion", "tormenta", "o", "donde", "olvidalo", "abierto", "par", "panico", "por", "párrafo", "hablar", "compañero", "en todos lados", "enredado, poco claro", "no hay problema", "nada mal", "gastar", "jefe", "descanso", "durante", "perdido", "periodo", "permiso", "persona", "personalmente", "pequeño", "pocos, algunos", "puede", "puedo", "frases, oracion", "placer", "plataforma", "mayoria", "mas alto", "bastante bien", "punto", "puerta", "para", "para mañana", "para mi", "para todos", "porque no?", "podria", "tomar, agarrar", "disfrutar", "cuidate", "cerca de", "casi", "prensa", "listo", "prueba", "principal", "enchufe", "probabilidad", "probable", "probablemente", "proceso", "propuesta", "limpio", "propietario", "público", "publicación", "tal vez", "poder", "calidad", "cuando", "que piensas?", "que pasa?", "qué hora?", "algo", "pregunta", "quien", "que", "que hay de nuevo?", "cualquier cosa", "contar", "rapido", "reaccion", "reaccionar", "reciente", "recomendacion", "reconocer", "intenta otra vez", "pensar", "mira con atencion", "mirar", "regular", "relacion", "amistad", "conectar", "reunirse", "representar", "resolver", "responsabilidad", "quedarse", "resultado", "despertar", "vuelta", "nada", "rojo", "bolso", "saber cuál es tu", "saber si puedes", "sabio", "sucio", "sala, salón", "salud", "satisfacer", "salto, saltar", "saltar", "ponerse de pie", "ocurrir", "darse cuenta", "secreto", "sentido", "sensacion", "separado", "secuencia", "grave, serio", "servir", "solo", "solamente", "si(condicion)", "asiento", "firmar", "por favor!", "silencio", "inscribirse", "sitio", "situación", "hermana", "aliento", "sonreír", "debajo", "recuerda", "haz silencio", "amplio", "especificar", "estacion", "azucar", "sigueme", "encima, sobre", "encima de mi", "seguramente", "especialmente", "suspender", "mesa", "vaso", "tasa", "demostrarte", "tanto", "sujetar", "evaluacion, prueba", "cabeza", "tu", "tu tambien", "total", "cada, todos", "cada dia", "todos", "derecho, todo recto", "todo bien", "felicitaciones", "tranquilo", "tranquilamente", "transformar", "trabajando", "muy bien", "muy distinto", "muy simple", "triste", "tristeza", "demasiado", "encontrar", "puedes aprender", "algo,un poco", "un", "universal", "universidad", "servicial", "vender", "viernes", "verbo", "verdad", "hacia", "viejo", "cara", "carril", "vuelo", "viaje", "de verdad", "envolver", "absolutamente", "abogado", "continúa ", "mudarse", "estaba", "hecho, fabricado", "quiero", "lista", "confuso, poco claro", "más", "mucho gusto!, encantado de conocerte!", "simple"];
+        const rglosario = ["à", "à bientôt", "à côté de toi", "a essayé", "à l'aide de", "à l'intérieur", "à plus", "à plus tard", "à propos de", "à travers", "absurdité", "abus", "accord", "additionnel", "addresse", "admettre", "agréable", "aidér", "ajouter", "aller", "allons y", "allons y", "alors, apres", "amical", "amie", "amoureux", "ample", "anné", "anxiété", "apporter", "apprendre", "approbation", "après", "après midi", "après vous", "argent", "arrêtez", "arrivée", "asseyez-vous", "assis-toi", "attendre", "attention", "aucun", "au-delà", "augmenter", "aujourd'hui", "aussi", "autour", "autre", "avant", "avantage", "avec", "avec chance", "avion", "avoir", "avoir besoin", "bavarder", "beaucoup", "bien joué", "bien sur", "bienvenue", "blage", "bleu", "boisson", "bon travail", "bonjour", "bonne chance", "bonne journée", "bouche", "bouge toi", "boutique", "brillant", "bruit", "brûler", "ça dépend", "ça ne fait rien", "capable", "carrière", "catalogue", "ce jour", "ce n'est rien", "ce soir", "ce, cette", "ces", "c'est", "c'est bien", "c'est bon", "c'est facile", "c'est génial", "c'est ici", "c'est là", "c'est la vie", "c'est pour toi", "c'est tout", "c'est tout?", "c'est vrai", "cette semaine", "chambre", "changement", "chapitre", "chaque", "chat", "chaud", "chemin", "chercher", "cheval", "chien", "choissisez", "chose futile", "choses", "clairement", "coeur", "collecte", "combien", "combien ça coûte?", "comme", "commencer", "comment", "commun", "comparer", "concentrer", "concentrer", "conduite", "conflit", "confort", "connexion", "conscience", "conseiller", "conserver", "considér", "contexte", "continue pratiquant", "course", "critique", "cuisine", "cuisiner", "culpabilité", "culturel", "d'", "dame", "dangereux", "dans", "de", "de base", "de rien", "debout", "déception", "défendre", "défense", "dehors", "démarrage", "dent", "dépositer", "déranger", "dernier", "derrière", "des trucs", "devant", "devenir", "devenir heureux", "devrait", "d'habitude", "différence", "différent", "difficulté", "dis", "dis moi", "discurs", "discussion", "discuter", "disputer", "divine quoi", "dix minutes", "doleur", "donc", "donner", "donner un coup", "doux(ce)", "dramatique", "du repos", "dure", "eau", "échec", "économique", "écouter", "écrire", "effrayé", "elle n'est pas", "empire", "en aucune façon", "en outre", "en tous lieux", "en tout", "encore mieux", "encore pas", "énervant", "enfance", "ennuyeuse", "enregistrement", "enregistrer", "entendre", "entre", "envoyer", "équilibre", "es tu occupé?", "est", "et", "établir", "étage", "ètiquette", "étonner", "être", "être confus", "évaluer", "éveillé", "événement", "évidemment", "excusez-moi", "exercice", "expérience", "expert", "expliquer", "expressions", "extraire", "facile", "faire", "faire de compromis", "fais attention", "fait", "fait attention", "fardeau", "farine", "fenêtre", "ferait", "filtre", "final", "finir", "fonctionnel", "forme", "fortement", "fortune", "frappé", "fréquence", "froid", "garçon", "garder", "gateau", "gauche", "gens", "glace", "gouvernement", "grand", "habituel", "hè bien", "hésiter", "hier", "horrible", "ici", "il est tard", "il y", "immédiatement", "impressionner", "incrémentation", "indépendant", "informer", "inquiéter", "instant", "interaction", "intérieur", "j'ai", "j'aime", "je", "je comprend", "je devrais partir", "je m'excuse", "je ne sais pas", "je promets", "je sais", "je suis à la maison", "je suis désolé", "je suis perdu", "je vois", "j'espère", "joindre", "j'suis d'accord", "jusqu'a", "juste", "j'veux", "là bas", "la dépression", "la discipline", "laissez-moi", "le dèjeuner", "le nécéssaire", "le revenu", "leader", "lecteur", "lecture", "lent", "les escaliers", "lieu", "lieux", "limite", "lire", "lit", "littéralement tu peux", "livre", "livrer à toi", "localiser", "loin", "louer un service", "l'utilisatuer", "luxueux", "maintenant", "mais", "maison", "mal", "maladie", "manger", "marcher", "matin", "même", "mémoire", "mentalement", "mentir", "merci", "merci beaucoup", "merveille", "mieux demain", "mignon", "minute", "mode", "modèle", "module", "moi", "moi aussi", "moins", "mon dieux", "mon objectif", "montrer", "mot", "moyen", "mur", "murmuré", "musique", "ne bouge pas", "nez", "niveau", "nom", "nombreuses", "non", "notion", "nous", "nous verrons", "nuit", "numéro", "objectif", "objectifs", "on ira", "opposé", "option", "orage", "ou", "où", "oublie ça", "ouvert", "paire", "panique", "par", "paragraphe", "parler", "partenaire", "partout", "pas clair", "pas de problème", "pas mal", "passer", "patron", "pause", "pendant", "perdu", "période", "permis", "personne", "personnellement", "petite", "peu", "peut", "peux", "phrase", "plaisir", "plate-forme", "plus", "plus haut", "plutot- bien", "point", "porte", "pour", "pour demain", "pour moi", "pour tous", "pourquoi pas?", "pourrait", "prendre", "prendre plaisir", "prends soin", "près de", "presque", "presse", "prêt(e)", "preuve", "principal", "prise", "probabilité", "probable", "probablement", "processus", "proposition", "propre", "propriétaire", "public", "publication", "puet-être", "puissance", "qualité", "quand", "que pensez-vous?", "que se passe-t-il?", "quelle heure?", "quelque chose", "question", "qui", "quoi", "quoi de neuf?", "quoi que ce soit", "raconter", "rapide", "réaction", "réagir", "récent", "recommandation", "reconnaître", "rèessayer", "rèflèchir", "regarde avec attention", "regarder", "régulier", "relation", "relation amicale", "relier", "rencontrer", "représenter", "résoudre", "responsabilité", "rester", "résultat", "réveiller", "revenir", "rien", "rouge", "sac à main", "sachez quel est votre", "sachez si pouvez", "sage", "sale", "salle", "santé", "satisfaire", "saut", "sauter", "se mettre debout", "se produire", "se rendre compte", "secret", "sens", "sensation", "séparé", "séquence", "sérieux", "servir", "seul", "seulement", "si", "siège", "signe", "s'il vous plai", "silence", "š'inscrire", "site", "situation", "soeur", "souffle", "sourire", "sous", "souvient toi", "soyez silencieux", "spacieux", "spécifier", "station", "sucre", "suivez-moi", "sur", "sur moi", "sûrement", "surtout", "suspendre", "table", "tasse", "taux", "te montrer", "tellement", "tenir", "tester", "tête", "toi", "toi aussi", "total", "tous", "tous le jours", "tout", "tout droit", "tout va bien", "toutes nos féicitations", "tranquille", "tranquillement", "transformer", "travailler", "très bien", "tres différent", "trés facile", "triste", "tristesse", "trop", "trouver", "tu peux apprendre", "un peu", "une", "universelle", "université", "utile", "vendre", "vendredi", "verbe", "vérité", "vers", "vieux", "visage", "voie", "vol", "voyage", "vraiment", "wrap", "absolument", "avocat", "continue", "déménager", "ètait", "fabriqué", "je veux", "liste", "pas claiir", "plus", "ravi de vous rencontrer", "simple"];
+
+
+
+        /// dom  ================================================0
+        // dom  ================================================0
+        function gls100(num="1") {
+            id("frases_glosario").style.display = "";
+            id("botonera").style.display = "none";
+            id("g100botonera").style.display = "";
+            id("selecionplb").style.display = "none";
+            id("activ").innerHTML="glosario 100-"+num;
+            g100pack(num);
+        }
+        function g100pack(num){
+            const packdis = ["", pgls100, pgls100_2, pgls100_3, pgls100_4,pgls100_5 ,pgls100_6, pgls100_7,pgls100_8, pgls100_9,pgls100_10 ,];
+            const rpackdis =["", rgls100, rgls100_2, rgls100_3, rgls100_4,rgls100_5 ,rgls100_6,rgls100_7,rgls100_8,rgls100_9,rgls100_10,];
+            espanol = packdis[num];
+            portugs = rpackdis[num];
+            id("activ").innerHTML="glosario 100-"+num;
+            paqueteactivo = "gls100_"+num;
+            random();
+
+        }
+
+        function verb400() {
+            id("frases_glosario").style.display = "";
+            id("botonera").style.display = "none";
+            id("g100botonera").style.display = "none";
+            id("selecionplb").style.display = "none";
+            espanol = p400;
+            portugs = r400;
+            id("activ").innerHTML="400 verbos";
+            paqueteactivo = "verb400";
+
+            random();
+        }
+
+        function gls() {
+            id("frases_glosario").style.display = "";
+            id("botonera").style.display = "none";
+            id("g100botonera").style.display = "none";
+            id("selecionplb").style.display = "none";
+            espanol = glosario;
+            portugs = rglosario;
+            id("activ").innerHTML="glosario ";
+            paqueteactivo = "glosario";
+            random();
+        }
+
+        function packoraciones() {
+            id("frases_glosario").style.display = "";
+            id("botonera").style.display = "";
+            id("g100botonera").style.display = "none";
+            id("selecionplb").style.display = "none";
+            id("activ").innerHTML="paquetes de oraciones";
+            
+            packs(5);
+        }
+        function selecionplb() {
+            id("frases_glosario").style.display = "none";
+            id("selecionplb").style.display = "";
+            plb = espanol;
+            rpt = portugs;
+            paqueteactivo = "glosario";
+
+        }
+        function packs(num) {
+            const packdis = ["", ppack1, ppack2, ppack3, ppack4, ppack5, ppack6, ppack7, ppack8, ppack9, ppack10];
+            const rpackdis = ["", rpack1, rpack2, rpack3, rpack4, rpack5, rpack6, rpack7, rpack8, rpack9, rpack10];
+            espanol = packdis[num];
+            portugs = rpackdis[num];
+            paqueteactivo = "ppack" + num;
+            console.log(paqueteactivo);
+            random();
+        }
+
+
+        ///      asignacion de  lista activa????'?????????'
+        var lenguajeObjetivo= 'fr';
+        var lenguaje = lenguajeObjetivo;
+        var espanol = new Array();
+        var portugs = new Array();
+
+        function prt() {
+            let obj={
+                "gls100_1" : pgls100, "gls100_2" : pgls100_2, "gls100_3" : pgls100_3, "gls100_4" : pgls100_4, "gls100_5":pgls100_5,
+                "gls100_6" : pgls100_6, "gls100_7" : pgls100_7, "gls100_8" : pgls100_8, "gls100_9" : pgls100_9, "gls100_10":pgls100_10,
+                "ppack1" : ppack1, "ppack2" : ppack2, "ppack3" : ppack3, "ppack4" : ppack4, "ppack5" : ppack5,
+                "ppack6" : ppack6, "ppack7" : ppack7, "ppack8" : ppack8, "ppack9" : ppack9, "ppack10" : ppack10,
+                "glosario" : glosario, "verb400" : p400
+            };
+            if (paqueteactivo) {
+                // con Objet.assign() asigno una copia del array que corresponde
+                var espanol = Object.assign([], obj[paqueteactivo]);
+            }
+
+            //for (let pivisto of visto) {
+            //    espanol.splice(pivisto, 1);
+            //};
+            var palabraprt = espanol[parseInt(Math.random() * espanol.length)];
+            while( visto.includes(palabraprt)){
+                palabraprt = espanol[parseInt(Math.random() * espanol.length)]; 
+                //console.log(palabraprt);
+            };
+
+            visto.push(palabraprt);
+            //console.log(visto.length, espanol.length);
+            //console.log("en prt leng of plb", plb.length);
+            return palabraprt;
+        };
+
+
+
+        //================logica===============================================
+
+
+
+        var frase1 = id("frase1");
+        var frase2 = id("frase2");
+        var frase3 = id("frase3");
+        var frase4 = id("frase4");
+        var frase5 = id("frase5");
+
+
+        // utterance==================0
+
+        function lee(a) {
+            var myLang = new SpeechSynthesisUtterance(a);
+            myLang.lang = lenguaje;
+            myLang.rate = .9;
+            speechSynthesis.speak(myLang);
+        }
+
+
+        // lectura con event listene mas eficiente que las funciones ***********++
+        /*/*********************comprobar
+        const frasesl= id("frases");
+        frasesl.addEventListener("click", (e)=>{
+            var cl= e.target.parentNode.id;
+            const epread= id(cl); 
+            console.log(e.target.parentNode.id);
+            lee(epread.lastElementChild.innerHTML);
+            bgcolor(cl);
+            contar();
+        });
+        //*/
+
+
+        function fras1() {
+            lee(frase1.lastElementChild.innerHTML)
+            bgcolor(frase1);
+            contar();
+        }
+
+        function fras2() {
+            lee(frase2.lastElementChild.innerHTML)
+            bgcolor(frase2);
+            contar();
+        }
+
+        function fras3() {
+            lee(frase3.lastElementChild.innerHTML)
+            bgcolor(frase3);
+            contar();
+        }
+
+        function fras4() {
+            lee(frase4.lastElementChild.innerHTML)
+            bgcolor(frase4);
+            contar();
+        }
+
+        function fras5() {
+            lee(frase5.lastElementChild.innerHTML)
+            bgcolor(frase5);
+            contar();
+        }
+
+
+
+        var visto = new Array();
+
+        function random() {
+            let frase = [frase1, frase2, frase3, frase4, frase5];
+            frase.forEach(element => {
+                element.firstElementChild.innerHTML = prt();
+                element.lastElementChild.innerHTML = portugs[espanol.indexOf(element.firstElementChild.innerHTML)];
+            });
+            if (visto.length >= espanol.length - 5) {
+                visto = new Array();
+            }
+        };
+
+        //==============contar: cada vez que se escucha una palabra suma 1
+        function contar() {
+            let contar = id("contar");
+            contar.innerHTML = parseInt(contar.innerHTML) + 1;
+            if (contar.innerHTML == "50") {
+                contar.style.background = "green";
+                contar.style.fontSize = "25px";
+
+
+            }
+        }
+        //=======colores
+
+        function bgcolor(ele) {
+            ele.style.background = "rgb(" + (100+Math.round(Math.random() * 155)) + ","+(150+ Math.round(Math.random() * 105)) + ","+ 200+Math.round(Math.random() * 55) + ")";
+
+            setTimeout(() => {
+                ele.style.background = "";
+            }, 1000);
+        };
+
+
+        //--------------------seleccion de palabras
+
+        "publicidad, como lo haces, "
+        var grande = document.getElementsByClassName("grande");
+        var palabra = id("palabra");
+        var option = id("option");
+        var op1 = id("op1");
+        var op2 = id("op2");
+        var op3 = id("op3");
+        var op4 = id("op4");
+        var puntos = id("puntos");
+        var timer = id("timer");
+        var min = id("min");
+        var seg = id("seg");
+        var pregunta = id("pregunta");
+        var respuestac = id("respuestac");
+
+
+
+        function tiempo() {
+            seg.innerHTML = parseInt(seg.innerHTML) + 1;
+            if (parseInt(seg.innerHTML) <= 9) {
+                seg.innerHTML = "0" + seg.innerHTML;
+            };
+            if (parseInt(seg.innerHTML) >= 60) {
+                min.innerHTML = parseInt(min.innerHTML) + 1;
+                if (parseInt(min.innerHTML) <= 9) {
+                    min.innerHTML = "0" + min.innerHTML;
+                };
+                seg.innerHTML = "00";
+            };
+        }
+        var tt = 0;
+
+        function tiempostop() {
+            if (parseInt(puntos.innerHTML) >= 50) {
+                clearInterval(tt);
+            }
+        }
+        //palabra.addEventListener("onclick", show());
+        var vistos = new Array();
+
+        var plb = new Array();
+
+        var rpt = new Array();
+
+        function pprt() {
+            if (paqueteactivo == "glosario") {
+                var plb = Object.assign([], espanol);
+            }
+
+            for (let pivisto of vistos) {
+                for (let verbo of plb) {
+                    if (pivisto === verbo) {
+                        plb.splice(plb.indexOf(verbo), 1);
+                    };
+                };
+            };
+
+            var palabraprt = plb[parseInt(Math.random() * plb.length)];
+
+            return palabraprt;
+        };
+
+        //console.log(palabra);   
+        function show() {
+            if (tt == 0) {
+                tt = setInterval(tiempo, 1000);
+            }
+            palabra.innerHTML = pprt();
+            console.log("texto ", palabra.innerHTML);
+            var opcion = new Array(
+                op1.innerHTML = rpt[parseInt(Math.random() * plb.length)],
+                op2.innerHTML = rpt[parseInt(Math.random() * plb.length)],
+                op3.innerHTML = rpt[parseInt(Math.random() * plb.length)],
+                op4.innerHTML = rpt[parseInt(Math.random() * plb.length)]
+            );
+            var lstran = option.getElementsByClassName("o");
+            lstran[parseInt(Math.random() * 4)].innerHTML = rpt[plb.indexOf(palabra.innerHTML)];
+
+            if (palabra.innerHTML in vistos) {
+                return alert("esta en vistos");
+            };
+
+            tiempostop();
+            //opcion[parseInt(Math.random()*opcion.length)]= rpt[plb.indexOf(prt)];
+            grande[0].style.backgroundColor = "grey";
+
+            //console.log(opcion);
+            //console.log(vistos);
+        };
+        function descarte(b) {
+            //console.log(rpt[plb.indexOf(b)], b);
+            rpt.pop(rpt[plb.indexOf(b)]);
+            plb.pop(b);
+            ////console.log("rpt ", rpt.length, "plb ", plb.length);
+        };
+        //-------------sustituye todas las funcion show siguientes
+        //-------------las hago un solo bloque de codigo-----------------
+        option.addEventListener("click", (e)=>{
+            if(e.target.id !="option"){
+                let slct= document.getElementById(e.target.id)
+                if (rpt.indexOf(slct.innerHTML) == plb.indexOf(palabra.innerHTML)) {
+                    puntos.innerText = parseInt(puntos.innerHTML) + 1.0;
+                    $acierto.innerText= parseInt($acierto.innerHTML)+ 1;
+                    lee(slct.innerHTML);
+                    vistos.push(palabra.innerHTML);
+                    grande[0].style.backgroundColor = "green";
+                    if (parseInt(puntos.innerHTML) >= 5) {
+                        puntos.style.color = "rgb(250, 243, 243)";
+                        //puntos.style.font-size= 30px;
+                    };
+                } else {
+                    //puntos.innerText = (parseInt(puntos.innerHTML)) - 1.0;
+                    grande[0].style.background = "red";
+                    pregunta.innerHTML = palabra.innerHTML;
+                    respuestac.innerHTML = rpt[plb.indexOf(palabra.innerHTML)];
+                    lee(rpt[plb.indexOf(palabra.innerHTML)]);
+                    $fallo.innerText= parseInt($fallo.innerHTML)+ 1;
+                };
+            
+                setTimeout(function() {
+                    show();
+                }, 300);
+                tasa();
+
+            }
+        })
+        //----------------------------------------------------
+
+        function rptt() {
+            speechSynthesis.speak(new SpeechSynthesisUtterance(respuestac.innerHTML));
+
+        };
+
+                /// efetividad
+
+        var $acierto=document.getElementById("acierto");
+        var $fallo=document.getElementById("fallo");
+        var $tasa=document.getElementById("tasa");
+            
+        var tasa=() =>{
+            var total= parseInt($acierto.innerText)+            parseInt($fallo.innerText);
+            $tasa.innerText= (parseInt($acierto.innerText)*100) / total;
+        };
+    
+
+        // vos a texto codigo del video de internet prtallin
+
+
+        
+        /*//=============== revertir mensaje
+
+
+        var a = "hola como estas";
+        var food;
+        // divide cada letra,retorna una array. 
+        //reverse, invierte el array
+        // join, une todo los valores del array en un string
+        console.log(a.split("").reverse().join(""));
+
+        //*/
+
+        //======================lectura automatica de las palabras
+        //console.log(t);
+        const frases = [frase1, frase2, frase3, frase4, frase5];
+        var iterador = 0;
+        var velocidad= 2000;
+        var t;
+        
+
+            //para leer los do idiomas
+            var dual= false;
+        //===================
+        function auto(valor) {
+            let conta = id("contar");
+            let L = valor;
+            if (valor == "a") {
+                t = setInterval(() => {
+                    if(dual== true){
+                        lenguaje = 'es';
+                        lee(frases[iterador].firstElementChild.innerText);
+                    }
+                    //lenguaje = 'es';
+                    //lee(frases[iterador].firstElementChild.innerText);
+                    lenguaje = lenguajeObjetivo;
+                    lee(frases[iterador].lastElementChild.innerHTML);
+                    bgcolor(frases[iterador]);
+                    contar();
+                    iterador++;
+                    if (iterador >= 5) {
+                        iterador = 0;
+                        setTimeout(() => {
+                            random();
+                        }, velocidad-100);
+                    }
+                    if (parseInt(conta.innerHTML) >= 1350) {
+                        clearInterval(t);
+                        conta.innerHTML= "0";
+                        id('btnleer').setAttribute("onclick", "auto('a')");
+                        id('btnleer').innerHTML= ".    leer   ." ;
+                    }
+                }, velocidad);
+                id('btnleer').setAttribute("onclick", "auto('b')") ;
+                id('btnleer').innerHTML= ".  parar  ." ;
+            } else {
+                clearInterval(t);
+                id('btnleer').setAttribute("onclick", "auto('a')");
+                id('btnleer').innerHTML= ".    leer   ." ;
+            }
+        }
+        id("lecturauto").addEventListener("click", (e) => {
+          // Todo...
+            
+            if (velocidad != 1000) {
+                if(e.target.id == "mas"){
+                    auto("b");
+                    velocidad -= 500;
+                    auto("a");
+                    e.target.style.background="green";
+                    setTimeout(() => {
+                        e.target.style.background="";
+                    }, 100);
+                console.log(velocidad);
+                } 
+            }
+            if(e.target.id == "menos"){
+                auto("b");
+                velocidad += 500;
+                auto("a");
+                e.target.style.background="green";
+                    setTimeout(() => {
+                        e.target.style.background="";
+                    }, 100);
+                console.log(velocidad);
+            }
+            if(e.target.id== "dual" ){
+                if(dual == false){
+                    dual= true;
+                    id("dual").style.background="green";
+                }else{
+                    dual =false;
+                    id("dual").style.background="";
+                }
+            }
+
+        });
+        //*/
+        //*** generar lista de terminos   *****************************************
+
+        var llen = "";
+        let numeroLista=1;
+            
+        function llenar() {
+            var ele = id('ejemplo');
+            
+            if (ele.innerHTML === "click") {
+                espanol.forEach(p => {
+                        //cargo todos los datos en el fragmento, para modicifacer solo una vez el DOM
+                        llen += `<li><strong>${numeroLista}-. </strong>
+                        ${p} <-----      ------>${portugs[espanol.indexOf(p)]}
+                        </li>`;
+                        numeroLista++;  
+                    })
+                    //DESDEPUS DEL BUCLE,,,, CARGA LOS DATOS AL DOM
+                ele.innerHTML = llen;
+
+            } else {
+                llen = "";
+                numeroLista= 1;
+                ele.innerHTML = "click";
+            }
+
+
+        }
+
+        //// click para que no se apague la pantalla del telefono
+        // no funciona para la pantalla pero hacer el click
+        /*setInterval(() =>{
+            document.documentElement.click()
+            //document.documentElement.style.color= "rgb("+Math.floor(Math.random()*254)+","+Math.floor(Math.random()*254)+",0,.1)";
+            }, 1000*60);
+        */
+            
+        ///// si hay un click en la ventana del navegador
+        window.addEventListener("click",(e) => {
+            id("simulanclick").style.background= "rgb("+(Math.floor(Math.random()*5)+240)+","+(Math.floor(Math.random()*10)+240)+","+(Math.floor(Math.random()*10)+240)+")";
+            //console.log(id("simulanclick").style.background);
+        });    
+    </script>
+
+</body>
+
+</html>

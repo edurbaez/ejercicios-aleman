@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>separador de palabras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #58a700;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4e8e00;
+        }
+        div {
+            margin-top: 20px;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    td {
+        width: 50%;
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+    }
+    </style>
+</head>
+<body>
+    <textarea name="" id=""></textarea>
+    <button>procesar</button>
+        <!---->
+    <div>
+        <div>
+        <button onclick="toggleMenu()">Menu</button>
+        <div id="dropdownMenu" style="display: none;">
+            <button onclick="idioma = 'es'">espanol</button>
+            <button onclick="idioma = 'en'">ingles</button>
+            <button onclick="idioma = 'fr'">frances</button>
+            <button onclick="idioma = 'ru'">ruso</button>
+            <button>botton 5</button>
+        </div>
+    </div>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            if (menu.style.display === 'none' || menu.style.display === '') {
+                menu.style.display = 'block';
+            } else {
+                menu.style.display = 'none';
+            }
+        }
+    </script>
+    <!---->
+    <div>
+        <h2>lista <strong id="npalabra"></strong></h2>
+        <ul id="paas"></ul>
+
+    </div>
+
+
+    <script>
+
+        const textarea = document.querySelector('textarea');
+        const btn = document.querySelector('button');
+        const paas = document.getElementById('paas');
+        const npalabra = document.getElementById('npalabra');
+        var n = 0;
+        var idioma = 'es';
+        lista = [];
+
+        btn.addEventListener('click',()=>{
+
+            const text = textarea.value;
+            // expresion regula para quielar los caracteres especiales y mantener las letras incluyendo la ñ, é, á, í, ó, ú
+            const regex = /[^\w\s\é\á\ä\í\ß\ó\ú\ü\ö]|\d/g;
+            const quitarsaltodeLinea = /[\n\r]+/g;
+            const cleanedText = text.replace(quitarsaltodeLinea, ' ');
+            const cleanedLine = cleanedText.replace(regex, '');
+            const lines = cleanedLine.split(' ');
+            //const lowercaseLines = lines.map(line => line.toLowerCase());
+            
+            unique(lines).forEach((line, index) => {
+                translateWord(idioma, line).then(traducido => {
+                    lista.push({ palabra: line, traduccion: traducido });
+                    
+                });
+            });
+
+
+            lista.sort((a, b) => a.palabra.localeCompare(b.palabra)).forEach((line, index) => {
+                const li = document.createElement('li');
+                const table = document.createElement('table');
+                const tr = document.createElement('tr');
+                const tdWord = document.createElement('td');
+                const tdTranslation = document.createElement('td');
+
+                tdWord.textContent = line.palabra;
+                tdTranslation.textContent = line.traduccion;
+
+                tr.appendChild(tdWord);
+                tr.appendChild(tdTranslation);
+                table.appendChild(tr);
+                li.appendChild(table);
+                paas.appendChild(li);
+            });
+        });
+
+
+
+
+        // funcion para convertin un array en un set
+        function unique(arr) {
+            const uniqueArray = Array.from(new Set(arr));
+            return uniqueArray.sort((a, b) => a.localeCompare(b));
+        }
+
+        //funcion para solicitar le traduccion de una palabra  
+        async function translateWord(idi, word) {
+            if (Array.isArray(word)) {
+                    word = word.join('.').replace(/,/g, '. ');
+                }
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=${idi}&dt=t&q=${encodeURIComponent(word)}`;
+            try {
+               
+                const response = await fetch(url);
+                const result = await response.json();
+                var resultado = result[0][0][0];
+                return resultado;
+            /*const table = document.createElement('table');
+            const tr = document.createElement('tr');
+            const tdWord = document.createElement('td');
+            const tdTranslation = document.createElement('td');
+
+            tdWord.textContent = word;
+            tdTranslation.textContent = resultado;
+
+            tr.appendChild(tdWord);
+            tr.appendChild(tdTranslation);
+            table.appendChild(tr);
+            paas.appendChild(table);
+            */
+            } catch (error) {
+                console.error('Error translating word:', error);
+                return word;
+            }
+        }
+        
+  
+        
+    </script>
+
+</body>
+</html>

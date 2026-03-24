@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprende Alemán - Vocabulario</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+        }
+
+        .panel {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .card {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .word-display {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: #388e3c;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+
+        .btn-secondary {
+            background-color: #2196F3;
+        }
+
+        .btn-secondary:hover {
+            background-color: #1976D2;
+        }
+
+        #sets-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+            flex-wrap: nowrap;
+            -webkit-overflow-scrolling: touch;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        #sets-bar::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #sets-bar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #sets-bar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 999px;
+        }
+
+        #sets-bar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        #sets-bar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.25) transparent;
+        }
+
+        #sets-bar .btn {
+            flex: 0 0 auto;
+        }
+
+        .footer-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .table-container {
+            margin-top: 40px;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .game-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Selector de listas -->
+        <div id="sets-bar" class="panel"></div>
+
+        <!-- Sección: Selección Múltiple -->
+        <section class="game-section" id="seleccion-multiple">
+            <div class="header">
+                <h1 class="title">Quiz de Vocabulario</h1>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-value" id="aciertos">0</div>
+                    <div class="stat-label">Aciertos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="errores">0</div>
+                    <div class="stat-label">Errores</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="tiempo">00:00</div>
+                    <div class="stat-label">Tiempo</div>
+                </div>
+            </div>
+
+            <div class="word-display" id="palabra"></div>
+
+            <div class="options-grid" id="opciones">
+                <div class="option" id="op1" data-index="0"></div>
+                <div class="option" id="op2" data-index="1"></div>
+                <div class="option" id="op3" data-index="2"></div>
+                <div class="option" id="op4" data-index="3"></div>
+            </div>
+        </section>
+
+        <!-- Sección: Repetición Oral -->
+        <section class="game-section" id="repeticion-palabras">
+            <div class="header">
+                <h1 class="title">Repetición de Palabras</h1>
+            </div>
+
+            <div class="panel" style="gap: 20px;">
+                <div class="card word-display" id="p1"></div>
+                <div class="card word-display" id="p2"></div>
+            </div>
+
+            <div class="footer-controls">
+                <button class="btn btn-secondary" id="auto">Auto: ON</button>
+                <button class="btn btn-danger" id="dual">DE</button>
+                <button class="btn" id="leer">Leer</button>
+            </div>
+        </section>
+
+        <!-- Sección: Lista de Palabras -->
+        <section class="table-container">
+            <div class="header">
+                <h1 class="title">Lista de Palabras</h1>
+            </div>
+            <table id="lista">
+                <thead>
+                    <tr>
+                        <th>Alemán</th>
+                        <th>Español</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+    </div>
+
+    <script src="aaprima.js"></script>
+</body>
+</html>

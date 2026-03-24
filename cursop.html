@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            transition: background 0.2s;
+        }
+        body{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 97vh;
+            padding-bottom: 0%;
+            margin-bottom: 0%;
+        }
+        footer{
+            display: flex;
+            width: 100%;
+            background: yellowgreen;
+            justify-content: space-around;
+        }
+        div{
+            /*display: ;*/
+            margin: auto;
+            width: 90%;
+            justify-content: space-around;
+        }
+
+        #palabrasbuscar{
+            padding: 2px;
+            width: 50%;
+            font-size: 2.5em;
+            
+            
+            
+        }
+        #repetir div, #opciones div {
+            padding: 20px;
+            width: 50%;
+            height: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            border: 1px solid black;
+        }
+        button {
+            flex: 1 1 auto;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border: #173819 solid 3px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div id="selec" style="border:black 1px dashed;">
+        <div id="palabrasbuscar"> palabra aqui</div>
+        <div id="opciones">
+            <div id="op1">op1</div>
+            <div id="op2">op2</div>
+            <div id="op3">op3</div>
+            <div id="op4">op4</div>
+        </div>
+    </div>
+    <div id="repetir" style="display: none;">
+        <div id="p1"></div>
+        <div id="p2"></div>
+    </div>
+    <footer>
+        <button id="auto" onclick="Auto()" style="background-color: green;">auto: on</button>
+        <button id="dual" onclick="Dual()" style="background-color: red;">de</button>
+        <button id="leer" onclick="Leer()">Leer</button>
+        
+    </footer>
+    <hr>
+    <div style="display: flex;margin: 0%; padding-bottom: 0%;">
+        <button onclick="listaN(0)">leccion1</button>
+        <button onclick="listaN(1)">lst2</button>
+        <button onclick="listaN(2)">lst3</button>
+        <button onclick="listaN(3)">lst4</button>
+        <button onclick="listaN(4)">lst5</button>
+        <button onclick="listaN(5)">lst6</button>
+    </div>
+    <script>
+        var p1 = document.getElementById("p1");
+        var p2 = document.getElementById("p2");
+
+        //base con todas la palabras en español y aleman
+        const baseesp= ["¿Qué opinas de ello?", "¿Te importa?", "Bien, entonces", "¿Tiene que ser así?", "Oh, no. No tengo ganas ahora", "Podemos hacerlo mañana", "No, estoy en contra", "Preferiría...", "Preferiría...", "Oh, vamos", "¡Vamos!", "Esto es...", "Eso definitivamente es divertido", "¿No lo crees?", "¿No estás a favor?", "¿No puedes entender eso?", "¿lo entiendes?", "¿Sabes que?", "hacemos... en...", "¿En realidad?", "¿prometido?", "¡Ciertamente!", "¡Eso es lindo!", "Es importante que...", "es bueno que...", "yo no lo veo de esa manera", "¿Te gusta mirar...(medios)?", "¡Ah, ya veo!", "¡Ah sí!", "No lo creo.", "¡Pero con mucho gusto!", "Gracias a ti también.", "No me importa", "Lo siento, eso no es posible en este momento.", "¡Pero claro! Eso funciona.", "Esto es urgente.", "Esto es urgente.", "¿hasta cuando?", "Está bien, haré esto hasta...", "¡definitivamente!", "Que tenga un lindo día", "¡Eso me agrada!", "¿Puedo sugerir algo?", "¡Esa es una buena idea!", "si, bien", "Buena idea", "la lengua nativa", "particularmente", "volver", "regresar", "dia capital", "la lluvia", "la clase", "el momento", "la lección", "la escuela vocacional", "el jefe", "total", "por la noche", "agrio", "de nuevo", "la corazonada", "necesariamente", "ganar", "feliz", "la frontera", "la vida", "corajudo", "temeroso", "pesimista", "optimista", "el mundo", "penetrar", "el medio", "el pais extranjero", "empaquetar", "el empleador", "decir", "suceder", "el pueblo", "conseguir", "alquilar", "llegar a saber", "el estudio", "en el camino", "experiencia", "inteligente", "embarazada", "bastante", "la patria", "simpático", "irse", "el éxito", "prohibir", "vender", "la historia", "extrañar", "perder", "extrañar", "finalizar", "mover", "el certificado", "la competencia", "el pasante", "diligente", "el equipo", "el testimonio", "incluido", "lleno", "el futuro", "el barco", "la experiencia", "seguro", "inútil", "crear", "el significado", "la pasantía", "absolutamente", "lleno de tensión", "la preocupación", "ordenado", "el praliné", "traer", "ponerse ", "la rosa", "bastante", "la regla", "la despedida", "el motor de arranque", "el plato principal", "el postre", "la comida", "el fin", "de repente", "abierto", "elogio", "rechazar", "educado", "la porción", "despierto", "llorar", "enamorado", "los papeles", "la lavandería", "precisamente como", "diferente", "sorpresa", "afilado", "dulce", "salado", "amargo", "harto", "Adelante", "oler", "traer", "apartado", "normalmente", "trepar", "la sugerencia"];
+        const basede= ["was hältst du davon?", "hast du was dagegen?", "Okay, dann", "must das sein?", "Ach, nein. ich habe jetzt keine Lust", "Das können wir doch morgen machen", "Nein, ich bin dagegen", "ich möchte lieber...", "ich würde lieber...", "Ach, komm", "Na los!", "Das ist...Adj", "Das macht bestimmt Spaß", "Findest du nicht?", "bist du nicht dafür?", "Kannst du das nicht verstehen?", "verstehst du?", "Weißt du was?", "wir machen ... am...", "Wirklich?", "versprochen?", "Ganz bestimmt!", "das ist schön!", "Es ist wichtig, dass...", "es ist schön, dass...", "das sehe ich nicht so", "siehst du gern...(medien)?", "Ah, ich verstehe!", "Ah ja!", "Ich glaube nicht.", "Aber gern!", "Danke, Ihnen auch.", "Das ist mir egal", "Tut mir leid, Das geht gerade nicht.", "Aber naturlich! Das geht.", "Das ist dringend.", "Das ist eilig.", "bis wann?", "Okay, ich mache das bis...", "auf jedem fall!", "Einen schönen Tag noch", "Das freut mich!", "Darf ich etwas vorschlagen?", "Das ist eine gute Idee!", "Ja gut", "Gute Idee", "die Muttersprache", "besonders", "zurückgehen", "zurückkommen", "dia Hauptstadt", "der Regen", "die Klasse", "der Moment", "der Unterricht", "die Berufsschule", "der Chef", "total", "nachts", "sauer", "wieder", "die Ahnung", "inbedingt", "verdienen", "glücklich", "die Grenze", "das Leben", "mutig", "ängstlich", "pessimistich", "optimistisch", "die Welt", "dringen", "die Mitte", "das Ausland", "einpacken", "der Arbeitgeber", "erzählen", "passieren", "das Dorf", "kriegen", "mieten", "kennenlernen", "Das Studium", "unterwegs", "erleben", "intelligent", "schwanger", "ziemlich", "die Heimat", "sympatisch", "weggehen", "der Erfolg", "verbieten", "verkaufen", "die Geschichte", "verpassen", "verlieren", "vermissen", "beenden", "verschieben", "die Urkunde", "der Wettbewerb", "der Praktikant", "fleißig", "das Team", "das Zeugnis", "dabei", "voll", "die Zukunft", "das Schiff", "die Erfahrung", "sicher", "sinnlos", "schaffen", "der Sinn", "das Praktikum", "absolut", "stressig", "die Sorge", "ordentlich", "die Praline", "mitbringen", "anziehen", "die Rose", "ganz", "die Regel", "der Abschied", "die Vorspeise", "die Hauptspeise", "die Nachspeise", "die Speise", "das Ende", "plötzlich", "offen", "loben", "ablehnen", "höflich", "die Portion", "wach", "weinen", "verliebt", "die Papiere", "die Wäsche", "genauso", "anders", "überraschen", "scharf", "süß", "salzig", "bitter", "satt", "reinkommen", "riechen", "bringen", "getrennt", "normaleweise", "klettern", "der Vorschlag"];
+        //copia los valores de la base de datos del 1 al 100 usanfo object asing
+
+        var palabras=[...baseesp.slice(0,100)];;
+        var traduccion=[...basede.slice(0,100)];; 
+        
+
+        //divide la base de palabras en listas de 100 palabras para mostrarlas 
+        function listaN(n){
+            var inicio=n*100
+            var fin=inicio+100
+            palabras=[...baseesp.slice(inicio,fin)];
+            traduccion=[...basede.slice(inicio,fin)];
+            mostrarPalabra();
+        }
+        
+        var visto= [];
+        auto = auto;
+        dual = false;
+
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+        var intentos = 0;
+        function getPalabra(){
+            var index = getRandomInt(palabras.length);
+            while(visto.includes(index)&& intentos<10){
+                return getPalabra();
+                intentos++;
+                console.log("intenton",intentos);
+                
+            }
+            if(visto.length == palabras.length -3){
+                    visto = [];
+                    
+            }
+            visto.push(index);
+            return index;
+        }
+       
+        
+
+        // formuala para leer el innertext de un elemento que capture el evento en utterance y llame la funcion
+        var manejoDual= false;
+        var idioma = "de";
+        function leerTexto(texto= p2.innerText) {
+            var texto;    
+            idioma = "de";
+            texto= p2.innerText; 
+            if(dual){
+                if(manejoDual){
+                    idioma = "es";
+                    texto= p1.innerText; 
+                    manejoDual = false;
+                }else{
+                    idioma ="de";
+                    texto= p2.innerText; 
+                    manejoDual = true;
+                }
+            }
+            
+            var utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = idioma;
+            speechSynthesis.speak(utterance);
+            
+            
+            //idioma = idioma=="es-ES"?"de-DE":"es-ES";
+            //texto= texto==p1.innerText?p2.innerText:p1.innerText;
+            //if (speechSynthesis.speaking) {
+            //    console.log("Leyendo el texto");
+            //}
+            if(auto){
+                utterance.onend = function() {     
+                    setTimeout(() => {    
+                        if(idioma=="de"){
+                            mostrarPalabra();    
+                        }
+                        leerTexto();
+                        
+                    }, 500);
+                }
+                
+
+
+            }
+            
+        }
+        function Auto(){
+            document.getElementById("auto").innerText = auto==true?"auto:off":"auto: on";
+            
+            if(auto){
+                document.getElementById("auto").style.backgroundColor = "red";
+            }else{
+                document.getElementById("auto").style.backgroundColor = "green";
+            }
+
+            auto= auto==false?true:false
+        }        
+        function Dual(){
+            document.getElementById("dual").innerText = dual==true?"de":"es-de";
+            
+            if(dual){
+                document.getElementById("dual").style.backgroundColor = "red";  
+            }else{
+                document.getElementById("dual").style.backgroundColor = "green";
+            }
+
+            dual= dual==false?true:false
+        }
+        function Leer(){
+            
+            if(document.getElementById("leer").innerText == "activo"){
+                location.reload()
+                
+            }
+            if(document.getElementById("leer").innerText == "Leer"){
+                document.getElementById("leer").innerHTML = "activo";
+                document.getElementById("leer").onclick = "Leer()";
+                leerTexto()
+                  
+            }
+
+
+        }
+        
+        function mostrarPalabra(){
+            var index = getPalabra();
+            p1.innerText = palabras[index];
+            p2.innerText = traduccion[index];
+        }
+        mostrarPalabra();
+
+        // Call the function when the button is clicked
+        //document.querySelector("button").addEventListener("click", leerTexto);
+        
+        
+        /*
+        
+        
+        */
+        var verificar;
+        var op1= document.getElementById("op1")
+        var op2= document.getElementById("op2")
+        var op3= document.getElementById("op3")
+        var op4= document.getElementById("op4")
+        
+        function juegoselecion(){
+            let palabraparabuscar= getPalabra()
+            document.getElementById("palabrasbuscar").innerHTML = palabras[palabraparabuscar]
+            
+            op1.innerHTML= traduccion[getPalabra()];
+            op2.innerHTML=traduccion[getPalabra()];
+            op3.innerHTML=traduccion[getPalabra()];
+            op4.innerHTML=traduccion[getPalabra()];
+            let confirmacion= [op1,op2,op3,op4];
+            confirmacion[Math.floor(Math.random()*3)].innerHTML= traduccion[palabraparabuscar]   
+
+        }
+
+        function leerselec(texto) {
+            var utterance = new SpeechSynthesisUtterance(texto);
+                utterance.lang = idioma;
+                speechSynthesis.speak(utterance);
+                
+        }
+        document.getElementById("opciones").addEventListener("click",(e)=>{
+            let evento= e.target.id
+            //console.log(traduccion.indexOf(e.target.innerText))
+            if(traduccion.indexOf(e.target.innerText)== palabras.indexOf(document.getElementById("palabrasbuscar").innerText) ){
+                leerselec(e.target.innerText)
+                document.getElementById("opciones").style.background="green"
+                setTimeout(() => {
+                    document.getElementById("opciones").style.background=""
+                    
+                }, 400);
+                juegoselecion();
+
+            }else{
+                leerselec(traduccion[palabras.indexOf(document.getElementById("palabrasbuscar").innerText)])
+                document.getElementById("opciones").style.background="red"
+                setTimeout(() => {
+                    document.getElementById("opciones").style.background=""
+                    
+                }, 400);
+
+                juegoselecion();
+            }
+            
+
+        })
+        
+        juegoselecion()
+
+
+    </script>
+</body>
+</html>

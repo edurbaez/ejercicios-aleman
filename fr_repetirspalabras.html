@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lista de palabras</title>
+    <style>
+        body{
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 90vh;
+        }
+        footer{
+            display: flex;
+            width: 100%;
+            background: yellowgreen;
+            justify-content: space-around;
+        }
+        div{
+            /*display: ;*/
+            margin: auto;
+            width: 90%;
+            justify-content: space-around;
+        }
+        div div{
+            padding: 20px;
+            width: 50%;
+            height: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            border: 1px solid black;
+        }
+        button {
+            flex: 1 1 auto;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border: #173819 solid 3px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        button:active {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div id="p1"></div>
+        <div id="p2"></div>
+    </div>
+    <footer>
+        <button id="auto" onclick="Auto()" style="background-color: green;">auto: on</button>
+        <button id="dual" onclick="Dual()" style="background-color: red;">de</button>
+        <button id="leer" onclick="Leer()">Leer</button>
+        
+    </footer>
+    <hr>
+    <div style="display: flex;margin: 0%;">
+        <button onclick="listaN(0)">lst1</button>
+        <button onclick="listaN(1)">lst2</button>
+        <button onclick="listaN(2)">lst3</button>
+        <button onclick="listaN(3)">lst4</button>
+        <button onclick="listaN(4)">lst5</button>
+        <button onclick="listaN(5)">lst6</button>
+    </div>
+    <script>
+        var p1 = document.getElementById("p1");
+        var p2 = document.getElementById("p2");
+
+        //base con todas la palabras en español y aleman
+        const baseesp= ["Buenos días", "Hola (informal)", "Buenas noches", "Hola (afectuoso, informal)", "¿Cómo estás?", "¿Todo bien?", "¡Todo bien, gracias!", "Muy bien, gracias", "¿Y tú?", "No está mal", "No estoy tan mal", "Más o menos", "Cansado(a)", "No muy bien", "Estoy bien", "Todo en orden (informal)", "¿Qué hay de nuevo?", "Estoy feliz de verte", "Estoy encantado(a) de verte", "Gracias", "Muchas gracias", "Gracias infinitas", "Muchas gracias", "Gracias por todo", "Gracias por tu ayuda", "Gracias por estar aquí", "De nada", "No hay de qué", "Hasta pronto", "Hasta luego", "Hasta la próxima", "Hasta mañana", "Buen día", "Buena noche", "Buenas noches", "Que tengas dulces sueños", "Que tengas un buen día", "Que tengas una buena noche", "Que tengas un buen fin de semana", "¡Ánimo!", "Cuídate", "Tienes una bonita sonrisa", "Eres muy elegante", "Me gusta tu estilo", "Eres encantador(a)", "Tienes mucho encanto", "Eres amable", "Tienes buen gusto", "Me encanta tu atuendo", "Te queda bien", "Tu ropa es bonita", "Tus zapatos son hermosos", "Me gustan tus cabellos", "Eres muy amable", "Tus ojos son hermosos", "Tu sonrisa es encantadora", "Es amable de tu parte", "Eres una bella persona", "Me conmueve tu amabilidad", "Te agradezco de todo corazón", "Me hace feliz", "Te deseo un buen día", "Te deseo una buena noche", "Que sigas bien", "Buen descanso", "Buen regreso", "Descansa bien", "Cuídate bien", "Nos vemos más tarde", "Hasta luego (informal)", "Chao", "Besos (informal, amistoso)", "Buen provecho", "Disfruta", "Me caes bien", "Estoy aquí para ti", "Te entiendo", "Cuídate", "Mantente positivo(a)", "Quédate como eres", "Te deseo toda la felicidad", "Buen viaje", "Buenas vacaciones", "Diviértete", "¡Bravo!", "Felicitaciones", "¡Genial!", "¡Excelente!", "¡Magnífico!", "Te extrañé", "Estoy contento(a) de verte", "Te aprecio mucho", "Que tengas un buen momento", "Mantente en contacto", "Fue un placer", "Iluminaste mi día", "Eres único(a)", "Eres precioso(a)", "Me conmueve el corazón", "Mis respetos"];
+        const basede= ["Bonjour", "Salut", "Bonsoir", "Coucou", "Comment ça va ?", "Ça va ?", "Ça va bien, merci !", "Très bien, merci", "Et toi ?", "Pas mal", "Ça va pas trop mal", "Comme ci, comme ça", "Fatigué(e)", "Pas très bien", "Je vais bien", "Ça roule", "Quoi de neuf ?", "Je suis content(e) de te voir", "Je suis ravi(e) de te revoir", "Merci", "Merci beaucoup", "Merci infiniment", "Merci bien", "Merci pour tout", "Merci pour ton aide", "Merci d'être là", "De rien", "Je t'en prie", "À bientôt", "À tout à l'heure", "À la prochaine", "À demain", "Bonne journée", "Bonne soirée", "Bonne nuit", "Fais de beaux rêves", "Passe une bonne journée", "Passe une bonne soirée", "Passe un bon week-end", "Bon courage", "Prends soin de toi", "Tu as un beau sourire", "Tu es très élégant(e)", "J'aime ton style", "Tu es charmant(e)", "Tu as beaucoup de charme", "Tu es gentil(le)", "Tu as bon goût", "J'adore ta tenue", "Ça te va bien", "Tes vêtements sont beaux", "Tes chaussures sont belles", "J'aime bien tes cheveux", "Tu es très aimable", "Tes yeux sont magnifiques", "Ton sourire est charmant", "C'est gentil de ta part", "Tu es une belle personne", "Je suis touché(e) par ta gentillesse", "Je te remercie de tout cœur", "Ça me fait plaisir", "Je te souhaite une bonne journée", "Je te souhaite une bonne nuit", "Bonne continuation", "Bon repos", "Bon retour", "Repose-toi bien", "Fais attention à toi", "À plus tard", "À plus", "Ciao", "Bisous", "Bon appétit", "Profite bien", "Je t'aime bien", "Je suis là pour toi", "Je te comprends", "Prends soin de toi", "Garde la pêche", "Reste comme tu es", "Je te souhaite tout le bonheur", "Bon voyage", "Bonnes vacances", "Amuse-toi bien", "Bravo !", "Félicitations", "Super !", "Génial !", "Magnifique !", "Tu m'as manqué", "Je suis content(e) de te voir", "Je t'apprécie beaucoup", "Passe un bon moment", "Reste en contact", "C'était un plaisir", "Tu as illuminé ma journée", "Tu es unique", "Tu es précieux(se)", "Ça me fait chaud au cœur", "Mon respect"];
+        //copia los valores de la base de datos del 1 al 100 usanfo object asing
+
+        var palabras=[...baseesp.slice(0,100)];;
+        var traduccion=[...basede.slice(0,100)];; 
+        
+
+        //divide la base de palabras en listas de 100 palabras para mostrarlas 
+        function listaN(n){
+            var inicio=n*100
+            var fin=inicio+100
+            palabras=[...baseesp.slice(inicio,fin)];
+            traduccion=[...basede.slice(inicio,fin)];
+            mostrarPalabra();
+        }
+        
+        var visto= [];
+        auto = auto;
+        dual = false;
+
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+        var intentos = 0;
+        function getPalabra(){
+            var index = getRandomInt(palabras.length);
+            while(visto.includes(index)&& intentos<10){
+                return getPalabra();
+                intentos++;
+                console.log("intenton",intentos);
+                
+            }
+            if(visto.length == palabras.length -3){
+                    visto = [];
+                    
+            }
+            visto.push(index);
+            return index;
+        }
+       
+        
+
+        // formuala para leer el innertext de un elemento que capture el evento en utterance y llame la funcion
+        var manejoDual= false;
+        var idioma = "fr";
+        function leerTexto() {
+            var texto;    
+            idioma = "fr";
+            texto= p2.innerText; 
+            if(dual){
+                if(manejoDual){
+                    idioma = "es";
+                    texto= p1.innerText; 
+                    manejoDual = false;
+                }else{
+                    idioma ="fr";
+                    texto= p2.innerText; 
+                    manejoDual = true;
+                }
+            }
+            
+            var utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = idioma;
+            speechSynthesis.speak(utterance);
+            
+            
+            //idioma = idioma=="es-ES"?"de-DE":"es-ES";
+            //texto= texto==p1.innerText?p2.innerText:p1.innerText;
+            //if (speechSynthesis.speaking) {
+            //    console.log("Leyendo el texto");
+            //}
+            if(auto){
+                utterance.onend = function() {     
+                    setTimeout(() => {    
+                        if(idioma=="fr"){
+                            mostrarPalabra();    
+                        }
+                        leerTexto();
+                        
+                    }, 500);
+                }
+                
+
+
+            }
+            
+        }
+        function Auto(){
+            document.getElementById("auto").innerText = auto==true?"auto:off":"auto: on";
+            
+            if(auto){
+                document.getElementById("auto").style.backgroundColor = "red";
+            }else{
+                document.getElementById("auto").style.backgroundColor = "green";
+            }
+
+            auto= auto==false?true:false
+        }        
+        function Dual(){
+            document.getElementById("dual").innerText = dual==true?"de":"es-de";
+            
+            if(dual){
+                document.getElementById("dual").style.backgroundColor = "red";  
+            }else{
+                document.getElementById("dual").style.backgroundColor = "green";
+            }
+
+            dual= dual==false?true:false
+        }
+        function Leer(){
+            
+            if(document.getElementById("leer").innerText == "activo"){
+                location.reload()
+                
+            }
+            if(document.getElementById("leer").innerText == "Leer"){
+                document.getElementById("leer").innerHTML = "activo";
+                document.getElementById("leer").onclick = "Leer()";
+                leerTexto()
+                  
+            }
+
+
+        }
+        
+        function mostrarPalabra(){
+            var index = getPalabra();
+            p1.innerText = palabras[index];
+            p2.innerText = traduccion[index];
+        }
+        mostrarPalabra();
+
+        // Call the function when the button is clicked
+        //document.querySelector("button").addEventListener("click", leerTexto);
+    </script>
+</body>
+</html>

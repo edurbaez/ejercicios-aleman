@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #1d1c1c20;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* ========= CONTENEDOR PRINCIPAL ========= */
+
+        .app {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+
+        /* ========= HEADER ========= */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+        }
+
+        /* ========= PANEL DE ESTADÍSTICAS ========= */
+
+        .panel {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .card {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
+        }
+
+        /* ========= PALABRA ========= */
+
+        .word-display {
+            text-align: center;
+            padding: 20px;
+            background: #1d1c1c30;
+            font-size: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* ========= OPCIONES ========= */
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .option {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
+            transition: 0.2s;
+        }
+
+        .option:hover {
+            background: #f2f2f2;
+        }
+
+        /* ========= BOTONES ========= */
+
+        .btn {
+            padding: 12px;
+            border: 3px solid #173819;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background-color: red;
+        }
+
+        .btn-danger {
+            background-color: red;
+        }
+
+        .btn-secondary {
+            background-color: green;
+        }
+
+        /* Barra de botones (sets-bar): scroll horizontal fino */
+        #sets-bar{
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px 0;
+        }
+
+        /* Scrollbar fino */
+        #sets-bar::-webkit-scrollbar{
+        height: 6px;
+        }
+        #sets-bar::-webkit-scrollbar-track{
+        background: transparent;
+        }
+        #sets-bar::-webkit-scrollbar-thumb{
+        background: rgba(0,0,0,0.25);
+        border-radius: 999px;
+        }
+        #sets-bar::-webkit-scrollbar-thumb:hover{
+        background: rgba(0,0,0,0.4);
+        }
+
+        /* Firefox */
+        #sets-bar{
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0,0,0,0.25) transparent;
+        }
+
+        /* Evita que los botones se encojan */
+        #sets-bar .btn{
+        flex: 0 0 auto;
+        }
+
+        /* ========= FOOTER CONTROLES ========= */
+
+        .footer-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* ========= TABLA ========= */
+
+        .table-container {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 2px solid grey;
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+
+            <!-- ========================= -->
+            <!--      SELECCIÓN MÚLTIPLE   -->
+            <!-- ========================= -->
+
+            <section class="game-section" id="seleccion-multiple">
+
+                <div class="header">
+                    <h1 class="title">Juego de Palabras</h1>
+                </div>
+
+                <!-- Panel de estadísticas -->
+                <div class="panel">
+                    <div class="card">
+                        <div>Errores</div>
+                        <div id="errores">0</div>
+                    </div>
+
+                    <div class="card">
+                        <div>Aciertos</div>
+                        <div id="aciertos">0</div>
+                    </div>
+
+                    <div class="card">
+                        <div>Tiempo</div>
+                        <div id="tiempo">3</div>
+                    </div>
+                </div>
+
+                <!-- Palabra principal -->
+                <div class="word-display" id="palabra"></div>
+
+                <!-- Opciones -->
+                <div class="options-grid">
+                    <div class="option" id="op1"></div>
+                    <div class="option" id="op2"></div>
+                    <div class="option" id="op3"></div>
+                    <div class="option" id="op4"></div>
+                </div>
+
+            </section>
+
+
+
+            <!-- ========================= -->
+            <!--     REPETICIÓN PALABRAS   -->
+            <!-- ========================= -->
+
+            <section class="game-section" id="repeticion-palabras" style="margin-top:40px;">
+
+                <div class="header">
+                    <h1 class="title">Repetición de Palabras</h1>
+                </div>
+
+                <!-- Botones modo 
+                <div class="panel">
+                    <button class="btn" id="btn-repetir">Repetir</button>
+                    <button class="btn" id="btn-seleccionar">Seleccionar</button>
+                </div>-->
+
+                <!-- Palabras -->
+                <div class="panel" style="gap:20px;">
+                    <div class="card word-display" id="p1"></div>
+                    <div class="card word-display" id="p2"></div>
+                </div>
+
+                <!-- Controles inferiores -->
+                <div class="footer-controls">
+                    <button class="btn btn-secondary" id="auto">Auto: ON</button>
+                    <button class="btn btn-danger" id="dual">DE</button>
+                    <button class="btn" id="leer">Leer</button>
+                </div>
+
+            </section>
+
+
+
+            <!-- ========================= -->
+            <!--            LISTA          -->
+            <!-- ========================= -->
+
+            <section class="table-container">
+                <div class="header">
+                    <h1 class="title">Lista de Palabras</h1>
+                </div>
+
+                <table id="lista">
+                    <thead>
+                        <tr>
+                            <th>Uno</th>
+                            <th>Dos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- contenido dinámico -->
+                    </tbody>
+                </table>
+
+            </section>
+
+        </div>
+    
+    <script>
+        /* =========================
+        DATASET ÚNICO (fusionado)
+        ========================= */
+        const DATA = {
+        /*    cap1:{
+                es:["el pastelito", "la ronda", "el curso de integración", "urbano", "el desafío", "fluir", "la coincidencia", "felicitar", "felicitado", "genial", "útil", "la posibilidad", "la formación adicional", "la industria", "el maestro", "financiero", "la financiación", "el clima", " en tu lugar", "en tu lugar", "el cuarto", "la ventaja", "la desventaja", "la dieta", "relativo", "delgado", "el estado de ánimo", "la comparación", "el progreso", "la grasa", "bajo en sal", "bajo en grasas", "reconocer", "ha reconocido", "analizar", "ha analizado", "medida", "ha medido", "del paso", "elegir", "ha seleccionado", "advertir", "prevenido", "haz un esfuerzo", "hizo un esfuerzo", "controlar", "ha comprobado", "la terapia", "el hombro", "físicamente", "la enfermedad", "la operación", "el terapeuta", "el terapeuta", "tratar", "ha tratado", "el tratamiento", "activo", "afrontar", "ha hecho frente", "el musculo", "el calor", "el metodo", "reaccionar", "él reacciona", "probar", "ha intentado", "daño", "hizo daño", "probablemente", "especial", "legalmente", "necesidad", "ha requerido", "el zachlung", "la parte", "el organo", "cúrate a ti mismo", "ha sanado", "la diferencia", "en absoluto", "por cierto", "controlar", "comprobado", "la dieta", "perezoso", "a pesar de", "la recuperación", "no hay señales de recuperación", "a saber", "estar en silencio", "estaba en silencio", "la reacción", "el hábito", "constante", "la presión arterial", "la sangre", "la presión", "el pulso", "consumir", "ha consumido", "detener", "la actuación", "el papel", "el peligro", "observar", "recordar", "ha notado", "la participación", "la precaución", "regularmente", "la vacuna", "la membresía", "el fumador", "valioso", "prueba", "ha sido probado", "la entrevista", "el miembro", "especial", "participar", "participó", "hacer deporte", "sensitivo", "extraño", "negativo", "la rutina diaria", "agradable", "la prisa", "infancia", "fiel", "sentirse bien", "me sentí cómodo", "confiable", "la aventura", "máximo", "marcar", "ha marcado", "marco la pagina", "lo mismo / lo mismo / lo mismo"],
+                de:["das Gebäck", "die Runde", "der Integrationskurs", "städtisch", "die Herausforderung", "fließen", "der Zufall", "gratulieren", "hat gratuliert", "das ist klasse", "nützlich", "die Möglichkeit", "die Weiterbildung", "die Industrie", "der Meister", "finanzielle", "die Förderung", "das Klima", " an deiner Stelle", "an Ihrer Stelle", "das Viertel", "der Vorteil", "der Nachteil", "die Ernährung", "relativ", "schlank", "die Laune", "der Vergleich", "der Fortschritt", "das Fett", "salzarm", "fettarm", "erkennen", "hat erkannt", "analysieren", "hat analysiert", "messen", "hat gemessen", "des Schritt", "auswählen", "hat auswählt", "warnen", "hat gewarnt", "sich anstrengen", "hat sich angestrengt", "prüfen", "hat geprüft", "die Therapie", "die Schulter", "körperlich", "die Krankheit", "die Operation", "der Therapeut", "die Therapeutin", "behandeln", "hat behandelt", "die Behandlung", "aktiv", "zurechtkommen", "ist zurechtgekommen", "der Muskel", "die Wärme", "die Methode", "reagieren", "het reagiert", "probieren", "hat probiert", "schaden", "hat geschadet", "wohl", "speziell", "gesetzlich", "benötigen", "hat benötigt", "die Zachlung", "der Teil", "das Organ", "sich heilen", "hat geheilt", "der Unterschied", "überhaupt", "übrigens", "checken", "hat gecheckt", "die Diät", "faul", "obwohl", "die Erholung", "von Erholung keine Spur", "nämlich", "schweigen", "hat geschwiegen", "die Reaktion", "die Gewohnheit", "ständig", "der Blutdruck", "das Blut", "der Druck", "der Puls", "verbrauchen", "het verbraucht", "halt", "die Leistung", "die Rolle", "die Gefahr", "beachten", "erinnern", "hat beachtet", "die Teilnahme", "die Vorsorge", "regelmäßig", "die Impfung", "die Mitgliedschaft", "der Raucher", "wertvoll", "testen", "hat sich getestet", "das Interview", "das Mitglied", "besonder", "teilnehmen", "hat teilgenommen", "Sport treiben", "sinnvoll", "seltsam", "negativ", "der Tagesablauf", "angenehm", "die Eile", "die Kindheit", "treu", "sich wohlfühlen", "hat sich wohlgefühlt", "zuverlässig", "das Abenteuer", "maximal", "ankreuzen", "hat angekreuzt", "ich ankreuze die Seite", "derselbe / diesalbe / dasselbe"]
+            },
+            cap5:{
+                es:["firmemente", "mantener", "acto", "desconocido", "La cantidad", "la derivación", "el apoyo", "el efecto", "desagradable", "la introducción", "fatiga", "tirar/mover, ha tirado/movido/mudado", "decepcionante", "notar; ha notado", "recordar", "viajar; ha viajado", "establecer", "poder pagar", "experiencia", "abierto", "Afirmar", "la administracion", "el evento", "llegó como tenía que venir", "tan pronto como", "recuperarse", "¿te estás recuperando bien?", "usar", "evitar", "evitar", "me evitas", "evitas verme", "decidir", "Decisión", "determinar", "varios", "intentar; ha intentado", "perdonar", "indulto", "tener", "esperar (preveer)", "Entregar", "presionar", "horrible", "aceptar", "divertido", "inventado", "crear, lograr", "puedo hacerlo", "obsevar (activo, tomar en cuenta)", "observar(pasivo, sin hacer nada)"],
+                de:["fest", "behalten", "handeln", "unbekannt", "die Menge", "die Ableitung", "die Ünterstützung", "die Wirkung", "unangenehmen", "die Einführung", "ermüden", "ziehen, hat gezogen", "enttäusch", "bemerken; hat bemerkt", "erinnern", "reisen; ist gereist", "festlegen", "leisten", "erfahren", "offnen", "Anspruch", "die Verwaltung", "die Veranstaltung", "es kam, wie es kommen musste", "sobald", "sich erholen", "erholst du dich gut?", "verwenden", "vermeiden", "meiden", "du meidest mich", "du meidest es, mich zu sehen", "entscheiden", "Entscheidung", "bestimmen", "vershiedene", "ausprobieren; hat ausprobiert", "vergeben", "verzeihen", "verfügen", "erwarten", "abgeben", "drücken", "schlimm", "akzeptieren", "komisch", "erfunden", "schaffen", "ich schaffe das", "beachten", "beobachten"]
+            },           
+            verbos:{
+                    es:[
+                    "haber/ser", "tener", "llegar a ser", "poder", "deber", "decir", "hacer", "dar", "venir", "deber", "querer", "ir", "saber", "ver", "dejar", "estar de pie", "encontrar", "quedarse", "estar acostado", "llamarse", "pensar", "tomar", "hacer", "tener permiso", "creer", "sentir", "hablar", "traer", "vivir", "preguntar", "ayudar", "jugar", "trabajar", "seguir", "hablar", "escuchar", "conducir", "escribir", "leer", "correr", "tirar", "poner", "recibir", "comprar", "buscar", "olvidar", "perder", "pagar", "costar", "comer", "beber", "dormir", "sentarse", "caer", "subir", "esperar", "pasar", "aprender", "entender", "darse cuenta", "recordar", "gustar", "amar", "odiar", "necesitar", "intentar", "lograr", "explicar", "mostrar", "tocar", "oler", "saborear", "tocar", "bailar", "cantar", "pintar", "dibujar", "hacer manualidades", "coser", "tejer", "hacer ganchillo", "cocinar", "hornear", "asar", "hacer a la parrilla", "cortar", "picar", "pelar", "mezclar", "revolver", "agitar", "verter", "remojar", "escurrir", "sazonar", "probar", "tragar", "masticar", "respirar", "abrir", "cerrar", "desechar", "guardar", "reír", "llorar", "sonreír", "gritar", "trepar", "saltar", "correr", "hacer senderismo", "nadar", "bucear", "navegar", "remar", "montar a caballo", "volar", "deslizarse", "deslizarse", "rodar", "lanzar", "atrapar", "cazar", "disparar", "encontrar", "abrazar", "besar", "golpear", "patear", "boxear", "arañar", "morder", "lamer", "cavar", "construir", "arreglar", "romper", "perforar", "frotar", "amasar", "secar", "lavar", "limpiar", "aspirar", "pulir", "imprimir", "pegar", "atar", "doblar", "enhebrar", "tejer", "hacer nudos", "hilar", "forjar", "tallar", "serrar", "cepillar", "lijar", "limar", "barnizar", "pintar", "barnizar", "construir", "construir muros", "enlucir", "alicatar", "empapelar"
+                    ],
+                    de:[
+                    "sein", "haben", "werden", "können", "müssen", "sagen", "machen", "geben", "kommen", "sollen", "wollen", "gehen", "wissen", "sehen", "lassen", "stehen", "finden", "bleiben", "liegen", "heißen", "denken", "nehmen", "tun", "dürfen", "glauben", "fühlen", "sprechen", "bringen", "leben", "fragen", "helfen", "spielen", "arbeiten", "folgen", "reden", "hören", "fahren", "schreiben", "lesen", "laufen", "ziehen", "setzen", "bekommen", "kaufen", "suchen", "vergessen", "verlieren", "zahlen", "kosten", "essen", "trinken", "schlafen", "sitzen", "fallen", "steigen", "warten", "passieren", "lernen", "verstehen", "merken", "erinnern", "mögen", "lieben", "hassen", "brauchen", "versuchen", "schaffen", "erklären", "zeigen", "anfassen", "riechen", "schmecken", "berühren", "tanzen", "singen", "malen", "zeichnen", "basteln", "nähen", "stricken", "häkeln", "kochen", "backen", "braten", "grillen", "schneiden", "hacken", "schälen", "mixen", "rühren", "schütteln", "gießen", "tränken", "abtropfen", "würzen", "probieren", "schlucken", "kauen", "atmen", "öffnen", "schließen", "wegwerfen", "speichern", "lachen", "weinen", "lächeln", "schreien", "klettern", "springen", "rennen", "wandern", "schwimmen", "tauchen", "segeln", "rudern", "reiten", "fliegen", "rutschen", "gleiten", "rollen", "werfen", "fangen", "jagen", "schießen", "treffen", "umarmen", "küssen", "schlagen", "treten", "boxen", "kratzen", "beißen", "lecken", "graben", "bauen", "reparieren", "brechen", "bohren", "reiben", "kneten", "trocknen", "waschen", "putzen", "saugen", "polieren", "drucken", "kleben", "binden", "falten", "fädeln", "weben", "knüpfen", "spinnen", "schmieden", "schnitzen", "sägen", "hobeln", "schleifen", "feilen", "beizen", "anstreichen", "lasieren", "zimmern", "mauern", "verputzen", "fliesen", "tapezieren"
+                    ]
+            },*/
+            lista1: {
+            de: ["Nachvollziehbar","Ursprünglich","Beziehungsweise","Allerdings","Zuverlässig","Entscheidend","Voraussetzung","Herausforderung","Zuständig","Maßnahme","Verantwortung","Einerseits","Andererseits","Demzufolge","Inzwischen","Offensichtlich","Selbstverständlich","Vergleichsweise","Angemessen","Durchführen","Obwohl","Dennoch","Somit","Darüber hinaus","Hinsichtlich","Infolgedessen","Darüber hinausgehend","Weitgehend","Unter anderem","Beispielsweise","Insgesamt","Zunächst","Schließlich","Folglich","Stattdessen","Andernfalls","Inwiefern","Soweit","Im Gegensatz dazu","Zusammenfassend"],
+            es: ["Comprensible","Originalmente","Respectivamente","Sin embargo","Confiable","Decisivo","Requisito","Desafío","Responsable de","Medida","Responsabilidad","Por un lado","Por otro lado","En consecuencia","Mientras tanto","Evidentemente","Por supuesto","Comparativamente","Adecuado","Llevar a cabo","Aunque","No obstante","Por lo tanto","Además","Con respecto a","Como consecuencia","Más allá de eso","En gran medida","Entre otros","Por ejemplo","En total","En primer lugar","Finalmente","Por consiguiente","En lugar de eso","De lo contrario","En qué medida","En la medida en que","En contraste con ello","En resumen"]
+            },
+            lista2: {
+            de: ["Berücksichtigen","Darstellen","Feststellen","Beziehen auf","Bewerten","Erläutern","Verdeutlichen","Begründen","Behaupten","Überzeugen","Erfordern","Entstehen","Vermeiden","Fördern","Beeinflussen","Erreichen","Scheitern","Entwickeln","Steigern","Verringern","Bedeutungsvoll","Wesentlich","Erheblich","Nachhaltig","Vielfältig","Unverzichtbar","Zweckmäßig","Vorteilhaft","Nachteilig","Fragwürdig","Überzeugend","Kritisch","Komplex","Effektiv","Effizient","Glaubwürdig","Relevant","Dringend","Erwartungsvoll","Langfristig"],
+            es: ["Considerar","Representar","Determinar","Referirse a","Evaluar","Explicar","Aclarar","Justificar","Afirmar","Convencer","Requerir","Surgir","Evitar","Fomentar","Influir","Alcanzar","Fracasar","Desarrollar","Incrementar","Reducir","Significativo","Esencial","Considerable","Sostenible","Diverso","Indispensable","Adecuado","Ventajoso","Desventajoso","Cuestionable","Convincente","Crítico","Complejo","Eficaz","Eficiente","Creíble","Relevante","Urgente","Expectante","A largo plazo"]
+            },
+        /*    advervios: {
+                es:[
+                    "ahora", "aquí", "entonces", "allí", "siempre", "ya", "todavía", "así", "tal vez", "a menudo", "realmente", "justo", "bien", "muy", "sin embargo", "pronto", "también", "incluso", "casi", "seguro", "bastante", "hoy", "a veces", "nunca", "apenas", "una vez", "poco", "de nuevo", "ayer", "finalmente", "exactamente", "mañana", "gustosamente", "primero", "afuera", "por lo tanto", "por último", "en realidad", "mientras tanto", "durante mucho tiempo", "seguramente", "suficiente", "de repente", "de alguna manera", "hacia aquí", "aproximadamente", "abajo", "por la mañana", "en aquel entonces", "de lo contrario", "recientemente", "temprano", "verdaderamente", "diariamente", "detrás", "atrás", "más a menudo", "después", "de hecho", "completamente", "en vano", "desde lejos", "por mí", "sin embargo", "abajo", "junto con", "hacia un lado", "ahora", "recientemente", "arriba", "alrededor", "últimamente", "hace mucho tiempo", "sin embargo", "recientemente", "una vez", "igualmente", "siempre", "a tiempo", "a veces", "mediante eso", "de ahí", "próximamente", "por lo tanto", "esta vez", "encima", "después de eso", "entre", "mientras tanto", "después de eso", "al lado", "después", "antes", "de este lado", "en algún momento", "dentro de", "fuera", "luego de eso"
+                ],
+                de:[
+                    "jetzt", "hier", "dann", "dort", "immer", "schon", "noch", "so", "vielleicht", "oft", "wirklich", "gerade", "gut", "sehr", "doch", "bald", "auch", "gar", "fast", "sicher", "ziemlich", "heute", "manchmal", "niemals", "kaum", "einmal", "wenig", "wieder", "gestern", "endlich", "genau", "morgen", "gerne", "erst", "draußen", "deshalb", "zuletzt", "eigentlich", "dabei", "lange", "bestimmt", "genug", "plötzlich", "irgendwie", "hierher", "etwa", "herunter", "morgens", "damals", "sonst", "soeben", "früh", "wahrhaftig", "täglich", "hinterher", "hinten", "öfter", "nachher", "tatsächlich", "vollkommen", "umsonst", "weither", "meinetwegen", "trotzdem", "unten", "samt", "seitwärts", "nunmehr", "neulich", "oben", "herum", "letzthin", "längst", "gleichwohl", "kürzlich", "amal", "gleichsam", "allemal", "beizeiten", "bisweilen", "dadurch", "daraus", "demnächst", "daher", "diesmal", "drauf", "daraufhin", "dazwischen", "derweil", "darnach", "daneben", "danach", "davor", "diesseits", "irgendwann", "innerhalb", "außen", "draufhin"
+                ]
+            },
+        */    adjpreposicion:{
+                es:["alérgico a","alérgico contra","dependiente de","conocido por","agradecido por","sorprendido por","contento por","apto para","acostumbrado a","feliz por","informado sobre","especializado en","orgulloso de","triste por","sorprendido por","responsable de","molesto por","preparado para","importante para","competente / encargado de","dependiente de","alternativa a","pobre en","rico en","partiendo de","entusiasmado por","dispuesto a","ocupado con","implicado en","afectado por","de acuerdo con","decidido a","decepcionado por","con experiencia en","capaz de","interesado en","sorprendido por","convencido de","independiente de","vinculado con","emparentado con","cuidadoso con","cuidadoso con / al","satisfecho con"],
+                de:["allergisch auf","allergisch gegen","angewiesen auf","bekannt für","dankbar für","erstaunt über","froh über","geeignet für","gewöhnt an","glücklich über","informiert über","spezialisiert auf","stolz auf","traurig über","überrascht über","verantwortlich für","verärgert über","vorbereitet auf","wichtig für","zuständig für","abhängig von","alternativ zu","arm an","reich an","ausgehend von","begeistert von","bereit zu","beschäftigt mit","beteiligt an","betroffen von","einverstanden mit","entschlossen zu","enttäuscht von","erfahren in","fähig zu","interessiert an","überrascht von","überzeugt von","unabhängig von","verbunden mit","verwandt mit","vorsichtig mit","vorsichtig bei","zufrieden mit"]
+            },
+        /*    verbosb2dat:{
+                es: [
+                    "aconsejar en contra","parecerse","responder","llamar la atención","esquivar","encontrarse con","apoyar","incorporarse","agradecer","servir","amenazar","ocurrirse","olvidarse","faltar","seguir","gustar","pertenecer","lograr","ser suficiente","felicitar","ayudar","despedir","resultar fácil","lamentar","desagradar","fracasar","servir de algo","quedar bien","perjudicar","saber bien","resultar difícil","estar de pie","hacer","confiar","contradecir","escuchar","estar de acuerdo"
+                ],
+                de: [
+                    "abraten – hat abgeraten","ähneln – hat geähnelt","antworten – hat geantwortet","auffallen – ist aufgefallen","ausweichen – ist ausgewichen","begegnen – ist begegnet","beistehen – hat beigestanden","beitreten – ist beigetreten","danken – hat gedankt","dienen – hat gedient","drohen – hat gedroht","einfallen – ist eingefallen","entfallen – ist entfallen","fehlen – hat gefehlt","folgen – ist gefolgt","gefallen – hat gefallen","gehören – hat gehört","gelingen – ist gelungen","genügen – hat genügt","gratulieren – hat gratuliert","helfen – hat geholfen","kündigen – hat gekündigt","leichtfallen – ist leichtgefallen","leidtun – hat leidgetan","missfallen – hat missfallen","misslingen – ist misslungen","nützen – hat genützt","passen – hat gepasst","schaden – hat geschadet","schmecken – hat geschmeckt","schwerfallen – ist schwergefallen","stehen – hat gestanden","tun – hat getan","vertrauen – hat vertraut","widersprechen – hat widersprochen","zuhören – hat zugehört","zustimmen – hat zugestimmt"
+                ]
+            },
+            verbosb2akkdat:{
+                es: ["quitar la costumbre","acostumbrar","ofrecer","llamar la atención","describir","confirmar","ofrecer","pedir prestado","traer","recomendar","quitar","explicar","permitir","facilitar","permitir","contar","dar","permitir","creer","prestar","entregar","comunicar","nombrar","presentar","regalar","enviar","escribir","deber","enviar","servir","donar","prohibir","deber a","ocultar","vender","mediar","revelar","callar","prometer","perdonar","leer en voz alta","proponer","quitar","reproducir","desear","mostrar","asignar","devolver"],
+                de: ["abgewöhnen – hat abgewöhnt","angewöhnen – hat angewöhnt","anbieten – hat angeboten","auffallen – ist aufgefallen","beschreiben – hat beschrieben","bestätigen – hat bestätigt","bieten – hat geboten","borgen – hat geborgt","bringen – hat gebracht","empfehlen – hat empfohlen","entziehen – hat entzogen","erklären – hat erklärt","erlauben – hat erlaubt","erleichtern – hat erleichtert","ermöglichen – hat ermöglicht","erzählen – hat erzählt","geben – hat gegeben","gestatten – hat gestattet","glauben – hat geglaubt","leihen – hat geliehen","liefern – hat geliefert","mitteilen – hat mitgeteilt","nennen – hat genannt","präsentieren – hat präsentiert","schenken – hat geschenkt","schicken – hat geschickt","schreiben – hat geschrieben","schulden – hat geschuldet","senden – hat gesendet","servieren – hat serviert","spenden – hat gespendet","verbieten – hat verboten","verdanken – hat verdankt","verheimlichen – hat verheimlicht","verkaufen – hat verkauft","vermitteln – hat vermittelt","verraten – hat verraten","verschweigen – hat verschwiegen","versprechen – hat versprochen","verzeihen – hat verziehen","vorlesen – hat vorgelesen","vorschlagen – hat vorgeschlagen","wegnehmen – hat weggenommen","wiedergeben – hat wiedergegeben","wünschen – hat gewünscht","zeigen – hat gezeigt","zuordnen – hat zugeordnet","zurückbringen – hat zurückgebracht"]
+            },
+            verborpreAkk:{
+                es:["prestar atención a", "depender de", "adaptarse a", "responder a", "enfadarse por", "cuidar de", "gastar en", "agradecer por", "entusiasmarse por", "quejarse de", "informar sobre", "quejarse de", "postularse a", "referirse a", "pedir", "dar las gracias por", "pensar en", "discutir sobre", "ocuparse de", "ponerse de acuerdo en", "comprometerse con", "involucrarse con", "luchar contra", "decidirse por/en contra de", "disculparse por", "recordar", "contar sobre", "alegrarse por (futuro)", "alegrarse por (presente/pasado)", "acostumbrarse a", "creer en", "considerar como", "atenerse a", "tratarse de", "indicar/avisar sobre", "esperar", "informarse sobre", "interesarse por", "invertir en", "luchar por", "luchar contra", "concentrarse en", "cuidar/encargarse de", "reírse de", "reflexionar sobre", "reaccionar a", "hablar sobre", "protestar/criticar por", "ocuparse de", "preocuparse por", "especializarse en", "hablar sobre"],
+                de:["achten auf", "ankommen auf", "anpassen an", "antworten auf", "sich ärgern über", "aufpassen auf", "ausgeben für", "sich bedanken für", "sich begeistern für", "sich beklagen über", "berichten über", "sich beschweren über", "sich bewerben auf/um", "sich beziehen auf", "bitten um", "danken für", "denken an", "diskutieren über", "eingehen auf", "sich einigen auf", "sich einsetzen für", "sich engagieren für", "sich engagieren gegen", "sich entscheiden für/gegen", "sich entschuldigen für", "(sich) erinnern an", "erzählen über", "sich freuen auf", "sich freuen über", "sich gewöhnen an", "glauben an", "halten für", "sich halten an", "sich handeln um", "hinweisen auf", "hoffen auf", "(sich) informieren über", "sich interessieren für", "investieren in", "kämpfen für", "kämpfen gegen", "sich konzentrieren auf", "sich kümmern um", "lachen über", "nachdenken über", "reagieren auf", "reden über", "schimpfen über", "sorgen für", "sich sorgen um", "sich spezialisieren auf", "sprechen über"]
+            },
+        *//*    c1lista1:{
+                de:["dennoch","allerdings","demnach","folglich","hingegen"," alldieweil","obgleich","sofern","insofern","mithin","zumal","indessen","wiewohl","unterdessen","nichtsdestotrotz","gleichwohl","beziehungsweise","dementsprechend","infolgedessen","zweifellos","unweigerlich","maßgeblich","erheblich","durchaus","kaum","immerhin","vornehmlich","überwiegend","mithilfe","angesichts","hinsichtlich","bezüglich","vermittels","infolge","mittels","ungeachtet","trotzalledem","unterstellt","vorausgesetzt","implizieren","postulieren","konstatieren","revidieren","relativieren","differenzieren","veranschaulichen","gewährleisten","verfeinern","verwerfen","befürworten","beanstanden","einräumen","veranlassen","beabsichtigen","unterbinden","nachweisen","widerlegen","einleiten","ausbauen","festigen","konsolidieren","evaluieren","analysieren","synthetisieren","reflektieren","legitimieren","problematisieren","thematisieren","priorisieren","koordinieren","eskalieren","deeskalieren","intervenieren","konvergieren","divergieren","ambivalent","signifikant","plausibel","evident","redundant","kohärent","inkonsistent","prägnant","substanziell","trivial","komplex","facettenreich","nachhaltig","zielführend","zweckmäßig","fragwürdig","unabdingbar","hinfällig","erquicklich","vertrackt","brisant","weitreichend","zukunftsweisend","unverhältnismäßig"],
+                es:["sin embargo","no obstante","por lo tanto","en consecuencia","en cambio","puesto que","aunque","siempre que","en la medida en que","por consiguiente","sobre todo","mientras tanto","si bien","entretanto","no obstante todo","aun así","respectivamente","en consecuencia","como resultado","indudablemente","inevitablemente","de manera determinante","considerablemente","sin duda","apenas","al menos","principalmente","mayoritariamente","con ayuda de","en vista de","con respecto a","en relación con","por medio de","a causa de","mediante","a pesar de","pese a todo","suponiendo","dado que","implicar","postular","constatar","revisar","relativizar","diferenciar","ilustrar","garantizar","perfeccionar","descartar","apoyar","objetar","admitir","provocar","tener la intención de","impedir","demostrar","refutar","iniciar","ampliar","fortalecer","consolidar","evaluar","analizar","sintetizar","reflexionar","legitimar","problematizar","plantear","priorizar","coordinar","escalar","desescalar","intervenir","converger","divergir","ambivalente","significativo","plausible","evidente","redundante","coherente","inconsistente","conciso","sustancial","trivial","complejo","multifacético","sostenible","eficaz","adecuado","cuestionable","imprescindible","obsoleto","agradable","enrevesado","delicado","de gran alcance","orientado al futuro","desproporcionado"]
+
+            },
+        */    nivelA :{ 
+                es: ["avisar / informar","dar información","expresar","expresarse / manifestarse","hacer una pregunta","dar una respuesta","mantener a alguien informado","estar al tanto","tener en cuenta / vigilar","estar relacionado con","opinar / ser de la opinión de","tomar una decisión","considerar","ser una opción","entrar en consideración","poner en duda","presentar una solicitud","hacer uso de / recurrir a","estar disponible","poner a disposición","asumir los costos","correr con los gastos","ponerse en contacto con","estar en contacto con","contactar a","hacer una propuesta","presentar una propuesta","llegar a un acuerdo","concertar una cita / quedar con alguien","hacer preparativos","ejercer una actividad o profesión","estar en primer plano / ser lo principal","estar de moda","formarse una impresión de","causar impresión en","influir en","hacer referencia a","dar importancia a","gozar de aprecio","cruzar los dedos / desear suerte","tener esperanza","perder la esperanza","generar confianza"] , 
+                de: ["Bescheid geben","Auskunft geben","zum Ausdruck bringen","zum Ausdruck kommen","eine Frage stellen","eine Antwort geben","jemanden auf dem Laufenden halten","auf dem Laufenden sein","im Blick haben","im Zusammenhang stehen mit","der Meinung sein","eine Entscheidung treffen","in Betracht ziehen","in Betracht kommen","infrage kommen","infrage stellen","einen Antrag stellen","in Anspruch nehmen","zur Verfügung stehen","zur Verfügung stellen","die Kosten übernehmen","die Kosten tragen","in Kontakt treten mit","in Kontakt stehen mit","Kontakt aufnehmen mit","einen Vorschlag machen","einen Vorschlag unterbreiten","eine Vereinbarung treffen","eine Verabredung treffen","Vorbereitungen treffen","eine Tätigkeit ausüben","im Vordergrund stehen","im Trend liegen","einen Eindruck bekommen von","Eindruck machen auf","Einfluss nehmen auf","Bezug nehmen auf","Wert legen auf","Wertschätzung genießen","die Daumen drücken","sich Hoffnung machen","die Hoffnung aufgeben","Vertrauen herstellen"]
+            },
+            nivelB :{
+                es: ["hacer una propuesta","presentar una propuesta","llegar a un acuerdo","concertar una cita / quedar con alguien","hacer preparativos","ejercer una actividad o profesión","estar en primer plano / ser lo principal","estar de moda","formarse una impresión de","causar impresión en","influir en","hacer referencia a","dar importancia a","gozar de aprecio","cruzar los dedos / desear suerte","tener esperanza","perder la esperanza","generar confianza","poner algo en discusión","estar en debate","tomar postura / opinar sobre","sacar un tema a colación","tener como consecuencia","ser tomado en cuenta","prestar atención","estar bajo presión","poner bajo presión","tener algo bajo control","lograr controlar algo","arreglar / poner en orden","aprobar un examen","reprobar un examen","aportar una cualificación","crear un perfil","tomar precauciones","estar en competencia con","oponer resistencia a","tener efecto","ir al fondo de la cuestión"],
+                de: ["einen Vorschlag machen","einen Vorschlag unterbreiten","eine Vereinbarung treffen","eine Verabredung treffen","Vorbereitungen treffen","eine Tätigkeit ausüben","im Vordergrund stehen","im Trend liegen","einen Eindruck bekommen von","Eindruck machen auf","Einfluss nehmen auf","Bezug nehmen auf","Wert legen auf","Wertschätzung genießen","die Daumen drücken","sich Hoffnung machen","die Hoffnung aufgeben","Vertrauen herstellen","zur Diskussion stellen","zur Debatte stehen","Stellung nehmen zu","zur Sprache bringen","zur Folge haben","Berücksichtigung finden","Beachtung schenken","unter Druck stehen","unter Druck setzen","etwas im Griff haben","etwas in den Griff bekommen","in Ordnung bringen","eine Prüfung bestehen","durch eine Prüfung fallen","eine Qualifikation mitbringen","ein Profil anlegen","Vorsorge treffen für","im Wettbewerb stehen mit","Widerstand leisten gegen","Wirkung zeigen","auf den Grund gehen"]
+            },
+        /*    nivelC :{
+                es: ["zur Diskussion stellen","zur Debatte stehen","Stellung nehmen zu","zur Sprache bringen","zur Folge haben","Berücksichtigung finden","Beachtung finden","Beachtung schenken","Auskunft erteilen","Bescheid sagen","in Kenntnis setzen von","zur Kenntnis nehmen","Rechenschaft ablegen über","zur Rechenschaft ziehen für","Ersatz leisten für","Anerkennung finden bei / für","Feedback geben","Feedback bekommen","Rücksicht nehmen auf","eine Forderung stellen","eine Anforderung erfüllen","eine Anerkennung finden","eine Erklärung finden für","in Erfahrung bringen","in Erfüllung gehen","eine Entscheidung herbeiführen","zur Entscheidung stellen","zur Entscheidung bringen","Kontakt knüpfen mit","Kontakt halten mit","in Verhandlungen treten","in Verhandlungen stehen","einen Vertrag abschließen","eine Rede halten","in Rechnung stellen","in Auftrag geben","einen Auftrag erteilen","unter Strafe stehen","unter Strafe stellen","in Streik treten","eine Verantwortung übernehmen"],
+                de: ["poner en discusión","estar en debate","tomar postura respecto a","sacar un tema a colación","tener como consecuencia","ser tenido en cuenta","recibir atención","prestar atención","dar información (formal)","avisar / comunicar","poner en conocimiento de","tomar conocimiento de","rendir cuentas sobre","exigir responsabilidades por","compensar / indemnizar por","recibir reconocimiento de","dar retroalimentación","recibir retroalimentación","tener consideración con","plantear una exigencia","cumplir un requisito","recibir reconocimiento","encontrar una explicación para","averiguar","hacerse realidad","provocar una decisión","someter a decisión","llevar a una decisión","establecer contacto con","mantener contacto con","entrar en negociaciones","estar en negociaciones","firmar un contrato","dar un discurso","facturar / cobrar","encargar algo","dar una orden / encargar","estar penado por la ley","tipificar como delito","ir a la huelga","asumir una responsabilidad"]
+            },
+            nivelD :{
+                es: ["den Glauben verlieren","den Kürzeren ziehen","Widerstand leisten gegen","Wirkung zeigen","auf den Grund gehen","im Wettbewerb stehen mit","Vorsorge treffen für","aus den Augen verlieren","an seine Grenzen kommen","unter Umständen","im Laufe der Zeit","in erster Linie","unter der Voraussetzung","im Vergleich zu","im Voraus","außer Acht lassen","sich einer Herausforderung stellen","eine Herausforderung darstellen","mit Schwierigkeiten rechnen","eine Lösung erarbeiten","ein Problem bewältigen","eine Chance ergreifen","Risiken eingehen","sich an Bedingungen anpassen","Verantwortung tragen"],
+                de: ["perder la fe","salir perdiendo","oponer resistencia a","tener efecto","ir al fondo del asunto","estar en competencia con","tomar previsiones","perder de vista","llegar a los propios límites","en determinadas circunstancias","con el paso del tiempo","principalmente","bajo la condición de","en comparación con","con antelación","pasar por alto","enfrentarse a un desafío","representar un desafío","contar con dificultades","elaborar una solución","superar un problema","aprovechar una oportunidad","asumir riesgos","adaptarse a condiciones","asumir responsabilidad"]
+            } */
+
+
+
+
+        };
+
+        /* =========================
+        ESTADO ÚNICO
+        ========================= */
+        const State = {
+        setKey: "cap1",
+        es: [],
+        de: [],
+        vistos: [],
+        erroresSet: new Set(), // guarda indices con error (para no duplicar)
+        modoAuto: true,
+        modoDual: false,
+        dualFlip: false,
+        timerStarted: false,
+        timerId: null,
+        seconds: 0,
+        currentIndex: null,
+        optionIdxs: []
+        };
+
+        /* =========================
+        HELPERS / DOM
+        ========================= */
+        const $ = (id) => document.getElementById(id);
+
+        function safeText(el, txt) {
+        if (!el) return;
+        el.textContent = txt ?? "";
+        }
+
+        function shuffleUniqueIndexes(length, count, forcedIndex = null) {
+        const set = new Set();
+        while (set.size < count) set.add(Math.floor(Math.random() * length));
+        const arr = [...set];
+
+        if (forcedIndex !== null) {
+            const pos = Math.floor(Math.random() * count);
+            arr[pos] = forcedIndex;
+        }
+        return arr;
+        }
+
+        function nextUnseenIndex() {
+        if (!State.de.length) return 0;
+
+        // reset cuando esté casi agotado
+        if (State.vistos.length >= State.de.length - 3) State.vistos = [];
+
+        let tries = 0;
+        let idx = Math.floor(Math.random() * State.de.length);
+        while (State.vistos.includes(idx) && tries < 20) {
+            idx = Math.floor(Math.random() * State.de.length);
+            tries++;
+        }
+        State.vistos.push(idx);
+        return idx;
+        }
+
+
+        /* =========================
+        LISTA (única para ambas)
+        ========================= */
+        function renderLista(esArr, deArr) {
+        document.getElementById("lista")    
+        const table = $("lista");
+        if (!table) return;
+
+        const pairs = [];
+        for (let i = 0; i < Math.min(esArr.length, deArr.length); i++) {
+            // orden alfabético por alemán
+            pairs.push([deArr[i], esArr[i]]);
+        }
+        pairs.sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+
+        table.innerHTML = `
+            <thead>
+            <tr><th>alemán</th><th>español</th></tr>
+            </thead>
+            <tbody>
+            ${pairs.map(p => `<tr><td>${escapeHtml(p[0])}</td><td>${escapeHtml(p[1])}</td></tr>`).join("")}
+            </tbody>
+        `;
+        }
+
+        function escapeHtml(s) {
+        return String(s)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+        }
+
+        /* =========================
+        SELECTOR DE BASE (único)
+        ========================= */
+        function setActiveSet(key) {
+        if (!DATA[key]) return;
+
+        State.setKey = key;
+        State.es = [...DATA[key].es];
+        State.de = [...DATA[key].de];
+
+        // reset de estado de juego
+        State.vistos = [];
+        State.erroresSet.clear();
+        State.currentIndex = null;
+        State.optionIdxs = [];
+
+        // reset marcadores
+        if ($("aciertos")) safeText($("aciertos"), "0");
+        if ($("errores")) safeText($("errores"), "0");
+
+        // timer (no auto start)
+        stopTimer();
+        State.timerStarted = false;
+        State.seconds = 0;
+        if ($("tiempo")) safeText($("tiempo"), "00:00");
+
+        // render tabla
+        renderLista(State.es, State.de);
+
+        // pintar primera palabra para repetición
+        renderRepeatNext();
+
+        // pintar primera ronda de selección
+        renderSelectionNext();
+        }
+
+        /* =========================
+        BOTONES DE SETS (único)
+        ========================= */
+        function mountSetButtons() {
+        const app = document.querySelector(".app");
+        if (!app) return;
+
+        let bar = document.getElementById("sets-bar");
+        if (!bar) {
+            bar = document.createElement("div");
+            bar.id = "sets-bar";
+            bar.className = "panel";
+            bar.style.marginBottom = "20px";
+            app.prepend(bar);
+        }
+
+        bar.innerHTML = "";
+        Object.keys(DATA).forEach((k) => {
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.textContent = k;
+            btn.addEventListener("click", () => setActiveSet(k));
+            bar.appendChild(btn);
+        });
+        }
+
+        /* =========================
+ /* =========================
+   SELECCIÓN MÚLTIPLE (versión estable sin helpers externos)
+   ========================= */
+
+/* Asegúrate de que estas propiedades existan en State */
+State.selectionLock = false;
+State.roundToken = 0;
+
+function renderSelectionNext() {
+  if (!State.es.length || !State.de.length) return;
+
+  State.selectionLock = false;
+  State.roundToken++;
+
+  const idx = nextUnseenIndex();
+  State.currentIndex = idx;
+
+  State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
+
+  safeText($("palabra"), State.es[idx]);
+
+  const ids = ["op1", "op2", "op3", "op4"];
+  ids.forEach((id, slot) => {
+    const el = $(id);
+    if (!el) return;
+
+    const wordIndex = State.optionIdxs[slot];
+
+    el.textContent = State.de[wordIndex];
+    el.dataset.wordIndex = String(wordIndex);
+    el.dataset.roundToken = String(State.roundToken);
+  });
+}
+
+function markOptionsBackground(color) {
+  const cont =
+    document.getElementById("opciones") ||
+    document.querySelector("#seleccion-multiple .options-grid") ||
+    document.querySelector(".options-grid");
+
+  if (!cont) return;
+
+  cont.style.background = color;
+  setTimeout(() => (cont.style.background = ""), 200);
+}
+
+function handleSelectionPick(chosenWordIndex, token) {
+  if (State.currentIndex === null) return;
+
+  // Evita doble conteo
+  if (State.selectionLock) return;
+  if (String(token) !== String(State.roundToken)) return;
+
+  State.selectionLock = true;
+
+  // NO modificar lógica del timer
+  if (!State.timerStarted) startTimer();
+
+  const correct = chosenWordIndex === State.currentIndex;
+
+  if (correct) {
+    markOptionsBackground("green");
+
+    const acEl = $("aciertos");
+    if (acEl) {
+      acEl.textContent = String(
+        parseInt(acEl.textContent || "0", 10) + 1
+      );
+    }
+  } else {
+    markOptionsBackground("red");
+
+    if (!State.erroresSet.has(State.currentIndex)) {
+      State.erroresSet.add(State.currentIndex);
+
+      const erEl = $("errores");
+      if (erEl) {
+        erEl.textContent = String(
+          parseInt(erEl.textContent || "0", 10) + 1
+        );
+      }
+    }
+  }
+
+  renderSelectionNext();
+}
+
+function bindSelectionEvents() {
+  const cont =
+    document.getElementById("opciones") ||
+    document.querySelector("#seleccion-multiple .options-grid") ||
+    document.querySelector(".options-grid");
+
+  if (!cont) return;
+
+  if (cont.dataset.bound === "1") return;
+  cont.dataset.bound = "1";
+
+  cont.addEventListener("click", (e) => {
+    const opt = e.target.closest("#op1,#op2,#op3,#op4,.option");
+    if (!opt) return;
+
+    const chosen = parseInt(opt.dataset.wordIndex, 10);
+    const token = opt.dataset.roundToken;
+
+    if (Number.isNaN(chosen)) return;
+
+    handleSelectionPick(chosen, token);
+  });
+}
+
+        /* =========================
+        TIMER (para selección)
+        ========================= */
+        function startTimer() {
+        if (State.timerId) return;
+
+        State.timerStarted = true;
+        State.timerId = setInterval(() => {
+            const ac = parseInt(($("aciertos")?.textContent || "0"), 10);
+            if (ac >= 50) {
+            stopTimer();
+            return;
+            }
+
+            State.seconds++;
+            const m = Math.floor(State.seconds / 60);
+            const s = State.seconds % 60;
+            safeText($("tiempo"), String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0"));
+        }, 1000);
+        }
+
+        function stopTimer() {
+        if (State.timerId) clearInterval(State.timerId);
+        State.timerId = null;
+        }
+
+        /* Llama esto en tu init (o reemplaza la llamada anterior) */
+        bindSelectionEvents();
+        renderSelectionNext();
+
+
+
+
+
+
+
+        /* =========================
+        REPETICIÓN (speech)
+        ========================= */
+        function renderRepeatNext() {
+        if (!State.es.length || !State.de.length) return;
+
+        const idx = nextUnseenIndex();
+        safeText($("p1"), State.es[idx]);
+        safeText($("p2"), State.de[idx]);
+        }
+
+        function speakOnce(text, lang) {
+        if (!text) return Promise.resolve();
+        return new Promise((resolve) => {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = lang;
+            u.onend = resolve;
+            u.onerror = resolve;
+            speechSynthesis.speak(u);
+        });
+        }
+
+        async function speakLoop() {
+        // si auto está apagado, hace solo un disparo
+        if (!State.modoAuto) {
+            await speakOnce($("p2")?.textContent || "", "de");
+            return;
+        }
+
+        // en auto: sigue leyendo continuamente
+        while (State.modoAuto) {
+            // dual alterna DE/ES; si no, solo DE
+            if (!State.modoDual) {
+            await speakOnce($("p2")?.textContent || "", "de");
+            await wait(500);
+            renderRepeatNext();
+            continue;
+            }
+
+            // dual: alternar ES/DE
+            if (!State.dualFlip) {
+            await speakOnce($("p2")?.textContent || "", "de");
+            State.dualFlip = true;
+            } else {
+            await speakOnce($("p1")?.textContent || "", "es");
+            State.dualFlip = false;
+            await wait(500);
+            renderRepeatNext();
+            }
+
+            await wait(300);
+        }
+        }
+
+        function wait(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+        }
+
+        /* Controles repetición */
+        function bindRepeatControls() {
+        const btnAuto = $("auto");
+        const btnDual = $("dual");
+        const btnLeer = $("leer");
+
+        if (btnAuto) {
+            btnAuto.addEventListener("click", () => {
+            State.modoAuto = !State.modoAuto;
+            btnAuto.textContent = State.modoAuto ? "Auto: ON" : "Auto: OFF";
+            btnAuto.className = State.modoAuto ? "btn btn-secondary" : "btn btn-danger";
+            });
+        }
+
+        if (btnDual) {
+            btnDual.addEventListener("click", () => {
+            State.modoDual = !State.modoDual;
+            State.dualFlip = false;
+            btnDual.textContent = State.modoDual ? "ES-DE" : "DE";
+            btnDual.className = State.modoDual ? "btn btn-secondary" : "btn btn-danger";
+            });
+        }
+
+        if (btnLeer) {
+            btnLeer.addEventListener("click", async () => {
+            // si ya está hablando, cortar
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+
+            // inicia lectura; si auto=true entra en loop
+            if (State.modoAuto) {
+                speakLoop();
+            } else {
+                // one-shot
+                if (State.modoDual) {
+                await speakOnce($("p2")?.textContent || "", "de");
+                await speakOnce($("p1")?.textContent || "", "es");
+                } else {
+                await speakOnce($("p2")?.textContent || "", "de");
+                }
+            }
+            });
+        }
+        }
+
+        /* =========================
+        INIT
+        ========================= */
+        function initUnifiedApp() {
+        mountSetButtons();
+        bindSelectionEvents();
+        bindRepeatControls();
+
+        // set inicial compartido
+        setActiveSet("lista1");
+        }
+
+        document.addEventListener("DOMContentLoaded", initUnifiedApp);
+        </script>    
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtrar y Listar Palabras</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #58a700;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #4e8e00;
+        }
+        div {
+            margin-top: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 5px;
+        }
+        td {
+            width: 50%;
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: justify ;
+            font-size: 18px;
+            background-color: #f9f9f9;
+        }
+        td:hover {
+            background-color: #e0f7fa;
+        }
+    </style>
+
+</head>
+<body>
+    <h1>Filtrar y Listar Palabras</h1>
+    <textarea id="inputText" rows="10" cols="50" placeholder="Ingrese su texto aquí..."></textarea>
+    <button onclick="processText()">Procesar Texto</button>
+    <p>Número de palabras: <span id="wordCount">0</span></p>
+    <ul id="wordList"></ul>
+
+    <script>
+        function processText() {
+            const inputText = document.getElementById('inputText').value;
+            const filteredText = inputText.replace(/[^a-zA-ZäÄüÜöÖß\s]/g, '');
+            const words = filteredText.split(/\s+/).filter(word => word.length > 0);
+            const uniqueWords = [...new Set(words)];
+            const wordList = document.getElementById('wordList');
+            wordList.innerHTML = '';
+            document.getElementById('wordCount').textContent = uniqueWords.length;
+
+            const filteredUniqueWords = uniqueWords.filter(word => {
+                const charCount = {};
+                for (const char of word) {
+                    charCount[char] = (charCount[char] || 0) + 1;
+                }
+                const maxCharCount = Math.max(...Object.values(charCount));
+                return maxCharCount / word.length <= 0.75;
+            }).filter((word, index, self) => {
+                return index === self.findIndex(w => w.slice(1).toLowerCase() === word.slice(1).toLowerCase());
+            }).filter((word, index, self) => {
+                return index === self.findIndex(w => w.length === word.length && w.slice(0, -1).toLowerCase() === word.slice(0, -1).toLowerCase());
+            /* 
+                Este filtro elimina palabras de la lista que tienen una longitud de una letra menos que otra palabra en la lista 
+                y que son iguales a esa palabra excepto por la última letra. 
+                En otras palabras, elimina palabras que son subpalabras de otras palabras en la lista.
+            */
+            }).filter((word, index, self) => {
+                return !self.some(w => w.length === word.length + 1 && w.slice(0, -1).toLowerCase() === word.toLowerCase());
+            }).filter((word, index, self) => {
+                return !self.some(w => w.length === word.length + 2 && w.slice(0, -2).toLowerCase() === word.toLowerCase() && (w.slice(-2).toLowerCase() === 'en' || w.slice(-2).toLowerCase() === 'er'));
+            })
+
+
+
+
+
+            filteredUniqueWords.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase())).forEach(word => {
+            const table = document.createElement('table');
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.textContent = word;
+            row.appendChild(cell);
+            table.appendChild(row);
+            wordList.appendChild(table);
+            });
+
+            document.getElementById('wordCount').textContent = filteredUniqueWords.length;
+        }
+    </script>
+</body>
+</html>

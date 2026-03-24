@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicación de Lectura Rápida</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        #text {
+            display: block;
+            width: 100%;
+            height: 200px;
+            margin-bottom: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #wpm {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        #npalabras, #startButton, .textosguardados {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #npalabras:hover, #startButton:hover {
+            background-color: #0056b3;
+        }
+        #display {
+            text-align: center;
+            font-size: 28px;
+            margin-top: 20px;
+            color: #333;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #textosguardados {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        strong {
+            cursor: pointer;
+            padding: 5px 10px;
+            margin: 0 5px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            user-select: none;
+        }
+        strong:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Aplicación de Lectura Rápida</h1>
+    <textarea id="text" placeholder="Ingrese el texto aquí..."></textarea>
+    <div id="controls">
+        <p id="wpm">Palabras por minuto: <span id="wpmValue">300</span><strong id="plus" onclick="wpm=wpm+10">+</strong><strong id="minus" onclick="wpm=wpm-10">-</strong></p>
+        <button id="npalabras" onclick="toggleWords()">1</button>
+        <button id="startButton">Iniciar Lectura</button>
+        <button class="textosguardados" onclick="textosguardados()">guardar Lectura</button>
+        
+    </div>
+    <div id="display"></div>
+    <div id="textosguardados"></div>
+   
+     
+    <script>
+        let wpm = 400; // Default words per minute
+
+        
+        let twowords = false;
+        document.getElementById('wpmValue').textContent = wpm;
+
+        function toggleWords() {
+            twowords = !twowords;
+            document.getElementById('npalabras').textContent = twowords ? "2" : "1";
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowUp') {
+                wpm += 10;
+            } else if (event.key === 'ArrowDown') {
+                wpm -= 10;
+            }
+            document.getElementById('wpmValue').textContent = wpm;
+        });
+        document.addEventListener('click', function(event) {
+            if (event.id === 'plus') {
+                wpm += 10;
+            } else if (event.id === 'minus') {
+                wpm -= 10;
+            }
+            document.getElementById('wpmValue').textContent = wpm;
+        });
+
+        //funcion textosguardados, guardar texto en localstorage en una lista vericar si ya existe el texto y si no agregarlo
+        function textosguardados(){
+            let textos = document.getElementById('text').value;
+            if (textos == "") {
+                mostrarTextosGuardados();
+                    let div = document.createElement('div');
+                    div.textContent = 'text area vacio';
+                    div.style.fontSize = '30px';
+                    div.style.position = 'fixed';
+                    div.style.top = '50%';
+                    div.style.left = '50%';
+                    div.style.transform = 'translate(-50%, -50%)';
+                    div.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                    div.style.color = 'white';
+                    div.style.padding = '70px';
+                    div.style.borderRadius = '5px';
+
+                    div.style.zIndex = '1000';
+                    document.body.appendChild(div);
+
+                    setTimeout(function() {
+                        div.remove();
+                    }, 1000);
+                return;
+
+                
+            }
+
+            let textosguardados = localStorage.getItem('textosguardados');
+            if(textosguardados == null){
+                textosguardados = [];
+            }else{
+                textosguardados = JSON.parse(textosguardados);
+            }
+            if(textosguardados.indexOf(textos) == -1){
+                textosguardados.push(textos);
+                localStorage.setItem('textosguardados', JSON.stringify(textosguardados));
+            }
+            console.log(textosguardados);
+            mostrarTextosGuardados()
+        }
+        //funcion para mostrar los textos guardados en el localstorage en un div dentro del elemento textosguardados
+        function mostrarTextosGuardados(){
+            
+            let textosguardados = localStorage.getItem('textosguardados');
+            if(textosguardados == null){
+            textosguardados = [];
+            }else{
+            textosguardados = JSON.parse(textosguardados);
+            }
+            let textosguardadosDiv = document.getElementById('textosguardados');
+            textosguardadosDiv.innerHTML = '';
+            for(let i = 0; i < textosguardados.length; i++){
+            let textoConSaltos = textosguardados[i].replace(/\n/g, '<br>');
+            textosguardadosDiv.innerHTML += '<p>' + textoConSaltos + '</p>'+'<span class="textosguardados" onclick="borrarTextoGuardado('+i+')">dlt</span>';
+            }
+        }
+        //funcion para borrar un texto guardado en el localstorage recibe el indice del texto a borrar
+        function borrarTextoGuardado(indice){
+            let textosguardados = localStorage.getItem('textosguardados');
+            textosguardados = JSON.parse(textosguardados);
+            textosguardados.splice(indice, 1);
+            localStorage.setItem('textosguardados', JSON.stringify(textosguardados));
+            mostrarTextosGuardados();
+        }
+
+        document.getElementById('startButton').addEventListener('click', function() {
+            const text = document.getElementById('text').value;
+            const words = text.split(' ');
+            let index = 0;
+            const display = document.getElementById('display');
+
+            function showNextWord() {
+                if (index < words.length) {
+                    display.textContent = twowords && index + 1 < words.length ? words[index] + " " + words[index + 1] : words[index];
+                    index += twowords ? 2 : 1;
+                    setTimeout(showNextWord, 60000 / wpm);
+                }
+            }
+
+            showNextWord();
+        });
+    </script>
+</body>
+</html>

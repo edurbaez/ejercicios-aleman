@@ -451,6 +451,7 @@
         timerStarted: false,
         timerId: null,
         seconds: 0,
+        winnummer: 100,
         currentIndex: null,
         optionIdxs: []
         };
@@ -812,7 +813,7 @@ function bindSelectionEvents() {
         State.timerStarted = true;
         State.timerId = setInterval(() => {
             const ac = parseInt(($("aciertos")?.textContent || "0"), 10);
-            if (ac >= 50) {
+            if (ac >= State.winnummer) {
             stopTimer();
             return;
             }

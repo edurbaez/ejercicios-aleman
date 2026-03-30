@@ -228,6 +228,73 @@
         #navbar a.active { background-color: var(--btn); color: white; }
         #navbar .spacer { flex: 1; }
 
+        /* Blog view */
+        #blog-view { display: none; max-width: 720px; margin: 0 auto; }
+        #blog-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        #blog-play-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            background-color: var(--btn);
+            color: white;
+            font-size: 32px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow);
+            transition: background-color 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        #blog-play-btn:hover { background-color: var(--btn-hover); transform: scale(1.05); }
+        #blog-lang {
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        #blog-back-btn {
+            display: block;
+            margin-bottom: 18px;
+            background: none;
+            border: none;
+            color: var(--btn);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            text-decoration: underline;
+        }
+        #blog-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #blog-content {
+            font-size: 18px;
+            line-height: 1.8;
+            background-color: var(--card);
+            padding: 28px 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px var(--shadow);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .blog-chunk { border-radius: 4px; transition: background-color 0.3s; cursor: default; }
+        .blog-chunk-active { background-color: rgba(0, 123, 255, 0.18); }
+        .blog-chunk-selected { background-color: rgba(40, 167, 69, 0.2); outline: 2px solid rgba(40, 167, 69, 0.5); cursor: pointer; }
+
         #darkModeBtn {
             position: fixed;
             top: 8px;
@@ -249,6 +316,21 @@
     </nav>
     <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
     <h1>Lectura Veloz</h1>
+
+    <div id="blog-view">
+        <button id="blog-back-btn" onclick="salirBlogView()">← Volver</button>
+        <div id="blog-title"></div>
+        <div id="blog-controls">
+            <button id="blog-play-btn" onclick="iniciarDesdeBlog()" title="Iniciar lectura veloz">▶</button>
+            <select id="blog-lang">
+                <option value="es-ES">Español</option>
+                <option value="de-DE">Alemán</option>
+                <option value="en-US">Inglés</option>
+                <option value="fr-FR">Francés</option>
+            </select>
+        </div>
+        <div id="blog-content"></div>
+    </div>
 
     <textarea id="text" placeholder="Ingrese el texto aquí..."></textarea>
 
@@ -287,7 +369,7 @@
     <div id="display-container">
         <div id="display">—</div>
     </div>
-
+    
     <div id="saved-section">
         <h3>Textos guardados</h3>
         <div id="textosguardados"></div>
@@ -557,13 +639,185 @@
             mostrarTextosGuardados();
         }
 
+        let blogText = '';
+        let blogChunks = [];
+        let blogStartChunk = 0;
+        let blogItemId = null;
+
+        function saveBlogPos(i) {
+            if (blogItemId !== null) localStorage.setItem(`lv_pos_${blogItemId}`, i);
+        }
+
+        function clearBlogPos() {
+            if (blogItemId !== null) localStorage.removeItem(`lv_pos_${blogItemId}`);
+        }
+
+        function renderBlogChunks() {
+            blogChunks = splitIntoChunks(blogText, 150);
+            const saved = blogItemId !== null ? parseInt(localStorage.getItem(`lv_pos_${blogItemId}`)) || 0 : 0;
+            blogStartChunk = Math.min(saved, blogChunks.length - 1);
+            const contentEl = document.getElementById('blog-content');
+            contentEl.innerHTML = blogChunks
+                .map((c, i) => `<span id="blog-chunk-${i}" class="blog-chunk" ondblclick="selectBlogChunk(${i})">${escHtml(c)}</span>`)
+                .join('\n\n');
+            if (blogStartChunk > 0) {
+                const el = document.getElementById(`blog-chunk-${blogStartChunk}`);
+                if (el) {
+                    el.classList.add('blog-chunk-selected');
+                    setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
+                }
+            }
+        }
+
+        function selectBlogChunk(i) {
+            document.querySelectorAll('.blog-chunk').forEach(el => {
+                el.classList.remove('blog-chunk-selected');
+                el.classList.remove('blog-chunk-active');
+            });
+            blogStartChunk = i;
+            const el = document.getElementById(`blog-chunk-${i}`);
+            if (el) el.classList.add('blog-chunk-selected');
+            iniciarDesdeBlog()
+        }
+
+        function entrarBlogView(name, text) {
+            blogText = text;
+            document.getElementById('blog-title').textContent = name;
+            document.getElementById('blog-view').style.display = 'block';
+            document.getElementById('text').style.display = 'none';
+            ['controls', 'progress-container', 'display-container', 'saved-section']
+                .forEach(id => document.getElementById(id).style.display = 'none');
+            document.querySelector('h1').scrollIntoView({ behavior: 'smooth' });
+            renderBlogChunks();
+        }
+
+        function salirBlogView() {
+            speechSynthesis.cancel();
+            blogSpeaking = false;
+            blogItemId = null;
+            blogChunks = [];
+            const btn = document.getElementById('blog-play-btn');
+            btn.textContent = '▶';
+            btn.onclick = iniciarDesdeBlog;
+            document.getElementById('blog-view').style.display = 'none';
+            document.getElementById('text').style.display = 'block';
+            ['controls', 'progress-container', 'display-container', 'saved-section']
+                .forEach(id => document.getElementById(id).style.display = '');
+        }
+
+        let blogSpeaking = false;
+
+        function splitIntoChunks(text, targetWords = 150) {
+            // Divide por párrafos (línea en blanco o salto simple)
+            const paragraphs = text.split(/\n\s*\n|\n/).map(p => p.trim()).filter(Boolean);
+            const chunks = [];
+            let buf = [];
+            let bufWords = 0;
+
+            for (const para of paragraphs) {
+                const wc = para.split(/\s+/).length;
+
+                // Párrafo muy largo: dividir por oraciones
+                if (wc > targetWords * 2) {
+                    if (buf.length) { chunks.push(buf.join('\n\n')); buf = []; bufWords = 0; }
+                    const sentences = para.match(/[^.!?…]+[.!?…]+["']?/g) || [para];
+                    let sBuf = [], sWords = 0;
+                    for (const sent of sentences) {
+                        const sw = sent.trim().split(/\s+/).length;
+                        if (sWords + sw > targetWords && sBuf.length) {
+                            chunks.push(sBuf.join(' '));
+                            sBuf = []; sWords = 0;
+                        }
+                        sBuf.push(sent.trim()); sWords += sw;
+                    }
+                    if (sBuf.length) chunks.push(sBuf.join(' '));
+                    continue;
+                }
+
+                // Si agregar este párrafo supera el target, vacia el buffer primero
+                if (bufWords + wc > targetWords && buf.length) {
+                    chunks.push(buf.join('\n\n')); buf = []; bufWords = 0;
+                }
+                buf.push(para); bufWords += wc;
+            }
+            if (buf.length) chunks.push(buf.join('\n\n'));
+            return chunks;
+        }
+
+        function iniciarDesdeBlog() {
+            if (!blogText) return;
+            speechSynthesis.cancel();
+
+            if (blogChunks.length === 0) renderBlogChunks();
+            const chunks = blogChunks;
+            const startFrom = blogStartChunk;
+
+            // Limpiar selección manual
+            document.querySelectorAll('.blog-chunk').forEach(el => el.classList.remove('blog-chunk-selected'));
+
+            blogSpeaking = true;
+            const btn = document.getElementById('blog-play-btn');
+            btn.textContent = '⏸';
+            btn.onclick = toggleBlogSpeech;
+
+            function highlightChunk(i) {
+                document.querySelectorAll('.blog-chunk').forEach(el => el.classList.remove('blog-chunk-active'));
+                const el = document.getElementById(`blog-chunk-${i}`);
+                if (el) {
+                    el.classList.add('blog-chunk-active');
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            function speakChunk(i) {
+                if (i >= chunks.length || !blogSpeaking) {
+                    document.querySelectorAll('.blog-chunk').forEach(el => el.classList.remove('blog-chunk-active'));
+                    blogSpeaking = false;
+                    blogStartChunk = 0;
+                    clearBlogPos();
+                    btn.textContent = '▶';
+                    btn.onclick = iniciarDesdeBlog;
+                    return;
+                }
+                highlightChunk(i);
+                blogStartChunk = i;
+                saveBlogPos(i);
+                const utter = new SpeechSynthesisUtterance(chunks[i]);
+                utter.lang = document.getElementById('blog-lang').value;
+                utter.onend = () => { if (blogSpeaking) speakChunk(i + 1); };
+                speechSynthesis.speak(utter);
+            }
+
+            function toggleBlogSpeech() {
+                if (speechSynthesis.paused) {
+                    speechSynthesis.resume();
+                    btn.textContent = '⏸';
+                } else if (speechSynthesis.speaking) {
+                    speechSynthesis.pause();
+                    btn.textContent = '▶';
+                }
+            }
+
+            speakChunk(startFrom);
+        }
+
         async function cargarTexto(id) {
             const list = await dbGetAll();
             const item = list.find(t => t.id === id);
             if (!item) return;
-            document.getElementById('text').value = item.text;
-            document.getElementById('text').scrollIntoView({ behavior: 'smooth' });
+            entrarBlogView(item.name, item.text);
+            document.getElementById('text').value = blogText;
+            salirBlogView()
+            
         }
+        async function cargarTextoblog(id) {
+            const list = await dbGetAll();
+            const item = list.find(t => t.id === id);
+            if (!item) return;
+            blogItemId = id;
+            entrarBlogView(item.name, item.text);
+        }
+
 
         async function borrarTextoGuardado(btn) {
             if (btn.dataset.confirm !== 'true') {
@@ -598,6 +852,7 @@
                     </div>
                     <div class="saved-item-actions">
                         <button class="btn" onclick="cargarTexto(${item.id})">Cargar</button>
+                        <button class="btn" onclick="cargarTextoblog(${item.id})">leer</button>
                         <button class="btn danger" data-id="${item.id}" data-name="${escHtml(item.name)}" onclick="borrarTextoGuardado(this)">✕</button>
                     </div>
                 </div>

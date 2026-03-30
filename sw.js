@@ -1,4 +1,4 @@
-const CACHE = "palabrasb2-v1";
+const CACHE = "palabrasb2-v2";
 const ASSETS = [
   "/palabrasB2.html",
   "/manifest.json",
@@ -24,9 +24,15 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Fetch: responde desde caché, si falla va a la red
+// Fetch: red primero, actualiza caché; si falla usa caché (offline)
 self.addEventListener("fetch", (e) => {
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+    fetch(e.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(e.request, copy));
+        return response;
+      })
+      .catch(() => caches.match(e.request))
   );
 });

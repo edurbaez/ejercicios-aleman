@@ -15,13 +15,73 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
+        :root {
+            --bg: #1d1c1c20;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #cccccc;
+            --navbar-bg: #ffffff;
+            --option-hover: #f2f2f2;
+            --table-border: grey;
+        }
+        body.dark {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #e0e0e0;
+            --border: #444;
+            --navbar-bg: #0f3460;
+            --option-hover: #1a3a6e;
+            --table-border: #555;
+        }
+        body.dark .lista-info {
+            background: #2a3a1a;
+            border-color: #5a7a2a;
+            color: #c8e6a0;
+        }
+
         body {
-            background: #1d1c1c20;
+            background: var(--bg);
+            color: var(--text);
             width: 100%;
             min-height: 100vh;
+            padding-top: 56px;
+        }
+
+        /* ========= NAVBAR ========= */
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 46px;
+            background-color: var(--navbar-bg);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
             display: flex;
-            flex-direction: column;
             align-items: center;
+            padding: 0 16px;
+            gap: 6px;
+            z-index: 200;
+        }
+        #navbar a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        #navbar a:hover, #navbar a.active {
+            background-color: #1976D2;
+            color: white;
+        }
+        #navbar .spacer { flex: 1; }
+        #darkModeBtn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 5px;
         }
 
         /* ========= CONTENEDOR PRINCIPAL ========= */
@@ -58,7 +118,8 @@
             flex: 1;
             text-align: center;
             padding: 15px;
-            background: white;
+            background: var(--card-bg);
+            color: var(--text);
             border-radius: 8px;
             box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
         }
@@ -85,7 +146,8 @@
         .option {
             padding: 20px;
             text-align: center;
-            background: white;
+            background: var(--card-bg);
+            color: var(--text);
             border-radius: 8px;
             cursor: pointer;
             box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
@@ -93,7 +155,7 @@
         }
 
         .option:hover {
-            background: #f2f2f2;
+            background: var(--option-hover);
         }
 
         /* ========= BOTONES ========= */
@@ -203,9 +265,11 @@
         }
 
         th, td {
-            border: 2px solid grey;
+            border: 2px solid var(--table-border);
             padding: 8px;
             text-align: center;
+            color: var(--text);
+            background: var(--card-bg);
         }
 
         /* ========= RESPONSIVE MÓVIL ========= */
@@ -267,6 +331,12 @@
     </style>
 </head>
 <body>
+    <nav id="navbar">
+        <a href="palabrasB2.html" class="active">Inicio</a>
+        <a href="lectura veloz.html">Lectura Veloz</a>
+        <div class="spacer"></div>
+        <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
+    </nav>
     <div class="app">
 
             <!-- ========================= -->
@@ -365,7 +435,7 @@
             </section>
 
         </div>
-    <script src="DATA.json"></script>
+   
     <script>
         /* =========================
         DATASET ÚNICO (fusionado)
@@ -1001,6 +1071,17 @@ function bindSelectionEvents() {
             <tbody><tr><td colspan="2" style="text-align:center;color:#999;padding:20px;">Seleccione listas para ver el contenido</td></tr></tbody>
             `;
         }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            document.getElementById('darkModeBtn').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('darkMode_b2', isDark);
+        }
+        if (localStorage.getItem('darkMode_b2') === 'true') {
+            document.body.classList.add('dark');
+            document.getElementById('darkModeBtn').textContent = '☀️';
         }
 
         document.addEventListener("DOMContentLoaded", initUnifiedApp);

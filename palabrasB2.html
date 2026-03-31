@@ -77,8 +77,8 @@
 
                 <!-- Palabras -->
                 <div class="panel" style="gap:20px;">
-                    <div class="card word-display" id="p2"></div>
                     <div class="card word-display" id="p1"></div>
+                    <div class="card word-display" id="p2"></div>
                 </div>
 
                 <!-- Controles inferiores -->
@@ -634,10 +634,10 @@ function bindSelectionEvents() {
 
             // dual: alternar ES/DE
             if (!State.dualFlip) {
-            await speakOnce($("p2")?.textContent || "", "de");
+            await speakOnce($("p1")?.textContent || "", "es");
             State.dualFlip = true;
             } else {
-            await speakOnce($("p1")?.textContent || "", "es");
+            await speakOnce($("p2")?.textContent || "", "de");
             State.dualFlip = false;
             await wait(500);
             renderRepeatNext();

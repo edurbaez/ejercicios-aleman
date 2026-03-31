@@ -1,6 +1,7 @@
-const CACHE = "palabrasb2-v2";
+const CACHE = "palabrasb2-v3";
 const ASSETS = [
   "/palabrasB2.html",
+  "/styles.css",
   "/manifest.json",
   "/icon.svg",
   "/DATA.json"

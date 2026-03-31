@@ -55,6 +55,7 @@
             <button class="btn success" id="startButton">▶ Iniciar</button>
             <button class="btn secondary" id="pauseButton" disabled>⏸ Pausar</button>
             <button class="btn secondary" id="stopButton" disabled>⏹ Detener</button>
+            <button class="btn secondary" id="backButton" onclick="goBack()">« 5</button>
             <button class="btn" onclick="guardarTexto()">💾 Guardar</button>
             <button class="btn secondary" onclick="document.getElementById('fileInput').click()">📂 Subir archivo</button>
             <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx" style="display:none" onchange="handleFile(this)">
@@ -76,7 +77,7 @@
     </div>
 
     <script>
-        let wpm = 400;
+        let wpm = parseInt(localStorage.getItem('lv_wpm')) || 400;
         let twowords = false;
         let words = [];
         let index = 0;
@@ -176,9 +177,24 @@
             document.getElementById('stopButton').disabled = !hasWords;
         }
 
+        function goBack() {
+            if (words.length === 0) return;
+            clearTimeout(timer);
+            const step = twowords ? 10 : 6;
+            index = Math.max(0, index - step);
+            updateProgress();
+            document.getElementById('startIndex').value = index + 1;
+            if (isRunning) showNextWord();
+            else {
+                const w2 = twowords && index + 1 < words.length ? words[index + 1] : null;
+                renderWord(words[index], w2);
+            }
+        }
+
         function changeWpm(delta) {
             wpm = Math.max(60, wpm + delta);
             document.getElementById('wpmValue').textContent = wpm;
+            localStorage.setItem('lv_wpm', wpm);
         }
 
         function toggleWords() {
@@ -198,6 +214,7 @@
             if (e.key === 'ArrowUp') changeWpm(10);
             else if (e.key === 'ArrowDown') changeWpm(-10);
             else if (e.key === ' ') { e.preventDefault(); if (words.length > 0) pauseReading(); }
+            else if (e.key === 'ArrowLeft') goBack();
         });
 
         // --- File upload ---

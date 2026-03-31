@@ -56,6 +56,9 @@
                     <div class="option" id="op3"></div>
                     <div class="option" id="op4"></div>
                 </div>
+                <div style="text-align:center;margin-top:10px;">
+                    <button class="btn btn-secondary" id="btn-inverso" onclick="toggleModoInverso()">ES → DE</button>
+                </div>
 
             </section>
 
@@ -202,7 +205,8 @@
         seconds: 0,
         winnummer: 100,
         currentIndex: null,
-        optionIdxs: []
+        optionIdxs: [],
+        modoInverso: false
         };
 
         /* =========================
@@ -461,7 +465,7 @@ function renderSelectionNext() {
 
   State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
 
-  safeText($("palabra"), State.es[idx]);
+  safeText($("palabra"), State.modoInverso ? State.de[idx] : State.es[idx]);
 
   const ids = ["op1", "op2", "op3", "op4"];
   ids.forEach((id, slot) => {
@@ -470,7 +474,7 @@ function renderSelectionNext() {
 
     const wordIndex = State.optionIdxs[slot];
 
-    el.textContent = State.de[wordIndex];
+    el.textContent = State.modoInverso ? State.es[wordIndex] : State.de[wordIndex];
     el.dataset.wordIndex = String(wordIndex);
     el.dataset.roundToken = String(State.roundToken);
   });
@@ -752,6 +756,13 @@ function bindSelectionEvents() {
         }
         }
 
+        function toggleModoInverso() {
+        State.modoInverso = !State.modoInverso;
+        const btn = $("btn-inverso");
+        if (btn) btn.textContent = State.modoInverso ? "DE → ES" : "ES → DE";
+        renderSelectionNext();
+        }
+
         function toggleDarkMode() {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
@@ -762,6 +773,17 @@ function bindSelectionEvents() {
             document.body.classList.add('dark');
             document.getElementById('darkModeBtn').textContent = '☀️';
         }
+
+        document.addEventListener("keydown", function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const map = { '1': 'op1', '2': 'op2', '3': 'op3', '4': 'op4' };
+        if (map[e.key]) {
+            const el = $(map[e.key]);
+            if (!el || el.textContent === '-' || !el.dataset.wordIndex) return;
+            const chosen = parseInt(el.dataset.wordIndex, 10);
+            handleSelectionPick(chosen, el.dataset.roundToken);
+        }
+        });
 
         document.addEventListener("DOMContentLoaded", initUnifiedApp);
 

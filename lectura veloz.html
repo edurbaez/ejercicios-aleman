@@ -7,13 +7,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body id="page-lv">
     <nav id="navbar">
         <a href="palabrasB2.html">Inicio</a>
         <a href="lectura veloz.html" class="active">Lectura Veloz</a>
         <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión">👤</button>
     </nav>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+            <h3 style="margin:0 0 16px;color:#222">Iniciar sesión</h3>
+            <div id="auth-email-step">
+                <input id="auth-email" type="email" placeholder="tu@email.com" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
+                <div style="display:flex;gap:8px;">
+                    <button id="auth-send-btn" onclick="sendOtp()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar código</button>
+                    <button onclick="closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+                </div>
+            </div>
+            <div id="auth-otp-step" style="display:none">
+                <p id="auth-otp-label" style="margin:0 0 12px;font-size:13px;color:#555;"></p>
+                <input id="auth-otp" type="text" placeholder="Código de 6 dígitos" maxlength="6" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;letter-spacing:6px;font-size:20px;text-align:center;">
+                <div style="display:flex;gap:8px;">
+                    <button id="auth-verify-btn" onclick="verifyOtp()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Verificar</button>
+                    <button onclick="closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
     <h1>Lectura Veloz</h1>
 
@@ -125,7 +149,10 @@
                 index += twowords ? 2 : 1;
                 updateProgress();
                 document.getElementById('startIndex').value = index + 1;
-                timer = setTimeout(showNextWord, 60000 / wpm);
+                const baseDelay = 60000 / wpm;
+                const lastShown = words[index - 1] || '';
+                const delay = /[.!?]$/.test(lastShown) ? baseDelay * 2 : /[,;:]$/.test(lastShown) ? baseDelay * 1.5 : baseDelay;
+                timer = setTimeout(showNextWord, delay);
             } else {
                 isRunning = false;
                 updateButtons();
@@ -195,6 +222,7 @@
             wpm = Math.max(60, wpm + delta);
             document.getElementById('wpmValue').textContent = wpm;
             localStorage.setItem('lv_wpm', wpm);
+            syncToCloud();
         }
 
         function toggleWords() {
@@ -207,6 +235,7 @@
             const isDark = document.body.classList.contains('dark');
             document.getElementById('darkModeBtn').textContent = isDark ? '☀️' : '🌙';
             localStorage.setItem('darkMode', isDark);
+            syncToCloud();
         }
 
         document.addEventListener('keydown', function(e) {
@@ -332,6 +361,29 @@
             });
         }
 
+        async function dbUpdate(id, changes) {
+            const d = await getDB();
+            return new Promise((resolve, reject) => {
+                const store = d.transaction('textos', 'readwrite').objectStore('textos');
+                const getReq = store.get(id);
+                getReq.onsuccess = () => {
+                    const putReq = store.put(Object.assign(getReq.result, changes));
+                    putReq.onsuccess = () => resolve();
+                    putReq.onerror = e => reject(e.target.error);
+                };
+                getReq.onerror = e => reject(e.target.error);
+            });
+        }
+
+        async function renombrarTexto(btn) {
+            const id = parseInt(btn.dataset.id);
+            const newName = prompt('Nuevo nombre:', btn.dataset.name);
+            if (newName === null || !newName.trim()) return;
+            await dbUpdate(id, { name: newName.trim() });
+            mostrarTextosGuardados();
+            syncToCloud();
+        }
+
         async function migrateFromLocalStorage() {
             const raw = localStorage.getItem('textosguardados');
             if (!raw) return;
@@ -354,6 +406,7 @@
             if (name === null) return;
             await dbAdd({ name: name.trim() || 'Sin nombre', text });
             mostrarTextosGuardados();
+            syncToCloud();
         }
 
         let blogText = '';
@@ -552,6 +605,7 @@
             }
             await dbDelete(parseInt(btn.dataset.id));
             mostrarTextosGuardados();
+            syncToCloud();
         }
 
         async function mostrarTextosGuardados() {
@@ -570,6 +624,7 @@
                     <div class="saved-item-actions">
                         <button class="btn" onclick="cargarTexto(${item.id})">Cargar</button>
                         <button class="btn" onclick="cargarTextoblog(${item.id})">leer</button>
+                        <button class="btn secondary" data-id="${item.id}" data-name="${escHtml(item.name)}" onclick="renombrarTexto(this)">✏️</button>
                         <button class="btn danger" data-id="${item.id}" data-name="${escHtml(item.name)}" onclick="borrarTextoGuardado(this)">✕</button>
                     </div>
                 </div>
@@ -599,6 +654,116 @@
         }
         migrateFromLocalStorage().then(() => mostrarTextosGuardados());
         updateButtons();
+
+        /* ========================= AUTH ========================= */
+        const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
+        const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
+        const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+        let currentUser = null;
+        let _otpEmail = '';
+
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+            document.getElementById('auth-email-step').style.display = 'block';
+            document.getElementById('auth-otp-step').style.display = 'none';
+            document.getElementById('auth-email').value = '';
+        }
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+        async function sendOtp() {
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) return;
+            const btn = document.getElementById('auth-send-btn');
+            btn.disabled = true; btn.textContent = 'Enviando...';
+            const { error } = await sb.auth.signInWithOtp({ email });
+            btn.disabled = false; btn.textContent = 'Enviar código';
+            if (error) { alert('Error: ' + error.message); return; }
+            _otpEmail = email;
+            document.getElementById('auth-email-step').style.display = 'none';
+            document.getElementById('auth-otp-step').style.display = 'block';
+            document.getElementById('auth-otp-label').textContent = `Código enviado a ${email}`;
+            document.getElementById('auth-otp').value = '';
+            document.getElementById('auth-otp').focus();
+        }
+        async function verifyOtp() {
+            const token = document.getElementById('auth-otp').value.trim();
+            if (!token) return;
+            const btn = document.getElementById('auth-verify-btn');
+            btn.disabled = true; btn.textContent = 'Verificando...';
+            const { error } = await sb.auth.verifyOtp({ email: _otpEmail, token, type: 'email' });
+            btn.disabled = false; btn.textContent = 'Verificar';
+            if (error) { alert('Código incorrecto o expirado'); return; }
+            closeAuthModal();
+        }
+        async function logout() {
+            await sb.auth.signOut();
+        }
+        function updateAuthUI() {
+            const btn = document.getElementById('auth-btn');
+            if (currentUser) {
+                btn.textContent = currentUser.email.split('@')[0];
+                btn.title = 'Cerrar sesión';
+                btn.onclick = logout;
+            } else {
+                btn.textContent = '👤';
+                btn.title = 'Iniciar sesión';
+                btn.onclick = openAuthModal;
+            }
+        }
+        async function onSignedIn() {
+            const { data } = await sb.from('user_data').select('*').eq('user_id', currentUser.id).maybeSingle();
+            if (!data) return;
+            if (data.lv_wpm) {
+                wpm = data.lv_wpm;
+                document.getElementById('wpmValue').textContent = wpm;
+                localStorage.setItem('lv_wpm', wpm);
+            }
+            if (data.lv_dark != null) {
+                document.body.classList.toggle('dark', data.lv_dark);
+                document.getElementById('darkModeBtn').textContent = data.lv_dark ? '☀️' : '🌙';
+                localStorage.setItem('darkMode', data.lv_dark);
+            }
+            if (data.lv_positions) {
+                Object.entries(data.lv_positions).forEach(([id, pos]) => {
+                    localStorage.setItem(`lv_pos_${id}`, pos);
+                });
+            }
+            if (data.lv_texts?.length) {
+                const existing = await dbGetAll();
+                if (existing.length === 0) {
+                    for (const item of data.lv_texts) await dbAdd({ name: item.name, text: item.text });
+                    mostrarTextosGuardados();
+                }
+            }
+        }
+        async function syncToCloud() {
+            if (!currentUser) return;
+            const positions = {};
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k?.startsWith('lv_pos_')) positions[k.replace('lv_pos_', '')] = parseInt(localStorage.getItem(k));
+            }
+            const texts = await dbGetAll();
+            await sb.from('user_data').upsert({
+                user_id: currentUser.id,
+                lv_wpm: wpm,
+                lv_dark: document.body.classList.contains('dark'),
+                lv_positions: positions,
+                lv_texts: texts.map(({ name, text }) => ({ name, text })),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id' });
+        }
+        sb.auth.onAuthStateChange(async (event, session) => {
+            currentUser = session?.user || null;
+            updateAuthUI();
+            if (event === 'SIGNED_IN') await onSignedIn();
+        });
+        sb.auth.getSession().then(({ data: { session } }) => {
+            currentUser = session?.user || null;
+            updateAuthUI();
+            if (currentUser) onSignedIn();
+        });
     </script>
 </body>
 </html>

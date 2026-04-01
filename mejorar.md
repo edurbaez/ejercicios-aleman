@@ -160,14 +160,14 @@ Todas las sugerencias respetan la arquitectura existente: HTML puro, sin build s
 | Implementada | 2 | Atajos de teclado quiz | Alto | Bajo |
 | Implementada | 14 | Retroceder en RSVP | Alto | Bajo |
 | — | 10 | Nombres legibles en botones | Medio | Mínimo |
-| — | 12 | Renombrar textos | Medio | Bajo |
+| Implementada | 12 | Renombrar textos | Medio | Bajo |
 | — | 5 | Resumen al completar set | Medio | Medio |
 | — | 15 | Control velocidad TTS blog | Medio | Bajo |
 | — | 3 | Stats persistentes por lista | Alto | Medio |
-| — | 17 | Pausa en puntuación RSVP | Medio | Mínimo |
+| Implementada | 17 | Pausa en puntuación RSVP | Medio | Mínimo |
 | — | 6 | Filtro en tabla | Medio | Bajo |
 | — | 16 | Progreso en blog view | Bajo | Mínimo |
-| — | 7 | Exportar errores | Bajo | Mínimo |
+| Implementada | 7 | Exportar errores | Bajo | Mínimo |
 | — | 8 | Selección de voz TTS | Bajo | Medio |
 | — | 13 | Stats del texto RSVP | Bajo | Mínimo |
 | — | 19 | PWA Lectura Veloz | Bajo | Bajo |

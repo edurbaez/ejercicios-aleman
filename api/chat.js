@@ -14,6 +14,10 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Demasiados mensajes" });
     }
 
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: "OPENAI_API_KEY no configurada en Vercel" });
+    }
+
     try {
         const body = {
             model: "gpt-4o-mini",

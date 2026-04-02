@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diccionario Alemán</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <style>
         #page-dic {
             --bg: #f5f5f5;
@@ -258,6 +259,37 @@
     </div>
 
     <script>
+        // ── Supabase ───────────────────────────────────────────
+        const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
+        const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
+        const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+        async function supaGet(palabra) {
+            try {
+                const { data } = await sb
+                    .from("diccionario_cache")
+                    .select("*")
+                    .eq("id", palabra.toLowerCase())
+                    .maybeSingle();
+                return data || null;
+            } catch { return null; }
+        }
+
+        async function supaSet(palabra, info) {
+            try {
+                await sb.from("diccionario_cache").insert({
+                    id: palabra.toLowerCase(),
+                    _palabra: palabra,
+                    palabra,
+                    traduccion: info.traduccion || null,
+                    nivel: info.nivel || null,
+                    definicion: info.definicion || null,
+                    sinonimos: info.sinonimos || [],
+                    antonimo: info.antonimo || null,
+                });
+            } catch {}
+        }
+
         // ── Dark mode ──────────────────────────────────────────
         function toggleDarkMode() {
             const isDark = document.body.classList.toggle("dark");
@@ -412,7 +444,7 @@
             errorMsg.style.display = "none";
             resultado.style.display = "none";
 
-            // ── Usar caché si existe ──
+            // 1. IndexedDB local
             const cached = await cacheGet(palabra);
             if (cached) {
                 mostrarResultado(cached._palabra || palabra, cached);
@@ -421,6 +453,16 @@
 
             btn.disabled = true;
             spinner.style.display = "block";
+
+            // 2. Supabase compartida
+            const remoto = await supaGet(palabra);
+            if (remoto) {
+                await cacheSet(palabra, remoto);   // guardar local para próximas veces
+                btn.disabled = false;
+                spinner.style.display = "none";
+                mostrarResultado(remoto.palabra || palabra, remoto);
+                return;
+            }
 
             const system = `Eres un diccionario de alemán preciso. El usuario te dará una palabra en alemán.
 Responde SIEMPRE con un JSON válido con exactamente estas claves:
@@ -454,7 +496,8 @@ No incluyas nada fuera del JSON.`;
                     throw new Error("La respuesta no era JSON válido");
                 }
 
-                await cacheSet(palabra, info);
+                // 3. Guardar en ambos para que otros usuarios también se beneficien
+                await Promise.all([cacheSet(palabra, info), supaSet(palabra, info)]);
                 mostrarResultado(palabra, info);
 
             } catch (e) {

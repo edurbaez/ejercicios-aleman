@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diccionario Alemán</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        #page-dic {
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #cccccc;
+            --navbar-bg: #ffffff;
+            --accent: #1976D2;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        #page-dic.dark {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #e0e0e0;
+            --border: #444;
+            --navbar-bg: #0f3460;
+            --accent: #4fa3e0;
+        }
+        #navbar { background: var(--navbar-bg); }
+
+        .dic-container {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        .dic-container h1 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: var(--accent);
+        }
+
+        .search-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        #input-palabra {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--card-bg);
+            color: var(--text);
+            outline: none;
+        }
+        #input-palabra:focus {
+            border-color: var(--accent);
+        }
+
+        #btn-buscar {
+            padding: 10px 20px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        #btn-buscar:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        #resultado {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .result-header {
+            background: var(--accent);
+            color: #fff;
+            padding: 14px 18px;
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+        }
+        .result-header .palabra-buscada {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .result-header .nivel-badge {
+            font-size: 13px;
+            background: rgba(255,255,255,0.25);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .result-body {
+            padding: 0;
+        }
+
+        .result-row {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+        }
+        .result-row:last-child { border-bottom: none; }
+
+        .result-label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            min-width: 90px;
+            padding-top: 2px;
+        }
+
+        .result-value {
+            font-size: 15px;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .chip {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 3px 12px;
+            font-size: 13px;
+        }
+
+        .sin-datos {
+            color: #999;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        #error-msg {
+            display: none;
+            color: #c0392b;
+            background: #fdecea;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        #spinner {
+            display: none;
+            text-align: center;
+            padding: 32px;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body id="page-dic">
+    <nav id="navbar">
+        <a href="palabrasB2.html">Inicio</a>
+        <a href="lectura veloz.html">Lectura Veloz</a>
+        <a href="diccionario.html" class="active">Diccionario</a>
+        <div class="spacer"></div>
+        <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
+    </nav>
+
+    <div class="dic-container">
+        <h1>Diccionario Alemán</h1>
+
+        <div class="search-row">
+            <input id="input-palabra" type="text" placeholder="Escribe una palabra en alemán..." autocomplete="off" />
+            <button id="btn-buscar" onclick="buscar()">Buscar</button>
+        </div>
+
+        <div id="error-msg"></div>
+        <div id="spinner">Consultando...</div>
+
+        <div id="resultado">
+            <div class="result-header">
+                <span class="palabra-buscada" id="r-palabra"></span>
+                <span class="nivel-badge" id="r-nivel"></span>
+            </div>
+            <div class="result-body">
+                <div class="result-row">
+                    <span class="result-label">Traducción</span>
+                    <span class="result-value" id="r-traduccion"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Definición</span>
+                    <span class="result-value" id="r-definicion"></span>
+                </div>
+                <div class="result-row">
+                    <span class="result-label">Sinónimos</span>
+                    <div class="result-value" id="r-sinonimos"></div>
+                </div>
+                <div class="result-row" id="row-antonimo">
+                    <span class="result-label">Antónimo</span>
+                    <span class="result-value" id="r-antonimo"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle("dark");
+            localStorage.setItem("darkMode_dic", isDark ? "1" : "0");
+        }
+        if (localStorage.getItem("darkMode_dic") === "1") {
+            document.body.classList.add("dark");
+        }
+
+        // Enter para buscar
+        document.getElementById("input-palabra").addEventListener("keydown", e => {
+            if (e.key === "Enter") buscar();
+        });
+
+        async function buscar() {
+            const palabra = document.getElementById("input-palabra").value.trim();
+            if (!palabra) return;
+
+            const btn = document.getElementById("btn-buscar");
+            const spinner = document.getElementById("spinner");
+            const resultado = document.getElementById("resultado");
+            const errorMsg = document.getElementById("error-msg");
+
+            btn.disabled = true;
+            spinner.style.display = "block";
+            resultado.style.display = "none";
+            errorMsg.style.display = "none";
+
+            const system = `Eres un diccionario de alemán preciso. El usuario te dará una palabra en alemán.
+Responde SIEMPRE con un JSON válido con exactamente estas claves:
+{
+  "traduccion": "traducción al español",
+  "nivel": "A1|A2|B1|B2|C1|C2",
+  "definicion": "definición en alemán, clara y concisa",
+  "sinonimos": ["palabra1", "palabra2"],
+  "antonimo": "antónimo en alemán o null si no tiene"
+}
+No incluyas nada fuera del JSON.`;
+
+            try {
+                const res = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        system,
+                        messages: [{ role: "user", content: palabra }]
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || data.error) {
+                    throw new Error(data.error || "Error del servidor");
+                }
+
+                let info;
+                try {
+                    // Limpia posibles ```json ``` que pueda añadir el modelo
+                    const raw = data.reply.replace(/```json|```/g, "").trim();
+                    info = JSON.parse(raw);
+                } catch {
+                    throw new Error("La respuesta no era JSON válido");
+                }
+
+                mostrarResultado(palabra, info);
+
+            } catch (e) {
+                errorMsg.textContent = "Error: " + e.message;
+                errorMsg.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = "none";
+            }
+        }
+
+        function mostrarResultado(palabra, info) {
+            document.getElementById("r-palabra").textContent = palabra;
+            document.getElementById("r-nivel").textContent = info.nivel || "";
+            document.getElementById("r-traduccion").textContent = info.traduccion || "—";
+            document.getElementById("r-definicion").textContent = info.definicion || "—";
+
+            // Sinónimos como chips
+            const sinEl = document.getElementById("r-sinonimos");
+            const sins = Array.isArray(info.sinonimos) ? info.sinonimos : [];
+            if (sins.length > 0) {
+                sinEl.innerHTML = `<div class="chips">${sins.map(s => `<span class="chip">${s}</span>`).join("")}</div>`;
+            } else {
+                sinEl.innerHTML = `<span class="sin-datos">sin sinónimos</span>`;
+            }
+
+            // Antónimo — ocultar fila si no hay
+            const rowAnt = document.getElementById("row-antonimo");
+            const antEl = document.getElementById("r-antonimo");
+            if (info.antonimo && info.antonimo !== "null") {
+                antEl.textContent = info.antonimo;
+                rowAnt.style.display = "flex";
+            } else {
+                rowAnt.style.display = "none";
+            }
+
+            document.getElementById("resultado").style.display = "block";
+        }
+    </script>
+</body>
+</html>

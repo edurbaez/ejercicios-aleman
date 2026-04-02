@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p otrascosas)",
+      "Bash(mv \"aaaaaaaaprima.html\" \"aaprima.html\" \"aaprima.js\" \"cursop.html\" \"fr_repetirspalabras.html\" \"frallin.html\" \"selecionar paas.html\" \"selecionar palabra lista simple.html\" \"photo_2026-02-04_19-47-08.jpg\" \"select.txt\" \"menu-button_icon-icons.com_72989.svg\" otrascosas/)"
+    ]
+  }
+}

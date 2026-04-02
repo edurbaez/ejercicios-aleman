@@ -1,0 +1,30 @@
+# ── Archivos huérfanos (no activos en el proyecto) ─────────────────────────
+aaaaaaaaprima.html
+aaprima.html
+aaprima.js
+cursop.html
+fr_repetirspalabras.html
+frallin.html
+selecionar paas.html
+selecionar palabra lista simple.html
+photo_2026-02-04_19-47-08.jpg
+select.txt
+menu-button_icon-icons.com_72989.svg
+
+# ── Entorno local ───────────────────────────────────────────────────────────
+.env.local
+.env*.local
+
+# ── Sistema operativo ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editores ────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── Node (si se instalan dependencias localmente) ───────────────────────────
+node_modules/

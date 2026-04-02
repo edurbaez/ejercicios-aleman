@@ -2,22 +2,81 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Maintenance rule
+
+**Whenever a new file is added to the project and actively used by an app or the deploy pipeline, update the Active Files table below AND the Apps / Deployment sections in `README.md` before finishing the task.** Likewise, remove entries for files that are deleted or deprecated.
+
 ## Project Overview
 
-Two standalone HTML apps for language learning (Spanish ↔ German). No build system, no dependencies, no package manager — open any `.html` file directly in a browser. The two visible pages share a common navbar linking between them.
+Three standalone HTML apps for language learning (Spanish ↔ German) plus a serverless API. No build system — open any `.html` file directly in a browser. All visible pages share a common navbar.
 
 ## Active Files
+
+### Apps
 
 | File | Purpose |
 |------|---------|
 | `palabrasB2.html` | Vocabulary quiz app targeting B2-level German words. Deployed as PWA on Vercel. |
 | `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. |
+| `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
+
+### API
+
+| File | Purpose |
+|------|---------|
+| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Reads `OPENAI_API_KEY` from Vercel env vars. |
+
+### Data
+
+| File | Purpose |
+|------|---------|
+| `DATA.json` | Vocabulary data referenced by the Service Worker cache. |
+
+### PWA & Deploy
+
+| File | Purpose |
+|------|---------|
 | `manifest.json` | PWA manifest for `palabrasB2.html`. |
 | `sw.js` | Service Worker — caches `palabrasB2.html`, `DATA.json`, `manifest.json`, `icon.svg` for offline use. |
 | `icon.svg` | PWA icon: blue rounded square with "B2" in white. |
 | `vercel.json` | Vercel rewrite: maps `/` → `/palabrasB2.html`. |
 | `index.html` | Redirect stub: forwards `/` to `palabrasB2.html`. |
-| `DATA.json` | Vocabulary data referenced by the Service Worker cache. |
+| `package.json` | Minimal Node.js package declaration — forces Vercel to treat the project as Node (required for `api/chat.js`). |
+| `.env.local` | Local env vars (not committed). Must define `OPENAI_API_KEY` for local dev. |
+
+### Shared styles
+
+| File | Purpose |
+|------|---------|
+| `styles.css` | Shared stylesheet used by `palabrasB2.html`, `lectura veloz.html`, and `diccionario.html`. |
+
+---
+
+## diccionario.html — Implementation Notes
+
+### Core concept
+Looks up a German word and returns its definition, gender, plural, examples, and level badge. Results are cached to avoid redundant API calls.
+
+### Data flow
+1. User types a word → `buscar()` fires.
+2. Check **IndexedDB** cache first (`cacheGet()`).
+3. If miss, check **Supabase** table (`supaGet()`).
+4. If still miss, call `POST /api/chat` → GPT-4o-mini returns structured JSON.
+5. Result is stored in both Supabase (`supaSet()`) and IndexedDB (`cacheSet()`).
+
+### External dependencies (CDN)
+- `@supabase/supabase-js@2` — cloud persistence of dictionary results.
+
+### Key functions
+- `buscar()` — orchestrates the lookup chain (IndexedDB → Supabase → API).
+- `supaGet(palabra)` / `supaSet(palabra, info)` — Supabase read/write.
+- `cacheGet(palabra)` / `cacheSet(palabra, info)` — IndexedDB read/write.
+- `abrirDB()` — opens/upgrades the local IndexedDB store.
+- `mostrarResultado(palabra, info)` — renders the result card.
+- `actualizarActivo(items)` / `seleccionarSugerencia(palabra)` — autocomplete from cached words.
+
+### Known issue
+`OPENAI_API_KEY` is not reaching `api/chat.js` on Vercel (see E1 in `mejorar.md`). Suspected cause: `vercel.json` rewrite may cause Vercel to treat the project as static-only.
 
 ---
 

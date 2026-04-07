@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palabras B2</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1976D2">
-    <link rel="apple-touch-icon" href="icon.svg">
+    <title>Palabras B1</title>
+    <link rel="manifest" href="manifest-b1.json">
+    <meta name="theme-color" content="#388E3C">
+    <link rel="apple-touch-icon" href="icon-b1.svg">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
-<body id="page-b2">
+<body id="page-b1">
     <nav id="navbar">
         <a href="palabrasB2.html" class="active">Inicio</a>
         <a href="lectura veloz.html">Lectura Veloz</a>
@@ -779,7 +779,7 @@ function bindSelectionEvents() {
         });
 
         document.addEventListener("DOMContentLoaded", () => {
-            fetch("DATA.json")
+            fetch("DataB1.json")
                 .then(r => r.json())
                 .then(json => { DATA = json; initUnifiedApp(); })
                 .catch(() => { document.body.innerHTML = "<p style='padding:2rem'>Error cargando DATA.json</p>"; });
@@ -787,7 +787,7 @@ function bindSelectionEvents() {
 
         // Registro del Service Worker (PWA offline)
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/sw.js");
+            navigator.serviceWorker.register("/sw-b1.js");
         }
 
         /* ========================= AUTH ========================= */

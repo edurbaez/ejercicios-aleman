@@ -1,0 +1,43 @@
+{
+  "verbos1": {
+    "de": [
+      "arbeiten","lernen","verstehen","erklären","fragen","antworten","helfen","suchen","finden","planen","organisieren","beginnen","beenden","verbessern","üben","benutzen","vorbereiten","entscheiden","wechseln","vergleichen","informieren","anmelden","absagen","teilnehmen","erreichen","lösen","kontrollieren","beschreiben","empfehlen","berichten","entwickeln","sparen","bezahlen","bestellen","reservieren","einladen","anbieten","akzeptieren","vermeiden","erledigen","kaufen","verkaufen","mieten","vermieten","öffnen","schließen","bringen","holen","geben","nehmen","fahren","gehen","kommen","reisen","wohnen","leben","kochen","essen","trinken","schlafen","aufstehen","ankommen","anrufen","schicken","senden","treffen","besuchen","warten","vergessen","erinnern","glauben","hoffen","meinen","denken","lehren","zeigen"
+    ],
+    "es": [
+      "trabajar","aprender","entender","explicar","preguntar","responder","ayudar","buscar","encontrar","planificar","organizar","empezar","terminar","mejorar","practicar","usar","preparar","decidir","cambiar","comparar","informar","registrarse","cancelar","participar","alcanzar","resolver","controlar","describir","recomendar","informar","desarrollar","ahorrar","pagar","pedir","reservar","invitar","ofrecer","aceptar","evitar","realizar","comprar","vender","alquilar","arrendar","abrir","cerrar","traer","recoger","dar","tomar","conducir","ir","venir","viajar","vivir","vivir","cocinar","comer","beber","dormir","levantarse","llegar","llamar","enviar","mandar","encontrarse","visitar","esperar","olvidar","recordar","creer","esperar","opinar","pensar","enseñar","mostrar"
+    ]
+  },
+  "verbos2": {
+    "de": [
+      "anfangen","aufhören","bleiben","geschehen","gehören","heißen","kosten","dauern","funktionieren","klappen","versuchen","schaffen","erlauben","verbieten","brauchen","wünschen","träumen","fühlen","lieben","hassen","gefallen","stören","fehlen","reichen","passen","tragen","waschen","schneiden","legen","stellen","setzen","hängen","ziehen","drücken","drehen","steigen","sinken","wachsen","fallen","heben","werfen","fangen","verlieren","gewinnen","entdecken","erfinden","herstellen","produzieren","liefern","unterstützen","beraten","betreuen","pflegen","behandeln","untersuchen","heilen","messen","prüfen","testen","installieren","reparieren","bauen","zerstören","schützen","retten","ersetzen","hinzufügen","löschen","speichern","verbinden","trennen","einschalten","ausschalten","hochladen","herunterladen","ausfüllen","unterschreiben"
+    ],
+    "es": [
+      "empezar","terminar","quedarse","suceder","pertenecer","llamarse","costar","durar","funcionar","salir bien","intentar","lograr","permitir","prohibir","necesitar","desear","soñar","sentir","amar","odiar","gustar","molestar","faltar","ser suficiente","quedar bien","llevar","lavar","cortar","poner","colocar","sentar","colgar","tirar","presionar","girar","subir","bajar","crecer","caer","levantar","lanzar","atrapar","perder","ganar","descubrir","inventar","fabricar","producir","entregar","apoyar","asesorar","cuidar","atender","tratar","examinar","curar","medir","comprobar","probar","instalar","reparar","construir","destruir","proteger","rescatar","reemplazar","añadir","borrar","guardar","conectar","separar","encender","apagar","subir (archivo)","descargar","rellenar","firmar"
+    ]
+  },
+  "adjetivos": {
+    "de": [
+      "wichtig","richtig","falsch","möglich","notwendig","einfach","schwierig","klar","neu","alt","gut","schlecht","schnell","langsam","früh","spät","frei","besetzt","zufrieden","unzufrieden","erfolgreich","bereit","sicher","praktisch","unterschiedlich","gleich","groß","klein","lang","kurz","hoch","niedrig","teuer","billig","schön","hässlich","modern","altmodisch","freundlich","unfreundlich","nett","böse","ruhig","laut","stark","schwach","gesund","krank","müde","fit","hungrig","durstig","voll","leer","sauber","schmutzig","offen","geschlossen","interessant","langweilig","unwichtig","leicht","schwer","bequem","unbequem","unmöglich","unnötig","bekannt","unbekannt","beliebt","unbeliebt","pünktlich","unpünktlich","flexibel","fest","privat","öffentlich","offiziell","schriftlich","mündlich","täglich","wöchentlich","monatlich","jährlich","langfristig","kurzfristig","international","lokal","digital","persönlich","kreativ","aktiv","passiv","ehrlich","direkt"
+    ],
+    "es": [
+      "importante","correcto","incorrecto","posible","necesario","fácil","difícil","claro","nuevo","viejo","bueno","malo","rápido","lento","temprano","tarde","libre","ocupado","satisfecho","insatisfecho","exitoso","listo","seguro","práctico","diferente","igual","grande","pequeño","largo","corto","alto","bajo","caro","barato","bonito","feo","moderno","anticuado","amable","antipático","agradable","malo","tranquilo","ruidoso","fuerte","débil","saludable","enfermo","cansado","en forma","hambriento","sediento","lleno","vacío","limpio","sucio","abierto","cerrado","interesante","aburrido","sin importancia","ligero","pesado","cómodo","incómodo","imposible","innecesario","conocido","desconocido","popular","impopular","puntual","impuntual","flexible","fijo","privado","público","oficial","escrito","oral","diario","semanal","mensual","anual","a largo plazo","a corto plazo","internacional","local","digital","personal","creativo","activo","pasivo","honesto","directo"
+    ]
+  },
+  "adverbios": {
+    "de": [
+      "oft","selten","immer","manchmal","heute","morgen","bald","schon","noch","wieder","gern","zusammen","allein","hier","dort","draußen","drinnen","oben","unten","links","rechts","überall","nirgendwo","sehr","ziemlich","genug","fast","besonders","nur","auch","wirklich","vielleicht","bestimmt","wahrscheinlich","leider","glücklicherweise","trotzdem","deshalb","darum","danach","vorher","gleichzeitig","plötzlich","sofort","regelmäßig","täglich","nachts","morgens","abends"
+    ],
+    "es": [
+      "a menudo","raramente","siempre","a veces","hoy","mañana","pronto","ya","todavía","otra vez","con gusto","juntos","solo","aquí","allí","afuera","adentro","arriba","abajo","izquierda","derecha","en todas partes","en ninguna parte","muy","bastante","suficiente","casi","especialmente","solo","también","realmente","quizás","seguramente","probablemente","lamentablemente","afortunadamente","sin embargo","por eso","por lo tanto","después","antes","al mismo tiempo","de repente","inmediatamente","regularmente","diariamente","de noche","por la mañana","por la tarde"
+    ]
+  },
+  "particulas_modales": {
+    "de": [
+      "doch","ja","mal","eben","halt","wohl","schon","auch","nur","denn","eigentlich","etwa","ruhig","bloß","vielleicht","einfach","immerhin","sogar","jedenfalls","allerdings","übrigens","schließlich","nämlich","zumindest","gar","durchaus","bestimmt","sicher","etwa","wohl"
+    ],
+    "es": [
+      "énfasis/insistencia","evidencia","suavizar","resignación","resignación","suposición","ya","también","solo","pregunta","en realidad","duda","tranquilizar","advertencia","quizás","simplemente","al menos","incluso","de todos modos","sin embargo","por cierto","finalmente","explicación","al menos","negación fuerte","ciertamente","seguridad","seguridad","duda","suposición"
+    ]
+  }
+}
+

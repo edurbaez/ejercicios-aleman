@@ -1,0 +1,18 @@
+{
+  "name": "Palabras B1",
+  "short_name": "B1",
+  "description": "Practica de vocabulario aleman nivel B1",
+  "start_url": "/B1.html",
+  "display": "standalone",
+  "background_color": "#388E3C",
+  "theme_color": "#388E3C",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-b1.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Three standalone HTML apps for language learning (Spanish ↔ German) plus a serverless API. No build system — open any `.html` file directly in a browser. All visible pages share a common navbar.
+Four standalone HTML apps for language learning (Spanish ↔ German) plus a serverless API. No build system — open any `.html` file directly in a browser. All visible pages share a common navbar.
 
 ## Active Files
 
@@ -19,6 +19,7 @@ Three standalone HTML apps for language learning (Spanish ↔ German) plus a ser
 | `palabrasB2.html` | Vocabulary quiz app targeting B2-level German words. Deployed as PWA on Vercel. |
 | `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. |
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
+| `B1.html` | Vocabulary quiz app targeting B1-level German words. Similar to palabrasB2.html but with B1 content. PWA with offline support. |
 
 ### API
 
@@ -31,6 +32,7 @@ Three standalone HTML apps for language learning (Spanish ↔ German) plus a ser
 | File | Purpose |
 |------|---------|
 | `DATA.json` | Vocabulary data referenced by the Service Worker cache. |
+| `DataB1.json` | Vocabulary data for B1 app: verbos1, verbos2, adjetivos, adverbios, particulas_modales. |
 
 ### PWA & Deploy
 
@@ -39,6 +41,9 @@ Three standalone HTML apps for language learning (Spanish ↔ German) plus a ser
 | `manifest.json` | PWA manifest for `palabrasB2.html`. |
 | `sw.js` | Service Worker — caches `palabrasB2.html`, `DATA.json`, `manifest.json`, `icon.svg` for offline use. |
 | `icon.svg` | PWA icon: blue rounded square with "B2" in white. |
+| `manifest-b1.json` | PWA manifest for `B1.html`. Green theme (#388E3C). |
+| `sw-b1.js` | Service Worker for B1 app — caches `B1.html`, `DataB1.json`, `manifest-b1.json`, `icon-b1.svg`. |
+| `icon-b1.svg` | PWA icon for B1: green rounded square with "B1" in white. |
 | `vercel.json` | Vercel rewrite: maps `/` → `/palabrasB2.html`. |
 | `index.html` | Redirect stub: forwards `/` to `palabrasB2.html`. |
 | `package.json` | Minimal Node.js package declaration — forces Vercel to treat the project as Node (required for `api/chat.js`). |
@@ -48,7 +53,29 @@ Three standalone HTML apps for language learning (Spanish ↔ German) plus a ser
 
 | File | Purpose |
 |------|---------|
-| `styles.css` | Shared stylesheet used by `palabrasB2.html`, `lectura veloz.html`, and `diccionario.html`. |
+| `styles.css` | Shared stylesheet used by `palabrasB2.html`, `lectura veloz.html`, `diccionario.html`, and `B1.html`. |
+
+---
+
+## B1.html — Implementation Notes
+
+### Overview
+Vocabulary quiz app for B1-level German. Mirrors the architecture of `palabrasB2.html` but loads data from external `DataB1.json`.
+
+### Data structure
+Data loaded from `DataB1.json` with keys: `verbos1`, `verbos2`, `adjetivos`, `adverbios`, `particulas_modales`. Each contains parallel arrays `de` (German) and `es` (Spanish).
+
+### PWA
+- Theme color: `#388E3C` (green)
+- Icon: `icon-b1.svg` (green rounded square with "B1")
+- Service Worker: `sw-b1.js` (separate cache from B2 app)
+- Manifest: `manifest-b1.json`
+
+### Differences from B2
+- External data file (DataB1.json) vs inline DATA object
+- Green color scheme vs blue
+- Separate service worker and cache
+- Body ID: `page-b1` vs `page-b2`
 
 ---
 

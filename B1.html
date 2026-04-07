@@ -214,7 +214,6 @@
         LISTA (única para ambas)
         ========================= */
         function renderLista(esArr, deArr) {
-        document.getElementById("lista")    
         const table = $("lista");
         if (!table) return;
 
@@ -759,10 +758,10 @@ function bindSelectionEvents() {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             document.getElementById('darkModeBtn').textContent = isDark ? '☀️' : '🌙';
-            localStorage.setItem('darkMode_b2', isDark);
+            localStorage.setItem('darkMode_b1', isDark);
             syncToCloud();
         }
-        if (localStorage.getItem('darkMode_b2') === 'true') {
+        if (localStorage.getItem('darkMode_b1') === 'true') {
             document.body.classList.add('dark');
             document.getElementById('darkModeBtn').textContent = '☀️';
         }
@@ -849,24 +848,24 @@ function bindSelectionEvents() {
         async function onSignedIn() {
             const { data } = await sb.from('user_data').select('*').eq('user_id', currentUser.id).maybeSingle();
             if (!data) return;
-            if (data.b2_active_sets?.length) {
+            if (data.b1_active_sets?.length) {
                 State.activeSets.clear();
-                data.b2_active_sets.forEach(k => { if (DATA[k]) State.activeSets.add(k); });
+                data.b1_active_sets.forEach(k => { if (DATA[k]) State.activeSets.add(k); });
                 updateSetButtonsUI();
                 reloadActiveData();
             }
-            if (data.b2_dark != null) {
-                document.body.classList.toggle('dark', data.b2_dark);
-                document.getElementById('darkModeBtn').textContent = data.b2_dark ? '☀️' : '🌙';
-                localStorage.setItem('darkMode_b2', data.b2_dark);
+            if (data.b1_dark != null) {
+                document.body.classList.toggle('dark', data.b1_dark);
+                document.getElementById('darkModeBtn').textContent = data.b1_dark ? '☀️' : '🌙';
+                localStorage.setItem('darkMode_b1', data.b1_dark);
             }
         }
         async function syncToCloud() {
             if (!currentUser) return;
             await sb.from('user_data').upsert({
                 user_id: currentUser.id,
-                b2_active_sets: [...State.activeSets],
-                b2_dark: document.body.classList.contains('dark'),
+                b1_active_sets: [...State.activeSets],
+                b1_dark: document.body.classList.contains('dark'),
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
         }

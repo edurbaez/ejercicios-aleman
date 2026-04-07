@@ -15,11 +15,15 @@ self.addEventListener("install", (e) => {
   self.skipWaiting();
 });
 
-// Activacion: elimina caches viejos
+// Activacion: elimina caches viejos de B1 (no toca caches de otras apps)
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter((k) => k.startsWith("palabrasb1-") && k !== CACHE)
+          .map((k) => caches.delete(k))
+      )
     )
   );
   self.clients.claim();

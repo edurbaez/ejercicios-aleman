@@ -1,6 +1,6 @@
 # Alemán B2 — Herramientas de Aprendizaje
 
-Three browser-based tools for learning German vocabulary and improving reading speed, plus a serverless dictionary API. No installation needed — open the HTML files directly.
+Four browser-based tools for learning German vocabulary and improving reading speed, plus a serverless dictionary API. No installation needed — open the HTML files directly.
 
 > **Maintenance rule:** Whenever a new active file is added or an existing one is removed, update this file and `CLAUDE.md` before finishing the task.
 
@@ -46,6 +46,21 @@ Speed-reading tool (RSVP — Rapid Serial Visual Presentation).
 
 ---
 
+### Palabras B1 ([B1.html](B1.html))
+
+Multiple-choice vocabulary quiz targeting B1-level German words. Same mechanics as Palabras B2 but with B1 content loaded from `DataB1.json`.
+
+**Features:**
+- Word sets: verbos1, verbos2, adjetivos, adverbios, partículas modales
+- Select one or more lists; quiz and word table update dynamically
+- **Modo inverso** — show German, choose Spanish
+- Keyboard shortcuts: `1`–`4`
+- Auto/Dual TTS modes for listening practice
+- Cloud sync of active sets and dark mode via Supabase auth (OTP)
+- Installable as a PWA (works offline via `sw-b1.js`)
+
+---
+
 ### Diccionario ([diccionario.html](diccionario.html))
 
 German dictionary powered by GPT-4o-mini with two-layer caching.
@@ -68,13 +83,13 @@ Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`).
 
 ## Navigation
 
-All pages share a navbar: **Inicio** (palabrasB2) ↔ **Lectura Veloz** ↔ **Diccionario**.
+All pages share a navbar: **Inicio** (palabrasB2) ↔ **Lectura Veloz** ↔ **Diccionario** ↔ **B1**.
 
 ---
 
 ## Deployment
 
-`palabrasB2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/palabrasB2.html`. The Service Worker (`sw.js`) caches all assets for offline use.
+`palabrasB2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/palabrasB2.html`. Each PWA has its own Service Worker: `sw.js` (B2) and `sw-b1.js` (B1), each scoped to its own cache namespace so they don't interfere with each other.
 
 Push to `main` → Vercel redeploys automatically.
 

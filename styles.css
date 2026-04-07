@@ -260,6 +260,75 @@ th, td {
 
 
 /* ========================
+   PALABRAS B1
+   ======================== */
+
+#page-b1 {
+    --bg: #1d1c1c20;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --option-hover: #f2f2f2;
+    --table-border: grey;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-b1.dark {
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text: #e0e0e0;
+    --border: #444;
+    --navbar-bg: #0f3460;
+    --option-hover: #1a3a6e;
+    --table-border: #555;
+}
+
+#page-b1.dark .lista-info {
+    background: #2a3a1a;
+    border-color: #5a7a2a;
+    color: #c8e6a0;
+}
+
+#page-b1 #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-b1 #navbar a:hover,
+#page-b1 #navbar a.active {
+    background-color: #1976D2;
+    color: white;
+}
+
+#page-b1 #darkModeBtn {
+    font-size: 20px;
+    padding: 4px 8px;
+    border-radius: 5px;
+}
+
+#page-b1 .btn {
+    padding: 12px;
+    border: 3px solid #1565C0;
+    background-color: #1976D2;
+    color: white;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+#page-b1 .btn:hover {
+    background-color: #1565C0;
+}
+
+@media (max-width: 600px) {
+    #page-b1 .btn { padding: 10px 8px; font-size: 0.9rem; }
+}
+
+/* ========================
    LECTURA VELOZ
    ======================== */
 

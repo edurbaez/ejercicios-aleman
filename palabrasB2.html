@@ -784,9 +784,18 @@ function bindSelectionEvents() {
                 .catch(() => { document.body.innerHTML = "<p style='padding:2rem'>Error cargando DATA.json</p>"; });
         });
 
-        // Registro del Service Worker (PWA offline)
+        // Registro del Service Worker (PWA offline) + recordatorio periódico
         if ("serviceWorker" in navigator) {
-            navigator.serviceWorker.register("/sw.js");
+            navigator.serviceWorker.register("/sw.js").then(async (reg) => {
+                if (!("periodicSync" in reg)) return;
+                const perm = await Notification.requestPermission();
+                if (perm !== "granted") return;
+                try {
+                    await reg.periodicSync.register("recordatorio-aleman-b2", {
+                        minInterval: 24 * 60 * 60 * 1000
+                    });
+                } catch (_) { /* navegador no soporta periodicSync */ }
+            });
         }
 
         /* ========================= AUTH ========================= */

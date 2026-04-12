@@ -25,6 +25,35 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
+// Periodic Background Sync: recordatorio diario de práctica
+self.addEventListener("periodicsync", (e) => {
+  if (e.tag === "recordatorio-aleman-b2") {
+    e.waitUntil(
+      self.registration.showNotification("Alemán B2", {
+        body: "¡5 minutos de práctica hoy! Mantén tu racha.",
+        icon: "/icon.svg",
+        badge: "/icon.svg",
+        tag: "recordatorio-b2",
+        renotify: true,
+        data: { url: "/palabrasB2.html" }
+      })
+    );
+  }
+});
+
+// Al hacer clic en la notificación, abre la app
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    clients.matchAll({ type: "window" }).then((cs) => {
+      const url = (e.notification.data && e.notification.data.url) || "/palabrasB2.html";
+      const open = cs.find((c) => c.url.includes("palabrasB2") && "focus" in c);
+      if (open) return open.focus();
+      return clients.openWindow(url);
+    })
+  );
+});
+
 // Fetch: red primero, actualiza caché; si falla usa caché (offline)
 self.addEventListener("fetch", (e) => {
   e.respondWith(

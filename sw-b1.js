@@ -29,18 +29,61 @@ self.addEventListener("activate", (e) => {
   self.clients.claim();
 });
 
-// Periodic Background Sync: recordatorio diario de practica
+// --- IndexedDB helpers (para leer/escribir fechas de uso y notificacion) ---
+function abrirUsageDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("sw-usage", 1);
+    req.onupgradeneeded = (e) => {
+      e.target.result.createObjectStore("meta", { keyPath: "key" });
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+}
+function getMeta(db, key) {
+  return new Promise((resolve) => {
+    const req = db.transaction("meta", "readonly").objectStore("meta").get(key);
+    req.onsuccess = (e) => resolve(e.target.result ? e.target.result.value : null);
+    req.onerror = () => resolve(null);
+  });
+}
+function setMeta(db, key, value) {
+  return new Promise((resolve) => {
+    const tx = db.transaction("meta", "readwrite");
+    tx.objectStore("meta").put({ key, value });
+    tx.oncomplete = resolve;
+    tx.onerror = resolve;
+  });
+}
+
+// Periodic Background Sync: recordatorio a las 18:00 si no practico hoy
 self.addEventListener("periodicsync", (e) => {
   if (e.tag === "recordatorio-aleman-b1") {
     e.waitUntil(
-      self.registration.showNotification("Alemán B1", {
-        body: "¡5 minutos de práctica hoy! Mantén tu racha.",
-        icon: "/icon-b1.svg",
-        badge: "/icon-b1.svg",
-        tag: "recordatorio-b1",
-        renotify: true,
-        data: { url: "/B1.html" }
-      })
+      (async () => {
+        const now = new Date();
+        // Solo actuar entre las 18:00 y 20:00
+        if (now.getHours() < 18 || now.getHours() >= 20) return;
+
+        const hoy = now.toDateString();
+        const db = await abrirUsageDB();
+
+        // Si el usuario ya uso la app hoy, no notificar
+        if (await getMeta(db, "lastUsed-b1") === hoy) return;
+
+        // Si ya se notifico hoy, no repetir
+        if (await getMeta(db, "lastNotified-b1") === hoy) return;
+
+        await self.registration.showNotification("Alemán B1", {
+          body: "¡Todavía no practicaste hoy! 5 minutos bastan.",
+          icon: "/icon-b1.svg",
+          badge: "/icon-b1.svg",
+          tag: "recordatorio-b1",
+          renotify: true,
+          data: { url: "/B1.html" }
+        });
+        await setMeta(db, "lastNotified-b1", hoy);
+      })()
     );
   }
 });

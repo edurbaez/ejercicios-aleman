@@ -787,15 +787,30 @@ function bindSelectionEvents() {
         // Registro del Service Worker (PWA offline) + recordatorio periódico
         if ("serviceWorker" in navigator) {
             navigator.serviceWorker.register("/sw-b1.js").then(async (reg) => {
+                // Marcar uso de hoy en IndexedDB para que el SW no notifique si se usó
+                marcarUsoHoy("b1");
+
                 if (!("periodicSync" in reg)) return;
                 const perm = await Notification.requestPermission();
                 if (perm !== "granted") return;
                 try {
+                    // minInterval 1h: el browser tiene ventanas frecuentes para verificar las 18:00
                     await reg.periodicSync.register("recordatorio-aleman-b1", {
-                        minInterval: 24 * 60 * 60 * 1000
+                        minInterval: 60 * 60 * 1000
                     });
                 } catch (_) { /* navegador no soporta periodicSync */ }
             });
+        }
+
+        function marcarUsoHoy(appKey) {
+            const req = indexedDB.open("sw-usage", 1);
+            req.onupgradeneeded = (e) => {
+                e.target.result.createObjectStore("meta", { keyPath: "key" });
+            };
+            req.onsuccess = (e) => {
+                const tx = e.target.result.transaction("meta", "readwrite");
+                tx.objectStore("meta").put({ key: "lastUsed-" + appKey, value: new Date().toDateString() });
+            };
         }
 
         /* ========================= AUTH ========================= */

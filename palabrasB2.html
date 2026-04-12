@@ -395,6 +395,10 @@
             const btn = document.createElement("button");
             btn.className = "btn";
             btn.textContent = k;
+            if (k.startsWith('mis: ')) {
+                btn.style.borderStyle = 'dashed';
+                btn.title = 'Lista personal';
+            }
             btn.addEventListener("click", () => toggleSet(k));
             bar.appendChild(btn);
         });
@@ -724,10 +728,217 @@ function bindSelectionEvents() {
         }
 
         /* =========================
+           LISTAS PERSONALES (IndexedDB)
+           ========================= */
+        const LP_DB = 'listas-personales';
+        const LP_STORE = 'listas';
+        let _lpDb = null;
+
+        function abrirDBListasP() {
+            if (_lpDb) return Promise.resolve(_lpDb);
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(LP_DB, 1);
+                req.onupgradeneeded = e => {
+                    e.target.result.createObjectStore(LP_STORE, { keyPath: 'id' });
+                };
+                req.onsuccess = e => { _lpDb = e.target.result; resolve(_lpDb); };
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function guardarListaP(lista) {
+            const db = await abrirDBListasP();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(LP_STORE, 'readwrite');
+                tx.objectStore(LP_STORE).put(lista);
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function cargarListasP() {
+            try {
+                const db = await abrirDBListasP();
+                return new Promise(resolve => {
+                    const req = db.transaction(LP_STORE).objectStore(LP_STORE).getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                });
+            } catch { return []; }
+        }
+
+        async function eliminarListaP(id) {
+            const db = await abrirDBListasP();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(LP_STORE, 'readwrite');
+                tx.objectStore(LP_STORE).delete(id);
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        function parsearPalabras(str) {
+            return str.split(',').map(w => w.trim()).filter(w => w.length > 0);
+        }
+
+        async function traducirPalabra(palabra, sourceLang, targetLang) {
+            try {
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(palabra)}&langpair=${sourceLang}|${targetLang}`;
+                const r = await fetch(url);
+                const json = await r.json();
+                return json.responseData?.translatedText || palabra;
+            } catch { return palabra; }
+        }
+
+        async function inyectarListasPersonales() {
+            const listas = await cargarListasP();
+            listas.forEach(l => {
+                DATA['mis: ' + l.nombre] = { es: l.es, de: l.de };
+            });
+        }
+
+        async function guardarNuevaLista() {
+            const nombre = document.getElementById('lp-nombre').value.trim();
+            const esRaw  = document.getElementById('lp-es').value.trim();
+            const deRaw  = document.getElementById('lp-de').value.trim();
+            const status = document.getElementById('lp-status');
+
+            if (!nombre) { status.textContent = 'Escribe un nombre para la lista.'; return; }
+            if (!esRaw && !deRaw) { status.textContent = 'Escribe al menos una columna de palabras.'; return; }
+
+            const btnGuardar = document.getElementById('lp-guardar');
+            btnGuardar.disabled = true;
+            status.textContent = '';
+
+            let esArr = esRaw ? parsearPalabras(esRaw) : [];
+            let deArr = deRaw ? parsearPalabras(deRaw) : [];
+
+            if (esArr.length > 0 && deArr.length === 0) {
+                for (let i = 0; i < esArr.length; i++) {
+                    status.textContent = `Traduciendo ES→DE ${i + 1}/${esArr.length}...`;
+                    deArr.push(await traducirPalabra(esArr[i], 'es', 'de'));
+                }
+            } else if (deArr.length > 0 && esArr.length === 0) {
+                for (let i = 0; i < deArr.length; i++) {
+                    status.textContent = `Traduciendo DE→ES ${i + 1}/${deArr.length}...`;
+                    esArr.push(await traducirPalabra(deArr[i], 'de', 'es'));
+                }
+            } else if (esArr.length !== deArr.length) {
+                status.textContent = `Diferente cantidad de palabras (${esArr.length} ES vs ${deArr.length} DE).`;
+                btnGuardar.disabled = false;
+                return;
+            }
+
+            const lista = { id: Date.now(), nombre, es: esArr, de: deArr };
+            await guardarListaP(lista);
+
+            DATA['mis: ' + nombre] = { es: esArr, de: deArr };
+            mountSetButtons();
+
+            document.getElementById('lp-nombre').value = '';
+            document.getElementById('lp-es').value = '';
+            document.getElementById('lp-de').value = '';
+            status.textContent = `"${nombre}" guardada — ${esArr.length} palabras.`;
+            btnGuardar.disabled = false;
+            refreshMisListas();
+        }
+
+        async function refreshMisListas() {
+            const container = document.getElementById('lp-lista-guardadas');
+            if (!container) return;
+            const listas = await cargarListasP();
+            if (listas.length === 0) {
+                container.innerHTML = '<em style="color:#999;font-size:13px;">No hay listas guardadas.</em>';
+                return;
+            }
+            container.innerHTML = '';
+            listas.forEach(l => {
+                const row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:6px;';
+                const btnCopiar = document.createElement('button');
+                btnCopiar.textContent = 'Copiar';
+                btnCopiar.style.cssText = 'padding:3px 9px;border:1px solid #888;color:#555;background:none;border-radius:5px;cursor:pointer;font-size:12px;';
+                btnCopiar.addEventListener('click', () => {
+                    const texto = `${l.nombre} (${l.es.length} palabras)\nES: ${l.es.join(', ')}\nDE: ${l.de.join(', ')}`;
+                    navigator.clipboard.writeText(texto)
+                        .then(() => { btnCopiar.textContent = '✓ Copiado'; setTimeout(() => { btnCopiar.textContent = 'Copiar'; }, 1500); })
+                        .catch(() => showToast('No se pudo acceder al portapapeles'));
+                });
+                const btnEliminar = document.createElement('button');
+                btnEliminar.textContent = 'Eliminar';
+                btnEliminar.style.cssText = 'padding:3px 9px;border:1px solid #e53935;color:#e53935;background:none;border-radius:5px;cursor:pointer;font-size:12px;';
+                btnEliminar.addEventListener('click', () => eliminarListaPersonal(l.id));
+                const label = document.createElement('span');
+                label.style.cssText = 'flex:1;font-size:14px;';
+                label.innerHTML = `<strong>${l.nombre}</strong> <span style="color:#999">(${l.es.length} palabras)</span>`;
+                row.appendChild(label);
+                row.appendChild(btnCopiar);
+                row.appendChild(btnEliminar);
+                container.appendChild(row);
+            });
+        }
+
+        async function eliminarListaPersonal(id) {
+            const listas = await cargarListasP();
+            const lista = listas.find(l => l.id === id);
+            if (lista) {
+                const clave = 'mis: ' + lista.nombre;
+                State.activeSets.delete(clave);
+                delete DATA[clave];
+            }
+            await eliminarListaP(id);
+            mountSetButtons();
+            reloadActiveData();
+            refreshMisListas();
+            showToast('Lista eliminada');
+        }
+
+        function montarPanelMisListas() {
+            if (document.getElementById('mis-listas-panel')) { refreshMisListas(); return; }
+            const app = document.querySelector('.app');
+            if (!app) return;
+            const panel = document.createElement('div');
+            panel.id = 'mis-listas-panel';
+            panel.style.cssText = 'margin-bottom:20px;';
+            panel.innerHTML = `
+                <div style="cursor:pointer;padding:8px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;display:flex;align-items:center;justify-content:space-between;user-select:none;" id="lp-toggle">
+                    <strong>+ Mis Listas</strong><span id="lp-arrow">▶</span>
+                </div>
+                <div id="lp-body" style="display:none;padding:12px;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;">
+                    <input id="lp-nombre" type="text" placeholder="Nombre de la lista" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                    <input id="lp-es" type="text" placeholder="Español: hola, gracias, casa, ..." style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                    <input id="lp-de" type="text" placeholder="Alemán: Hallo, danke, Haus, ... (opcional, se auto-traduce)" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button id="lp-guardar" onclick="guardarNuevaLista()" style="padding:7px 18px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Guardar lista</button>
+                        <span id="lp-status" style="font-size:13px;color:#555;"></span>
+                    </div>
+                    <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+                    <div id="lp-lista-guardadas"><em style="color:#999;font-size:13px;">Cargando...</em></div>
+                </div>
+            `;
+            panel.querySelector('#lp-toggle').addEventListener('click', () => {
+                const body = document.getElementById('lp-body');
+                const arrow = document.getElementById('lp-arrow');
+                const open = body.style.display === 'none';
+                body.style.display = open ? 'block' : 'none';
+                arrow.textContent = open ? '▼' : '▶';
+            });
+            const setsContainer = document.getElementById('sets-container');
+            if (setsContainer) {
+                setsContainer.insertAdjacentElement('afterend', panel);
+            } else {
+                app.prepend(panel);
+            }
+            refreshMisListas();
+        }
+
+        /* =========================
         INIT
         ========================= */
-        function initUnifiedApp() {
+        async function initUnifiedApp() {
+        await inyectarListasPersonales();
         mountSetButtons();
+        montarPanelMisListas();
         bindSelectionEvents();
         bindRepeatControls();
 

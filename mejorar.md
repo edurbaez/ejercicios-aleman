@@ -178,6 +178,20 @@ Todas las sugerencias respetan la arquitectura existente: HTML puro, sin build s
 
 ---
 
+## Seguridad
+
+### S1. Rate limiting en `/api/chat` ✅ Implementado
+**Qué:** Protección contra abuso del endpoint OpenAI que podría generar costos inesperados.
+**Lo implementado en `api/chat.js`:**
+- Rate limit de 20 req/min por IP con ventana deslizante (`Map` en memoria, sin dependencias externas).
+- Comprobación de origen: si `ALLOWED_ORIGIN` está definida en Vercel, rechaza peticiones de otros dominios (`403`).
+- Cap de 2 000 caracteres en el `system` prompt para evitar requests inflados.
+- Limpieza automática del `Map` cada 5 minutos para evitar fuga de memoria.
+
+**Limitación conocida:** el `ipStore` es por instancia serverless. Si Vercel escala horizontalmente, el límite no es global. Para el volumen actual de uso es suficiente.
+
+---
+
 ## Errores pendientes
 
 ### E1. OPENAI_API_KEY no llega a la función serverless en Vercel

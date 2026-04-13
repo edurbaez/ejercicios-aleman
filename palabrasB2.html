@@ -342,17 +342,28 @@
 
         function updateSetButtonsUI() {
         const bar = $("sets-bar");
-        if (!bar) return;
-
-        const buttons = bar.querySelectorAll("button");
-        buttons.forEach(btn => {
-            const key = btn.textContent;
-            if (State.activeSets.has(key)) {
-            btn.classList.add("btn-active");
-            } else {
-            btn.classList.remove("btn-active");
-            }
-        });
+        if (bar) {
+            bar.querySelectorAll("button").forEach(btn => {
+                const key = btn.textContent;
+                if (State.activeSets.has(key)) {
+                    btn.classList.add("btn-active");
+                } else {
+                    btn.classList.remove("btn-active");
+                }
+            });
+        }
+        // Also update personal list buttons inside Mis Listas panel
+        const lpBar = $("lp-sets-bar");
+        if (lpBar) {
+            lpBar.querySelectorAll("button[data-personal-key]").forEach(btn => {
+                const key = btn.dataset.personalKey;
+                if (State.activeSets.has(key)) {
+                    btn.classList.add("btn-active");
+                } else {
+                    btn.classList.remove("btn-active");
+                }
+            });
+        }
         }
 
         // Función legacy para compatibilidad (ahora llama a toggleSet)
@@ -392,13 +403,10 @@
         const bar = $("sets-bar");
         bar.innerHTML = "";
         Object.keys(DATA).forEach((k) => {
+            if (k.startsWith('mis: ')) return; // shown in Mis Listas panel
             const btn = document.createElement("button");
             btn.className = "btn";
             btn.textContent = k;
-            if (k.startsWith('mis: ')) {
-                btn.style.borderStyle = 'dashed';
-                btn.title = 'Lista personal';
-            }
             btn.addEventListener("click", () => toggleSet(k));
             bar.appendChild(btn);
         });
@@ -845,10 +853,36 @@ function bindSelectionEvents() {
 
         async function refreshMisListas() {
             const container = document.getElementById('lp-lista-guardadas');
-            if (!container) return;
+            const setsBar = document.getElementById('lp-sets-bar');
             const listas = await cargarListasP();
+
+            // Render toggle buttons in the sets bar
+            if (setsBar) {
+                setsBar.innerHTML = '';
+                if (listas.length === 0) {
+                    setsBar.innerHTML = '<em style="color:#999;font-size:13px;">Sin listas guardadas.</em>';
+                } else {
+                    listas.forEach(l => {
+                        const key = 'mis: ' + l.nombre;
+                        const btn = document.createElement('button');
+                        btn.className = 'btn' + (State.activeSets.has(key) ? ' btn-active' : '');
+                        btn.textContent = l.nombre;
+                        btn.style.borderStyle = 'dashed';
+                        btn.title = `${l.es.length} palabras`;
+                        btn.dataset.personalKey = key;
+                        btn.addEventListener('click', () => {
+                            toggleSet(key);
+                            btn.className = 'btn' + (State.activeSets.has(key) ? ' btn-active' : '');
+                        });
+                        setsBar.appendChild(btn);
+                    });
+                }
+            }
+
+            // Render list management rows
+            if (!container) return;
             if (listas.length === 0) {
-                container.innerHTML = '<em style="color:#999;font-size:13px;">No hay listas guardadas.</em>';
+                container.innerHTML = '';
                 return;
             }
             container.innerHTML = '';
@@ -902,17 +936,23 @@ function bindSelectionEvents() {
             panel.style.cssText = 'margin-bottom:20px;';
             panel.innerHTML = `
                 <div style="cursor:pointer;padding:8px 12px;border:1px solid #ccc;border-radius:8px;font-size:14px;display:flex;align-items:center;justify-content:space-between;user-select:none;" id="lp-toggle">
-                    <strong>+ Mis Listas</strong><span id="lp-arrow">▶</span>
+                    <strong>Mis Listas</strong><span id="lp-arrow">▶</span>
                 </div>
                 <div id="lp-body" style="display:none;padding:12px;border:1px solid #ccc;border-top:none;border-radius:0 0 8px 8px;">
-                    <input id="lp-nombre" type="text" placeholder="Nombre de la lista" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
-                    <input id="lp-es" type="text" placeholder="Español: hola, gracias, casa, ..." style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
-                    <input id="lp-de" type="text" placeholder="Alemán: Hallo, danke, Haus, ... (opcional, se auto-traduce)" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
-                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                        <button id="lp-guardar" onclick="guardarNuevaLista()" style="padding:7px 18px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Guardar lista</button>
-                        <span id="lp-status" style="font-size:13px;color:#555;"></span>
-                    </div>
-                    <hr style="border:none;border-top:1px solid #eee;margin:12px 0;">
+                    <div id="lp-sets-bar" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;"></div>
+                    <hr style="border:none;border-top:1px solid #eee;margin:0 0 12px 0;">
+                    <details style="margin-bottom:8px;">
+                        <summary style="cursor:pointer;font-size:13px;color:#555;user-select:none;">+ Nueva lista</summary>
+                        <div style="margin-top:10px;">
+                            <input id="lp-nombre" type="text" placeholder="Nombre de la lista" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                            <input id="lp-es" type="text" placeholder="Español: hola, gracias, casa, ..." style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                            <input id="lp-de" type="text" placeholder="Alemán: Hallo, danke, Haus, ... (opcional, se auto-traduce)" style="width:100%;padding:7px 9px;border:1px solid #ccc;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;">
+                            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                <button id="lp-guardar" onclick="guardarNuevaLista()" style="padding:7px 18px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Guardar lista</button>
+                                <span id="lp-status" style="font-size:13px;color:#555;"></span>
+                            </div>
+                        </div>
+                    </details>
                     <div id="lp-lista-guardadas"><em style="color:#999;font-size:13px;">Cargando...</em></div>
                 </div>
             `;

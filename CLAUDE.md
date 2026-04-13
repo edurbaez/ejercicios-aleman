@@ -25,7 +25,7 @@ Four standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Reads `OPENAI_API_KEY` from Vercel env vars. |
+| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Reads `OPENAI_API_KEY` from Vercel env vars. Includes rate limiting (20 req/min per IP), optional origin check via `ALLOWED_ORIGIN` env var, and system prompt size cap (2 000 chars). |
 
 ### Data
 
@@ -101,6 +101,12 @@ Looks up a German word and returns its definition, gender, plural, examples, and
 - `abrirDB()` — opens/upgrades the local IndexedDB store.
 - `mostrarResultado(palabra, info)` — renders the result card.
 - `actualizarActivo(items)` / `seleccionarSugerencia(palabra)` — autocomplete from cached words.
+
+### Security
+`api/chat.js` applies three layers of protection to prevent API key abuse:
+1. **Rate limit** — 20 req/min per IP via in-memory `Map` (sliding window). Resets on cold start; no external dependency.
+2. **Origin check** — if `ALLOWED_ORIGIN` is set in Vercel env vars, requests from other origins are rejected with `403`.
+3. **Payload cap** — `system` prompt limited to 2 000 characters.
 
 ### Known issue
 `OPENAI_API_KEY` is not reaching `api/chat.js` on Vercel (see E1 in `mejorar.md`). Suspected cause: `vercel.json` rewrite may cause Vercel to treat the project as static-only.

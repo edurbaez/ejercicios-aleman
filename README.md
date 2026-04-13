@@ -79,6 +79,11 @@ German dictionary powered by GPT-4o-mini with two-layer caching.
 
 Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable.
 
+**Security measures:**
+- Rate limiting: 20 requests/minute per IP (in-memory sliding window) → returns `429` if exceeded
+- Origin check: if `ALLOWED_ORIGIN` env var is set, blocks requests from other origins → returns `403`
+- System prompt capped at 2 000 characters to prevent inflated requests
+
 ---
 
 ## Navigation
@@ -95,3 +100,4 @@ Push to `main` → Vercel redeploys automatically.
 
 **Environment variables required in Vercel:**
 - `OPENAI_API_KEY` — used by `api/chat.js`
+- `ALLOWED_ORIGIN` *(optional)* — if set, `api/chat.js` rejects requests from other origins (e.g. `https://tu-app.vercel.app`)

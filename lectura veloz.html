@@ -55,6 +55,9 @@
                 <option value="fr-FR">Francés</option>
             </select>
         </div>
+        <div id="blog-progress-wrap" style="width:100%;background:#e0e0e0;border-radius:4px;height:6px;margin:8px 0;">
+            <div id="blog-progress-bar" style="height:100%;width:0%;background:#1976D2;border-radius:4px;transition:width 0.3s;"></div>
+        </div>
         <div id="blog-content"></div>
     </div>
 
@@ -471,6 +474,8 @@
             const btn = document.getElementById('blog-play-btn');
             btn.textContent = '▶';
             btn.onclick = iniciarDesdeBlog;
+            const bar = document.getElementById('blog-progress-bar');
+            if (bar) bar.style.width = '0%';
             document.getElementById('blog-view').style.display = 'none';
             document.getElementById('text').style.display = 'block';
             ['controls', 'progress-container', 'display-container', 'saved-section']
@@ -539,6 +544,9 @@
                     el.classList.add('blog-chunk-active');
                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
+                const pct = chunks.length > 1 ? Math.round(i / (chunks.length - 1) * 100) : 100;
+                const bar = document.getElementById('blog-progress-bar');
+                if (bar) bar.style.width = pct + '%';
             }
 
             function speakChunk(i) {

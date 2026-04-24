@@ -165,8 +165,8 @@ Todas las sugerencias respetan la arquitectura existente: HTML puro, sin build s
 | — | 15 | Control velocidad TTS blog | Medio | Bajo |
 | — | 3 | Stats persistentes por lista | Alto | Medio |
 | Implementada | 17 | Pausa en puntuación RSVP | Medio | Mínimo |
-| — | 6 | Filtro en tabla | Medio | Bajo |
-| — | 16 | Progreso en blog view | Bajo | Mínimo |
+| Implementada | 6 | Filtro en tabla | Medio | Bajo |
+| Implementada | 16 | Progreso en blog view | Bajo | Mínimo |
 | Implementada | 7 | Exportar errores | Bajo | Mínimo |
 | — | 8 | Selección de voz TTS | Bajo | Medio |
 | — | 13 | Stats del texto RSVP | Bajo | Mínimo |

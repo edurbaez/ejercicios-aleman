@@ -139,6 +139,7 @@ Three cards show: words seen (`vistos`), errors (`errores`), and elapsed time (t
 - `shuffleUniqueIndexes(length, count, forcedIndex)` — generates the 4 option indexes for the quiz, always including the correct one.
 - `toggleSet(key)` / `reloadActiveData()` — manage which lists are active and rebuild the combined word arrays.
 - `renderLista(esArr, deArr)` — populates the word table below the quiz.
+- `#filter-lista` input — real-time filter bound in `initUnifiedApp()`; hides/shows `<tr>` elements in `#lista tbody` by matching the query against row text.
 
 ### PWA
 Installable app. Service Worker caches all assets. `manifest.json` sets `start_url: /palabrasB2.html`. Deployed on Vercel with GitHub auto-deploy on push.
@@ -176,7 +177,7 @@ RSVP (Rapid Serial Visual Presentation): splits a text into words (or pairs) and
 - Last reading position is stored per item as `lv_pos_<id>` in localStorage so reading resumes where left off.
 
 ### Blog view
-A secondary reading mode: the saved text is displayed as a full paragraph with 150-character chunks. Chunks are highlighted as TTS reads through them. Double-clicking a chunk sets the start position. A language selector (`#blog-lang`) lets the user pick the TTS language for that text.
+A secondary reading mode: the saved text is displayed as a full paragraph with 150-character chunks. Chunks are highlighted as TTS reads through them. Double-clicking a chunk sets the start position. A language selector (`#blog-lang`) lets the user pick the TTS language for that text. A thin progress bar (`#blog-progress-bar`) below the controls shows `currentChunk / totalChunks` as a percentage; updated in `highlightChunk(i)` and reset to 0 in `salirBlogView()`.
 
 ### Navbar
 Both pages share a fixed navbar linking `palabrasB2.html` (Inicio) ↔ `lectura veloz.html` (Lectura Veloz).

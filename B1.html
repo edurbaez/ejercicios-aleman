@@ -95,8 +95,13 @@
 
             <section class="game-section" id="repeticion-palabras" style="margin-top:40px;">
 
-                <div class="header">
+                <div class="header" style="display:flex;align-items:center;gap:12px;">
                     <h1 class="title">Repetición de Palabras</h1>
+                    <span id="palabra-counter"
+                          title="Palabras dichas en alemán. Doble clic para cambiar el límite."
+                          style="font-family:monospace;font-size:1rem;letter-spacing:2px;cursor:pointer;user-select:none;background:#388E3C;color:#fff;padding:4px 10px;border-radius:12px;display:inline-block;">
+                        000/100
+                    </span>
                 </div>
 
                 <!-- Botones modo 
@@ -168,7 +173,9 @@
         winnummer: 100,
         currentIndex: null,
         optionIdxs: [],
-        modoInverso: false
+        modoInverso: false,
+        palabrasContadas: 0,
+        palabrasLimite: parseInt(localStorage.getItem("b1_palabras_limite") || "100", 10)
         };
 
         /* =========================
@@ -605,6 +612,8 @@ function bindSelectionEvents() {
             // dual alterna DE/ES; si no, solo DE
             if (!State.modoDual) {
             await speakOnce($("p2")?.textContent || "", "de");
+            incrementPalabraCounter();
+            if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
             await wait(500);
             renderRepeatNext();
             continue;
@@ -617,6 +626,8 @@ function bindSelectionEvents() {
             } else {
             await speakOnce($("p2")?.textContent || "", "de");
             State.dualFlip = false;
+            incrementPalabraCounter();
+            if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
             await wait(500);
             renderRepeatNext();
             }
@@ -627,6 +638,46 @@ function bindSelectionEvents() {
 
         function wait(ms) {
         return new Promise((r) => setTimeout(r, ms));
+        }
+
+        function updateCounterDisplay() {
+        const span = $("palabra-counter");
+        if (!span) return;
+        const n = String(State.palabrasContadas).padStart(3, "0");
+        const lim = String(State.palabrasLimite).padStart(3, "0");
+        span.textContent = `${n}/${lim}`;
+        }
+
+        function incrementPalabraCounter() {
+        State.palabrasContadas++;
+        updateCounterDisplay();
+        }
+
+        function stopAutoByLimit() {
+        State.modoAuto = false;
+        const btnAuto = $("auto");
+        if (btnAuto) {
+            btnAuto.textContent = "Auto: OFF";
+            btnAuto.className = "btn btn-danger";
+        }
+        releaseWakeLock();
+        }
+
+        function bindCounterDblClick() {
+        const span = $("palabra-counter");
+        if (!span) return;
+        // initialise limit display
+        updateCounterDisplay();
+        span.addEventListener("dblclick", () => {
+            const nuevo = prompt("Límite de palabras (número):", State.palabrasLimite);
+            if (nuevo === null) return;
+            const val = parseInt(nuevo, 10);
+            if (!isNaN(val) && val > 0) {
+            State.palabrasLimite = val;
+            localStorage.setItem("b1_palabras_limite", val);
+            updateCounterDisplay();
+            }
+        });
         }
 
         /* =========  WAKE LOCK  ========= */
@@ -668,6 +719,8 @@ function bindSelectionEvents() {
             btnAuto.textContent = State.modoAuto ? "Auto: ON" : "Auto: OFF";
             btnAuto.className = State.modoAuto ? "btn btn-secondary" : "btn btn-danger";
             if (State.modoAuto) {
+                State.palabrasContadas = 0;
+                updateCounterDisplay();
                 requestWakeLock();
             } else {
                 releaseWakeLock();
@@ -982,6 +1035,7 @@ function bindSelectionEvents() {
         montarPanelMisListas();
         bindSelectionEvents();
         bindRepeatControls();
+        bindCounterDblClick();
 
         // Estado inicial: ninguna lista seleccionada
         // Mostrar mensaje inicial

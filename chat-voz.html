@@ -60,7 +60,8 @@
             </div>
             <div class="cv-btn-row">
                 <button class="cv-start-btn" id="startBtn" onclick="startConversation()">Iniciar</button>
-                <button class="cv-record-btn" id="recordBtn" style="display:none">Respuesta</button>
+                <button class="cv-record-btn" id="recordBtn" style="display:none">Responder</button>
+                <button class="cv-send-btn" id="sendBtn" style="display:none">Enviar</button>
             </div>
             <p class="cv-hint" id="cvHint">Selecciona un nivel y presiona Iniciar</p>
         </div>
@@ -176,7 +177,7 @@ Regeln:
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
         document.getElementById('recTimer').style.display = 'none';
-        document.getElementById('recordBtn').classList.remove('cv-record-active');
+        document.getElementById('sendBtn').style.display = 'none';
         setHint('Selecciona un nivel y presiona Iniciar');
     }
 
@@ -235,7 +236,7 @@ Regeln:
 
         utter.onend = () => {
             State.isSpeaking = false;
-            setHint('Mantén presionado "Respuesta" para hablar');
+            setHint('Presiona "Responder" para hablar');
             enableRecord();
         };
         utter.onerror = () => {
@@ -250,6 +251,8 @@ Regeln:
         const btn = document.getElementById('recordBtn');
         btn.disabled = false;
         btn.classList.remove('cv-record-disabled');
+        document.getElementById('sendBtn').style.display = 'none';
+        btn.style.display = 'inline-flex';
     }
 
     function disableRecord() {
@@ -260,18 +263,15 @@ Regeln:
 
     // --- Recording ---
     function setupRecordButton() {
-        const btn = document.getElementById('recordBtn');
-
-        btn.addEventListener('pointerdown', e => {
-            e.preventDefault();
+        document.getElementById('recordBtn').addEventListener('click', () => {
+            const btn = document.getElementById('recordBtn');
             if (btn.disabled || State.isSpeaking) return;
             startRecording();
         });
 
-        const stopFn = () => { if (State.isRecording) stopRecording(); };
-        btn.addEventListener('pointerup', stopFn);
-        btn.addEventListener('pointercancel', stopFn);
-        btn.addEventListener('pointerleave', stopFn);
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            if (State.isRecording) stopRecording();
+        });
     }
 
     async function startRecording() {
@@ -301,7 +301,8 @@ Regeln:
             State.recSeconds = 0;
 
             document.getElementById('recTimer').style.display = 'flex';
-            document.getElementById('recordBtn').classList.add('cv-record-active');
+            document.getElementById('recordBtn').style.display = 'none';
+            document.getElementById('sendBtn').style.display = 'inline-flex';
             updateRecTimer();
 
             State.recTimerInterval = setInterval(() => {
@@ -310,7 +311,7 @@ Regeln:
                 if (State.recSeconds >= 60) stopRecording();
             }, 1000);
 
-            setHint('Grabando... suelta el botón para enviar');
+            setHint('Grabando... presiona Enviar cuando termines');
         } catch (e) {
             setHint('Error: no se pudo acceder al micrófono');
         }
@@ -319,7 +320,13 @@ Regeln:
     function updateRecTimer() {
         const s = State.recSeconds;
         document.getElementById('recTimerText').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-        document.getElementById('recTimerBar').style.width = `${(s / 60) * 100}%`;
+        const pct = s / 60;
+        const hue = Math.round(210 - 90 * pct); // 210° (azul) → 120° (verde)
+        const color = `hsl(${hue}, 70%, 42%)`;
+        const bar = document.getElementById('recTimerBar');
+        bar.style.width = `${pct * 100}%`;
+        bar.style.background = color;
+        document.getElementById('recTimerText').style.color = color;
     }
 
     function stopRecording() {
@@ -327,8 +334,15 @@ Regeln:
         State.isRecording = false;
         clearInterval(State.recTimerInterval);
         document.getElementById('recTimer').style.display = 'none';
-        document.getElementById('recTimerBar').style.width = '0%';
-        document.getElementById('recordBtn').classList.remove('cv-record-active');
+        const bar = document.getElementById('recTimerBar');
+        bar.style.width = '0%';
+        bar.style.background = '#1e88e5';
+        document.getElementById('recTimerText').style.color = '#1e88e5';
+        document.getElementById('sendBtn').style.display = 'none';
+        const recordBtn = document.getElementById('recordBtn');
+        recordBtn.style.display = 'inline-flex';
+        recordBtn.disabled = true;
+        recordBtn.classList.add('cv-record-disabled');
         if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
             State.mediaRecorder.stop();
         }

@@ -809,17 +809,17 @@ th, td {
 
 .cv-timer-bar {
     height: 100%;
-    background: #e53935;
+    background: #1e88e5;
     border-radius: 999px;
     width: 0%;
-    transition: width 0.5s linear;
+    transition: width 0.9s linear, background 0.9s linear;
 }
 
 #recTimerText {
     font-size: 14px;
     font-weight: bold;
     min-width: 35px;
-    color: #e53935;
+    color: #1e88e5;
 }
 
 .cv-btn-row {
@@ -876,6 +876,24 @@ th, td {
     transform: none;
 }
 
+.cv-send-btn {
+    padding: 14px 36px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(30,136,229,0.3);
+}
+
+.cv-send-btn:hover {
+    background: #1565c0;
+    transform: translateY(-1px);
+}
+
 .cv-hint {
     font-size: 13px;
     opacity: 0.65;
@@ -888,6 +906,6 @@ th, td {
     .cv-config-group label { font-size: 13px; }
     .cv-level-btn { padding: 4px 7px; font-size: 12px; }
     .cv-chat { max-height: 320px; }
-    .cv-start-btn, .cv-record-btn { padding: 12px 28px; font-size: 16px; }
+    .cv-start-btn, .cv-record-btn, .cv-send-btn { padding: 12px 28px; font-size: 16px; }
     .cv-new-btn { margin-left: 0; }
 }

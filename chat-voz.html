@@ -42,7 +42,24 @@
                     <button id="voiceFemaleBtn" class="cv-voice-btn" onclick="setVoiceGender('female')">Femenina</button>
                 </div>
             </div>
-            <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
+            <div class="cv-config-actions">
+                <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
+                <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
+            </div>
+        </div>
+
+        <!-- Modal de contexto -->
+        <div class="cv-modal-overlay" id="contextModal" onclick="closeContextModal(event)">
+            <div class="cv-modal">
+                <h3>Personalizar conversación</h3>
+                <p class="cv-modal-desc">Cuéntale a la IA sobre ti o dile de qué quieres hablar.</p>
+                <textarea id="contextText" class="cv-modal-textarea" rows="5"
+                    placeholder="Ejemplos:&#10;• Tengo 28 años y trabajo como ingeniero&#10;• Quiero practicar vocabulario de cocina&#10;• Me interesa hablar de viajes y cultura alemana&#10;• Soy estudiante universitario de medicina"></textarea>
+                <div class="cv-modal-actions">
+                    <button class="cv-modal-cancel" onclick="closeContextModal()">Cancelar</button>
+                    <button class="cv-modal-save" onclick="saveContext()">Guardar</button>
+                </div>
+            </div>
         </div>
 
         <div class="cv-chat" id="chatArea">
@@ -81,6 +98,7 @@
         voices: [],
         selectedVoice: null,
         started: false,
+        contexto: '',
     };
 
     // --- Dark mode ---
@@ -141,8 +159,11 @@
             C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
             C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
         };
+        const contextLine = State.contexto
+            ? `\nKontext über den Benutzer: ${State.contexto}\n`
+            : '';
         return `Du bist ein freundlicher Deutschlehrer und Gesprächspartner. Der Benutzer lernt Deutsch auf Niveau ${level}.
-
+${contextLine}
 ${guides[level]}
 
 Regeln:
@@ -407,6 +428,25 @@ Regeln:
 
     function setHint(text) {
         document.getElementById('cvHint').textContent = text;
+    }
+
+    // --- Context modal ---
+    function openContextModal() {
+        document.getElementById('contextText').value = State.contexto;
+        document.getElementById('contextModal').classList.add('cv-modal-open');
+        document.getElementById('contextText').focus();
+    }
+
+    function closeContextModal(e) {
+        if (e && e.target !== document.getElementById('contextModal')) return;
+        document.getElementById('contextModal').classList.remove('cv-modal-open');
+    }
+
+    function saveContext() {
+        State.contexto = document.getElementById('contextText').value.trim();
+        const btn = document.getElementById('contextBtn');
+        btn.classList.toggle('cv-context-active', State.contexto.length > 0);
+        document.getElementById('contextModal').classList.remove('cv-modal-open');
     }
 
     // --- Init ---

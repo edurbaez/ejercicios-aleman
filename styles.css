@@ -702,8 +702,14 @@ th, td {
     color: white;
 }
 
-.cv-new-btn {
+.cv-config-actions {
     margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.cv-new-btn {
     padding: 6px 14px;
     border: 2px solid var(--border);
     background: none;
@@ -717,6 +723,123 @@ th, td {
 .cv-new-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
+}
+
+.cv-context-btn {
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: 0.15s;
+}
+
+.cv-context-btn:hover {
+    border-color: #1e88e5;
+    color: #1e88e5;
+}
+
+.cv-context-btn.cv-context-active {
+    border-color: #1e88e5;
+    color: #1e88e5;
+    background: rgba(30,136,229,0.08);
+}
+
+/* Modal */
+.cv-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+}
+
+.cv-modal-overlay.cv-modal-open {
+    display: flex;
+}
+
+.cv-modal {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    width: min(90vw, 460px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.cv-modal h3 {
+    margin: 0;
+    font-size: 17px;
+}
+
+.cv-modal-desc {
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.65;
+}
+
+.cv-modal-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background: var(--bg);
+    color: var(--text);
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+.cv-modal-textarea:focus {
+    outline: none;
+    border-color: #1e88e5;
+}
+
+.cv-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cv-modal-cancel {
+    padding: 8px 18px;
+    border: 2px solid var(--border);
+    background: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    transition: 0.15s;
+}
+
+.cv-modal-cancel:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.cv-modal-save {
+    padding: 8px 22px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.15s;
+}
+
+.cv-modal-save:hover {
+    background: #1565c0;
 }
 
 .cv-chat {

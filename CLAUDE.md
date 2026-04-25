@@ -20,12 +20,14 @@ Four standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. |
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
 | `B1.html` | Vocabulary quiz app targeting B1-level German words. Similar to palabrasB2.html but with B1 content. PWA with offline support. |
+| `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
 
 ### API
 
 | File | Purpose |
 |------|---------|
 | `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Reads `OPENAI_API_KEY` from Vercel env vars. Includes rate limiting (20 req/min per IP), optional origin check via `ALLOWED_ORIGIN` env var, and system prompt size cap (2 000 chars). |
+| `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`) for transcription. Rate limited to 10 req/min per IP. |
 
 ### Data
 

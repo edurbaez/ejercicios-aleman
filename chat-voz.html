@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat de Voz</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body id="page-cv">
+    <nav id="navbar">
+        <a href="palabrasB2.html">Inicio</a>
+        <a href="lectura veloz.html">Lectura Veloz</a>
+        <a href="diccionario.html">Diccionario</a>
+        <a href="B1.html">B1</a>
+        <a href="chat-voz.html" class="active">Chat de Voz</a>
+        <div class="spacer"></div>
+        <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
+    </nav>
+
+    <div class="cv-app">
+        <div class="cv-header">
+            <h1>Chat de Voz</h1>
+            <p>Practica alemán conversando con IA</p>
+        </div>
+
+        <div class="cv-config">
+            <div class="cv-config-group">
+                <label>Nivel:</label>
+                <div class="cv-level-btns" id="levelBtns">
+                    <button class="cv-level-btn" data-level="A1">A1</button>
+                    <button class="cv-level-btn" data-level="A2">A2</button>
+                    <button class="cv-level-btn active" data-level="B1">B1</button>
+                    <button class="cv-level-btn" data-level="B2">B2</button>
+                    <button class="cv-level-btn" data-level="C1">C1</button>
+                    <button class="cv-level-btn" data-level="C2">C2</button>
+                </div>
+            </div>
+            <div class="cv-config-group">
+                <label>Voz:</label>
+                <div class="cv-voice-toggle">
+                    <button id="voiceMaleBtn" class="cv-voice-btn active" onclick="setVoiceGender('male')">Masculina</button>
+                    <button id="voiceFemaleBtn" class="cv-voice-btn" onclick="setVoiceGender('female')">Femenina</button>
+                </div>
+            </div>
+            <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
+        </div>
+
+        <div class="cv-chat" id="chatArea">
+            <div class="cv-empty" id="chatEmpty">
+                <p>Presiona <strong>Iniciar</strong> para comenzar</p>
+            </div>
+        </div>
+
+        <div class="cv-controls">
+            <div class="cv-timer" id="recTimer" style="display:none">
+                <div class="cv-timer-bar-wrap">
+                    <div class="cv-timer-bar" id="recTimerBar"></div>
+                </div>
+                <span id="recTimerText">0:00</span>
+            </div>
+            <div class="cv-btn-row">
+                <button class="cv-start-btn" id="startBtn" onclick="startConversation()">Iniciar</button>
+                <button class="cv-record-btn" id="recordBtn" style="display:none">Respuesta</button>
+            </div>
+            <p class="cv-hint" id="cvHint">Selecciona un nivel y presiona Iniciar</p>
+        </div>
+    </div>
+
+    <script>
+    const State = {
+        level: 'B1',
+        voiceGender: 'male',
+        messages: [],
+        isRecording: false,
+        mediaRecorder: null,
+        audioChunks: [],
+        recTimerInterval: null,
+        recSeconds: 0,
+        isSpeaking: false,
+        voices: [],
+        selectedVoice: null,
+        started: false,
+    };
+
+    // --- Dark mode ---
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('darkMode_cv', document.body.classList.contains('dark') ? '1' : '');
+    }
+
+    // --- Level selection ---
+    document.querySelectorAll('.cv-level-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.cv-level-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            State.level = btn.dataset.level;
+        });
+    });
+
+    // --- Voice gender ---
+    function setVoiceGender(gender) {
+        State.voiceGender = gender;
+        document.getElementById('voiceMaleBtn').classList.toggle('active', gender === 'male');
+        document.getElementById('voiceFemaleBtn').classList.toggle('active', gender === 'female');
+        selectVoice();
+    }
+
+    function loadVoices() {
+        const all = speechSynthesis.getVoices();
+        State.voices = all.filter(v => v.lang.startsWith('de'));
+        if (!State.voices.length) State.voices = all; // fallback to any voice
+        selectVoice();
+    }
+
+    function selectVoice() {
+        const voices = State.voices;
+        if (!voices.length) return;
+        const femaleNames = /anna|hedda|petra|sabine|marie|julia|lisa|hannah/i;
+        const maleNames = /stefan|markus|hans|michael|thomas|otto|karl/i;
+        if (State.voiceGender === 'female') {
+            State.selectedVoice = voices.find(v => femaleNames.test(v.name))
+                || voices.find(v => !maleNames.test(v.name))
+                || voices[voices.length - 1];
+        } else {
+            State.selectedVoice = voices.find(v => maleNames.test(v.name))
+                || voices[0];
+        }
+    }
+
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    // --- System prompt per level ---
+    function getSystemPrompt(level) {
+        const guides = {
+            A1: 'Verwende sehr einfaches Deutsch: Grundwortschatz (bis 500 Wörter), kurze Sätze (max. 8 Wörter), nur Präsens. Erkläre unbekannte Wörter auf Spanisch in Klammern.',
+            A2: 'Verwende einfaches Deutsch: einfacher Wortschatz, kurze Sätze, Präsens und Perfekt. Füge gelegentlich spanische Übersetzungen schwieriger Wörter in Klammern hinzu.',
+            B1: 'Verwende mittleres Deutsch: normaler Alltagswortschatz, mittelkomplexe Sätze, verschiedene Zeitformen.',
+            B2: 'Verwende fortgeschrittenes Deutsch: reichhaltiger Wortschatz, komplexere Strukturen, Konjunktiv.',
+            C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
+            C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
+        };
+        return `Du bist ein freundlicher Deutschlehrer und Gesprächspartner. Der Benutzer lernt Deutsch auf Niveau ${level}.
+
+${guides[level]}
+
+Regeln:
+- Antworte immer auf Deutsch
+- Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
+- Wenn der Benutzer Grammatikfehler macht, korrigiere sie kurz und freundlich am Ende deiner Antwort
+- Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen`;
+    }
+
+    // --- Start / reset ---
+    async function startConversation() {
+        State.messages = [];
+        State.started = true;
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('recordBtn').style.display = 'inline-flex';
+        disableRecord();
+        const empty = document.getElementById('chatEmpty');
+        if (empty) empty.remove();
+        await sendToAI(null);
+    }
+
+    function newConversation() {
+        speechSynthesis.cancel();
+        clearInterval(State.recTimerInterval);
+        if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
+            State.mediaRecorder.stop();
+        }
+        State.messages = [];
+        State.started = false;
+        State.isRecording = false;
+        document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
+        document.getElementById('startBtn').style.display = 'inline-flex';
+        document.getElementById('recordBtn').style.display = 'none';
+        document.getElementById('recTimer').style.display = 'none';
+        document.getElementById('recordBtn').classList.remove('cv-record-active');
+        setHint('Selecciona un nivel y presiona Iniciar');
+    }
+
+    // --- AI call ---
+    async function sendToAI(userText) {
+        if (userText) {
+            State.messages.push({ role: 'user', content: userText });
+            addBubble('user', userText);
+        }
+
+        const thinkingId = addBubble('ai', '...', true);
+        setHint('IA pensando...');
+
+        try {
+            const initialMessages = userText
+                ? State.messages
+                : [{ role: 'user', content: 'Begrüße mich freundlich und stelle mir eine erste Frage auf Deutsch.' }];
+
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    system: getSystemPrompt(State.level),
+                    messages: initialMessages,
+                }),
+            });
+
+            const rawChat = await resp.text();
+            let data;
+            try { data = JSON.parse(rawChat); }
+            catch { throw new Error(`Respuesta inválida de /api/chat: ${rawChat.slice(0, 120)}`); }
+            if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+            const reply = data.reply;
+            State.messages.push({ role: 'assistant', content: reply });
+            updateBubble(thinkingId, reply);
+            speak(reply);
+        } catch (e) {
+            updateBubble(thinkingId, `Error: ${e.message}`);
+            setHint('Error al conectar con la IA. Intenta de nuevo.');
+            enableRecord();
+        }
+    }
+
+    // --- TTS ---
+    function speak(text) {
+        speechSynthesis.cancel();
+        State.isSpeaking = true;
+        setHint('IA hablando...');
+        disableRecord();
+
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'de-DE';
+        utter.rate = 0.9;
+        if (State.selectedVoice) utter.voice = State.selectedVoice;
+
+        utter.onend = () => {
+            State.isSpeaking = false;
+            setHint('Mantén presionado "Respuesta" para hablar');
+            enableRecord();
+        };
+        utter.onerror = () => {
+            State.isSpeaking = false;
+            enableRecord();
+        };
+
+        speechSynthesis.speak(utter);
+    }
+
+    function enableRecord() {
+        const btn = document.getElementById('recordBtn');
+        btn.disabled = false;
+        btn.classList.remove('cv-record-disabled');
+    }
+
+    function disableRecord() {
+        const btn = document.getElementById('recordBtn');
+        btn.disabled = true;
+        btn.classList.add('cv-record-disabled');
+    }
+
+    // --- Recording ---
+    function setupRecordButton() {
+        const btn = document.getElementById('recordBtn');
+
+        btn.addEventListener('pointerdown', e => {
+            e.preventDefault();
+            if (btn.disabled || State.isSpeaking) return;
+            startRecording();
+        });
+
+        const stopFn = () => { if (State.isRecording) stopRecording(); };
+        btn.addEventListener('pointerup', stopFn);
+        btn.addEventListener('pointercancel', stopFn);
+        btn.addEventListener('pointerleave', stopFn);
+    }
+
+    async function startRecording() {
+        if (State.isRecording) return;
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            State.audioChunks = [];
+
+            // Pick best supported mimeType
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+
+            State.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+
+            State.mediaRecorder.ondataavailable = e => {
+                if (e.data.size > 0) State.audioChunks.push(e.data);
+            };
+
+            State.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeAndSend(blob);
+            };
+
+            State.mediaRecorder.start(100);
+            State.isRecording = true;
+            State.recSeconds = 0;
+
+            document.getElementById('recTimer').style.display = 'flex';
+            document.getElementById('recordBtn').classList.add('cv-record-active');
+            updateRecTimer();
+
+            State.recTimerInterval = setInterval(() => {
+                State.recSeconds++;
+                updateRecTimer();
+                if (State.recSeconds >= 60) stopRecording();
+            }, 1000);
+
+            setHint('Grabando... suelta el botón para enviar');
+        } catch (e) {
+            setHint('Error: no se pudo acceder al micrófono');
+        }
+    }
+
+    function updateRecTimer() {
+        const s = State.recSeconds;
+        document.getElementById('recTimerText').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        document.getElementById('recTimerBar').style.width = `${(s / 60) * 100}%`;
+    }
+
+    function stopRecording() {
+        if (!State.isRecording) return;
+        State.isRecording = false;
+        clearInterval(State.recTimerInterval);
+        document.getElementById('recTimer').style.display = 'none';
+        document.getElementById('recTimerBar').style.width = '0%';
+        document.getElementById('recordBtn').classList.remove('cv-record-active');
+        if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
+            State.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeAndSend(audioBlob) {
+        setHint('Transcribiendo...');
+        disableRecord();
+
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'de');
+
+        try {
+            const resp = await fetch('/api/whisper', { method: 'POST', body: formData });
+            const rawText = await resp.text();
+            let data;
+            try {
+                data = JSON.parse(rawText);
+            } catch {
+                throw new Error(`El servidor devolvió una respuesta inesperada: ${rawText.slice(0, 120)}`);
+            }
+            if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+
+            const text = data.text?.trim();
+            if (!text) {
+                setHint('No se detectó voz. Intenta de nuevo.');
+                enableRecord();
+                return;
+            }
+            await sendToAI(text);
+        } catch (e) {
+            setHint(`Error: ${e.message}`);
+            enableRecord();
+        }
+    }
+
+    // --- UI helpers ---
+    function addBubble(role, text, isThinking = false) {
+        const area = document.getElementById('chatArea');
+        const id = 'bubble-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+        const div = document.createElement('div');
+        div.className = `cv-bubble cv-bubble-${role}${isThinking ? ' cv-bubble-thinking' : ''}`;
+        div.id = id;
+        const inner = document.createElement('div');
+        inner.className = 'cv-bubble-inner';
+        inner.textContent = text;
+        div.appendChild(inner);
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
+        return id;
+    }
+
+    function updateBubble(id, text) {
+        const div = document.getElementById(id);
+        if (!div) return;
+        div.classList.remove('cv-bubble-thinking');
+        div.querySelector('.cv-bubble-inner').textContent = text;
+        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+    }
+
+    function setHint(text) {
+        document.getElementById('cvHint').textContent = text;
+    }
+
+    // --- Init ---
+    (function init() {
+        if (localStorage.getItem('darkMode_cv') === '1') document.body.classList.add('dark');
+        loadVoices();
+        setupRecordButton();
+    })();
+    </script>
+</body>
+</html>

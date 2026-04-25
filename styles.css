@@ -559,3 +559,335 @@ th, td {
     font-size: 22px;
     z-index: 300;
 }
+
+
+/* ========================
+   CHAT DE VOZ
+   ======================== */
+
+#page-cv {
+    --bg: #f5f0fa;
+    --card-bg: #ffffff;
+    --text: #2d1b4e;
+    --border: #d0b8e8;
+    --navbar-bg: #ffffff;
+    --accent: #7B1FA2;
+    --accent-hover: #6A1B9A;
+    --ai-bubble: #ffffff;
+    --ai-bubble-text: #2d1b4e;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-cv.dark {
+    --bg: #1a0d2e;
+    --card-bg: #2d1b4e;
+    --text: #e8d5f5;
+    --border: #5a3a8a;
+    --navbar-bg: #2d1b4e;
+    --accent: #9C27B0;
+    --accent-hover: #AB47BC;
+    --ai-bubble: #3d1b5e;
+    --ai-bubble-text: #e8d5f5;
+}
+
+#page-cv #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-cv #navbar a:hover,
+#page-cv #navbar a.active {
+    background-color: var(--accent);
+    color: white;
+}
+
+#page-cv #darkModeBtn {
+    font-size: 20px;
+    padding: 4px 8px;
+    border-radius: 5px;
+}
+
+.cv-app {
+    max-width: 680px;
+    margin: 20px auto;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cv-header {
+    text-align: center;
+}
+
+.cv-header h1 {
+    font-size: 1.8rem;
+    color: var(--accent);
+}
+
+.cv-header p {
+    font-size: 0.95rem;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+
+.cv-config {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.cv-config-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cv-config-group label {
+    font-size: 14px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.cv-level-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.cv-level-btn {
+    padding: 5px 10px;
+    border: 2px solid var(--border);
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text);
+    transition: 0.15s;
+}
+
+.cv-level-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+}
+
+.cv-voice-toggle {
+    display: flex;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.cv-voice-btn {
+    padding: 5px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: 0.15s;
+}
+
+.cv-voice-btn.active {
+    background: var(--accent);
+    color: white;
+}
+
+.cv-new-btn {
+    margin-left: auto;
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: 0.15s;
+}
+
+.cv-new-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.cv-chat {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    min-height: 300px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cv-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    min-height: 200px;
+    opacity: 0.5;
+    font-size: 15px;
+}
+
+.cv-bubble {
+    display: flex;
+    max-width: 85%;
+}
+
+.cv-bubble-ai {
+    align-self: flex-start;
+}
+
+.cv-bubble-user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.cv-bubble-inner {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.cv-bubble-ai .cv-bubble-inner {
+    background: var(--ai-bubble);
+    color: var(--ai-bubble-text);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+}
+
+.cv-bubble-user .cv-bubble-inner {
+    background: var(--accent);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.cv-bubble-thinking .cv-bubble-inner {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+.cv-controls {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.cv-timer {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cv-timer-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.cv-timer-bar {
+    height: 100%;
+    background: #e53935;
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.5s linear;
+}
+
+#recTimerText {
+    font-size: 14px;
+    font-weight: bold;
+    min-width: 35px;
+    color: #e53935;
+}
+
+.cv-btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.cv-start-btn {
+    padding: 14px 40px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(123,31,162,0.3);
+}
+
+.cv-start-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.cv-record-btn {
+    padding: 14px 36px;
+    background: #43a047;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    box-shadow: 0 4px 12px rgba(67,160,71,0.3);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+.cv-record-btn.cv-record-active {
+    background: #e53935;
+    transform: scale(1.06);
+    box-shadow: 0 0 0 4px rgba(229,57,53,0.25);
+}
+
+.cv-record-btn:disabled,
+.cv-record-btn.cv-record-disabled {
+    background: #bdbdbd;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.cv-hint {
+    font-size: 13px;
+    opacity: 0.65;
+    text-align: center;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .cv-config { gap: 10px; }
+    .cv-config-group label { font-size: 13px; }
+    .cv-level-btn { padding: 4px 7px; font-size: 12px; }
+    .cv-chat { max-height: 320px; }
+    .cv-start-btn, .cv-record-btn { padding: 12px 28px; font-size: 16px; }
+    .cv-new-btn { margin-left: 0; }
+}

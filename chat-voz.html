@@ -52,8 +52,12 @@
         <div class="cv-modal-overlay" id="contextModal" onclick="closeContextModal(event)">
             <div class="cv-modal">
                 <h3>Personalizar conversación</h3>
+                <p class="cv-modal-label">Rol de la IA:</p>
+                <textarea id="rolText" class="cv-modal-textarea" rows="3"
+                    placeholder="Ejemplos:&#10;• Eres un compañero de clase del curso de alemán&#10;• Eres un trabajador en una tienda de ropa&#10;• Eres un médico en un consultorio&#10;• Eres un mesero en un restaurante"></textarea>
+                <p class="cv-modal-label" style="margin-top:12px">Contexto sobre ti:</p>
                 <p class="cv-modal-desc">Cuéntale a la IA sobre ti o dile de qué quieres hablar.</p>
-                <textarea id="contextText" class="cv-modal-textarea" rows="5"
+                <textarea id="contextText" class="cv-modal-textarea" rows="4"
                     placeholder="Ejemplos:&#10;• Tengo 28 años y trabajo como ingeniero&#10;• Quiero practicar vocabulario de cocina&#10;• Me interesa hablar de viajes y cultura alemana&#10;• Soy estudiante universitario de medicina"></textarea>
                 <div class="cv-modal-actions">
                     <button class="cv-modal-cancel" onclick="closeContextModal()">Cancelar</button>
@@ -99,6 +103,7 @@
         selectedVoice: null,
         started: false,
         contexto: '',
+        rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
     };
 
     // --- Dark mode ---
@@ -162,7 +167,8 @@
         const contextLine = State.contexto
             ? `\nKontext über den Benutzer: ${State.contexto}\n`
             : '';
-        return `Du bist ein freundlicher Deutschlehrer und Gesprächspartner. Der Benutzer lernt Deutsch auf Niveau ${level}.
+        const rolLine = State.rol || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+        return `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
 ${contextLine}
 ${guides[level]}
 
@@ -432,9 +438,10 @@ Regeln:
 
     // --- Context modal ---
     function openContextModal() {
+        document.getElementById('rolText').value = State.rol;
         document.getElementById('contextText').value = State.contexto;
         document.getElementById('contextModal').classList.add('cv-modal-open');
-        document.getElementById('contextText').focus();
+        document.getElementById('rolText').focus();
     }
 
     function closeContextModal(e) {
@@ -443,9 +450,13 @@ Regeln:
     }
 
     function saveContext() {
+        State.rol = document.getElementById('rolText').value.trim()
+            || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
         State.contexto = document.getElementById('contextText').value.trim();
         const btn = document.getElementById('contextBtn');
-        btn.classList.toggle('cv-context-active', State.contexto.length > 0);
+        const customized = State.contexto.length > 0
+            || State.rol !== 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+        btn.classList.toggle('cv-context-active', customized);
         document.getElementById('contextModal').classList.remove('cv-modal-open');
     }
 

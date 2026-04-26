@@ -16,9 +16,8 @@ async function supaGet(palabra) {
 
 async function supaSet(palabra, info) {
     try {
-        await sb.from("diccionario_cache").insert({
+        const { error } = await sb.from("diccionario_cache").upsert({
             id: palabra.toLowerCase(),
-            _palabra: palabra,
             palabra,
             traduccion: info.traduccion || null,
             nivel: info.nivel || null,
@@ -26,7 +25,8 @@ async function supaSet(palabra, info) {
             sinonimos: info.sinonimos || [],
             antonimo: info.antonimo || null,
         });
-    } catch {}
+        if (error) console.warn("[supaSet]", error.message, error.details);
+    } catch (e) { console.warn("[supaSet exception]", e); }
 }
 
 // ── Dark mode ──────────────────────────────────────────

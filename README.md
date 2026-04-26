@@ -1,6 +1,6 @@
 # Alemán B2 — Herramientas de Aprendizaje
 
-Four browser-based tools for learning German vocabulary and improving reading speed, plus a serverless dictionary API. No installation needed — open the HTML files directly.
+Five browser-based tools for learning German vocabulary, improving reading speed, and practicing conversation, plus a serverless API. No installation needed — open the HTML files directly.
 
 > **Maintenance rule:** Whenever a new active file is added or an existing one is removed, update this file and `CLAUDE.md` before finishing the task.
 
@@ -63,12 +63,26 @@ Multiple-choice vocabulary quiz targeting B1-level German words. Same mechanics 
 
 ### Diccionario ([diccionario.html](diccionario.html))
 
-German dictionary powered by GPT-4o-mini with two-layer caching.
+German dictionary powered by GPT-4o-mini with two-layer caching. Logic in [`diccionario.js`](diccionario.js).
 
 **Features:**
-- Search any German word for its definition, gender, plural, examples, and level badge
+- Search any German word → returns translation (ES), CEFR level badge, definition (DE), synonyms, and antonym
 - Results cached locally in IndexedDB; shared cache stored in Supabase
-- Autocomplete from previously looked-up words
+- Autocomplete suggestions from previously looked-up words
+- Dark mode toggle
+
+---
+
+### Chat de Voz ([chat-voz.html](chat-voz.html))
+
+AI voice conversation app for practicing German at any CEFR level.
+
+**Features:**
+- Hold-to-record sends audio to Whisper (STT via `/api/whisper`)
+- AI replies via GPT-4o-mini (`/api/chat`) adapted to selected CEFR level (A1–C2)
+- Response read aloud via browser TTS (Web Speech API)
+- Selectable masculine/feminine voice
+- Customizable AI role and user context via modal
 - Dark mode toggle
 
 ---
@@ -77,18 +91,22 @@ German dictionary powered by GPT-4o-mini with two-layer caching.
 
 ### `/api/chat` ([api/chat.js](api/chat.js))
 
-Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable.
+Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html` and `chat-voz.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable.
 
-**Security measures:**
-- Rate limiting: 20 requests/minute per IP (in-memory sliding window) → returns `429` if exceeded
-- Origin check: if `ALLOWED_ORIGIN` env var is set, blocks requests from other origins → returns `403`
+### `/api/whisper` ([api/whisper.js](api/whisper.js))
+
+Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`. Rate limited to 10 req/min per IP.
+
+**Security measures (`/api/chat`):**
+- Rate limiting: 20 req/min per IP (in-memory sliding window) → `429` if exceeded
+- Origin check: if `ALLOWED_ORIGIN` env var is set, blocks other origins → `403`
 - System prompt capped at 2 000 characters to prevent inflated requests
 
 ---
 
 ## Navigation
 
-All pages share a navbar: **Inicio** (palabrasB2) ↔ **Lectura Veloz** ↔ **Diccionario** ↔ **B1**.
+All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Lectura Veloz, Diccionario, B1, Chat de Voz — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
 
 ---
 

@@ -13,14 +13,20 @@
 <body id="page-b2">
     <nav id="navbar">
         <a href="palabrasB2.html" class="active">Inicio</a>
-        <a href="lectura veloz.html">Lectura Veloz</a>
-        <a href="diccionario.html">Diccionario</a>
-        <a href="B1.html">B1</a>
-        <a href="chat-voz.html">Chat de Voz</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <a href="lectura veloz.html">Lectura Veloz</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="B1.html">B1</a>
+                <a href="chat-voz.html">Chat de Voz</a>
+            </div>
+        </div>
         <div class="spacer"></div>
         <button id="auth-btn" title="Iniciar sesión">👤</button>
         <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
     </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
 
     <!-- Auth Modal -->
     <div id="auth-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">

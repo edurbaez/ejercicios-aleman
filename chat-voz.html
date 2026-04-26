@@ -9,13 +9,19 @@
 <body id="page-cv">
     <nav id="navbar">
         <a href="palabrasB2.html">Inicio</a>
-        <a href="lectura veloz.html">Lectura Veloz</a>
-        <a href="diccionario.html">Diccionario</a>
-        <a href="B1.html">B1</a>
-        <a href="chat-voz.html" class="active">Chat de Voz</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <a href="lectura veloz.html">Lectura Veloz</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="B1.html">B1</a>
+                <a href="chat-voz.html" class="active">Chat de Voz</a>
+            </div>
+        </div>
         <div class="spacer"></div>
         <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
     </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
 
     <div class="cv-app">
         <div class="cv-header">

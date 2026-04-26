@@ -37,6 +37,50 @@ body {
 
 #navbar .spacer { flex: 1; }
 
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-menu-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.nav-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    min-width: 170px;
+    background-color: var(--navbar-bg, #fff);
+    border: 1px solid var(--border, #ccc);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 4px 0;
+    z-index: 300;
+    flex-direction: column;
+}
+
+.nav-dropdown.open .nav-dropdown-menu {
+    display: flex;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 0;
+    transition: background-color 0.2s;
+}
+
 #darkModeBtn {
     background: none;
     border: none;
@@ -84,7 +128,8 @@ body {
 }
 
 #page-b2 #navbar a:hover,
-#page-b2 #navbar a.active {
+#page-b2 #navbar a.active,
+#page-b2 #navbar .nav-menu-btn:hover {
     background-color: #1976D2;
     color: white;
 }
@@ -299,7 +344,8 @@ th, td {
 }
 
 #page-b1 #navbar a:hover,
-#page-b1 #navbar a.active {
+#page-b1 #navbar a.active,
+#page-b1 #navbar .nav-menu-btn:hover {
     background-color: #1976D2;
     color: white;
 }
@@ -491,7 +537,8 @@ th, td {
 }
 
 #page-lv #navbar a:hover,
-#page-lv #navbar a.active {
+#page-lv #navbar a.active,
+#page-lv #navbar .nav-menu-btn:hover {
     background-color: var(--btn);
     color: white;
 }
@@ -599,7 +646,8 @@ th, td {
 }
 
 #page-cv #navbar a:hover,
-#page-cv #navbar a.active {
+#page-cv #navbar a.active,
+#page-cv #navbar .nav-menu-btn:hover {
     background-color: var(--accent);
     color: white;
 }
@@ -1038,4 +1086,227 @@ th, td {
     .cv-chat { max-height: 320px; }
     .cv-start-btn, .cv-record-btn, .cv-send-btn { padding: 12px 28px; font-size: 16px; }
     .cv-new-btn { margin-left: 0; }
+}
+
+
+/* ========================
+   DICCIONARIO
+   ======================== */
+
+#page-dic {
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --accent: #1976D2;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+#page-dic.dark {
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text: #e0e0e0;
+    --border: #444;
+    --navbar-bg: #0f3460;
+    --accent: #4fa3e0;
+}
+
+#page-dic #navbar {
+    background: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-dic #navbar a:hover,
+#page-dic #navbar a.active,
+#page-dic #navbar .nav-menu-btn:hover {
+    background-color: var(--accent);
+    color: white;
+}
+
+.dic-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+.dic-container h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: var(--accent);
+}
+
+.search-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.search-wrap {
+    position: relative;
+    flex: 1;
+}
+
+#input-palabra {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 16px;
+    background: var(--card-bg);
+    color: var(--text);
+    outline: none;
+}
+
+#input-palabra:focus {
+    border-color: var(--accent);
+}
+
+#btn-buscar {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#btn-buscar:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+#sugerencias {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0; right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+.sug-item {
+    padding: 9px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.sug-item:hover, .sug-item.activo {
+    background: var(--option-hover, #f2f2f2);
+}
+
+.sug-nivel {
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(25,118,210,0.1);
+    padding: 1px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+#error-msg {
+    display: none;
+    color: #c0392b;
+    background: #fdecea;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+#spinner {
+    display: none;
+    text-align: center;
+    padding: 32px;
+    color: #999;
+    font-size: 14px;
+}
+
+#resultado {
+    display: none;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.result-header {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 18px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.result-header .palabra-buscada {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.result-header .nivel-badge {
+    font-size: 13px;
+    background: rgba(255,255,255,0.25);
+    padding: 2px 10px;
+    border-radius: 20px;
+}
+
+.result-body { padding: 0; }
+
+.result-row {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 12px;
+}
+
+.result-row:last-child { border-bottom: none; }
+
+.result-label {
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    min-width: 90px;
+    padding-top: 2px;
+}
+
+.result-value {
+    font-size: 15px;
+    line-height: 1.5;
+    flex: 1;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 13px;
+}
+
+.sin-datos {
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
 }

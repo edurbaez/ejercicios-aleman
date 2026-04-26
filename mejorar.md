@@ -1,6 +1,6 @@
 # Sugerencias de Mejora
 
-Análisis basado en la lectura del código real de `palabrasB2.html`, `lectura veloz.html` y `styles.css`.
+Análisis basado en la lectura del código real de `palabrasB2.html`, `lectura veloz.html`, `diccionario.html`, `chat-voz.html` y `styles.css`.
 Todas las sugerencias respetan la arquitectura existente: HTML puro, sin build system, sin dependencias externas salvo las ya usadas.
 
 ---
@@ -198,7 +198,4 @@ Todas las sugerencias respetan la arquitectura existente: HTML puro, sin build s
 **Síntoma:** `process.env.OPENAI_API_KEY` es `undefined` en `api/chat.js` aunque la variable está correctamente configurada en el dashboard de Vercel (Production, Preview y Development).
 **Lo que se intentó:** Configurar la variable en Vercel, redeploy múltiples veces, añadir `package.json` mínimo para forzar runtime Node.js.
 **Resultado:** El error persiste. La función serverless se ejecuta pero no recibe las variables de entorno.
-**Posibles causas sin confirmar:** Conflicto con `vercel.json`, proyecto detectado como static-only a pesar del `package.json`, o problema con el tipo de API key (`sk-proj-...`).
-
-### E2. Error
-""" Cuando quieras retomarlo, una cosa que podría valer la pena probar es revisar si el vercel.json está interfiriendo — la rewrite de / puede estar causando que Vercel trate todo el proyecto como static y no procese las funciones correctamente.""""
+**Posibles causas sin confirmar:** Conflicto con `vercel.json` — la rewrite de `/` puede estar causando que Vercel trate el proyecto como static-only y no procese las funciones correctamente. Probar: eliminar o simplificar `vercel.json`, o mover las funciones a una carpeta diferente.

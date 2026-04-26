@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Four standalone HTML apps for language learning (Spanish ↔ German) plus a serverless API. No build system — open any `.html` file directly in a browser. All visible pages share a common navbar.
+Five standalone HTML apps for language learning (Spanish ↔ German) plus a serverless API. No build system — open any `.html` file directly in a browser. All visible pages share a common navbar with a dropdown menu: **Inicio** is always visible as an independent link; the rest of the pages are grouped under a **Menú ▾** button.
 
 ## Active Files
 
@@ -51,11 +51,17 @@ Four standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `package.json` | Minimal Node.js package declaration — forces Vercel to treat the project as Node (required for `api/chat.js`). |
 | `.env.local` | Local env vars (not committed). Must define `OPENAI_API_KEY` for local dev. |
 
+### App Scripts
+
+| File | Purpose |
+|------|---------|
+| `diccionario.js` | All JS logic for `diccionario.html`: Supabase cache, IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
+
 ### Shared styles
 
 | File | Purpose |
 |------|---------|
-| `styles.css` | Shared stylesheet used by `palabrasB2.html`, `lectura veloz.html`, `diccionario.html`, and `B1.html`. |
+| `styles.css` | Shared stylesheet for all apps. Sections: shared navbar (incl. dropdown), B2, B1, Lectura Veloz, Chat de Voz, Diccionario. |
 
 ---
 
@@ -84,7 +90,7 @@ Data loaded from `DataB1.json` with keys: `verbos1`, `verbos2`, `adjetivos`, `ad
 ## diccionario.html — Implementation Notes
 
 ### Core concept
-Looks up a German word and returns its definition, gender, plural, examples, and level badge. Results are cached to avoid redundant API calls.
+Looks up a German word and returns: translation (ES), CEFR level badge, definition (DE), synonyms, and antonym. Results are cached to avoid redundant API calls. All logic lives in `diccionario.js`.
 
 ### Data flow
 1. User types a word → `buscar()` fires.
@@ -93,10 +99,13 @@ Looks up a German word and returns its definition, gender, plural, examples, and
 4. If still miss, call `POST /api/chat` → GPT-4o-mini returns structured JSON.
 5. Result is stored in both Supabase (`supaSet()`) and IndexedDB (`cacheSet()`).
 
+### API fetch pattern
+Uses `res.text()` → manual `JSON.parse()` (same pattern as `chat-voz.html`) to avoid silent failures when the server returns an empty or non-JSON body. Error message includes the raw response for easier debugging.
+
 ### External dependencies (CDN)
 - `@supabase/supabase-js@2` — cloud persistence of dictionary results.
 
-### Key functions
+### Key functions (in `diccionario.js`)
 - `buscar()` — orchestrates the lookup chain (IndexedDB → Supabase → API).
 - `supaGet(palabra)` / `supaSet(palabra, info)` — Supabase read/write.
 - `cacheGet(palabra)` / `cacheSet(palabra, info)` — IndexedDB read/write.
@@ -109,9 +118,6 @@ Looks up a German word and returns its definition, gender, plural, examples, and
 1. **Rate limit** — 20 req/min per IP via in-memory `Map` (sliding window). Resets on cold start; no external dependency.
 2. **Origin check** — if `ALLOWED_ORIGIN` is set in Vercel env vars, requests from other origins are rejected with `403`.
 3. **Payload cap** — `system` prompt limited to 2 000 characters.
-
-### Known issue
-`OPENAI_API_KEY` is not reaching `api/chat.js` on Vercel (see E1 in `mejorar.md`). Suspected cause: `vercel.json` rewrite may cause Vercel to treat the project as static-only.
 
 ---
 
@@ -182,7 +188,7 @@ RSVP (Rapid Serial Visual Presentation): splits a text into words (or pairs) and
 A secondary reading mode: the saved text is displayed as a full paragraph with 150-character chunks. Chunks are highlighted as TTS reads through them. Double-clicking a chunk sets the start position. A language selector (`#blog-lang`) lets the user pick the TTS language for that text. A thin progress bar (`#blog-progress-bar`) below the controls shows `currentChunk / totalChunks` as a percentage; updated in `highlightChunk(i)` and reset to 0 in `salirBlogView()`.
 
 ### Navbar
-Both pages share a fixed navbar linking `palabrasB2.html` (Inicio) ↔ `lectura veloz.html` (Lectura Veloz).
+All pages share a fixed navbar. **Inicio** (`palabrasB2.html`) is always visible as a standalone link. The remaining pages (Lectura Veloz, Diccionario, B1, Chat de Voz) are grouped under a **Menú ▾** dropdown button. Dropdown toggled via `classList.toggle('open')` on click; closes on outside click via a `document` listener in each HTML file. Styles in `styles.css` under the shared navbar section.
 
 ### Dark mode
 Toggled by a fixed button; persisted in `localStorage` as `darkMode`.

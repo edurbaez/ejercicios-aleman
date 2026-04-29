@@ -55,6 +55,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
+| `auth.js` | Shared authentication module loaded by all pages. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. |
 | `diccionario.js` | All JS logic for `diccionario.html`: Supabase cache, IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 
 ### Shared styles

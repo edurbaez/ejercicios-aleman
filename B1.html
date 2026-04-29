@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="icon-b1.svg">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="auth.js"></script>
 </head>
 <body id="page-b1">
     <nav id="navbar">
@@ -28,27 +29,6 @@
     </nav>
     <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;">
-        <div style="background:#fff;border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
-            <h3 style="margin:0 0 16px;color:#222">Iniciar sesión</h3>
-            <div id="auth-email-step">
-                <input id="auth-email" type="email" placeholder="tu@email.com" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
-                <div style="display:flex;gap:8px;">
-                    <button id="auth-send-btn" onclick="sendOtp()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar código</button>
-                    <button onclick="closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
-                </div>
-            </div>
-            <div id="auth-otp-step" style="display:none">
-                <p id="auth-otp-label" style="margin:0 0 12px;font-size:13px;color:#555;"></p>
-                <input id="auth-otp" type="text" placeholder="Código de 6 dígitos" maxlength="6" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;letter-spacing:6px;font-size:20px;text-align:center;">
-                <div style="display:flex;gap:8px;">
-                    <button id="auth-verify-btn" onclick="verifyOtp()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Verificar</button>
-                    <button onclick="closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="app">
 
             <!-- ========================= -->
@@ -1127,63 +1107,8 @@ function bindSelectionEvents() {
         }
 
         /* ========================= AUTH ========================= */
-        const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
-        const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
-        const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-        let currentUser = null;
-        let _otpEmail = '';
-
-        function openAuthModal() {
-            document.getElementById('auth-modal').style.display = 'flex';
-            document.getElementById('auth-email-step').style.display = 'block';
-            document.getElementById('auth-otp-step').style.display = 'none';
-            document.getElementById('auth-email').value = '';
-        }
-        function closeAuthModal() {
-            document.getElementById('auth-modal').style.display = 'none';
-        }
-        async function sendOtp() {
-            const email = document.getElementById('auth-email').value.trim();
-            if (!email) return;
-            const btn = document.getElementById('auth-send-btn');
-            btn.disabled = true; btn.textContent = 'Enviando...';
-            const { error } = await sb.auth.signInWithOtp({ email });
-            btn.disabled = false; btn.textContent = 'Enviar código';
-            if (error) { alert('Error: ' + error.message); return; }
-            _otpEmail = email;
-            document.getElementById('auth-email-step').style.display = 'none';
-            document.getElementById('auth-otp-step').style.display = 'block';
-            document.getElementById('auth-otp-label').textContent = `Código enviado a ${email}`;
-            document.getElementById('auth-otp').value = '';
-            document.getElementById('auth-otp').focus();
-        }
-        async function verifyOtp() {
-            const token = document.getElementById('auth-otp').value.trim();
-            if (!token) return;
-            const btn = document.getElementById('auth-verify-btn');
-            btn.disabled = true; btn.textContent = 'Verificando...';
-            const { error } = await sb.auth.verifyOtp({ email: _otpEmail, token, type: 'email' });
-            btn.disabled = false; btn.textContent = 'Verificar';
-            if (error) { alert('Código incorrecto o expirado'); return; }
-            closeAuthModal();
-        }
-        async function logout() {
-            await sb.auth.signOut();
-        }
-        function updateAuthUI() {
-            const btn = document.getElementById('auth-btn');
-            if (currentUser) {
-                btn.textContent = currentUser.email.split('@')[0];
-                btn.title = 'Cerrar sesión';
-                btn.onclick = logout;
-            } else {
-                btn.textContent = '👤';
-                btn.title = 'Iniciar sesión';
-                btn.onclick = openAuthModal;
-            }
-        }
         async function onSignedIn() {
-            const { data } = await sb.from('user_data').select('*').eq('user_id', currentUser.id).maybeSingle();
+            const { data } = await window.sb.from('user_data').select('*').eq('user_id', currentUser.id).maybeSingle();
             if (!data) return;
             if (data.b1_active_sets?.length) {
                 State.activeSets.clear();
@@ -1199,23 +1124,14 @@ function bindSelectionEvents() {
         }
         async function syncToCloud() {
             if (!currentUser) return;
-            await sb.from('user_data').upsert({
+            await window.sb.from('user_data').upsert({
                 user_id: currentUser.id,
                 b1_active_sets: [...State.activeSets],
                 b1_dark: document.body.classList.contains('dark'),
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
         }
-        sb.auth.onAuthStateChange(async (event, session) => {
-            currentUser = session?.user || null;
-            updateAuthUI();
-            if (event === 'SIGNED_IN') await onSignedIn();
-        });
-        sb.auth.getSession().then(({ data: { session } }) => {
-            currentUser = session?.user || null;
-            updateAuthUI();
-            if (currentUser) onSignedIn();
-        });
+        window.onAuthSignedIn = onSignedIn;
         </script>
 </body>
 </html>

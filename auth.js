@@ -93,7 +93,30 @@
     await window.sb.auth.signOut();
   };
 
-  window.updateAuthUI = function () {
+  async function _getRole() {
+    if (!window.currentUser) return null;
+    const { data } = await window.sb.from('profiles').select('role').eq('id', window.currentUser.id).maybeSingle();
+    return data ? data.role : null;
+  }
+
+  function _removeDashboardLink() {
+    const existing = document.getElementById('nav-dashboard-link');
+    if (existing) existing.remove();
+  }
+
+  function _addDashboardLink() {
+    if (document.getElementById('nav-dashboard-link')) return;
+    const menu = document.querySelector('.nav-dropdown-menu');
+    if (!menu) return;
+    const a = document.createElement('a');
+    a.id = 'nav-dashboard-link';
+    a.href = '/admin/';
+    a.textContent = 'Dashboard →';
+    a.style.cssText = 'font-weight:600;color:#1976D2;';
+    menu.appendChild(a);
+  }
+
+  window.updateAuthUI = async function () {
     const btn = document.getElementById('auth-btn');
     if (!btn) return;
     if (window.currentUser) {
@@ -102,10 +125,13 @@
       btn.textContent = name;
       btn.title = 'Cerrar sesión';
       btn.onclick = window.logout;
+      const role = await _getRole();
+      if (role === 'admin') _addDashboardLink();
     } else {
       btn.textContent = '👤';
       btn.title = 'Iniciar sesión';
       btn.onclick = window.openAuthModal;
+      _removeDashboardLink();
     }
   };
 

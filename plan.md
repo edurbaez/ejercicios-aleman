@@ -9,226 +9,146 @@
 
 | Aspecto | Estado |
 |---|---|
-| Supabase ya conectado | ✅ `mzitpnacjcjpokmiqwtd.supabase.co` |
-| Auth UI parcial | ✅ Modal OTP en B1/B2 (email → código 6 dígitos) |
-| Botón 👤 en navbar | ✅ Presente en B1/B2, ausente en las demás páginas |
-| Supabase Auth habilitado | ⚠️ Por confirmar (depende de la config del proyecto Supabase) |
-| Google OAuth | ❌ No implementado |
-| Tracking de uso | ❌ No implementado |
-| Dashboard de administración | ❌ No implementado |
+| Supabase conectado | ✅ `mzitpnacjcjpokmiqwtd.supabase.co` |
+| Tablas `profiles` + `usage_events` | ✅ Creadas con índices y RLS |
+| Trigger auto-perfil al registrarse | ✅ `on_auth_user_created` activo |
+| Función `is_admin()` sin recursión | ✅ SECURITY DEFINER |
+| Google OAuth en Supabase | ✅ Configurado |
+| Redirect URLs en Supabase | ✅ `ejercicios-aleman-sand.vercel.app` + localhost |
+| `auth.js` compartido | ✅ Cargado en las 5 páginas |
+| Modal OTP + Google en todas las páginas | ✅ |
+| Botón 👤 en todas las páginas | ✅ |
+| Enlace "Dashboard →" para admin | ✅ Aparece en navbar al detectar `role = 'admin'` |
+| Asignar rol admin (SQL) | ⚠️ Pendiente ejecutar tras primer login |
+| Tracking de uso | ✅ Completo (Etapa 3) |
+| Panel de estadísticas del usuario | ✅ Completo (Etapa 3) |
+| Dashboard de administración | ✅ Completo (Etapa 4) |
 
 ---
 
-## Etapa 1 — Base de datos y configuración de Supabase Auth
+## ✅ Etapa 1 — Base de datos y configuración de Supabase Auth — COMPLETA
 
-**Objetivo:** dejar el backend completamente listo antes de tocar una línea de frontend.
+### Completado
+- Tablas `profiles` y `usage_events` creadas
+- Trigger `on_auth_user_created` — crea perfil automáticamente al registrarse
+- Función `is_admin()` con SECURITY DEFINER (evita recursión en RLS)
+- RLS habilitado en ambas tablas con políticas de acceso por rol
+- Google OAuth configurado en Supabase + Google Cloud Console
+- Redirect URLs configuradas para producción y localhost
 
-### 1.1 Verificar / activar Supabase Auth
-
-- Confirmar que el proyecto Supabase tiene el proveedor **Email** habilitado con OTP (magic link o código de 6 dígitos).
-- Activar el proveedor **Google OAuth** en Supabase → Authentication → Providers.
-- Crear credenciales OAuth en Google Cloud Console (Client ID + Secret) y pegarlas en Supabase.
-- Configurar las **Redirect URLs** en Google Cloud y en Supabase (`https://<tu-dominio>/`, `http://localhost`).
-
-### 1.2 Crear tablas de tracking en Supabase
-
-Ejecutar el siguiente SQL en el editor de Supabase:
-
-```sql
--- Perfil público de cada usuario
-CREATE TABLE public.profiles (
-  id          uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email       text,
-  display_name text,
-  avatar_url  text,
-  role        text NOT NULL DEFAULT 'student',   -- 'student' | 'admin'
-  created_at  timestamptz NOT NULL DEFAULT now()
-);
-
--- Trigger: crear perfil automáticamente al registrarse
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, email, display_name, avatar_url)
-  VALUES (
-    NEW.id,
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
-    NEW.raw_user_meta_data->>'avatar_url'
-  );
-  RETURN NEW;
-END;
-$$;
-
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
--- Registro de eventos de uso por usuario
-CREATE TABLE public.usage_events (
-  id          bigserial PRIMARY KEY,
-  user_id     uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  app         text NOT NULL,        -- 'b2' | 'b1' | 'diccionario' | 'chat-voz' | 'lectura'
-  event_type  text NOT NULL,        -- 'session_start' | 'word_answered' | 'lookup' | 'audio_sent' | 'session_end'
-  payload     jsonb,                -- datos opcionales (palabra, acierto, duración, etc.)
-  created_at  timestamptz NOT NULL DEFAULT now()
-);
-
--- Índices para el dashboard
-CREATE INDEX idx_usage_user    ON public.usage_events(user_id);
-CREATE INDEX idx_usage_app     ON public.usage_events(app);
-CREATE INDEX idx_usage_created ON public.usage_events(created_at DESC);
-```
-
-### 1.3 Row Level Security (RLS)
-
-```sql
--- profiles: cada usuario ve y edita solo su fila; admin ve todo
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "own profile"
-  ON public.profiles FOR ALL
-  USING (auth.uid() = id);
-
-CREATE POLICY "admin reads all profiles"
-  ON public.profiles FOR SELECT
-  USING (
-    EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
-  );
-
--- usage_events: el usuario inserta sus propios eventos; admin lee todo
-ALTER TABLE public.usage_events ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "insert own events"
-  ON public.usage_events FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "select own events"
-  ON public.usage_events FOR SELECT
-  USING (auth.uid() = user_id);
-
-CREATE POLICY "admin reads all events"
-  ON public.usage_events FOR SELECT
-  USING (
-    EXISTS (SELECT 1 FROM public.profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
-  );
-```
-
-### 1.4 Designar el primer administrador
+### Pendiente (ejecutar tras primer login en la app)
 
 ```sql
 UPDATE public.profiles SET role = 'admin' WHERE email = 'ed.urbaez@gmail.com';
 ```
 
-**Entregable de la etapa:** tablas creadas, RLS activo, Google OAuth configurado, admin asignado. Nada de código frontend modificado.
-
 ---
 
-## Etapa 2 — Módulo de autenticación compartido (`auth.js`)
+## ✅ Etapa 2 — Módulo de autenticación compartido (`auth.js`) — COMPLETA
 
-**Objetivo:** un único archivo JS que todos los `.html` importan. Sin duplicar lógica.
+### Completado
+- `auth.js` creado: cliente Supabase como `window.sb`, `window.currentUser`
+- Modal inyectado dinámicamente con botón Google + separador + flujo OTP
+- `window.openAuthModal`, `window.closeAuthModal`, `window.sendOtp`, `window.verifyOtp`
+- `window.signInWithGoogle` — OAuth con redirect a la misma página
+- `window.logout`, `window.updateAuthUI`, `window.logEvent`
+- Hook `window.onAuthSignedIn` — cada página puede definirlo para reaccionar al login
+- Botón 👤 en las 5 páginas; muestra el nombre del usuario al iniciar sesión
+- Admin: enlace "Dashboard →" aparece en el dropdown del navbar (`_addDashboardLink`)
+- `palabrasB2.html` y `B1.html`: bloque AUTH reducido a `onSignedIn` + `syncToCloud` (usan `window.sb`)
+- Deployed en Vercel (commit `a98f238`)
 
-### 2.1 Crear `auth.js` en la raíz
-
-Responsabilidades del módulo:
-
-```
-auth.js
-├── initSupabase()          — crea el cliente Supabase (reutiliza la key existente)
-├── getSession()            — devuelve la sesión activa o null
-├── signInWithEmail(email)  — envía OTP / magic link
-├── verifyOtp(email, token) — verifica el código de 6 dígitos
-├── signInWithGoogle()      — inicia flujo OAuth con redirect
-├── signOut()               — cierra sesión y recarga
-├── onAuthChange(cb)        — suscribe callback a cambios de sesión
-└── getProfile()            — obtiene { id, email, display_name, role } del usuario activo
-```
-
-### 2.2 Actualizar el modal de auth existente (actualmente solo en B1/B2)
-
-El modal actual tiene:
-- Campo email → envío de OTP
-- Campo código → verificación
-
-Ampliar para agregar:
-- Botón **"Continuar con Google"** (llama a `signInWithGoogle()`)
-- Separador visual "— o —"
-- Mantener el flujo OTP existente sin cambios
-
-### 2.3 Replicar el botón 👤 y el modal en las páginas que aún no lo tienen
-
-Páginas que requieren el botón: `diccionario.html`, `chat-voz.html`, `lectura veloz.html`.
-
-### 2.4 Comportamiento post-login
-
-| Rol | Comportamiento |
+### Archivos modificados
+| Archivo | Cambio |
 |---|---|
-| `student` | Se cierra el modal, el botón 👤 muestra el avatar o inicial del nombre |
-| `admin` | Ídem + aparece un enlace "Dashboard →" en el dropdown del navbar |
-
-**Entregable de la etapa:** cualquier usuario puede registrarse o iniciar sesión desde cualquier página. La sesión persiste entre páginas.
+| `auth.js` | Creado |
+| `palabrasB2.html` | +`auth.js`, modal viejo eliminado, AUTH simplificado |
+| `B1.html` | Ídem |
+| `lectura veloz.html` | +`auth.js`, modal viejo eliminado |
+| `diccionario.html` | +`auth.js`, +botón `auth-btn` |
+| `chat-voz.html` | +Supabase CDN, +`auth.js`, +botón `auth-btn` |
+| `CLAUDE.md` | Documentado `auth.js` |
 
 ---
 
-## Etapa 3 — Tracking de uso
+## ✅ Etapa 3 — Tracking de uso + Panel de estadísticas del usuario — COMPLETA
 
-**Objetivo:** registrar automáticamente los eventos clave de cada app sin que el usuario lo note.
+### Completado
+- `logEvent()` instrumentado en las 5 apps (B1, B2, Diccionario, Chat de Voz, Lectura Veloz)
+- `window.openStatsPanel()` / `window.closeStatsPanel()` añadidos a `auth.js`
+- Panel lateral inyectado dinámicamente: muestra nombre/email, palabras respondidas + % aciertos, búsquedas, audios, sesiones
+- Botón "Cerrar sesión" integrado dentro del panel
+- Clic en el nombre de usuario en el navbar abre el panel (ya no hace logout directo)
+- `CLAUDE.md` actualizado con las nuevas funciones expuestas
 
-### 3.1 Función helper en `auth.js`
+### Archivos modificados
+| Archivo | Cambio |
+|---|---|
+| `auth.js` | +`openStatsPanel`, +`closeStatsPanel`, `updateAuthUI` apunta al panel |
+| `palabrasB2.html` | +`logEvent` en `toggleSet`, `handleSelectionPick`, botón Auto |
+| `B1.html` | Ídem (app: `'b1'`) |
+| `diccionario.js` | +`logEvent` en `buscar()` para cada fuente (cache/supabase/api) |
+| `chat-voz.html` | +`logEvent` al inicio de `transcribeAndSend` |
+| `lectura veloz.html` | +`logEvent` en `startReading`, `pauseReading` y `stopReading` |
+
+**Objetivo:** registrar eventos de uso y permitir que cada alumno vea su propio progreso.
+
+### 3.1 `logEvent()` ya disponible en `auth.js`
 
 ```js
-export async function logEvent(app, eventType, payload = {}) {
-  const session = await getSession();
-  if (!session) return;                       // sin sesión → no registrar
-  await supabase.from('usage_events').insert({
-    user_id:    session.user.id,
-    app,
-    event_type: eventType,
-    payload
-  });
-}
+window.logEvent(app, eventType, payload)
+// Solo registra si hay sesión activa. No hace nada si el usuario no está logueado.
 ```
 
-### 3.2 Puntos de instrumentación por app
+### 3.2 Instrumentar cada app
 
 #### `palabrasB2.html` y `B1.html`
 
-| Evento | `event_type` | `payload` |
+| Dónde | `event_type` | `payload` |
 |---|---|---|
-| Inicia sesión de práctica | `session_start` | `{ app_version }` |
-| Responde una palabra | `word_answered` | `{ word_de, correct: bool }` |
-| Activa Modo Auto | `mode_change` | `{ mode: 'auto', active: true }` |
+| Al activar el primer set | `session_start` | `{ app: 'b2' }` |
+| Al responder correctamente | `word_answered` | `{ word_de, correct: true }` |
+| Al responder incorrectamente | `word_answered` | `{ word_de, correct: false }` |
+| Al activar Modo Auto | `mode_change` | `{ mode: 'auto', active: true }` |
 
-#### `diccionario.html`
+#### `diccionario.js`
 
-| Evento | `event_type` | `payload` |
+| Dónde | `event_type` | `payload` |
 |---|---|---|
-| Busca una palabra | `lookup` | `{ word, source: 'cache' \| 'supabase' \| 'api' }` |
+| Al buscar una palabra | `lookup` | `{ word, source: 'cache'\|'supabase'\|'api' }` |
 
 #### `chat-voz.html`
 
-| Evento | `event_type` | `payload` |
+| Dónde | `event_type` | `payload` |
 |---|---|---|
-| Envía audio | `audio_sent` | `{ level, duration_ms }` |
+| Al enviar audio | `audio_sent` | `{ level, duration_ms }` |
 
 #### `lectura veloz.html`
 
-| Evento | `event_type` | `payload` |
+| Dónde | `event_type` | `payload` |
 |---|---|---|
-| Inicia lectura | `session_start` | `{ wpm, text_length }` |
-| Pausa / termina | `session_end` | `{ words_read }` |
+| Al iniciar lectura | `session_start` | `{ wpm, text_length }` |
+| Al pausar o terminar | `session_end` | `{ words_read }` |
 
-### 3.3 Privacidad
+### 3.3 Panel de estadísticas del usuario
 
-- Solo se registra si el usuario está autenticado.
-- Los eventos no contienen contenido privado del usuario (no se guarda el texto del audio, solo duración).
-- No se trackea si el usuario no ha iniciado sesión.
+Al hacer clic en el nombre del usuario en el navbar → abre un **panel lateral** (no una página separada) con su propio resumen de actividad.
 
-**Entregable de la etapa:** tabla `usage_events` acumulando datos reales de uso.
+**Contenido del panel:**
+- Nombre / email del usuario
+- Total de palabras respondidas (B1 + B2) y % de aciertos
+- Búsquedas en diccionario
+- Audios enviados en Chat de Voz
+- Sesiones de lectura
+- Botón "Cerrar sesión"
+
+**Implementación:** función `window.openStatsPanel()` en `auth.js`. El panel consulta `usage_events` filtrando por `user_id = auth.uid()` (RLS garantiza que solo ve sus propios datos).
+
+**Entregable:** tabla `usage_events` acumulando datos reales + cada alumno puede ver su progreso.
 
 ---
 
-## Etapa 4 — Dashboard de administración
+## ✅ Etapa 4 — Dashboard de administración — COMPLETA
 
 **Objetivo:** página independiente, fuera de la estructura de las apps de estudio.
 
@@ -236,131 +156,92 @@ export async function logEvent(app, eventType, payload = {}) {
 
 Ruta: `admin/index.html` → accesible en `https://<dominio>/admin/`.
 
-> Esta página NO forma parte del navbar de las apps de estudio. Es un acceso directo solo para el administrador.
+> Esta página NO forma parte del navbar de las apps de estudio. El enlace "Dashboard →" del navbar lleva aquí solo para el admin.
 
-Estructura de la página:
-
+**Estructura:**
 ```
 admin/index.html
-├── Verificación de rol al cargar (redirige si role ≠ 'admin')
+├── Verificación de rol al cargar (redirige a / si role ≠ 'admin')
 ├── Header: título + botón cerrar sesión
-└── Main (4 secciones / cards):
+└── Main (4 cards):
     ├── 1. Resumen general
     │   ├── Total usuarios registrados
-    │   ├── Usuarios activos (últimas 24 h / 7 días)
+    │   ├── Usuarios activos últimos 7 días
     │   └── Total eventos registrados
-    ├── 2. Actividad por app (gráfico de barras simple)
-    │   └── Conteo de eventos agrupado por `app`
+    ├── 2. Actividad por app (barras proporcionales simples, sin librería)
     ├── 3. Tabla de usuarios
-    │   ├── Avatar / nombre / email / fecha de registro / última actividad
+    │   ├── Nombre / email / registro / última actividad
     │   └── Buscador por nombre o email
-    └── 4. Detalle de un usuario
-        └── Al hacer clic en una fila → lista de eventos cronológicos
+    └── 4. Detalle al hacer clic en un usuario
+        └── Lista de eventos cronológicos con tipo y payload
 ```
 
-### 4.2 Queries Supabase para el dashboard
+### 4.2 Seguridad
 
-```js
-// Resumen general
-const { count: totalUsers } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
+- Verificación de rol en frontend al cargar (redirect inmediato si no es admin)
+- RLS en Supabase garantiza que aunque se salte el redirect, no se devuelven datos ajenos
+- Sin serverless functions propias — consulta Supabase directo con la anon key
 
-const since7d = new Date(Date.now() - 7 * 864e5).toISOString();
-const { data: activeUsers } = await supabase
-  .from('usage_events')
-  .select('user_id')
-  .gte('created_at', since7d);
-const uniqueActive = new Set(activeUsers.map(r => r.user_id)).size;
+### 4.3 Estilo
+- Usa `styles.css` del proyecto (modo oscuro incluido)
+- Header propio minimalista, sin navbar de las apps de estudio
+- HTML/CSS/JS vanilla, sin frameworks
 
-// Actividad por app
-const { data: byApp } = await supabase
-  .from('usage_events')
-  .select('app, id.count()')   // Supabase aggregate via PostgREST
-  .group('app');               // equivale a GROUP BY app
-
-// Lista de usuarios con última actividad
-const { data: users } = await supabase
-  .from('profiles')
-  .select('id, email, display_name, avatar_url, created_at')
-  .order('created_at', { ascending: false });
-```
-
-### 4.3 Seguridad
-
-- Al cargar `admin/index.html`: llama `getProfile()` → si `role !== 'admin'` redirige a `/`.
-- Las RLS del paso 1.3 garantizan que aunque alguien puentee el redirect, Supabase no devuelva datos de otros usuarios.
-- El dashboard NO tiene serverless functions propias; consulta Supabase directamente (la anon key es suficiente con RLS).
-
-### 4.4 Estilo
-
-- Usar `styles.css` del proyecto para consistencia visual (ya tiene modo oscuro).
-- **No** añadir el navbar de las apps de estudio. Header propio minimalista.
-- Sin frameworks adicionales — HTML/CSS/JS vanilla.
-
-**Entregable de la etapa:** dashboard funcional en `/admin/` mostrando datos reales.
+**Entregable:** dashboard funcional en `/admin/` con datos reales.
 
 ---
 
-## Etapa 5 — Pulido y hardening
+## ✅ Etapa 5 — Pulido y hardening — COMPLETA
 
 **Objetivo:** preparar el sistema para uso real con estudiantes.
 
-### 5.1 Proteger el acceso a las apps (opcional pero recomendado)
+### 5.1 Política de acceso a las apps
 
-Decidir la política de acceso:
-- **Opción A (abierto):** las apps funcionan sin login; el tracking simplemente no se activa.
-- **Opción B (restringido):** mostrar el modal de login al cargar si no hay sesión activa (recomendado si es un curso privado).
+- **Opción A (abierto):** apps funcionan sin login; tracking inactivo sin sesión. ← estado actual
+- **Opción B (restringido):** modal de login obligatorio al cargar si no hay sesión.
 
-### 5.2 Proteger la API con el JWT de Supabase
+### 5.2 Proteger la API con JWT de Supabase
 
-Pasar el token de sesión en el header `Authorization: Bearer <jwt>` al llamar a `/api/chat` y `/api/whisper`. Verificar el JWT en el serverless function con la clave `SUPABASE_JWT_SECRET` (disponible en Supabase → Settings → API).
+Pasar `Authorization: Bearer <jwt>` al llamar `/api/chat` y `/api/whisper`. Verificar en el serverless con `SUPABASE_JWT_SECRET`. Reemplaza el rate limit por IP con rate limit real por usuario.
 
-Esto reemplaza el rate limit por IP con un rate limit real por usuario autenticado.
+### 5.3 Invitaciones de alumnos
 
-### 5.3 Invitaciones / gestión de usuarios
+`api/admin-invite.js` — llama a `supabase.auth.admin.inviteUserByEmail()` con `SUPABASE_SERVICE_ROLE_KEY` (nunca en el frontend).
 
-- Añadir en el dashboard un formulario "Invitar alumno" que llame a `supabase.auth.admin.inviteUserByEmail()` desde un serverless function `api/admin-invite.js` (requiere `SUPABASE_SERVICE_ROLE_KEY` en Vercel, nunca en el frontend).
-
-### 5.4 Añadir `admin/` al CLAUDE.md y README.md
-
-Actualizar la tabla de Active Files con los nuevos archivos.
-
-**Entregable de la etapa:** sistema listo para producción.
+**Entregable:** sistema listo para producción con estudiantes reales.
 
 ---
 
-## Resumen de archivos a crear / modificar
+## Resumen de archivos — estado
 
-| Archivo | Acción | Etapa |
+| Archivo | Estado | Etapa |
 |---|---|---|
-| SQL en Supabase | Crear tablas + RLS | 1 |
-| `auth.js` | Crear | 2 |
-| `styles.css` | Añadir estilos botón Google + ajustes modal | 2 |
-| `palabrasB2.html` | Importar `auth.js`, actualizar modal | 2 |
-| `B1.html` | Importar `auth.js`, actualizar modal | 2 |
-| `diccionario.html` | Añadir botón 👤 + modal | 2 |
-| `chat-voz.html` | Añadir botón 👤 + modal | 2 |
-| `lectura veloz.html` | Añadir botón 👤 + modal | 2 |
-| `palabrasB2.html` | Añadir llamadas a `logEvent()` | 3 |
-| `B1.html` | Añadir llamadas a `logEvent()` | 3 |
-| `diccionario.js` | Añadir llamadas a `logEvent()` | 3 |
-| `chat-voz.html` | Añadir llamadas a `logEvent()` | 3 |
-| `lectura veloz.html` | Añadir llamadas a `logEvent()` | 3 |
-| `admin/index.html` | Crear | 4 |
-| `admin/admin.js` | Crear | 4 |
-| `admin/admin.css` | Crear | 4 |
-| `api/admin-invite.js` | Crear (opcional) | 5 |
-| `CLAUDE.md` | Actualizar tabla Active Files | 5 |
-| `README.md` | Actualizar sección Apps/Deploy | 5 |
+| SQL en Supabase (tablas + RLS) | ✅ Ejecutado | 1 |
+| `auth.js` | ✅ Creado y deployed | 2 |
+| `palabrasB2.html` | ✅ Actualizado | 2 |
+| `B1.html` | ✅ Actualizado | 2 |
+| `diccionario.html` | ✅ Actualizado | 2 |
+| `chat-voz.html` | ✅ Actualizado | 2 |
+| `lectura veloz.html` | ✅ Actualizado | 2 |
+| `palabrasB2.html` — `logEvent()` | ✅ Completo | 3 |
+| `B1.html` — `logEvent()` | ✅ Completo | 3 |
+| `diccionario.js` — `logEvent()` | ✅ Completo | 3 |
+| `chat-voz.html` — `logEvent()` | ✅ Completo | 3 |
+| `lectura veloz.html` — `logEvent()` | ✅ Completo | 3 |
+| `auth.js` — panel de stats del usuario | ✅ Completo | 3 |
+| `admin/index.html` | ✅ Completo | 4 |
+| `api/admin-invite.js` | ✅ Completo | 5 |
+| `api/chat.js` — JWT auth | ✅ Completo | 5 |
+| `api/whisper.js` — JWT auth | ✅ Completo | 5 |
+| `auth.js` — `getAuthToken()` | ✅ Completo | 5 |
+| `diccionario.js` — JWT en fetch | ✅ Completo | 5 |
+| `chat-voz.html` — JWT en fetch | ✅ Completo | 5 |
+| `CLAUDE.md` + `README.md` | ✅ Completo | 5 |
 
 ---
 
 ## Dependencias entre etapas
 
 ```
-Etapa 1 → Etapa 2 → Etapa 3 → Etapa 4 → Etapa 5
-   ↑           ↑
-Supabase    auth.js
-configurado compartido
+Etapa 1 ✅ → Etapa 2 ✅ → Etapa 3 ✅ → Etapa 4 → Etapa 5
 ```
-
-Cada etapa puede desplegarse en Vercel y probarse en producción antes de continuar.

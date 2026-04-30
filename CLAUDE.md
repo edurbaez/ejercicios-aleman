@@ -21,13 +21,15 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
 | `B1.html` | Vocabulary quiz app targeting B1-level German words. Similar to palabrasB2.html but with B1 content. PWA with offline support. |
 | `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
+| `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 
 ### API
 
 | File | Purpose |
 |------|---------|
-| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Reads `OPENAI_API_KEY` from Vercel env vars. Includes rate limiting (20 req/min per IP), optional origin check via `ALLOWED_ORIGIN` env var, and system prompt size cap (2 000 chars). |
-| `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`) for transcription. Rate limited to 10 req/min per IP. |
+| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Requires `Authorization: Bearer <supabase_jwt>` (verified with `SUPABASE_JWT_SECRET`). Rate limited to 20 req/min per user. Optional origin check via `ALLOWED_ORIGIN` env var and system prompt size cap (2 000 chars). |
+| `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`) for transcription. Requires JWT auth. Rate limited to 10 req/min per user. |
+| `api/admin-invite.js` | Vercel serverless function — invites a user by email via Supabase auth admin API. Requires JWT from an admin user. Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
 
 ### Data
 
@@ -55,7 +57,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `auth.js` | Shared authentication module loaded by all pages. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. |
+| `auth.js` | Shared authentication module loaded by all pages. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. `getAuthToken()` returns the current Supabase JWT access token (used to authorize `/api/chat` and `/api/whisper`). |
 | `diccionario.js` | All JS logic for `diccionario.html`: Supabase cache, IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 
 ### Shared styles

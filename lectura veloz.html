@@ -158,6 +158,7 @@
             const startVal = parseInt(document.getElementById('startIndex').value) || 1;
             index = Math.max(0, Math.min(startVal - 1, words.length - 1));
             isRunning = true;
+            window.logEvent('lectura-veloz', 'session_start', { wpm, text_length: words.length });
             document.getElementById('pauseButton').textContent = '⏸ Pausar';
             updateButtons();
             showNextWord();
@@ -167,6 +168,7 @@
             if (isRunning) {
                 clearTimeout(timer);
                 isRunning = false;
+                window.logEvent('lectura-veloz', 'session_end', { words_read: index });
                 document.getElementById('pauseButton').textContent = '▶ Reanudar';
             } else {
                 isRunning = true;
@@ -178,6 +180,7 @@
 
         function stopReading() {
             clearTimeout(timer);
+            if (isRunning) window.logEvent('lectura-veloz', 'session_end', { words_read: index });
             isRunning = false;
             words = [];
             index = 0;

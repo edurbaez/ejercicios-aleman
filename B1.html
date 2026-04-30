@@ -247,7 +247,9 @@
         if (State.activeSets.has(key)) {
             State.activeSets.delete(key);
         } else {
+            const wasEmpty = State.activeSets.size === 0;
             State.activeSets.add(key);
+            if (wasEmpty) window.logEvent('b1', 'session_start', { app: 'b1' });
         }
 
         // Actualizar UI de botones
@@ -473,6 +475,8 @@ function handleSelectionPick(chosenWordIndex, token) {
   if (!State.timerStarted) startTimer();
 
   const correct = chosenWordIndex === State.currentIndex;
+
+  window.logEvent('b1', 'word_answered', { word_de: State.de[State.currentIndex], correct });
 
   if (correct) {
     markOptionsBackground("green");
@@ -705,6 +709,7 @@ function bindSelectionEvents() {
             State.modoAuto = !State.modoAuto;
             btnAuto.textContent = State.modoAuto ? "Auto: ON" : "Auto: OFF";
             btnAuto.className = State.modoAuto ? "btn btn-secondary" : "btn btn-danger";
+            window.logEvent('b1', 'mode_change', { mode: 'auto', active: State.modoAuto });
             if (State.modoAuto) {
                 State.palabrasContadas = 0;
                 updateCounterDisplay();

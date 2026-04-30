@@ -186,6 +186,7 @@ async function buscar() {
     // 1. IndexedDB local
     const cached = await cacheGet(palabra);
     if (cached) {
+        window.logEvent('diccionario', 'lookup', { word: palabra, source: 'cache' });
         mostrarResultado(cached._palabra || palabra, cached);
         return;
     }
@@ -199,6 +200,7 @@ async function buscar() {
         await cacheSet(palabra, remoto);
         btn.disabled = false;
         spinner.style.display = "none";
+        window.logEvent('diccionario', 'lookup', { word: remoto.palabra || palabra, source: 'supabase' });
         mostrarResultado(remoto.palabra || palabra, remoto);
         return;
     }
@@ -215,14 +217,23 @@ Responde SIEMPRE con un JSON válido con exactamente estas claves:
 No incluyas nada fuera del JSON.`;
 
     try {
+        const token = await (window.getAuthToken?.());
         const res = await fetch("/api/chat", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+            },
             body: JSON.stringify({
                 system,
                 messages: [{ role: "user", content: palabra }]
             })
         });
+
+        if (res.status === 401) {
+            window.openAuthModal?.();
+            throw new Error("Inicia sesión para usar el diccionario.");
+        }
 
         const rawText = await res.text();
         let data;
@@ -240,6 +251,7 @@ No incluyas nada fuera del JSON.`;
 
         // 3. Guardar en ambos cachés
         await Promise.all([cacheSet(palabra, info), supaSet(palabra, info)]);
+        window.logEvent('diccionario', 'lookup', { word: palabra, source: 'api' });
         mostrarResultado(palabra, info);
 
     } catch (e) {

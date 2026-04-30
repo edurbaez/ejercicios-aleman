@@ -232,15 +232,23 @@ Regeln:
                 ? State.messages
                 : [{ role: 'user', content: 'Begrüße mich freundlich und stelle mir eine erste Frage auf Deutsch.' }];
 
+            const chatToken = await (window.getAuthToken?.());
             const resp = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(chatToken ? { 'Authorization': `Bearer ${chatToken}` } : {}),
+                },
                 body: JSON.stringify({
                     system: getSystemPrompt(State.level),
                     messages: initialMessages,
                 }),
             });
 
+            if (resp.status === 401) {
+                window.openAuthModal?.();
+                throw new Error('Inicia sesión para usar el chat de voz.');
+            }
             const rawChat = await resp.text();
             let data;
             try { data = JSON.parse(rawChat); }
@@ -385,6 +393,7 @@ Regeln:
     }
 
     async function transcribeAndSend(audioBlob) {
+        window.logEvent('chat-voz', 'audio_sent', { level: State.level || '', duration_ms: State.recSeconds * 1000 });
         setHint('Transcribiendo...');
         disableRecord();
 
@@ -394,7 +403,16 @@ Regeln:
         formData.append('language', 'de');
 
         try {
-            const resp = await fetch('/api/whisper', { method: 'POST', body: formData });
+            const whisperToken = await (window.getAuthToken?.());
+            const resp = await fetch('/api/whisper', {
+                method: 'POST',
+                headers: whisperToken ? { 'Authorization': `Bearer ${whisperToken}` } : {},
+                body: formData,
+            });
+            if (resp.status === 401) {
+                window.openAuthModal?.();
+                throw new Error('Inicia sesión para usar el chat de voz.');
+            }
             const rawText = await resp.text();
             let data;
             try {

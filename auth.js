@@ -123,8 +123,8 @@
       const meta = window.currentUser.user_metadata || {};
       const name = (meta.full_name || meta.name || window.currentUser.email).split(/[\s@]/)[0];
       btn.textContent = name;
-      btn.title = 'Cerrar sesión';
-      btn.onclick = window.logout;
+      btn.title = 'Ver mi progreso';
+      btn.onclick = window.openStatsPanel;
       const role = await _getRole();
       if (role === 'admin') _addDashboardLink();
     } else {
@@ -133,6 +133,78 @@
       btn.onclick = window.openAuthModal;
       _removeDashboardLink();
     }
+  };
+
+  window.closeStatsPanel = function () {
+    const p = document.getElementById('stats-panel');
+    if (p) p.style.display = 'none';
+  };
+
+  window.openStatsPanel = async function () {
+    if (!window.currentUser) { window.openAuthModal(); return; }
+
+    let panel = document.getElementById('stats-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'stats-panel';
+      panel.style.cssText = 'display:none;position:fixed;top:0;right:0;height:100%;width:320px;max-width:92vw;background:#fff;box-shadow:-4px 0 28px rgba(0,0,0,.18);z-index:9998;overflow-y:auto;padding:24px 20px 32px;box-sizing:border-box;';
+      panel.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <h3 style="margin:0;font-size:17px;color:#222;">Mi progreso</h3>
+          <button onclick="window.closeStatsPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;line-height:1;">✕</button>
+        </div>
+        <div id="stats-user-info" style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;font-size:13px;color:#555;"></div>
+        <div id="stats-content" style="font-size:14px;color:#333;"></div>
+        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;">
+          <button onclick="window.logout();window.closeStatsPanel();" style="width:100%;padding:9px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cerrar sesión</button>
+        </div>`;
+      document.body.appendChild(panel);
+    }
+
+    panel.style.display = 'block';
+
+    const meta = window.currentUser.user_metadata || {};
+    const name = meta.full_name || meta.name || '';
+    document.getElementById('stats-user-info').innerHTML =
+      `<strong>${name || window.currentUser.email}</strong><br>${name ? window.currentUser.email : ''}`;
+
+    const content = document.getElementById('stats-content');
+    content.innerHTML = '<p style="color:#999;font-size:13px;">Cargando estadísticas…</p>';
+
+    const { data, error } = await window.sb
+      .from('usage_events')
+      .select('event_type,app,payload')
+      .eq('user_id', window.currentUser.id);
+
+    if (error || !data) {
+      content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
+      return;
+    }
+
+    const words    = data.filter(e => e.event_type === 'word_answered');
+    const correct  = words.filter(e => e.payload && e.payload.correct).length;
+    const pct      = words.length > 0 ? Math.round(correct / words.length * 100) : null;
+    const lookups  = data.filter(e => e.event_type === 'lookup').length;
+    const audios   = data.filter(e => e.event_type === 'audio_sent').length;
+    const sessions = data.filter(e => e.event_type === 'session_start').length;
+
+    function row(label, value) {
+      return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f0f0;">
+        <span style="color:#555;">${label}</span>
+        <strong>${value}</strong>
+      </div>`;
+    }
+
+    content.innerHTML =
+      row('Palabras respondidas', words.length > 0 ? `${words.length} (${pct}% ✓)` : '—') +
+      row('Búsquedas en diccionario', lookups || '—') +
+      row('Audios enviados (Chat)', audios || '—') +
+      row('Sesiones de lectura/estudio', sessions || '—');
+  };
+
+  window.getAuthToken = async function () {
+    const { data } = await window.sb.auth.getSession();
+    return data?.session?.access_token || null;
   };
 
   window.logEvent = async function (app, eventType, payload) {

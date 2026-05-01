@@ -1,4 +1,19 @@
 /* ========================
+   VARIABLES GLOBALES
+   ======================== */
+
+:root {
+    --color-b2:           #1976D2;
+    --color-b2-dark:      #1565C0;
+    --color-b1:           #388E3C;
+    --color-b1-dark:      #2E7D32;
+    --color-danger:       #D32F2F;
+    --color-danger-dark:  #B71C1C;
+    --radius:             8px;
+    --gap:                12px;
+}
+
+/* ========================
    COMPARTIDO
    ======================== */
 
@@ -130,7 +145,7 @@ body {
 #page-b2 #navbar a:hover,
 #page-b2 #navbar a.active,
 #page-b2 #navbar .nav-menu-btn:hover {
-    background-color: #1976D2;
+    background-color: var(--color-b2);
     color: white;
 }
 
@@ -206,8 +221,8 @@ body {
 
 #page-b2 .btn {
     padding: 12px;
-    border: 3px solid #1565C0;
-    background-color: #1976D2;
+    border: 3px solid var(--color-b2-dark);
+    background-color: var(--color-b2);
     color: white;
     cursor: pointer;
     border-radius: 6px;
@@ -215,17 +230,17 @@ body {
 }
 
 #page-b2 .btn:hover {
-    background-color: #1565C0;
+    background-color: var(--color-b2-dark);
 }
 
 .btn-danger {
-    background-color: #d32f2f;
-    border-color: #b71c1c;
+    background-color: var(--color-danger);
+    border-color: var(--color-danger-dark);
 }
 
 .btn-secondary {
-    background-color: #388E3C;
-    border-color: #2E7D32;
+    background-color: var(--color-b1);
+    border-color: var(--color-b1-dark);
 }
 
 .btn-active {
@@ -346,7 +361,7 @@ th, td {
 #page-b1 #navbar a:hover,
 #page-b1 #navbar a.active,
 #page-b1 #navbar .nav-menu-btn:hover {
-    background-color: #1976D2;
+    background-color: var(--color-b2);
     color: white;
 }
 
@@ -358,8 +373,8 @@ th, td {
 
 #page-b1 .btn {
     padding: 12px;
-    border: 3px solid #1565C0;
-    background-color: #1976D2;
+    border: 3px solid var(--color-b2-dark);
+    background-color: var(--color-b2);
     color: white;
     cursor: pointer;
     border-radius: 6px;
@@ -367,7 +382,7 @@ th, td {
 }
 
 #page-b1 .btn:hover {
-    background-color: #1565C0;
+    background-color: var(--color-b2-dark);
 }
 
 @media (max-width: 600px) {
@@ -1099,7 +1114,7 @@ th, td {
     --text: #333333;
     --border: #cccccc;
     --navbar-bg: #ffffff;
-    --accent: #1976D2;
+    --accent: var(--color-b2);
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;

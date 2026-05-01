@@ -59,14 +59,22 @@
 
 ---
 
-#### 4. Sin rate limit en `api/admin-invite.js`
+#### ~~4. Variables CSS en `styles.css`~~ ✅ COMPLETADO
+
+~~`#1976D2` (azul B2) y `#388E3C` (verde B1) aparecen hardcodeados en múltiples selectores de `styles.css`.~~
+
+**Resultado:** Bloque `:root` añadido al inicio de `styles.css` con seis variables: `--color-b2`, `--color-b2-dark`, `--color-b1`, `--color-b1-dark`, `--color-danger`, `--color-danger-dark`, `--radius`, `--gap`. Todos los usos hardcoded de esos colores en las secciones B2, B1 y Diccionario reemplazados por `var(--…)`.
+
+---
+
+#### 5. Sin rate limit en `api/admin-invite.js`
 El endpoint de invitaciones no tiene control de frecuencia. Un admin puede spamear sin restricción.
 
 **Solución:** Mismo patrón de ventana deslizante que `api/chat.js`, límite de 5 invitaciones/min por IP.
 
 ---
 
-#### 5. Sin límite de tamaño en `api/whisper.js`
+#### 6. Sin límite de tamaño en `api/whisper.js`
 El endpoint acepta audio sin verificar el tamaño. Un archivo muy grande puede agotar la memoria del servidor Vercel.
 
 **Solución:** Rechazar con 413 si `Content-Length` supera 10 MB antes de leer el body:
@@ -80,26 +88,10 @@ if (parseInt(req.headers['content-length'] || '0') > 10 * 1024 * 1024) {
 
 ### 🟡 Media
 
-#### 6. Admin dashboard — todo inline
+#### 7. Admin dashboard — todo inline
 `admin/index.html` tiene 416 líneas de JS mezclado con el HTML. Difícil de leer y de mantener.
 
 **Solución:** Extraer a `admin/admin.js` y `admin/admin.css`. El HTML queda solo con la estructura y los imports.
-
----
-
-#### 7. Colores hardcoded en CSS — sin variables
-`#1976D2` (azul B2) y `#388E3C` (verde B1) aparecen decenas de veces en `styles.css`. Si cambia el branding hay que hacer buscar/reemplazar manual.
-
-**Solución:** Variables CSS en `:root`:
-```css
-:root {
-  --color-b2: #1976D2;
-  --color-b1: #388E3C;
-  --color-danger: #D32F2F;
-  --radius: 8px;
-  --gap: 12px;
-}
-```
 
 ---
 
@@ -246,7 +238,7 @@ Mostrar el nivel activo (B1/B2) en el navbar al navegar entre apps para orientar
 | 1 | Extraer `shared-game.js` | Alto | Técnico crítico | ✅ |
 | 2 | Crear `config.js` con credenciales | Bajo | Mantenimiento | ✅ |
 | 3 | Fix auth duplicado en `lectura veloz.html` | Medio | Calidad | ✅ |
-| 4 | Variables CSS en `styles.css` | Bajo | Mantenimiento | ⬜ |
+| 4 | Variables CSS en `styles.css` | Bajo | Mantenimiento | ✅ |
 | 5 | Rate limit en `api/admin-invite.js` | Bajo | Seguridad | ⬜ |
 | 6 | Timeout en llamadas OpenAI | Bajo | Confiabilidad | ⬜ |
 | 7 | Aviso 10 s antes del corte en grabación | Bajo | UX inmediato | ⬜ |

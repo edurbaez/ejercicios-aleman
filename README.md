@@ -129,3 +129,6 @@ Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `
 
 ### `shared-game.js`
 Game engine shared between `palabrasB2.html` and `B1.html`. Contains state management, multiple-choice quiz logic, TTS loop, timer, personal lists (IndexedDB), wake lock, and PWA registration. Each page declares `window.APP_CONFIG` with page-specific values (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) before loading this script. Exposes `window.toggleDarkMode`, `window.toggleModoInverso`, `window.copiarErrores`, `window.guardarNuevaLista`.
+
+### `styles.css`
+Shared stylesheet for all pages. Starts with a `:root` block that centralises the brand colours as CSS variables: `--color-b2` (#1976D2), `--color-b2-dark` (#1565C0), `--color-b1` (#388E3C), `--color-b1-dark` (#2E7D32), `--color-danger` (#D32F2F), `--color-danger-dark` (#B71C1C), `--radius` (8px), `--gap` (12px). Changing a colour in one place propagates across all components automatically.

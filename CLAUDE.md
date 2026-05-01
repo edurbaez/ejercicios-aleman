@@ -16,10 +16,10 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `palabrasB2.html` | Vocabulary quiz app targeting B2-level German words. Deployed as PWA on Vercel. |
+| `palabrasB2.html` | Vocabulary quiz app targeting B2-level German words. Deployed as PWA on Vercel. Logic delegated to `shared-game.js` via `window.APP_CONFIG`. |
 | `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. |
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
-| `B1.html` | Vocabulary quiz app targeting B1-level German words. Similar to palabrasB2.html but with B1 content. PWA with offline support. |
+| `B1.html` | Vocabulary quiz app targeting B1-level German words. Same engine as B2 via `shared-game.js`. PWA with offline support. |
 | `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
 | `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 
@@ -57,8 +57,10 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `auth.js` | Shared authentication module loaded by all pages. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. `getAuthToken()` returns the current Supabase JWT access token (used to authorize `/api/chat` and `/api/whisper`). |
-| `diccionario.js` | All JS logic for `diccionario.html`: Supabase cache, IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
+| `config.js` | Single source of truth para credenciales Supabase (`window.SUPA_URL`, `window.SUPA_KEY`). Cargado antes de `auth.js` en todas las páginas. |
+| `auth.js` | Shared authentication module loaded by all pages. Reads `SUPA_URL`/`SUPA_KEY` globals from `config.js`. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. `getAuthToken()` returns the current Supabase JWT access token (used to authorize `/api/chat` and `/api/whisper`). |
+| `shared-game.js` | Motor de juego compartido entre `palabrasB2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS, temporizador, listas personales (IndexedDB) y PWA. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
+| `diccionario.js` | All JS logic for `diccionario.html`: uses `window.sb` from `auth.js` (no Supabase client propio), IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 
 ### Shared styles
 
@@ -82,10 +84,10 @@ Data loaded from `DataB1.json` with keys: `verbos1`, `verbos2`, `adjetivos`, `ad
 - Service Worker: `sw-b1.js` (separate cache from B2 app)
 - Manifest: `manifest-b1.json`
 
-### Differences from B2
-- External data file (DataB1.json) vs inline DATA object
-- Green color scheme vs blue
-- Separate service worker and cache
+### Differences from B2 (solo configuración — la lógica la comparte `shared-game.js`)
+- `APP_CONFIG.dataFile`: `DataB1.json` vs `DATA.json`
+- `APP_CONFIG.accent`: `#388E3C` verde vs `#1976D2` azul
+- `APP_CONFIG.swFile`: `/sw-b1.js` vs `/sw.js`
 - Body ID: `page-b1` vs `page-b2`
 
 ---

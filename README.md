@@ -119,3 +119,13 @@ Push to `main` → Vercel redeploys automatically.
 **Environment variables required in Vercel:**
 - `OPENAI_API_KEY` — used by `api/chat.js`
 - `ALLOWED_ORIGIN` *(optional)* — if set, `api/chat.js` rejects requests from other origins (e.g. `https://tu-app.vercel.app`)
+
+---
+
+## Shared modules
+
+### `config.js`
+Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.
+
+### `shared-game.js`
+Game engine shared between `palabrasB2.html` and `B1.html`. Contains state management, multiple-choice quiz logic, TTS loop, timer, personal lists (IndexedDB), wake lock, and PWA registration. Each page declares `window.APP_CONFIG` with page-specific values (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) before loading this script. Exposes `window.toggleDarkMode`, `window.toggleModoInverso`, `window.copiarErrores`, `window.guardarNuevaLista`.

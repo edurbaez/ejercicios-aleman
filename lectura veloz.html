@@ -8,6 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
     <script src="auth.js"></script>
 </head>
 <body id="page-lv">
@@ -656,63 +657,11 @@
         updateButtons();
 
         /* ========================= AUTH ========================= */
-        const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
-        const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
-        const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-        let currentUser = null;
-        let _otpEmail = '';
+        // El flujo de login/logout lo gestiona auth.js mediante window.sb y window.currentUser.
+        // Solo definimos la lógica específica de Lectura Veloz: sincronizar preferencias del usuario.
 
-        function openAuthModal() {
-            document.getElementById('auth-modal').style.display = 'flex';
-            document.getElementById('auth-email-step').style.display = 'block';
-            document.getElementById('auth-otp-step').style.display = 'none';
-            document.getElementById('auth-email').value = '';
-        }
-        function closeAuthModal() {
-            document.getElementById('auth-modal').style.display = 'none';
-        }
-        async function sendOtp() {
-            const email = document.getElementById('auth-email').value.trim();
-            if (!email) return;
-            const btn = document.getElementById('auth-send-btn');
-            btn.disabled = true; btn.textContent = 'Enviando...';
-            const { error } = await sb.auth.signInWithOtp({ email });
-            btn.disabled = false; btn.textContent = 'Enviar código';
-            if (error) { alert('Error: ' + error.message); return; }
-            _otpEmail = email;
-            document.getElementById('auth-email-step').style.display = 'none';
-            document.getElementById('auth-otp-step').style.display = 'block';
-            document.getElementById('auth-otp-label').textContent = `Código enviado a ${email}`;
-            document.getElementById('auth-otp').value = '';
-            document.getElementById('auth-otp').focus();
-        }
-        async function verifyOtp() {
-            const token = document.getElementById('auth-otp').value.trim();
-            if (!token) return;
-            const btn = document.getElementById('auth-verify-btn');
-            btn.disabled = true; btn.textContent = 'Verificando...';
-            const { error } = await sb.auth.verifyOtp({ email: _otpEmail, token, type: 'email' });
-            btn.disabled = false; btn.textContent = 'Verificar';
-            if (error) { alert('Código incorrecto o expirado'); return; }
-            closeAuthModal();
-        }
-        async function logout() {
-            await sb.auth.signOut();
-        }
-        function updateAuthUI() {
-            const btn = document.getElementById('auth-btn');
-            if (currentUser) {
-                btn.textContent = currentUser.email.split('@')[0];
-                btn.title = 'Cerrar sesión';
-                btn.onclick = logout;
-            } else {
-                btn.textContent = '👤';
-                btn.title = 'Iniciar sesión';
-                btn.onclick = openAuthModal;
-            }
-        }
-        async function onSignedIn() {
-            const { data } = await sb.from('user_data').select('*').eq('user_id', currentUser.id).maybeSingle();
+        window.onAuthSignedIn = async function () {
+            const { data } = await window.sb.from('user_data').select('*').eq('user_id', window.currentUser.id).maybeSingle();
             if (!data) return;
             if (data.lv_wpm) {
                 wpm = data.lv_wpm;
@@ -736,17 +685,18 @@
                     mostrarTextosGuardados();
                 }
             }
-        }
+        };
+
         async function syncToCloud() {
-            if (!currentUser) return;
+            if (!window.currentUser) return;
             const positions = {};
             for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
                 if (k?.startsWith('lv_pos_')) positions[k.replace('lv_pos_', '')] = parseInt(localStorage.getItem(k));
             }
             const texts = await dbGetAll();
-            await sb.from('user_data').upsert({
-                user_id: currentUser.id,
+            await window.sb.from('user_data').upsert({
+                user_id: window.currentUser.id,
                 lv_wpm: wpm,
                 lv_dark: document.body.classList.contains('dark'),
                 lv_positions: positions,
@@ -754,16 +704,6 @@
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
         }
-        sb.auth.onAuthStateChange(async (event, session) => {
-            currentUser = session?.user || null;
-            updateAuthUI();
-            if (event === 'SIGNED_IN') await onSignedIn();
-        });
-        sb.auth.getSession().then(({ data: { session } }) => {
-            currentUser = session?.user || null;
-            updateAuthUI();
-            if (currentUser) onSignedIn();
-        });
     </script>
 </body>
 </html>

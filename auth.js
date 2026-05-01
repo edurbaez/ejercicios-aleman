@@ -1,7 +1,5 @@
 /* auth.js — módulo de autenticación compartido para todas las páginas */
 (function () {
-  const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
-  const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
   window.sb = supabase.createClient(SUPA_URL, SUPA_KEY);
   window.currentUser = null;
   let _otpEmail = '';

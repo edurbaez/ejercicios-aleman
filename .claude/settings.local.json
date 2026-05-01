@@ -4,7 +4,8 @@
       "Bash(python3:*)",
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\" -Recurse -File)",
       "Bash(Select-Object FullName)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "Bash(Test-Path *)"
     ]
   },
   "enableAllProjectMcpServers": true,

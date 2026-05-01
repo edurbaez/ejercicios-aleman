@@ -1,7 +1,5 @@
-// ── Supabase ───────────────────────────────────────────
-const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
-const SUPA_KEY = 'sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I';
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+// ── Supabase — usa window.sb creado por auth.js ────────
+const sb = window.sb;
 
 async function supaGet(palabra) {
     try {

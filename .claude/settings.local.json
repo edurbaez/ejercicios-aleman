@@ -3,5 +3,9 @@
     "allow": [
       "Bash(python3:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "supabase"
+  ],
+  "enableAllProjectMcpServers": true
 }

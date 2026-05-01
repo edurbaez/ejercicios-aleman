@@ -274,10 +274,17 @@
   }
 
   async function speakLoop() {
-    if (!State.modoAuto) { await speakOnce($('p2')?.textContent || '', 'de'); return; }
+    if (!State.modoAuto) {
+      const wordDe = $('p2')?.textContent || '';
+      window.logEvent(APP, 'word_repeated', { word_de: wordDe });
+      await speakOnce(wordDe, 'de');
+      return;
+    }
     while (State.modoAuto) {
       if (!State.modoDual) {
-        await speakOnce($('p2')?.textContent || '', 'de');
+        const wordDe = $('p2')?.textContent || '';
+        window.logEvent(APP, 'word_repeated', { word_de: wordDe });
+        await speakOnce(wordDe, 'de');
         incrementPalabraCounter();
         if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
         await wait(500); renderRepeatNext(); continue;
@@ -286,7 +293,9 @@
         await speakOnce($('p1')?.textContent || '', 'es');
         State.dualFlip = true;
       } else {
-        await speakOnce($('p2')?.textContent || '', 'de');
+        const wordDe = $('p2')?.textContent || '';
+        window.logEvent(APP, 'word_repeated', { word_de: wordDe });
+        await speakOnce(wordDe, 'de');
         State.dualFlip = false;
         incrementPalabraCounter();
         if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
@@ -373,11 +382,13 @@
         if (State.modoAuto) {
           requestWakeLock(); speakLoop();
         } else {
+          const wordDe = $('p2')?.textContent || '';
+          window.logEvent(APP, 'word_repeated', { word_de: wordDe });
           if (State.modoDual) {
-            await speakOnce($('p2')?.textContent || '', 'de');
+            await speakOnce(wordDe, 'de');
             await speakOnce($('p1')?.textContent || '', 'es');
           } else {
-            await speakOnce($('p2')?.textContent || '', 'de');
+            await speakOnce(wordDe, 'de');
           }
         }
       });

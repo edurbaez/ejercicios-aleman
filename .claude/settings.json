@@ -6,7 +6,9 @@
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\" \"https://mzitpnacjcjpokmiqwtd.supabase.co/rest/v1/diccionario_cache?limit=3\" -H \"apikey: sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I\" -H \"Authorization: Bearer sb_publishable_y9CSkHLB2haNPnzvP0-RUQ_OF5h3t4I\")",
       "Bash(npx -y @supabase/mcp-server-supabase@latest --help)",
       "Read(//c/Users/edurb/.claude/**)",
-      "Bash(claude mcp *)"
+      "Bash(claude mcp *)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__execute_sql"
     ],
     "additionalDirectories": [
       "C:\\Users\\edurb\\.claude"

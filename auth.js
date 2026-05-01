@@ -233,6 +233,13 @@
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }
+    if (!window.currentUser) {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.openAuthModal);
+      } else {
+        window.openAuthModal();
+      }
+    }
   });
 
   if (document.readyState === 'loading') {

@@ -4,6 +4,7 @@ otrascosas/
 # ── Entorno local ───────────────────────────────────────────────────────────
 .env.local
 .env*.local
+.mcp.json
 
 # ── Sistema operativo ───────────────────────────────────────────────────────
 .DS_Store

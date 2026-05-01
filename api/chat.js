@@ -1,19 +1,50 @@
-import { createHmac } from 'crypto';
+import { createHmac, createPublicKey, verify as cryptoVerify } from 'crypto';
 
-// JWT verification using SUPABASE_JWT_SECRET (HS256)
-function verifyJWT(token) {
-    const secret = process.env.SUPABASE_JWT_SECRET;
-    if (!secret) return null;
+const SUPABASE_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
+let _jwksCache = null;
+let _jwksCacheTime = 0;
+
+async function _getJWKS() {
+    if (_jwksCache && Date.now() - _jwksCacheTime < 3_600_000) return _jwksCache;
+    const resp = await fetch(`${SUPABASE_URL}/auth/v1/.well-known/jwks.json`);
+    _jwksCache = await resp.json();
+    _jwksCacheTime = Date.now();
+    return _jwksCache;
+}
+
+// JWT verification — supports ES256 (current) and HS256 (legacy)
+async function verifyJWT(token) {
     try {
         const parts = token.split('.');
         if (parts.length !== 3) return null;
         const [header, payload, sig] = parts;
-        const expected = createHmac('sha256', secret)
-            .update(`${header}.${payload}`)
-            .digest('base64url');
-        if (expected !== sig) return null;
+        const headerDecoded = JSON.parse(Buffer.from(header, 'base64url').toString('utf8'));
         const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
         if (decoded.exp && decoded.exp < Math.floor(Date.now() / 1000)) return null;
+
+        if (headerDecoded.alg === 'ES256') {
+            const jwks = await _getJWKS();
+            const jwk = jwks.keys?.find(k => k.kid === headerDecoded.kid);
+            if (!jwk) return null;
+            const publicKey = createPublicKey({ key: jwk, format: 'jwk' });
+            const valid = cryptoVerify(
+                'SHA256',
+                Buffer.from(`${header}.${payload}`),
+                { key: publicKey, dsaEncoding: 'ieee-p1363' },
+                Buffer.from(sig, 'base64url')
+            );
+            if (!valid) return null;
+        } else if (headerDecoded.alg === 'HS256') {
+            const secret = process.env.SUPABASE_JWT_SECRET;
+            if (!secret) return null;
+            const expected = createHmac('sha256', secret)
+                .update(`${header}.${payload}`)
+                .digest('base64url');
+            if (expected !== sig) return null;
+        } else {
+            return null;
+        }
+
         return decoded;
     } catch {
         return null;
@@ -62,7 +93,7 @@ export default async function handler(req, res) {
     if (!token) {
         return res.status(401).json({ error: 'Autenticación requerida' });
     }
-    const jwtPayload = verifyJWT(token);
+    const jwtPayload = await verifyJWT(token);
     if (!jwtPayload) {
         return res.status(401).json({ error: 'Token inválido o expirado' });
     }

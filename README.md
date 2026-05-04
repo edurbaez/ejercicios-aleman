@@ -124,6 +124,13 @@ Push to `main` → Vercel redeploys automatically.
 
 ## Shared modules
 
+### `auth.js`
+Shared authentication module. Injects the login modal (OTP + Google OAuth) and exposes auth helpers (`openAuthModal`, `logout`, `logEvent`, `getAuthToken`). Also renders the **progress panel** — a right-side drawer users open by clicking their name in the navbar. It shows:
+- **HOY** — two cards side by side: words answered + accuracy %, and audios sent today.
+- **Últimos 30 días** — bar chart with one bar per day. Hover over any bar to see the date, word count, and audio count.
+- **Racha** — streak of consecutive days with at least one word answered.
+- **Todo el tiempo** — all-time totals (words, dictionary lookups, audios, sessions).
+
 ### `config.js`
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.
 

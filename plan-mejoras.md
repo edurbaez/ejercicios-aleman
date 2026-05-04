@@ -5,6 +5,19 @@
 
 ---
 
+## Qué se ejecutó (2026-05-04)
+
+**Panel de progreso por usuario ✅**
+- `auth.js` → `openStatsPanel()` reescrito para incluir:
+  - Sección **HOY** dividida en dos tarjetas horizontales: palabras respondidas + % de acierto (azul) y audios enviados (verde).
+  - **Gráfica de barras 30 días** — una barra por día, altura proporcional al máximo diario; azul oscuro = hoy, azul claro = días con práctica, gris = sin práctica. Hover muestra: `MM/DD · N palabras · N audios`.
+  - **Racha** — contador de días consecutivos con al menos una palabra respondida, mostrándose si ≥ 2 días.
+  - Sección **Todo el tiempo** con los totales históricos (palabras, diccionario, audios, sesiones).
+- La query a `usage_events` ahora incluye `created_at`; la agrupación por día se hace en el cliente con `toLocaleDateString('sv-SE')` para respetar la zona horaria local.
+- Los audios por día se calculan en paralelo a las palabras con su propio `audiosByDay` map.
+
+---
+
 ## Qué se ejecutó (2026-05-01)
 
 **Limpieza inicial:**
@@ -154,14 +167,15 @@ El quiz presenta palabras al azar. La repetición espaciada prioriza palabras co
 
 ---
 
-#### B. Historial de progreso por sesión
-El usuario no puede ver su rendimiento histórico. El panel de stats muestra solo la sesión actual.
+#### B. Historial de progreso por usuario ✅ COMPLETADO (2026-05-04)
 
-**Propuesta:**
-- Guardar en Supabase por sesión: `{ user_id, app, lista, palabras_vistas, aciertos, errores, duracion_s, fecha }`.
-- Panel de progreso expandido: gráfica semanal de aciertos por día.
-- Racha de días consecutivos estudiando (motivación).
+~~El usuario no puede ver su rendimiento histórico. El panel de stats muestra solo la sesión actual.~~
+
+**Resultado:** Panel de progreso reescrito en `auth.js`. Muestra: palabras y audios de hoy, gráfica de barras de los últimos 30 días (hover con fecha + palabras + audios), racha de días consecutivos, y totales históricos. No requirió cambios en la BD — datos derivados de `usage_events.created_at` existente.
+
+**Pendiente (fase 2):**
 - Botón de descarga CSV del historial propio.
+- Gráfica separada por app (B1 vs B2 vs Chat).
 
 ---
 
@@ -246,7 +260,7 @@ Mostrar el nivel activo (B1/B2) en el navbar al navegar entre apps para orientar
 | 9 | Modo Escritura en quiz B1/B2 | Medio | Pedagógico alto | ⬜ |
 | 10 | Repetición espaciada básica | Medio | Pedagógico alto | ⬜ |
 | 11 | Barra de progreso vocabulario total | Bajo | Motivación | ⬜ |
-| 12 | Historial de sesiones + gráfica | Alto | Motivación | ⬜ |
+| 12 | Historial de sesiones + gráfica | Alto | Motivación | ✅ |
 | 13 | Guardar transcripciones chat-voz | Medio | Utilidad | ⬜ |
 | 14 | Integración diccionario → quiz | Medio | Pedagógico medio | ⬜ |
 | 15 | Paginación admin | Medio | Escalabilidad | ⬜ |

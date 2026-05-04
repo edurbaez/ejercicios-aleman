@@ -171,7 +171,7 @@
 
     const { data, error } = await window.sb
       .from('usage_events')
-      .select('event_type,app,payload')
+      .select('event_type,app,payload,created_at')
       .eq('user_id', window.currentUser.id);
 
     if (error || !data) {
@@ -186,6 +186,33 @@
     const audios   = data.filter(e => e.event_type === 'audio_sent').length;
     const sessions = data.filter(e => e.event_type === 'session_start').length;
 
+    // Today (local date)
+    const todayStr = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+    const todayWords   = words.filter(e => e.created_at && e.created_at.slice(0,10) === todayStr);
+    const todayCorrect = todayWords.filter(e => e.payload && e.payload.correct).length;
+    const todayPct     = todayWords.length > 0 ? Math.round(todayCorrect / todayWords.length * 100) : null;
+
+    // Last 30 days array (oldest → newest)
+    const days30 = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days30.push(d.toLocaleDateString('sv-SE'));
+    }
+    const countByDay = Object.fromEntries(days30.map(d => [d, 0]));
+    words.forEach(e => {
+      const day = e.created_at && e.created_at.slice(0,10);
+      if (day && countByDay[day] !== undefined) countByDay[day]++;
+    });
+    const counts  = days30.map(d => countByDay[d]);
+    const maxCount = Math.max(...counts, 1);
+
+    // Streak: consecutive days with at least 1 word, ending on the last active day
+    let streak = 0;
+    let si = counts.length - 1;
+    while (si >= 0 && counts[si] === 0) si--; // skip trailing empty days
+    while (si >= 0 && counts[si] > 0) { streak++; si--; }
+
     function row(label, value) {
       return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f0f0;">
         <span style="color:#555;">${label}</span>
@@ -193,11 +220,40 @@
       </div>`;
     }
 
-    content.innerHTML =
-      row('Palabras respondidas', words.length > 0 ? `${words.length} (${pct}% ✓)` : '—') +
-      row('Búsquedas en diccionario', lookups || '—') +
-      row('Audios enviados (Chat)', audios || '—') +
-      row('Sesiones de lectura/estudio', sessions || '—');
+    const bars = days30.map((day, i) => {
+      const count  = counts[i];
+      const hPct   = Math.round(count / maxCount * 100);
+      const isToday = day === todayStr;
+      const bg     = isToday ? '#1976D2' : count > 0 ? '#90CAF9' : '#e8e8e8';
+      const label  = day.slice(5).replace('-', '/'); // MM/DD
+      return `<div title="${label}: ${count} palabras"
+        style="flex:1;height:70px;display:flex;flex-direction:column;justify-content:flex-end;cursor:default;">
+        <div style="width:100%;height:${Math.max(hPct,count>0?5:2)}%;background:${bg};border-radius:2px 2px 0 0;min-height:${count>0?'3px':'2px'};"></div>
+      </div>`;
+    }).join('');
+
+    content.innerHTML = `
+      <div style="margin-bottom:16px;padding:14px 12px;background:#E3F2FD;border-radius:8px;text-align:center;">
+        <div style="font-size:11px;font-weight:600;color:#1565C0;letter-spacing:.5px;margin-bottom:6px;">HOY</div>
+        <div style="font-size:40px;font-weight:700;color:#1976D2;line-height:1;">${todayWords.length}</div>
+        <div style="font-size:12px;color:#555;margin-top:4px;">palabra${todayWords.length !== 1 ? 's' : ''}${todayPct !== null ? ` · ${todayPct}% correctas` : ''}</div>
+      </div>
+      ${streak > 1 ? `<div style="text-align:center;margin-bottom:14px;font-size:13px;color:#E65100;font-weight:600;">🔥 ${streak} día${streak !== 1 ? 's' : ''} seguido${streak !== 1 ? 's' : ''}</div>` : ''}
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:8px;">ÚLTIMOS 30 DÍAS</div>
+        <div style="display:flex;align-items:flex-end;gap:1px;width:100%;">
+          ${bars}
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#bbb;margin-top:3px;">
+          <span>${days30[0].slice(5).replace('-','/')}</span><span>hoy</span>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:4px;">TODO EL TIEMPO</div>
+      ${row('Palabras respondidas', words.length > 0 ? `${words.length} (${pct}% ✓)` : '—')}
+      ${row('Búsquedas en diccionario', lookups || '—')}
+      ${row('Audios enviados (Chat)', audios || '—')}
+      ${row('Sesiones de estudio', sessions || '—')}
+    `;
   };
 
   window.getAuthToken = async function () {

@@ -102,6 +102,24 @@
 
     /* Empty / loading states */
     .empty { color: #aaa; font-size: 13px; padding: 16px 0; text-align: center; }
+
+    /* Last-5-days per student */
+    .student-block { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f5; }
+    body.dark .student-block { border-bottom-color: #2a2d45; }
+    .student-block:last-child { border-bottom: none; margin-bottom: 0; }
+    .student-email { font-size: 13px; font-weight: 600; color: #1565C0; margin-bottom: 6px; }
+    body.dark .student-email { color: #64b5f6; }
+    .student-day { font-size: 13px; color: #444; padding: 3px 0; display: flex; gap: 8px; align-items: center; }
+    body.dark .student-day { color: #bcc3dc; }
+    .student-day-date { font-size: 11px; color: #aaa; width: 76px; flex-shrink: 0; }
+    body.dark .student-day-date { color: #6a7090; }
+    .student-day-stats { display: flex; gap: 16px; flex-wrap: wrap; }
+    .stat-pill { background: #f0f6ff; color: #1565C0; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    body.dark .stat-pill { background: #1a2d50; color: #64b5f6; }
+    .stat-pill.voz { background: #fce4ec; color: #c62828; }
+    body.dark .stat-pill.voz { background: #3a1020; color: #ef9a9a; }
+    .stat-pill.dic { background: #e8f5e9; color: #2e7d32; }
+    body.dark .stat-pill.dic { background: #1a3a1d; color: #81c784; }
   </style>
 </head>
 <body>
@@ -141,7 +159,13 @@
       <div id="app-bars"><p class="empty">Cargando…</p></div>
     </div>
 
-    <!-- 3. Tabla de usuarios -->
+    <!-- 3. Últimos 5 días por alumno -->
+    <div class="section">
+      <div class="section-title">Actividad últimos 5 días por alumno</div>
+      <div id="last5-container"><p class="empty">Cargando…</p></div>
+    </div>
+
+    <!-- 5. Tabla de usuarios -->
     <div class="section">
       <div class="section-title">Usuarios</div>
       <input type="search" class="search-box" id="user-search" placeholder="Buscar por nombre o email…" oninput="filterUsers(this.value)">
@@ -162,7 +186,7 @@
       </table>
     </div>
 
-    <!-- 4. Detalle del usuario -->
+    <!-- 6. Detalle del usuario -->
     <div id="detail-panel">
       <div class="detail-header">
         <div>
@@ -174,7 +198,7 @@
       <div id="det-events"></div>
     </div>
 
-    <!-- 5. Invitar alumno -->
+    <!-- 7. Invitar alumno -->
     <div class="section">
       <div class="section-title">Invitar alumno</div>
       <div class="invite-row">
@@ -248,6 +272,7 @@
 
     renderSummary();
     renderAppBars();
+    renderLast5Days();
     renderUsersTable(allProfiles);
   }
 
@@ -293,7 +318,60 @@
       </div>`).join('');
   }
 
-  // ── Card 3: Users table ────────────────────────────────
+  // ── Last-5-days per student ────────────────────────────
+  function renderLast5Days() {
+    const container = document.getElementById('last5-container');
+
+    // Only show non-admin users that have at least one event
+    const students = allProfiles.filter(p => p.role !== 'admin' && eventsByUser[p.id]?.length > 0);
+
+    if (students.length === 0) {
+      container.innerHTML = '<p class="empty">Sin actividad registrada.</p>';
+      return;
+    }
+
+    const blocks = students.map(p => {
+      const evs = eventsByUser[p.id] || [];
+
+      // Group events by local date string
+      const byDay = {};
+      for (const e of evs) {
+        const day = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        if (!byDay[day]) byDay[day] = [];
+        byDay[day].push(e);
+      }
+
+      // Get last 5 days with activity, most-recent first
+      const days = Object.keys(byDay).sort((a, b) => {
+        const parse = s => { const [d,m,y] = s.split('/'); return new Date(y,m-1,d); };
+        return parse(b) - parse(a);
+      }).slice(0, 5);
+
+      const dayRows = days.map(day => {
+        const dayEvs = byDay[day];
+        const palabras = dayEvs.filter(e => e.app === 'b1' || e.app === 'b2').length;
+        const voz      = dayEvs.filter(e => e.app === 'chat-voz').length;
+        const dic      = dayEvs.filter(e => e.app === 'diccionario').length;
+        return `<div class="student-day">
+          <span class="student-day-date">${esc(day)}</span>
+          <div class="student-day-stats">
+            <span class="stat-pill">palabras: ${palabras}</span>
+            <span class="stat-pill voz">voz: ${voz}</span>
+            <span class="stat-pill dic">diccionario: ${dic}</span>
+          </div>
+        </div>`;
+      }).join('');
+
+      return `<div class="student-block">
+        <div class="student-email">${esc(p.email || p.full_name || p.id)}</div>
+        ${dayRows}
+      </div>`;
+    }).join('');
+
+    container.innerHTML = blocks;
+  }
+
+  // ── Users table ────────────────────────────────────────
   function renderUsersTable(profiles) {
     const tbody = document.getElementById('users-tbody');
     if (profiles.length === 0) {

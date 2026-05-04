@@ -191,6 +191,7 @@
     const todayWords   = words.filter(e => e.created_at && e.created_at.slice(0,10) === todayStr);
     const todayCorrect = todayWords.filter(e => e.payload && e.payload.correct).length;
     const todayPct     = todayWords.length > 0 ? Math.round(todayCorrect / todayWords.length * 100) : null;
+    const todayAudios  = data.filter(e => e.event_type === 'audio_sent' && e.created_at && e.created_at.slice(0,10) === todayStr).length;
 
     // Last 30 days array (oldest → newest)
     const days30 = [];
@@ -233,10 +234,20 @@
     }).join('');
 
     content.innerHTML = `
-      <div style="margin-bottom:16px;padding:14px 12px;background:#E3F2FD;border-radius:8px;text-align:center;">
+      <div style="margin-bottom:16px;">
         <div style="font-size:11px;font-weight:600;color:#1565C0;letter-spacing:.5px;margin-bottom:6px;">HOY</div>
-        <div style="font-size:40px;font-weight:700;color:#1976D2;line-height:1;">${todayWords.length}</div>
-        <div style="font-size:12px;color:#555;margin-top:4px;">palabra${todayWords.length !== 1 ? 's' : ''}${todayPct !== null ? ` · ${todayPct}% correctas` : ''}</div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;padding:12px 10px;background:#E3F2FD;border-radius:8px;text-align:center;">
+            <div style="font-size:32px;font-weight:700;color:#1976D2;line-height:1;">${todayWords.length}</div>
+            <div style="font-size:11px;color:#555;margin-top:4px;">palabra${todayWords.length !== 1 ? 's' : ''}</div>
+            <div style="font-size:11px;color:#1565C0;margin-top:2px;">${todayPct !== null ? `${todayPct}% ✓` : '—'}</div>
+          </div>
+          <div style="flex:1;padding:12px 10px;background:#E8F5E9;border-radius:8px;text-align:center;">
+            <div style="font-size:32px;font-weight:700;color:#388E3C;line-height:1;">${todayAudios}</div>
+            <div style="font-size:11px;color:#555;margin-top:4px;">audio${todayAudios !== 1 ? 's' : ''}</div>
+            <div style="font-size:11px;color:#2E7D32;margin-top:2px;">enviado${todayAudios !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
       </div>
       ${streak > 1 ? `<div style="text-align:center;margin-bottom:14px;font-size:13px;color:#E65100;font-weight:600;">🔥 ${streak} día${streak !== 1 ? 's' : ''} seguido${streak !== 1 ? 's' : ''}</div>` : ''}
       <div style="margin-bottom:20px;">

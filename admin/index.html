@@ -253,7 +253,7 @@
   async function loadData() {
     const [profRes, evRes] = await Promise.all([
       sb.from('profiles')
-        .select('id, email, full_name, role, created_at')
+        .select('id, email, display_name, role, created_at')
         .order('created_at', { ascending: false }),
       sb.from('usage_events')
         .select('id, user_id, app, event_type, payload, created_at')
@@ -363,7 +363,7 @@
       }).join('');
 
       return `<div class="student-block">
-        <div class="student-email">${esc(p.email || p.full_name || p.id)}</div>
+        <div class="student-email">${esc(p.email || p.display_name || p.id)}</div>
         ${dayRows}
       </div>`;
     }).join('');
@@ -385,7 +385,7 @@
         ? `<span class="badge admin">admin</span>`
         : `<span class="badge">alumno</span>`;
       return `<tr class="user-row" onclick="showDetail('${esc(p.id)}')">
-        <td>${esc(p.full_name || '—')}</td>
+        <td>${esc(p.display_name || '—')}</td>
         <td>${esc(p.email || '—')}</td>
         <td>${roleBadge}</td>
         <td>${fmtDate(p.created_at)}</td>
@@ -399,7 +399,7 @@
     q = q.toLowerCase();
     const filtered = q
       ? allProfiles.filter(p =>
-          (p.full_name || '').toLowerCase().includes(q) ||
+          (p.display_name || '').toLowerCase().includes(q) ||
           (p.email || '').toLowerCase().includes(q))
       : allProfiles;
     renderUsersTable(filtered);
@@ -410,7 +410,7 @@
     const p    = allProfiles.find(x => x.id === userId);
     const evs  = (eventsByUser[userId] || []).slice(0, 300);
 
-    document.getElementById('det-name').textContent  = p?.full_name || p?.email || userId;
+    document.getElementById('det-name').textContent  = p?.display_name || p?.email || userId;
     document.getElementById('det-email').textContent = p?.email || '';
 
     document.getElementById('det-events').innerHTML = evs.length === 0

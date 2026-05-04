@@ -255,7 +255,7 @@
             <div style="font-size:11px;color:#2E7D32;margin-top:2px;">enviado${todayAudios !== 1 ? 's' : ''}</div>
           </div>
         </div>
-      </div>
+      </div> 
       ${streak > 1 ? `<div style="text-align:center;margin-bottom:14px;font-size:13px;color:#E65100;font-weight:600;">🔥 ${streak} día${streak !== 1 ? 's' : ''} seguido${streak !== 1 ? 's' : ''}</div>` : ''}
       <div style="margin-bottom:20px;">
         <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:8px;">ÚLTIMOS 30 DÍAS</div>

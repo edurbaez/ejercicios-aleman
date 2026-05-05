@@ -95,10 +95,13 @@
                 <button class="cv-send-btn" id="sendBtn" style="display:none">Enviar</button>
             </div>
             <p class="cv-hint" id="cvHint">Selecciona un nivel y presiona Iniciar</p>
+            <p class="cv-daily-info" id="cvDailyInfo"></p>
         </div>
     </div>
 
     <script>
+    const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos
+
     const State = {
         level: 'B1',
         voiceGender: 'male',
@@ -114,7 +117,47 @@
         started: false,
         contexto: '',
         rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
+        dailyUsedMs: 0,
     };
+
+    // --- Daily limit ---
+    async function loadDailyUsage() {
+        if (!window.currentUser || !window.sb) return;
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const { data } = await window.sb
+            .from('usage_events')
+            .select('payload')
+            .eq('app', 'chat-voz')
+            .eq('event_type', 'audio_sent')
+            .eq('user_id', window.currentUser.id)
+            .gte('created_at', startOfDay.toISOString());
+        if (data) {
+            State.dailyUsedMs = data.reduce((sum, e) => sum + (e.payload?.duration_ms || 0), 0);
+        }
+        updateDailyUI();
+    }
+
+    function updateDailyUI() {
+        const info = document.getElementById('cvDailyInfo');
+        if (!info) return;
+        if (!window.currentUser) { info.textContent = ''; return; }
+        const remaining = Math.max(0, DAILY_LIMIT_MS - State.dailyUsedMs);
+        const blocked = remaining === 0;
+        const mins = Math.floor(remaining / 60000);
+        const secs = Math.floor((remaining % 60000) / 1000);
+        if (blocked) {
+            info.textContent = 'Límite diario de 60 min alcanzado. Vuelve mañana.';
+            info.className = 'cv-daily-info cv-daily-blocked';
+            document.getElementById('startBtn').disabled = true;
+            const rb = document.getElementById('recordBtn');
+            rb.disabled = true;
+            rb.classList.add('cv-record-disabled');
+        } else {
+            info.textContent = `Tiempo disponible hoy: ${mins}:${String(secs).padStart(2, '0')}`;
+            info.className = 'cv-daily-info';
+        }
+    }
 
     // --- Dark mode ---
     function toggleDarkMode() {
@@ -191,6 +234,10 @@ Regeln:
 
     // --- Start / reset ---
     async function startConversation() {
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+            return;
+        }
         State.messages = [];
         State.started = true;
         document.getElementById('startBtn').style.display = 'none';
@@ -321,6 +368,11 @@ Regeln:
 
     async function startRecording() {
         if (State.isRecording) return;
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+            updateDailyUI();
+            return;
+        }
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             State.audioChunks = [];
@@ -394,7 +446,10 @@ Regeln:
     }
 
     async function transcribeAndSend(audioBlob) {
-        window.logEvent('chat-voz', 'audio_sent', { level: State.level || '', duration_ms: State.recSeconds * 1000 });
+        const audioDurationMs = State.recSeconds * 1000;
+        window.logEvent('chat-voz', 'audio_sent', { level: State.level || '', duration_ms: audioDurationMs });
+        State.dailyUsedMs += audioDurationMs;
+        updateDailyUI();
         setHint('Transcribiendo...');
         disableRecord();
 
@@ -489,6 +544,8 @@ Regeln:
     }
 
     // --- Init ---
+    window.onAuthSignedIn = loadDailyUsage;
+
     (function init() {
         if (localStorage.getItem('darkMode_cv') === '1') document.body.classList.add('dark');
         loadVoices();

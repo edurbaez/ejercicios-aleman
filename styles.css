@@ -1094,6 +1094,18 @@ th, td {
     margin: 0;
 }
 
+.cv-daily-info {
+    font-size: 12px;
+    text-align: center;
+    margin: 4px 0 0;
+    min-height: 16px;
+    color: #1976D2;
+}
+.cv-daily-info.cv-daily-blocked {
+    color: #c62828;
+    font-weight: 600;
+}
+
 @media (max-width: 600px) {
     .cv-config { gap: 10px; }
     .cv-config-group label { font-size: 13px; }

@@ -501,10 +501,6 @@ Regeln:
         const inner = document.createElement('div');
         inner.className = 'cv-bubble-inner';
         inner.textContent = text;
-        if (role === 'ai' && !isThinking) {
-            div.title = 'Doble clic para escuchar';
-            div.addEventListener('dblclick', () => speak(text));
-        }
         div.appendChild(inner);
         area.appendChild(div);
         area.scrollTop = area.scrollHeight;
@@ -516,8 +512,6 @@ Regeln:
         if (!div) return;
         div.classList.remove('cv-bubble-thinking');
         div.querySelector('.cv-bubble-inner').textContent = text;
-        div.title = 'Doble clic para escuchar';
-        div.addEventListener('dblclick', () => speak(text));
         document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
     }
 

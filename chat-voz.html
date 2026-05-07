@@ -45,7 +45,7 @@
                     <button class="cv-level-btn" data-level="C2">C2</button>
                 </div>
             </div>
-            <div class="cv-config-group">
+            <div class="cv-config-group" style="display: none">
                 <label>Voz:</label>
                 <div class="cv-voice-toggle">
                     <button id="voiceMaleBtn" class="cv-voice-btn active" onclick="setVoiceGender('male')">Masculina</button>
@@ -323,7 +323,7 @@ Regeln:
 
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'de-DE';
-        utter.rate = 0.9;
+        utter.rate = 1.1;
         if (State.selectedVoice) utter.voice = State.selectedVoice;
 
         utter.onend = () => {

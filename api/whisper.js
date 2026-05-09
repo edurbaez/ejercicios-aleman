@@ -14,6 +14,9 @@ async function _getJWKS() {
     return _jwksCache;
 }
 
+// Pre-warm JWKS on cold start so the cache is ready for the first request
+_getJWKS().catch(() => {});
+
 // JWT verification — supports ES256 (current) and HS256 (legacy)
 async function verifyJWT(token) {
     try {
@@ -90,7 +93,18 @@ export default async function handler(req, res) {
     if (!token) {
         return res.status(401).json({ error: 'Autenticación requerida' });
     }
-    const jwtPayload = await verifyJWT(token);
+    const contentType = req.headers['content-type'];
+
+    // Verify JWT and read the request body in parallel to save ~1-3 s on cold starts
+    const [jwtPayload, buffer] = await Promise.all([
+        verifyJWT(token),
+        (async () => {
+            const chunks = [];
+            for await (const chunk of req) chunks.push(chunk);
+            return Buffer.concat(chunks);
+        })(),
+    ]);
+
     if (!jwtPayload) {
         return res.status(401).json({ error: 'Token inválido o expirado' });
     }
@@ -98,11 +112,6 @@ export default async function handler(req, res) {
     if (isRateLimited(jwtPayload.sub)) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
-
-    const chunks = [];
-    for await (const chunk of req) chunks.push(chunk);
-    const buffer      = Buffer.concat(chunks);
-    const contentType = req.headers['content-type'];
 
     try {
         const resp = await fetch('https://api.openai.com/v1/audio/transcriptions', {

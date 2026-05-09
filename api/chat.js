@@ -12,6 +12,9 @@ async function _getJWKS() {
     return _jwksCache;
 }
 
+// Pre-warm JWKS on cold start so the cache is ready for the first request
+_getJWKS().catch(() => {});
+
 // JWT verification — supports ES256 (current) and HS256 (legacy)
 async function verifyJWT(token) {
     try {

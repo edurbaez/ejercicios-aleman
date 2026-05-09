@@ -275,8 +275,15 @@
   };
 
   window.getAuthToken = async function () {
-    const { data } = await window.sb.auth.getSession();
-    return data?.session?.access_token || null;
+    try {
+      const result = await Promise.race([
+        window.sb.auth.getSession(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('auth timeout')), 5000)),
+      ]);
+      return result.data?.session?.access_token || null;
+    } catch {
+      return null;
+    }
   };
 
   window.logEvent = async function (app, eventType, payload) {

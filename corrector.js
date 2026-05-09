@@ -2,6 +2,7 @@ const State = {
     type: 'tarea',
     imageBase64: null,
     mimeType: null,
+    lastResult: null,
 };
 
 // --- Dark mode ---
@@ -118,6 +119,7 @@ async function revisar() {
 
         if (!resp.ok) throw new Error(data.error || 'Error del servidor');
 
+        State.lastResult = data;
         renderResult(data);
     } catch (e) {
         showError(e.message);
@@ -187,10 +189,47 @@ function renderResult(data) {
                 <h3 class="cor-section-title">Observaciones generales</h3>
                 <p>${escHtml(data.observaciones_generales)}</p>
             </div>` : ''}
+
+            <div class="cor-copy-row">
+                <button class="cor-btn cor-btn-outline cor-copy-btn" id="copyBtn" onclick="copiarResultado()">Copiar correcciones</button>
+            </div>
         </div>`;
 
     el.style.display = 'block';
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// --- Copy result ---
+function copiarResultado() {
+    const data = State.lastResult;
+    if (!data) return;
+
+    const lines = [];
+    lines.push(`Puntuación: ${data.puntuacion}/10`);
+    lines.push(`Resumen: ${data.resumen}`);
+
+    if (Array.isArray(data.errores) && data.errores.length > 0) {
+        lines.push('');
+        lines.push('Errores:');
+        data.errores.forEach((err, i) => {
+            lines.push(`${i + 1}. [${err.categoria}] ${err.fragmento_original} → ${err.correccion}`);
+            lines.push(`   ${err.explicacion}`);
+        });
+    }
+
+    if (data.observaciones_generales) {
+        lines.push('');
+        lines.push(`Observaciones: ${data.observaciones_generales}`);
+    }
+
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+        const btn = document.getElementById('copyBtn');
+        if (!btn) return;
+        const orig = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        btn.disabled = true;
+        setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2000);
+    }).catch(() => showError('No se pudo copiar al portapapeles.'));
 }
 
 // --- UI helpers ---

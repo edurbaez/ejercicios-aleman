@@ -89,7 +89,7 @@ Categorías posibles: `ortografía`, `declinación`, `conjugación`, `orden de p
 |---------|--------|--------|
 | `styles.css` | Sección `/* CORRECTOR */` con tema naranja `#E65100`, dark mode, componentes | ✅ |
 | `CLAUDE.md` | `corrector.html`, `corrector.js` y `api/vision.js` registrados en Active Files | ✅ |
-| `README.md` | Añadir app Corrector en sección Apps | pendiente (Fase 5) |
+| `README.md` | Añadir app Corrector en sección Apps | ✅ |
 
 ---
 
@@ -130,6 +130,6 @@ Indica si cada frase es gramaticalmente correcta y natural. Responde SOLO con el
 
 1. ~~**Fase 1 — API** (`api/vision.js`): endpoint funcional con prompt genérico, sin tipo aún.~~ ✅ **COMPLETADA** — `api/vision.js` con JWT ES256/HS256, rate limit 5 req/min, prompts por tipo, limpieza de markdown en respuesta.
 2. ~~**Fase 2 — Frontend básico** (`corrector.html` + `corrector.js`): upload, preview, llamada, render JSON crudo.~~ ✅ **COMPLETADA** — Upload por archivo/cámara/drag-and-drop, validación 5 MB, preview, selector de tipo, render estructurado (score + tarjetas de error con badge de categoría coloreado + observaciones). CSS en `styles.css`, `CLAUDE.md` actualizado.
-3. **Fase 3 — Tipos y prompts**: selector de tipo, prompts especializados por caso de uso.
-4. **Fase 4 — UI pulida**: tarjetas de error con categoría coloreada, puntuación visual, botón copiar.
-5. **Fase 5 — PWA / navbar**: añadir al menú principal, integrar en `styles.css`.
+3. ~~**Fase 3 — Tipos y prompts**: selector de tipo, prompts especializados por caso de uso.~~ ✅ **COMPLETADA** — Selector de tipo en `corrector.html`, `PROMPTS` por tipo en `api/vision.js`, tipo enviado desde `corrector.js`.
+4. ~~**Fase 4 — UI pulida**: tarjetas de error con categoría coloreada, puntuación visual, botón copiar.~~ ✅ **COMPLETADA** — Score visual, badges de categoría coloreados, botón "Copiar correcciones" con feedback "¡Copiado!" en `corrector.js`.
+5. ~~**Fase 5 — PWA / navbar**: añadir al menú principal, integrar en `styles.css`.~~ ✅ **COMPLETADA** — "Corrector" añadido al dropdown de los 5 HTML restantes (`palabrasB2`, `B1`, `lectura veloz`, `diccionario`, `chat-voz`). `README.md` actualizado con sección Corrector, `/api/vision`, y Navigation.

@@ -87,6 +87,21 @@ AI voice conversation app for practicing German at any CEFR level.
 
 ---
 
+### Corrector ([corrector.html](corrector.html))
+
+Grammar correction app that analyses a photo of a German text using GPT-4o Vision. Logic in [`corrector.js`](corrector.js).
+
+**Features:**
+- Upload an image (file picker, camera, or drag-and-drop) — JPG, PNG, WebP up to 5 MB
+- Select the text type: **Tarea**, **Carta**, or **Frases sueltas** — each uses a specialised review prompt
+- Preview the image before sending
+- Displays a structured result: score out of 10, summary, per-error cards (original → correction + explanation + colour-coded category badge), and general observations
+- **Copy corrections** button copies the full result to the clipboard
+- Requires login (Supabase JWT); rate limited to 5 req/min via `/api/vision`
+- Dark mode toggle
+
+---
+
 ## API
 
 ### `/api/chat` ([api/chat.js](api/chat.js))
@@ -95,7 +110,11 @@ Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`).
 
 ### `/api/whisper` ([api/whisper.js](api/whisper.js))
 
-Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`. Rate limited to 10 req/min per IP.
+Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`. Rate limited to 10 req/min per user.
+
+### `/api/vision` ([api/vision.js](api/vision.js))
+
+Vercel serverless function that receives `{ image_base64, mime_type, type }`, forwards the image to GPT-4o with a type-specific review prompt, and returns structured JSON: `{ puntuacion, resumen, errores[], observaciones_generales }`. Used by `corrector.html`. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`.
 
 **Security measures (`/api/chat`):**
 - Rate limiting: 20 req/min per IP (in-memory sliding window) → `429` if exceeded
@@ -106,7 +125,7 @@ Vercel serverless function that receives multipart audio and forwards it to Open
 
 ## Navigation
 
-All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Lectura Veloz, Diccionario, B1, Chat de Voz — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
+All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Lectura Veloz, Diccionario, B1, Chat de Voz, Corrector — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
 
 ---
 

@@ -1,247 +1,135 @@
-# Plan: Sistema de Autenticación + Dashboard de Administración
+# Plan: Servicio de Revisión Gramatical por Imagen
 
-> **Estrategia de ejecución:** cada etapa es atómica y desplegable de forma independiente.
-> Completa y despliega una etapa antes de iniciar la siguiente para mantener el sistema funcional en todo momento y minimizar el uso de tokens por sesión.
+## Concepto
 
----
-
-## Estado actual del proyecto
-
-| Aspecto | Estado |
-|---|---|
-| Supabase conectado | ✅ `mzitpnacjcjpokmiqwtd.supabase.co` |
-| Tablas `profiles` + `usage_events` | ✅ Creadas con índices y RLS |
-| Trigger auto-perfil al registrarse | ✅ `on_auth_user_created` activo |
-| Función `is_admin()` sin recursión | ✅ SECURITY DEFINER |
-| Google OAuth en Supabase | ✅ Configurado |
-| Redirect URLs en Supabase | ✅ `ejercicios-aleman-sand.vercel.app` + localhost |
-| `auth.js` compartido | ✅ Cargado en las 5 páginas |
-| Modal OTP + Google en todas las páginas | ✅ |
-| Botón 👤 en todas las páginas | ✅ |
-| Enlace "Dashboard →" para admin | ✅ Aparece en navbar al detectar `role = 'admin'` |
-| Asignar rol admin (SQL) | ⚠️ Pendiente ejecutar tras primer login |
-| Tracking de uso | ✅ Completo (Etapa 3) |
-| Panel de estadísticas del usuario | ✅ Completo (Etapa 3) |
-| Dashboard de administración | ✅ Completo (Etapa 4) |
+El usuario sube o fotografía un texto escrito a mano o impreso (tarea, carta, frases sueltas).
+La imagen se envía a la API de OpenAI (Vision / GPT-4o) junto con un prompt de revisión gramatical.
+El modelo devuelve un análisis estructurado con los errores encontrados y las correcciones sugeridas.
 
 ---
 
-## ✅ Etapa 1 — Base de datos y configuración de Supabase Auth — COMPLETA
+## Casos de uso
 
-### Completado
-- Tablas `profiles` y `usage_events` creadas
-- Trigger `on_auth_user_created` — crea perfil automáticamente al registrarse
-- Función `is_admin()` con SECURITY DEFINER (evita recursión en RLS)
-- RLS habilitado en ambas tablas con políticas de acceso por rol
-- Google OAuth configurado en Supabase + Google Cloud Console
-- Redirect URLs configuradas para producción y localhost
+| Tipo | Descripción | Prompt especializado |
+|------|-------------|----------------------|
+| **Tarea escolar** | Redacción o ejercicio de alemán manuscrito | Revisar gramática, ortografía, concordancia; señalar cada error con número de línea o frase |
+| **Modelo de carta** | Carta formal/informal en alemán | Revisar estructura epistolar, fórmulas de saludo/despedida, registro (formal vs. informal), gramática |
+| **Frases sueltas** | Lista de oraciones o traducciones propias | Revisar cada frase de forma independiente; indicar si la frase es natural para un hablante nativo |
 
-### Pendiente (ejecutar tras primer login en la app)
+---
 
-```sql
-UPDATE public.profiles SET role = 'admin' WHERE email = 'ed.urbaez@gmail.com';
+## Arquitectura propuesta
+
+```
+[Frontend: corrector.html]
+       │
+       ├─ Selección de tipo (tarea / carta / frases)
+       ├─ Upload de imagen (o captura desde cámara)
+       ├─ Preview de la imagen
+       └─ Botón "Revisar"
+              │
+              ▼
+   [api/vision.js  — Vercel serverless]
+       │
+       ├─ Valida JWT (auth.js / Supabase)
+       ├─ Rate limit: 5 req/min por usuario
+       ├─ Construye prompt según tipo
+       ├─ Llama a OpenAI Chat Completions con image_url
+       │     model: gpt-4o
+       │     messages: [system_prompt, {role:user, image + "Revisa este texto"}]
+       └─ Devuelve JSON estructurado
+              │
+              ▼
+   [Frontend: renderiza resultado]
+       ├─ Lista de errores con número/frase de referencia
+       ├─ Corrección sugerida por cada error
+       ├─ Puntuación general (ej. 8/10)
+       └─ Botón "Copiar correcciones"
 ```
 
 ---
 
-## ✅ Etapa 2 — Módulo de autenticación compartido (`auth.js`) — COMPLETA
+## Estructura de la respuesta del modelo
 
-### Completado
-- `auth.js` creado: cliente Supabase como `window.sb`, `window.currentUser`
-- Modal inyectado dinámicamente con botón Google + separador + flujo OTP
-- `window.openAuthModal`, `window.closeAuthModal`, `window.sendOtp`, `window.verifyOtp`
-- `window.signInWithGoogle` — OAuth con redirect a la misma página
-- `window.logout`, `window.updateAuthUI`, `window.logEvent`
-- Hook `window.onAuthSignedIn` — cada página puede definirlo para reaccionar al login
-- Botón 👤 en las 5 páginas; muestra el nombre del usuario al iniciar sesión
-- Admin: enlace "Dashboard →" aparece en el dropdown del navbar (`_addDashboardLink`)
-- `palabrasB2.html` y `B1.html`: bloque AUTH reducido a `onSignedIn` + `syncToCloud` (usan `window.sb`)
-- Deployed en Vercel (commit `a98f238`)
+El system prompt pedirá al modelo que responda **solo** con JSON válido:
 
-### Archivos modificados
-| Archivo | Cambio |
-|---|---|
-| `auth.js` | Creado |
-| `palabrasB2.html` | +`auth.js`, modal viejo eliminado, AUTH simplificado |
-| `B1.html` | Ídem |
-| `lectura veloz.html` | +`auth.js`, modal viejo eliminado |
-| `diccionario.html` | +`auth.js`, +botón `auth-btn` |
-| `chat-voz.html` | +Supabase CDN, +`auth.js`, +botón `auth-btn` |
-| `CLAUDE.md` | Documentado `auth.js` |
+```json
+{
+  "puntuacion": 7,
+  "resumen": "El texto tiene buena estructura pero contiene errores de casos y concordancia verbal.",
+  "errores": [
+    {
+      "fragmento_original": "Ich habe ein großen Hund",
+      "correccion": "Ich habe einen großen Hund",
+      "explicacion": "Acusativo masculino: 'ein' → 'einen', adjetivo mantiene '-en'.",
+      "categoria": "declinación"
+    }
+  ],
+  "observaciones_generales": "Revisar el uso del Akkusativ con artículos indefinidos."
+}
+```
+
+Categorías posibles: `ortografía`, `declinación`, `conjugación`, `orden de palabras`, `registro`, `puntuación`, `vocabulario`.
 
 ---
 
-## ✅ Etapa 3 — Tracking de uso + Panel de estadísticas del usuario — COMPLETA
+## Archivos nuevos
 
-### Completado
-- `logEvent()` instrumentado en las 5 apps (B1, B2, Diccionario, Chat de Voz, Lectura Veloz)
-- `window.openStatsPanel()` / `window.closeStatsPanel()` añadidos a `auth.js`
-- Panel lateral inyectado dinámicamente: muestra nombre/email, palabras respondidas + % aciertos, búsquedas, audios, sesiones
-- Botón "Cerrar sesión" integrado dentro del panel
-- Clic en el nombre de usuario en el navbar abre el panel (ya no hace logout directo)
-- `CLAUDE.md` actualizado con las nuevas funciones expuestas
-
-### Archivos modificados
-| Archivo | Cambio |
-|---|---|
-| `auth.js` | +`openStatsPanel`, +`closeStatsPanel`, `updateAuthUI` apunta al panel |
-| `palabrasB2.html` | +`logEvent` en `toggleSet`, `handleSelectionPick`, botón Auto |
-| `B1.html` | Ídem (app: `'b1'`) |
-| `diccionario.js` | +`logEvent` en `buscar()` para cada fuente (cache/supabase/api) |
-| `chat-voz.html` | +`logEvent` al inicio de `transcribeAndSend` |
-| `lectura veloz.html` | +`logEvent` en `startReading`, `pauseReading` y `stopReading` |
-
-**Objetivo:** registrar eventos de uso y permitir que cada alumno vea su propio progreso.
-
-### 3.1 `logEvent()` ya disponible en `auth.js`
-
-```js
-window.logEvent(app, eventType, payload)
-// Solo registra si hay sesión activa. No hace nada si el usuario no está logueado.
-```
-
-### 3.2 Instrumentar cada app
-
-#### `palabrasB2.html` y `B1.html`
-
-| Dónde | `event_type` | `payload` |
-|---|---|---|
-| Al activar el primer set | `session_start` | `{ app: 'b2' }` |
-| Al responder correctamente | `word_answered` | `{ word_de, correct: true }` |
-| Al responder incorrectamente | `word_answered` | `{ word_de, correct: false }` |
-| Al activar Modo Auto | `mode_change` | `{ mode: 'auto', active: true }` |
-
-#### `diccionario.js`
-
-| Dónde | `event_type` | `payload` |
-|---|---|---|
-| Al buscar una palabra | `lookup` | `{ word, source: 'cache'\|'supabase'\|'api' }` |
-
-#### `chat-voz.html`
-
-| Dónde | `event_type` | `payload` |
-|---|---|---|
-| Al enviar audio | `audio_sent` | `{ level, duration_ms }` |
-
-#### `lectura veloz.html`
-
-| Dónde | `event_type` | `payload` |
-|---|---|---|
-| Al iniciar lectura | `session_start` | `{ wpm, text_length }` |
-| Al pausar o terminar | `session_end` | `{ words_read }` |
-
-### 3.3 Panel de estadísticas del usuario
-
-Al hacer clic en el nombre del usuario en el navbar → abre un **panel lateral** (no una página separada) con su propio resumen de actividad.
-
-**Contenido del panel:**
-- Nombre / email del usuario
-- Total de palabras respondidas (B1 + B2) y % de aciertos
-- Búsquedas en diccionario
-- Audios enviados en Chat de Voz
-- Sesiones de lectura
-- Botón "Cerrar sesión"
-
-**Implementación:** función `window.openStatsPanel()` en `auth.js`. El panel consulta `usage_events` filtrando por `user_id = auth.uid()` (RLS garantiza que solo ve sus propios datos).
-
-**Entregable:** tabla `usage_events` acumulando datos reales + cada alumno puede ver su progreso.
+| Archivo | Propósito |
+|---------|-----------|
+| `corrector.html` | App frontend: upload de imagen, selector de tipo, vista de resultado |
+| `corrector.js` | Lógica JS: preview, llamada a API, render de errores |
+| `api/vision.js` | Serverless: valida JWT, construye prompt, llama a GPT-4o con imagen |
 
 ---
 
-## ✅ Etapa 4 — Dashboard de administración — COMPLETA
+## Archivos modificados
 
-**Objetivo:** página independiente, fuera de la estructura de las apps de estudio.
-
-### 4.1 Crear `admin/index.html`
-
-Ruta: `admin/index.html` → accesible en `https://<dominio>/admin/`.
-
-> Esta página NO forma parte del navbar de las apps de estudio. El enlace "Dashboard →" del navbar lleva aquí solo para el admin.
-
-**Estructura:**
-```
-admin/index.html
-├── Verificación de rol al cargar (redirige a / si role ≠ 'admin')
-├── Header: título + botón cerrar sesión
-└── Main (4 cards):
-    ├── 1. Resumen general
-    │   ├── Total usuarios registrados
-    │   ├── Usuarios activos últimos 7 días
-    │   └── Total eventos registrados
-    ├── 2. Actividad por app (barras proporcionales simples, sin librería)
-    ├── 3. Tabla de usuarios
-    │   ├── Nombre / email / registro / última actividad
-    │   └── Buscador por nombre o email
-    └── 4. Detalle al hacer clic en un usuario
-        └── Lista de eventos cronológicos con tipo y payload
-```
-
-### 4.2 Seguridad
-
-- Verificación de rol en frontend al cargar (redirect inmediato si no es admin)
-- RLS en Supabase garantiza que aunque se salte el redirect, no se devuelven datos ajenos
-- Sin serverless functions propias — consulta Supabase directo con la anon key
-
-### 4.3 Estilo
-- Usa `styles.css` del proyecto (modo oscuro incluido)
-- Header propio minimalista, sin navbar de las apps de estudio
-- HTML/CSS/JS vanilla, sin frameworks
-
-**Entregable:** dashboard funcional en `/admin/` con datos reales.
+| Archivo | Cambio | Estado |
+|---------|--------|--------|
+| `styles.css` | Sección `/* CORRECTOR */` con tema naranja `#E65100`, dark mode, componentes | ✅ |
+| `CLAUDE.md` | `corrector.html`, `corrector.js` y `api/vision.js` registrados en Active Files | ✅ |
+| `README.md` | Añadir app Corrector en sección Apps | pendiente (Fase 5) |
 
 ---
 
-## ✅ Etapa 5 — Pulido y hardening — COMPLETA
+## Prompts por tipo
 
-**Objetivo:** preparar el sistema para uso real con estudiantes.
+### Tarea
+```
+Eres un profesor de alemán experto. Analiza la imagen adjunta, que contiene una tarea escrita en alemán.
+Identifica todos los errores gramaticales, ortográficos y de estilo. Responde SOLO con el JSON indicado.
+```
 
-### 5.1 Política de acceso a las apps
+### Modelo de carta
+```
+Eres un experto en redacción formal e informal en alemán. Analiza la carta de la imagen.
+Revisa estructura, fórmulas epistolares, registro y gramática. Responde SOLO con el JSON indicado.
+```
 
-- **Opción A (abierto):** apps funcionan sin login; tracking inactivo sin sesión. ← estado actual
-- **Opción B (restringido):** modal de login obligatorio al cargar si no hay sesión.
-
-### 5.2 Proteger la API con JWT de Supabase
-
-Pasar `Authorization: Bearer <jwt>` al llamar `/api/chat` y `/api/whisper`. Verificar en el serverless con `SUPABASE_JWT_SECRET`. Reemplaza el rate limit por IP con rate limit real por usuario.
-
-### 5.3 Invitaciones de alumnos
-
-`api/admin-invite.js` — llama a `supabase.auth.admin.inviteUserByEmail()` con `SUPABASE_SERVICE_ROLE_KEY` (nunca en el frontend).
-
-**Entregable:** sistema listo para producción con estudiantes reales.
+### Frases sueltas
+```
+Eres un corrector nativo de alemán. Analiza cada frase de la imagen por separado.
+Indica si cada frase es gramaticalmente correcta y natural. Responde SOLO con el JSON indicado.
+```
 
 ---
 
-## Resumen de archivos — estado
+## Consideraciones técnicas
 
-| Archivo | Estado | Etapa |
-|---|---|---|
-| SQL en Supabase (tablas + RLS) | ✅ Ejecutado | 1 |
-| `auth.js` | ✅ Creado y deployed | 2 |
-| `palabrasB2.html` | ✅ Actualizado | 2 |
-| `B1.html` | ✅ Actualizado | 2 |
-| `diccionario.html` | ✅ Actualizado | 2 |
-| `chat-voz.html` | ✅ Actualizado | 2 |
-| `lectura veloz.html` | ✅ Actualizado | 2 |
-| `palabrasB2.html` — `logEvent()` | ✅ Completo | 3 |
-| `B1.html` — `logEvent()` | ✅ Completo | 3 |
-| `diccionario.js` — `logEvent()` | ✅ Completo | 3 |
-| `chat-voz.html` — `logEvent()` | ✅ Completo | 3 |
-| `lectura veloz.html` — `logEvent()` | ✅ Completo | 3 |
-| `auth.js` — panel de stats del usuario | ✅ Completo | 3 |
-| `admin/index.html` | ✅ Completo | 4 |
-| `api/admin-invite.js` | ✅ Completo | 5 |
-| `api/chat.js` — JWT auth | ✅ Completo | 5 |
-| `api/whisper.js` — JWT auth | ✅ Completo | 5 |
-| `auth.js` — `getAuthToken()` | ✅ Completo | 5 |
-| `diccionario.js` — JWT en fetch | ✅ Completo | 5 |
-| `chat-voz.html` — JWT en fetch | ✅ Completo | 5 |
-| `CLAUDE.md` + `README.md` | ✅ Completo | 5 |
+- **Modelo**: `gpt-4o` (soporta visión; `gpt-4o-mini` no tiene calidad suficiente para OCR + gramática compleja)
+- **Formato imagen**: El frontend convierte la imagen a base64 y la envía en el body como `{ image_base64, type }`. El serverless la reenvía a OpenAI como `image_url: "data:image/jpeg;base64,..."`.
+- **Tamaño máximo**: Limitar a 5 MB en el frontend antes de enviar.
+- **Rate limit**: 5 req/min por usuario (más restrictivo que `/api/chat` por costo del modelo Vision).
+- **Auth**: Mismo patrón que `/api/chat.js` — Bearer JWT validado con `SUPABASE_JWT_SECRET`.
+- **Sin caché**: Las imágenes no se guardan ni en Supabase ni en IndexedDB (privacidad + tamaño).
 
 ---
 
-## Dependencias entre etapas
+## Fases de implementación
 
-```
-Etapa 1 ✅ → Etapa 2 ✅ → Etapa 3 ✅ → Etapa 4 → Etapa 5
-```
+1. ~~**Fase 1 — API** (`api/vision.js`): endpoint funcional con prompt genérico, sin tipo aún.~~ ✅ **COMPLETADA** — `api/vision.js` con JWT ES256/HS256, rate limit 5 req/min, prompts por tipo, limpieza de markdown en respuesta.
+2. ~~**Fase 2 — Frontend básico** (`corrector.html` + `corrector.js`): upload, preview, llamada, render JSON crudo.~~ ✅ **COMPLETADA** — Upload por archivo/cámara/drag-and-drop, validación 5 MB, preview, selector de tipo, render estructurado (score + tarjetas de error con badge de categoría coloreado + observaciones). CSS en `styles.css`, `CLAUDE.md` actualizado.
+3. **Fase 3 — Tipos y prompts**: selector de tipo, prompts especializados por caso de uso.
+4. **Fase 4 — UI pulida**: tarjetas de error con categoría coloreada, puntuación visual, botón copiar.
+5. **Fase 5 — PWA / navbar**: añadir al menú principal, integrar en `styles.css`.

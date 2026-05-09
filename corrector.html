@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrector de Alemán</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body id="page-cor">
+    <nav id="navbar">
+        <a href="palabrasB2.html">Inicio</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <a href="lectura veloz.html">Lectura Veloz</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="B1.html">B1</a>
+                <a href="chat-voz.html">Chat de Voz</a>
+                <a href="corrector.html" class="active">Corrector</a>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión">👤</button>
+        <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro">🌙</button>
+    </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
+
+    <div class="cor-container">
+        <div class="cor-header">
+            <h1>Corrector de Alemán</h1>
+            <p>Sube una foto de tu texto y recibe correcciones gramaticales</p>
+        </div>
+
+        <!-- Selector de tipo -->
+        <div class="cor-type-selector">
+            <button class="cor-type-btn active" data-type="tarea">Tarea</button>
+            <button class="cor-type-btn" data-type="carta">Carta</button>
+            <button class="cor-type-btn" data-type="frases">Frases sueltas</button>
+        </div>
+
+        <!-- Zona de upload -->
+        <div class="cor-upload-area" id="uploadArea">
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+
+            <div class="cor-upload-placeholder" id="uploadPlaceholder">
+                <div class="cor-upload-icon">📷</div>
+                <p>Arrastra una imagen aquí o</p>
+                <div class="cor-upload-btns">
+                    <button class="cor-btn cor-btn-outline" onclick="document.getElementById('fileInput').click()">Seleccionar archivo</button>
+                    <button class="cor-btn cor-btn-outline" onclick="document.getElementById('cameraInput').click()">Usar cámara</button>
+                </div>
+                <p class="cor-upload-hint">JPG, PNG o WebP · máx. 5 MB</p>
+            </div>
+
+            <div class="cor-preview-wrap" id="previewWrap" style="display:none">
+                <img id="previewImg" class="cor-preview-img" alt="Vista previa">
+                <button class="cor-remove-btn" id="removeBtn" title="Quitar imagen">✕</button>
+            </div>
+        </div>
+
+        <!-- Botón revisar -->
+        <button class="cor-btn cor-btn-primary" id="revisarBtn" onclick="revisar()" disabled>
+            Revisar texto
+        </button>
+
+        <!-- Estados -->
+        <div class="cor-spinner" id="spinner" style="display:none">Analizando imagen con IA...</div>
+        <div class="cor-error" id="errorMsg" style="display:none"></div>
+
+        <!-- Resultado -->
+        <div id="resultado" style="display:none"></div>
+    </div>
+
+    <script src="corrector.js"></script>
+</body>
+</html>

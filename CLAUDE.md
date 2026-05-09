@@ -21,6 +21,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
 | `B1.html` | Vocabulary quiz app targeting B1-level German words. Same engine as B2 via `shared-game.js`. PWA with offline support. |
 | `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
+| `corrector.html` | Grammar correction app: upload or photograph a German text (tarea, carta, frases sueltas), sends it to GPT-4o Vision via `/api/vision`, and renders a structured list of errors with corrections and explanations. |
 | `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 
 ### API
@@ -29,6 +30,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 |------|---------|
 | `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Requires `Authorization: Bearer <supabase_jwt>` (verified with `SUPABASE_JWT_SECRET`). Rate limited to 20 req/min per user. Optional origin check via `ALLOWED_ORIGIN` env var and system prompt size cap (2 000 chars). Pre-warms the JWKS cache at module load to reduce cold-start latency. |
 | `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`) for transcription. Requires JWT auth. Rate limited to 10 req/min per user. Pre-warms JWKS cache at module load; JWT verification and request body reading run in parallel (`Promise.all`) to reduce latency. |
+| `api/vision.js` | Vercel serverless function — receives `{ image_base64, mime_type, type }`, calls GPT-4o with vision. Returns structured JSON: `{ puntuacion, resumen, errores[], observaciones_generales }`. Requires JWT auth. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`. |
 | `api/admin-invite.js` | Vercel serverless function — invites a user by email via Supabase auth admin API. Requires JWT from an admin user. Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
 
 ### Data
@@ -61,6 +63,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `auth.js` | Shared authentication module loaded by all pages. Reads `SUPA_URL`/`SUPA_KEY` globals from `config.js`. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. `getAuthToken()` returns the cached Supabase JWT access token (used to authorize `/api/chat` and `/api/whisper`). Token is stored in a private `_cachedToken` variable populated at page load and kept up to date via `onAuthStateChange` (which fires on every automatic refresh). Never calls `getSession()` at request time — avoids SDK lock contention that previously caused indefinite hangs. `openStatsPanel()` renders a right-side drawer with: (1) two "HOY" cards — words answered + accuracy %, and audios sent; (2) a 30-day bar chart of words per day (hover tooltip shows date + words + audios); (3) a streak counter; (4) all-time totals. Queries `usage_events` with `created_at` included, groups by local date client-side. |
 | `shared-game.js` | Motor de juego compartido entre `palabrasB2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS, temporizador, listas personales (IndexedDB) y PWA. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
 | `diccionario.js` | All JS logic for `diccionario.html`: uses `window.sb` from `auth.js` (no Supabase client propio), IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
+| `corrector.js` | All JS logic for `corrector.html`: file/camera input handling, base64 conversion, drag-and-drop upload, `/api/vision` call, and result rendering (score, error cards with category badges, observaciones). |
 
 ### Shared styles
 

@@ -125,7 +125,7 @@ Push to `main` → Vercel redeploys automatically.
 ## Shared modules
 
 ### `auth.js`
-Shared authentication module. Injects the login modal (OTP + Google OAuth) and exposes auth helpers (`openAuthModal`, `logout`, `logEvent`, `getAuthToken`). Also renders the **progress panel** — a right-side drawer users open by clicking their name in the navbar. It shows:
+Shared authentication module. Injects the login modal (OTP + Google OAuth) and exposes auth helpers (`openAuthModal`, `logout`, `logEvent`, `getAuthToken`). `getAuthToken()` returns a cached token updated automatically on every Supabase token refresh — it never calls `getSession()` at request time, so it can't hang. Also renders the **progress panel** — a right-side drawer users open by clicking their name in the navbar. It shows:
 - **HOY** — two cards side by side: words answered + accuracy %, and audios sent today.
 - **Últimos 30 días** — bar chart with one bar per day. Hover over any bar to see the date, word count, and audio count.
 - **Racha** — streak of consecutive days with at least one word answered.

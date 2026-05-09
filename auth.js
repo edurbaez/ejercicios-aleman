@@ -3,6 +3,7 @@
   window.sb = supabase.createClient(SUPA_URL, SUPA_KEY);
   window.currentUser = null;
   let _otpEmail = '';
+  let _cachedToken = null;
 
   function _injectModal() {
     if (document.getElementById('auth-modal')) return;
@@ -274,16 +275,8 @@
     `;
   };
 
-  window.getAuthToken = async function () {
-    try {
-      const result = await Promise.race([
-        window.sb.auth.getSession(),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('auth timeout')), 5000)),
-      ]);
-      return result.data?.session?.access_token || null;
-    } catch {
-      return null;
-    }
+  window.getAuthToken = function () {
+    return _cachedToken;
   };
 
   window.logEvent = async function (app, eventType, payload) {
@@ -297,6 +290,7 @@
   };
 
   window.sb.auth.onAuthStateChange(async function (event, session) {
+    _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
     if (event === 'SIGNED_IN' && typeof window.onAuthSignedIn === 'function') {
@@ -309,6 +303,7 @@
 
   window.sb.auth.getSession().then(function (result) {
     const session = result.data.session;
+    _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {

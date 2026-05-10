@@ -170,12 +170,16 @@
     const content = document.getElementById('stats-content');
     content.innerHTML = '<p style="color:#999;font-size:13px;">Cargando estadísticas…</p>';
 
-    const { data, error } = await window.sb
-      .from('usage_events')
-      .select('event_type,app,payload,created_at')
-      .eq('user_id', window.currentUser.id);
-
-    if (error || !data) {
+    const token = window.getAuthToken();
+    let data;
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&order=created_at.asc`,
+        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) throw new Error(await res.text());
+      data = await res.json();
+    } catch (err) {
       content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
       return;
     }

@@ -102,7 +102,12 @@ self.addEventListener("notificationclick", (e) => {
 });
 
 // Fetch: red primero, actualiza cache; si falla usa cache (offline)
+// Solo cachea GET de assets propios — ignora POST/API calls
 self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
+  const url = new URL(e.request.url);
+  if (!ASSETS.some((a) => url.pathname === a)) return;
+
   e.respondWith(
     fetch(e.request)
       .then((response) => {

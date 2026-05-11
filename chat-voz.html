@@ -161,6 +161,41 @@
         }
     }
 
+    // --- User preferences (Supabase + localStorage) ---
+    async function loadPreferences() {
+        const savedRol = localStorage.getItem('cv_rol');
+        const savedContexto = localStorage.getItem('cv_contexto');
+        if (savedRol) State.rol = savedRol;
+        if (savedContexto !== null) State.contexto = savedContexto;
+
+        if (!window.currentUser || !window.sb) return;
+        const { data } = await window.sb
+            .from('user_preferences')
+            .select('cv_rol, cv_contexto')
+            .eq('user_id', window.currentUser.id)
+            .maybeSingle();
+        if (data) {
+            State.rol = data.cv_rol || DEFAULT_ROL;
+            State.contexto = data.cv_contexto || '';
+            localStorage.setItem('cv_rol', State.rol);
+            localStorage.setItem('cv_contexto', State.contexto);
+        }
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+    }
+
+    async function persistPreferences() {
+        localStorage.setItem('cv_rol', State.rol);
+        localStorage.setItem('cv_contexto', State.contexto);
+        if (!window.currentUser || !window.sb) return;
+        await window.sb.from('user_preferences').upsert({
+            user_id: window.currentUser.id,
+            cv_rol: State.rol,
+            cv_contexto: State.contexto,
+            updated_at: new Date().toISOString(),
+        });
+    }
+
     // --- Dark mode ---
     function toggleDarkMode() {
         document.body.classList.toggle('dark');
@@ -537,24 +572,18 @@ Regeln:
     function saveContext() {
         State.rol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
         State.contexto = document.getElementById('contextText').value.trim();
-        localStorage.setItem('cv_rol', State.rol);
-        localStorage.setItem('cv_contexto', State.contexto);
         const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
         document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
         document.getElementById('contextModal').classList.remove('cv-modal-open');
+        persistPreferences();
     }
 
     // --- Init ---
-    window.onAuthSignedIn = loadDailyUsage;
+    window.onAuthSignedIn = () => { loadDailyUsage(); loadPreferences(); };
 
     (function init() {
         if (localStorage.getItem('darkMode_cv') === '1') document.body.classList.add('dark');
-        const savedRol = localStorage.getItem('cv_rol');
-        const savedContexto = localStorage.getItem('cv_contexto');
-        if (savedRol) State.rol = savedRol;
-        if (savedContexto !== null) State.contexto = savedContexto;
-        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
-        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+        loadPreferences();
         loadVoices();
         setupRecordButton();
     })();

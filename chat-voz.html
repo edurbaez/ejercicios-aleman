@@ -102,6 +102,7 @@
 
     <script>
     const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos
+    const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
 
     const State = {
         level: 'B1',
@@ -534,13 +535,12 @@ Regeln:
     }
 
     function saveContext() {
-        State.rol = document.getElementById('rolText').value.trim()
-            || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+        State.rol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
         State.contexto = document.getElementById('contextText').value.trim();
-        const btn = document.getElementById('contextBtn');
-        const customized = State.contexto.length > 0
-            || State.rol !== 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
-        btn.classList.toggle('cv-context-active', customized);
+        localStorage.setItem('cv_rol', State.rol);
+        localStorage.setItem('cv_contexto', State.contexto);
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
         document.getElementById('contextModal').classList.remove('cv-modal-open');
     }
 
@@ -549,6 +549,12 @@ Regeln:
 
     (function init() {
         if (localStorage.getItem('darkMode_cv') === '1') document.body.classList.add('dark');
+        const savedRol = localStorage.getItem('cv_rol');
+        const savedContexto = localStorage.getItem('cv_contexto');
+        if (savedRol) State.rol = savedRol;
+        if (savedContexto !== null) State.contexto = savedContexto;
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
         loadVoices();
         setupRecordButton();
     })();

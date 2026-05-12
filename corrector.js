@@ -121,6 +121,7 @@ async function revisar() {
 
         State.lastResult = data;
         renderResult(data);
+        window.logEvent?.('corrector', 'revision', { type: State.type, errors: data.errores?.length ?? 0 });
     } catch (e) {
         showError(e.message);
     } finally {

@@ -79,6 +79,52 @@
 
 ---
 
+## Costos por servicio
+
+> Precios de OpenAI vigentes a mayo 2026. Los costos de Vercel y Supabase son $0 dentro del free tier para el volumen de uso actual.
+
+### Tabla resumen
+
+| Servicio | Costo por acción | Costo estimado / sesión activa | ¿Gratis con fallback? |
+|----------|-----------------|-------------------------------|----------------------|
+| **TTS OpenAI** (`tts-1`) | $0.000120 / palabra (~8 chars × $0.015/1K chars) | $0.006–$0.012 por sesión de 100 palabras¹ | Sí — TTS del navegador si no hay sesión |
+| **SRS SM-2** | $0.00 | $0.00 | N/A — solo IndexedDB |
+| **Frases en contexto** | $0.000145 / clic² | $0.00 (demanda del usuario) | No — requiere login |
+| **Kasus-Trainer** | $0.000145 / ejercicio² | $0.003–$0.015 por sesión (20–100 ejercicios) | No — requiere login |
+
+¹ La caché en memoria reduce el costo real: palabras repetidas en la misma sesión no generan llamada a la API.  
+² GPT-4o-mini: $0.150/M tokens input + $0.600/M tokens output. Estimado: ~150 tokens input + ~200 tokens output por llamada = $0.0000225 + $0.000120 ≈ $0.000145.
+
+### Desglose por proveedor
+
+| Proveedor | Servicio afectado | Modelo / recurso | Precio unitario |
+|-----------|------------------|-----------------|----------------|
+| OpenAI | TTS (palabras B1/B2) | `tts-1` | $0.015 / 1 000 caracteres |
+| OpenAI | Frases en contexto | `gpt-4o-mini` | $0.150 / 1M tokens input · $0.600 / 1M output |
+| OpenAI | Kasus-Trainer | `gpt-4o-mini` | $0.150 / 1M tokens input · $0.600 / 1M output |
+| OpenAI | Chat de voz (existente) | `gpt-4o-mini` + `whisper-1` | $0.006 / min audio |
+| OpenAI | Corrector (existente) | `gpt-4o` vision | ~$0.01 / imagen |
+| OpenAI | Diccionario (existente) | `gpt-4o-mini` | ~$0.000030 / búsqueda |
+| Vercel | Serverless functions | Hobby plan | Gratis hasta 100K invocaciones/día |
+| Supabase | Auth + DB | Free tier | Gratis hasta 500 MB DB |
+| IndexedDB | SRS, listas personales | Navegador del usuario | $0.00 |
+
+### Escenario de uso real (1 usuario activo)
+
+| Actividad | Llamadas API / día estimadas | Costo / día |
+|-----------|------------------------------|-------------|
+| 200 palabras en modo Auto (B2/B1) con TTS OpenAI, 30% cache hit | ~140 llamadas TTS | ~$0.017 |
+| 10 clics "Ver frases" | 10 llamadas chat | ~$0.0015 |
+| 30 ejercicios Kasus-Trainer | 30 llamadas chat | ~$0.0044 |
+| 5 búsquedas diccionario | 5 llamadas chat | ~$0.00015 |
+| 10 min Chat de Voz | ~20 llamadas chat + whisper | ~$0.062 |
+| **Total estimado / día / usuario activo** | | **~$0.085** |
+| **Total estimado / mes / usuario activo** | | **~$2.55** |
+
+> El gasto dominante es el Chat de Voz (Whisper + GPT). El TTS nuevo es el segundo mayor si se usa modo Auto intensivamente. El SRS y los ajustes de interfaz no agregan ningún costo.
+
+---
+
 ## Próximas ideas (sin implementar aún)
 
 | # | Servicio | Esfuerzo | Impacto |

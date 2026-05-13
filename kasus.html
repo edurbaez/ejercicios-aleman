@@ -166,12 +166,34 @@
                 ? 'cualquier caso gramatical (Nominativ, Akkusativ, Dativ o Genitiv)'
                 : KasState.caso;
 
+            const temas = [
+                'comida y restaurantes', 'viajes y transporte', 'familia y relaciones',
+                'trabajo y oficina', 'ciudad y lugares', 'naturaleza y medio ambiente',
+                'tiempo libre y hobbies', 'compras y tiendas', 'escuela y universidad',
+                'salud y medicina', 'tecnología y redes sociales', 'deportes',
+                'música y cultura', 'clima y estaciones', 'mascotas y animales',
+            ];
+            const estructuras = [
+                'una oración simple y directa',
+                'una oración con un complemento TEKAMOLO (primero temporal, luego causal, luego modal, luego local)',
+                'una oración de relativo (Relativsatz) donde el hueco está en la cláusula principal',
+                'una oración de relativo (Relativsatz) donde el hueco está dentro de la cláusula relativa',
+                'una oración con preposición que rija ' + (KasState.caso === 'Todos' ? 'el caso practicado' : KasState.caso),
+                'una oración con verbo modal (können, müssen, wollen, dürfen, sollen)',
+                'una oración en Perfekt',
+                'una oración con dos cláusulas unidas por una conjunción subordinante (weil, obwohl, wenn, dass)',
+                'una oración con el orden de palabras invertido (Verb-Second con adverbio inicial)',
+            ];
+
+            const tema      = temas[Math.floor(Math.random() * temas.length)];
+            const estructura = estructuras[Math.floor(Math.random() * estructuras.length)];
+
             const resp = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
-                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco es un artículo o adjetivo declinado. Devuelve SOLO JSON sin texto adicional con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical"}. Las opciones deben ser plausibles. La respuesta debe estar entre las opciones.`,
-                    messages: [{ role: 'user', content: 'Genera un ejercicio de ' + casoPrompt + '.' }],
+                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco debe ser un artículo o adjetivo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. Devuelve SOLO JSON sin texto adicional con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical aplicada"}. Las opciones deben ser plausibles y del mismo tipo morfológico. La respuesta debe estar entre las opciones.`,
+                    messages: [{ role: 'user', content: `Genera un ejercicio de ${casoPrompt}. Tema: ${tema}. Estructura: ${estructura}.` }],
                 }),
             });
 

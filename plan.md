@@ -1,135 +1,158 @@
-# Plan: Servicio de Revisión Gramatical por Imagen
+# Sugerencias de Nuevos Servicios
 
-## Concepto
-
-El usuario sube o fotografía un texto escrito a mano o impreso (tarea, carta, frases sueltas).
-La imagen se envía a la API de OpenAI (Vision / GPT-4o) junto con un prompt de revisión gramatical.
-El modelo devuelve un análisis estructurado con los errores encontrados y las correcciones sugeridas.
+Ideas ordenadas por impacto estimado en el aprendizaje. Cada servicio es independiente y puede implementarse por separado.
 
 ---
 
-## Casos de uso
+## 1. TTS de alta calidad con OpenAI Audio (alta prioridad)
 
-| Tipo | Descripción | Prompt especializado |
-|------|-------------|----------------------|
-| **Tarea escolar** | Redacción o ejercicio de alemán manuscrito | Revisar gramática, ortografía, concordancia; señalar cada error con número de línea o frase |
-| **Modelo de carta** | Carta formal/informal en alemán | Revisar estructura epistolar, fórmulas de saludo/despedida, registro (formal vs. informal), gramática |
-| **Frases sueltas** | Lista de oraciones o traducciones propias | Revisar cada frase de forma independiente; indicar si la frase es natural para un hablante nativo |
+**Problema actual:** el TTS del navegador suena robótico y varía por sistema operativo.  
+**Solución:** reemplazar `SpeechSynthesisUtterance` por llamadas a `POST /api/tts` → OpenAI `tts-1` (voces `alloy`, `nova`, `onyx`).
 
----
-
-## Arquitectura propuesta
-
-```
-[Frontend: corrector.html]
-       │
-       ├─ Selección de tipo (tarea / carta / frases)
-       ├─ Upload de imagen (o captura desde cámara)
-       ├─ Preview de la imagen
-       └─ Botón "Revisar"
-              │
-              ▼
-   [api/vision.js  — Vercel serverless]
-       │
-       ├─ Valida JWT (auth.js / Supabase)
-       ├─ Rate limit: 5 req/min por usuario
-       ├─ Construye prompt según tipo
-       ├─ Llama a OpenAI Chat Completions con image_url
-       │     model: gpt-4o
-       │     messages: [system_prompt, {role:user, image + "Revisa este texto"}]
-       └─ Devuelve JSON estructurado
-              │
-              ▼
-   [Frontend: renderiza resultado]
-       ├─ Lista de errores con número/frase de referencia
-       ├─ Corrección sugerida por cada error
-       ├─ Puntuación general (ej. 8/10)
-       └─ Botón "Copiar correcciones"
-```
+| Aspecto | Detalle |
+|---------|---------|
+| Nuevo endpoint | `api/tts.js` — recibe `{ text, voice }`, devuelve MP3 como stream |
+| Afecta | `shared-game.js` (modo Auto/Dual), `chat-voz.html`, `lectura veloz.html` (blog view) |
+| Costo aprox. | $0.015 / 1 000 caracteres (`tts-1`) |
+| Rate limit | 30 req/min por usuario |
+| Caché | Guardar audios frecuentes en Supabase Storage o IndexedDB (base64) para no repetir llamadas |
 
 ---
 
-## Estructura de la respuesta del modelo
+## 2. Repetición espaciada (SRS) basada en datos reales
 
-El system prompt pedirá al modelo que responda **solo** con JSON válido:
+**Problema actual:** las palabras se muestran al azar; las difíciles no aparecen más.  
+**Solución:** implementar un algoritmo SRS ligero (SM-2 simplificado) usando los eventos ya guardados en `usage_events`.
 
-```json
-{
-  "puntuacion": 7,
-  "resumen": "El texto tiene buena estructura pero contiene errores de casos y concordancia verbal.",
-  "errores": [
-    {
-      "fragmento_original": "Ich habe ein großen Hund",
-      "correccion": "Ich habe einen großen Hund",
-      "explicacion": "Acusativo masculino: 'ein' → 'einen', adjetivo mantiene '-en'.",
-      "categoria": "declinación"
-    }
-  ],
-  "observaciones_generales": "Revisar el uso del Akkusativ con artículos indefinidos."
-}
-```
-
-Categorías posibles: `ortografía`, `declinación`, `conjugación`, `orden de palabras`, `registro`, `puntuación`, `vocabulario`.
+| Aspecto | Detalle |
+|---------|---------|
+| Datos disponibles | `usage_events` ya registra respuestas correctas/incorrectas por palabra |
+| Implementación | Calcular `next_review` por palabra en cliente; priorizar palabras vencidas en `nextUnseenIndex()` |
+| UI | Botón "Modo Repaso" en el sets-bar que filtra solo palabras con revisión pendiente |
+| Sin backend nuevo | Todo en `shared-game.js` + IndexedDB (no requiere API) |
 
 ---
 
-## Archivos nuevos
+## 3. Ejercicios de escritura con corrección automática
 
-| Archivo | Propósito |
-|---------|-----------|
-| `corrector.html` | App frontend: upload de imagen, selector de tipo, vista de resultado |
-| `corrector.js` | Lógica JS: preview, llamada a API, render de errores |
-| `api/vision.js` | Serverless: valida JWT, construye prompt, llama a GPT-4o con imagen |
+**Concepto:** el usuario ve una oración en español y la escribe en alemán; GPT evalúa si es correcta y explica errores.
 
----
-
-## Archivos modificados
-
-| Archivo | Cambio | Estado |
-|---------|--------|--------|
-| `styles.css` | Sección `/* CORRECTOR */` con tema naranja `#E65100`, dark mode, componentes | ✅ |
-| `CLAUDE.md` | `corrector.html`, `corrector.js` y `api/vision.js` registrados en Active Files | ✅ |
-| `README.md` | Añadir app Corrector en sección Apps | ✅ |
+| Aspecto | Detalle |
+|---------|---------|
+| Nuevo archivo | `escritura.html` + `escritura.js` |
+| API | Reutiliza `api/chat.js` con prompt especializado |
+| Flujo | Oración ES → input de texto → "Comprobar" → respuesta: ✅/❌ + explicación + versión correcta |
+| Fuente de oraciones | Generadas por GPT a partir del vocabulario de `DATA.json` / `DataB1.json` según nivel |
+| Diferencial | Más efectivo que quiz de selección múltiple para producción activa del idioma |
 
 ---
 
-## Prompts por tipo
+## 4. Entrenador de casos gramaticales (Kasus-Trainer)
 
-### Tarea
-```
-Eres un profesor de alemán experto. Analiza la imagen adjunta, que contiene una tarea escrita en alemán.
-Identifica todos los errores gramaticales, ortográficos y de estilo. Responde SOLO con el JSON indicado.
-```
+**Problema:** el Akkusativ, Dativ y Genitiv son el mayor obstáculo en B1–B2.  
+**Concepto:** ejercicios de rellena-el-hueco con artículos y adjetivos declinados.
 
-### Modelo de carta
-```
-Eres un experto en redacción formal e informal en alemán. Analiza la carta de la imagen.
-Revisa estructura, fórmulas epistolares, registro y gramática. Responde SOLO con el JSON indicado.
-```
-
-### Frases sueltas
-```
-Eres un corrector nativo de alemán. Analiza cada frase de la imagen por separado.
-Indica si cada frase es gramaticalmente correcta y natural. Responde SOLO con el JSON indicado.
-```
+| Aspecto | Detalle |
+|---------|---------|
+| Nuevo archivo | `kasus.html` (sin JS externo, todo inline) |
+| Generación | GPT genera oraciones con un hueco (`___`) y 4 opciones de artículo/adjetivo |
+| Categorías | Nominativ, Akkusativ, Dativ, Genitiv × definido/indefinido/sin artículo |
+| Estadísticas | Guardar aciertos por caso en `usage_events` para identificar punto débil |
+| Sin API extra | Reutiliza `api/chat.js` |
 
 ---
 
-## Consideraciones técnicas
+## 5. Generador de diálogos de escucha (Listening Comprehension)
 
-- **Modelo**: `gpt-4o` (soporta visión; `gpt-4o-mini` no tiene calidad suficiente para OCR + gramática compleja)
-- **Formato imagen**: El frontend convierte la imagen a base64 y la envía en el body como `{ image_base64, type }`. El serverless la reenvía a OpenAI como `image_url: "data:image/jpeg;base64,..."`.
-- **Tamaño máximo**: Limitar a 5 MB en el frontend antes de enviar.
-- **Rate limit**: 5 req/min por usuario (más restrictivo que `/api/chat` por costo del modelo Vision).
-- **Auth**: Mismo patrón que `/api/chat.js` — Bearer JWT validado con `SUPABASE_JWT_SECRET`.
-- **Sin caché**: Las imágenes no se guardan ni en Supabase ni en IndexedDB (privacidad + tamaño).
+**Concepto:** GPT genera un diálogo corto en alemán, el audio se reproduce (OpenAI TTS), y el usuario responde preguntas de comprensión.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Nuevo archivo | `escucha.html` |
+| Flujo | Elegir tema + nivel → GPT genera diálogo JSON `{ lines[], questions[] }` → TTS reproduce cada línea → usuario responde preguntas de opción múltiple |
+| APIs usadas | `api/chat.js` (generar diálogo) + `api/tts.js` (del punto 1, si se implementa) |
+| Nivel de dificultad | A2–C1; el prompt incluye el nivel CEFR objetivo |
 
 ---
 
-## Fases de implementación
+## 6. Historial y transcripciones de Chat de Voz
 
-1. ~~**Fase 1 — API** (`api/vision.js`): endpoint funcional con prompt genérico, sin tipo aún.~~ ✅ **COMPLETADA** — `api/vision.js` con JWT ES256/HS256, rate limit 5 req/min, prompts por tipo, limpieza de markdown en respuesta.
-2. ~~**Fase 2 — Frontend básico** (`corrector.html` + `corrector.js`): upload, preview, llamada, render JSON crudo.~~ ✅ **COMPLETADA** — Upload por archivo/cámara/drag-and-drop, validación 5 MB, preview, selector de tipo, render estructurado (score + tarjetas de error con badge de categoría coloreado + observaciones). CSS en `styles.css`, `CLAUDE.md` actualizado.
-3. ~~**Fase 3 — Tipos y prompts**: selector de tipo, prompts especializados por caso de uso.~~ ✅ **COMPLETADA** — Selector de tipo en `corrector.html`, `PROMPTS` por tipo en `api/vision.js`, tipo enviado desde `corrector.js`.
-4. ~~**Fase 4 — UI pulida**: tarjetas de error con categoría coloreada, puntuación visual, botón copiar.~~ ✅ **COMPLETADA** — Score visual, badges de categoría coloreados, botón "Copiar correcciones" con feedback "¡Copiado!" en `corrector.js`.
-5. ~~**Fase 5 — PWA / navbar**: añadir al menú principal, integrar en `styles.css`.~~ ✅ **COMPLETADA** — "Corrector" añadido al dropdown de los 5 HTML restantes (`palabrasB2`, `B1`, `lectura veloz`, `diccionario`, `chat-voz`). `README.md` actualizado con sección Corrector, `/api/vision`, y Navigation.
+**Problema actual:** las conversaciones de `chat-voz.html` no se guardan.  
+**Solución:** persistir conversaciones completas en Supabase con opción de revisarlas después.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Tabla nueva | `conversations(id, user_id, created_at, level, messages jsonb)` |
+| UI en chat-voz | Botón "Guardar conversación" + panel lateral "Historial" |
+| Vista de revisión | Mostrar turno a turno con transcript + respuesta IA; botón para escuchar el audio de cada turno (si se cacheó) |
+| Utilidad pedagógica | El usuario puede releer y detectar sus propios errores recurrentes |
+
+---
+
+## 7. Generador de frases desde el vocabulario activo
+
+**Concepto:** el usuario selecciona una o varias listas activas y pide a GPT que genere 5 oraciones ejemplo usando esas palabras en contexto real.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Integración | Botón "Ver en contexto" en `palabrasB2.html` y `B1.html` (panel lateral o modal) |
+| API | `api/chat.js` con prompt: "Genera 5 oraciones de nivel B2 usando las palabras: [lista]" |
+| Valor | Pasar de memorización aislada a comprensión en contexto |
+| Implementación | ~50 líneas JS + estilos ya existentes; no requiere archivo nuevo |
+
+---
+
+## 8. Panel de estadísticas avanzado (admin / personal)
+
+**Problema actual:** el stats panel muestra datos crudos; no identifica áreas débiles.  
+**Mejoras sugeridas:**
+
+| Mejora | Detalle |
+|--------|---------|
+| Mapa de calor semanal | Visualizar qué hora del día estudia más el usuario |
+| Palabras más falladas | Top 10 palabras con mayor tasa de error (requiere registrar la palabra en `usage_events`) |
+| Curva de retención | Gráfico de aciertos vs. días desde primera vez vista |
+| Exportar CSV | Descargar historial de respuestas para análisis externo |
+
+---
+
+## 9. Integración con YouTube (Lectura Veloz)
+
+**Concepto:** pegar un enlace de YouTube en alemán → extraer transcript via `youtube-transcript` (npm) → cargarlo directamente en el RSVP.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Nuevo endpoint | `api/transcript.js` — recibe URL, extrae subtítulos, devuelve texto plano |
+| Afecta | `lectura veloz.html`: añadir input "URL de YouTube" junto al textarea |
+| Librería | `youtube-transcript` (MIT, sin API key) o scraping del endpoint de subtítulos de YT |
+| Limitación | Solo funciona si el video tiene subtítulos en alemán (automáticos o manuales) |
+
+---
+
+## 10. Notificaciones de repaso diario (PWA Push)
+
+**Concepto:** recordatorio diario ("¿Has practicado hoy?") via Web Push si el usuario lleva más de 24 h sin actividad.
+
+| Aspecto | Detalle |
+|---------|---------|
+| Implementación | Web Push API + VAPID keys; `sw.js` maneja el evento `push` |
+| Backend | `api/push-notify.js` o cron de Vercel que consulta `usage_events` y manda push a usuarios inactivos |
+| Opt-in | Modal de permiso en el primer arranque de la PWA |
+| Librería | `web-push` (npm) para generar y enviar notificaciones VAPID |
+
+---
+
+## Resumen de prioridades
+
+| # | Servicio | Esfuerzo | Impacto pedagógico |
+|---|----------|----------|--------------------|
+| 1 | TTS OpenAI | Medio | Alto — mejor pronunciación en todas las apps |
+| 2 | SRS | Bajo | Alto — aprende más en menos tiempo |
+| 3 | Escritura | Medio | Alto — producción activa del idioma |
+| 4 | Kasus-Trainer | Bajo | Alto — punto débil frecuente en B1/B2 |
+| 7 | Frases en contexto | Muy bajo | Medio — contexto inmediato, mínimo esfuerzo |
+| 6 | Historial chat | Medio | Medio — revisión y reflexión |
+| 5 | Listening | Alto | Alto — comprensión auditiva |
+| 8 | Stats avanzado | Medio | Medio — motivación y diagnóstico |
+| 9 | YouTube → RSVP | Medio | Medio — contenido auténtico |
+| 10 | Push notifications | Alto | Bajo-medio — hábito diario |

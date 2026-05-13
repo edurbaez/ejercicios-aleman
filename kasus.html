@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasus-Trainer</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body id="page-kas">
+    <nav id="navbar">
+        <a href="palabrasB2.html">Inicio</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <a href="lectura veloz.html">Lectura Veloz</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="B1.html">B1</a>
+                <a href="chat-voz.html">Chat de Voz</a>
+                <a href="corrector.html">Corrector</a>
+                <a href="kasus.html" class="active">Kasus-Trainer</a>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión">👤</button>
+        <button id="darkModeBtn" onclick="toggleKasDark()" title="Modo oscuro">🌙</button>
+    </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
+
+    <div class="kas-container">
+
+        <div class="kas-header">
+            <h1>Kasus-Trainer</h1>
+            <p>Practica los artículos y declinaciones del alemán: Nominativ, Akkusativ, Dativ y Genitiv.</p>
+        </div>
+
+        <!-- Selector de caso -->
+        <div class="kas-case-selector">
+            <button class="kas-case-btn active" data-caso="Todos">Todos</button>
+            <button class="kas-case-btn" data-caso="Nominativ">Nominativ</button>
+            <button class="kas-case-btn" data-caso="Akkusativ">Akkusativ</button>
+            <button class="kas-case-btn" data-caso="Dativ">Dativ</button>
+            <button class="kas-case-btn" data-caso="Genitiv">Genitiv</button>
+        </div>
+
+        <!-- Marcador -->
+        <div class="kas-score-row">
+            <div class="kas-score-card">
+                <span class="kas-score-num" id="kas-aciertos">0</span>
+                <span class="kas-score-label">Aciertos</span>
+            </div>
+            <div class="kas-score-card">
+                <span class="kas-score-num" id="kas-errores">0</span>
+                <span class="kas-score-label">Errores</span>
+            </div>
+            <div class="kas-score-card">
+                <span class="kas-score-num" id="kas-racha">0</span>
+                <span class="kas-score-label">Racha</span>
+            </div>
+        </div>
+
+        <!-- Área de ejercicio -->
+        <div class="kas-exercise-area" id="kas-exercise-area">
+            <div class="kas-idle">
+                <div class="kas-idle-icon">🇩🇪</div>
+                <p>Selecciona un caso y pulsa <strong>Generar ejercicio</strong> para empezar.</p>
+                <button class="kas-gen-btn" id="kas-gen-btn" onclick="generarEjercicio()">Generar ejercicio</button>
+            </div>
+        </div>
+
+        <!-- Área de feedback -->
+        <div class="kas-feedback" id="kas-feedback" style="display:none;"></div>
+
+        <!-- Botón siguiente (aparece tras responder) -->
+        <button class="kas-next-btn" id="kas-next-btn" style="display:none;" onclick="generarEjercicio()">Siguiente →</button>
+
+    </div>
+
+    <script>
+    // ── Estado ────────────────────────────────────────
+    const KasState = {
+        caso:      'Todos',
+        aciertos:  0,
+        errores:   0,
+        racha:     0,
+        cargando:  false,
+        ejercicio: null,
+    };
+
+    // ── Dark mode ─────────────────────────────────────
+    (function () {
+        if (localStorage.getItem('darkMode_kas') === 'true') {
+            document.body.classList.add('dark');
+            document.getElementById('darkModeBtn').textContent = '☀️';
+        }
+    })();
+
+    function toggleKasDark() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('darkModeBtn').textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode_kas', isDark);
+    }
+
+    // ── Selector de caso ─────────────────────────────
+    document.querySelectorAll('.kas-case-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.kas-case-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            KasState.caso = btn.dataset.caso;
+        });
+    });
+
+    // ── Helpers ───────────────────────────────────────
+    function escHtml(s) {
+        return String(s)
+            .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+            .replaceAll('"','&quot;');
+    }
+
+    function updateScore() {
+        document.getElementById('kas-aciertos').textContent = KasState.aciertos;
+        document.getElementById('kas-errores').textContent  = KasState.errores;
+        document.getElementById('kas-racha').textContent    = KasState.racha;
+    }
+
+    function showFeedback(correcto, opcionElegida, ejercicio) {
+        const fb = document.getElementById('kas-feedback');
+        fb.style.display = 'block';
+        if (correcto) {
+            fb.innerHTML = `
+                <div class="kas-fb-correct">
+                    <strong>¡Correcto!</strong>
+                    <p class="kas-fb-exp">${escHtml(ejercicio.explicacion)}</p>
+                </div>`;
+        } else {
+            fb.innerHTML = `
+                <div class="kas-fb-wrong">
+                    <strong>Incorrecto.</strong> La respuesta correcta es <em>${escHtml(ejercicio.respuesta)}</em>.
+                    <p class="kas-fb-exp">${escHtml(ejercicio.explicacion)}</p>
+                </div>`;
+        }
+    }
+
+    // ── Generar ejercicio vía API ─────────────────────
+    async function generarEjercicio() {
+        if (KasState.cargando) return;
+        KasState.cargando = true;
+        document.getElementById('kas-feedback').style.display = 'none';
+        document.getElementById('kas-next-btn').style.display = 'none';
+
+        const area = document.getElementById('kas-exercise-area');
+        area.innerHTML = `<div class="kas-loading">Generando ejercicio…</div>`;
+
+        try {
+            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+            if (!token) {
+                area.innerHTML = `<div class="kas-error">Inicia sesión para usar el Kasus-Trainer.</div>`;
+                KasState.cargando = false;
+                return;
+            }
+
+            const casoPrompt = KasState.caso === 'Todos'
+                ? 'cualquier caso gramatical (Nominativ, Akkusativ, Dativ o Genitiv)'
+                : KasState.caso;
+
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco es un artículo o adjetivo declinado. Devuelve SOLO JSON sin texto adicional con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical"}. Las opciones deben ser plausibles. La respuesta debe estar entre las opciones.`,
+                    messages: [{ role: 'user', content: 'Genera un ejercicio de ' + casoPrompt + '.' }],
+                }),
+            });
+
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de API');
+
+            let ej;
+            try { ej = JSON.parse(data.reply); } catch { throw new Error('El modelo devolvió JSON inválido'); }
+            if (!ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta) {
+                throw new Error('Estructura de ejercicio incompleta');
+            }
+
+            KasState.ejercicio = ej;
+            renderEjercicio(ej);
+
+        } catch (err) {
+            area.innerHTML = `<div class="kas-error">Error: ${escHtml(err.message)}. <button class="kas-gen-btn" onclick="generarEjercicio()" style="margin-top:12px;">Reintentar</button></div>`;
+        } finally {
+            KasState.cargando = false;
+        }
+    }
+
+    // ── Renderizar ejercicio ───────────────────────────
+    function renderEjercicio(ej) {
+        const area = document.getElementById('kas-exercise-area');
+        const partes = ej.frase.split('___');
+        const fraseHtml = partes.length === 2
+            ? `${escHtml(partes[0])}<span class="kas-blank">___</span>${escHtml(partes[1])}`
+            : escHtml(ej.frase);
+
+        const casoBadgeClass = {
+            Nominativ: 'kas-badge-nom',
+            Akkusativ: 'kas-badge-akk',
+            Dativ:     'kas-badge-dat',
+            Genitiv:   'kas-badge-gen',
+        }[ej.caso] || 'kas-badge-nom';
+
+        area.innerHTML = `
+            <div class="kas-frase-wrap">
+                <span class="kas-caso-badge ${casoBadgeClass}">${escHtml(ej.caso)}</span>
+                <p class="kas-frase">${fraseHtml}</p>
+            </div>
+            <div class="kas-options-grid" id="kas-options-grid">
+                ${ej.opciones.map((op, i) => `
+                    <button class="kas-option-btn" data-opcion="${escHtml(op)}" onclick="elegirOpcion(this)">
+                        <span class="kas-opt-num">${i + 1}</span> ${escHtml(op)}
+                    </button>`).join('')}
+            </div>`;
+
+        // Atajos de teclado 1-4
+        window._kasKeyHandler = function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
+            if (map[e.key] !== undefined) {
+                const btns = document.querySelectorAll('.kas-option-btn:not([disabled])');
+                if (btns[map[e.key]]) elegirOpcion(btns[map[e.key]]);
+            }
+        };
+        document.addEventListener('keydown', window._kasKeyHandler);
+    }
+
+    // ── Evaluar respuesta ─────────────────────────────
+    function elegirOpcion(btn) {
+        if (!KasState.ejercicio) return;
+        // Deshabilitar todos los botones
+        document.querySelectorAll('.kas-option-btn').forEach(b => b.disabled = true);
+        if (window._kasKeyHandler) {
+            document.removeEventListener('keydown', window._kasKeyHandler);
+        }
+
+        const elegida  = btn.dataset.opcion;
+        const correcto = elegida === KasState.ejercicio.respuesta;
+
+        // Colorear opciones
+        document.querySelectorAll('.kas-option-btn').forEach(b => {
+            if (b.dataset.opcion === KasState.ejercicio.respuesta) {
+                b.classList.add('kas-opt-correct');
+            } else if (b === btn && !correcto) {
+                b.classList.add('kas-opt-wrong');
+            }
+        });
+
+        if (correcto) {
+            KasState.aciertos++;
+            KasState.racha++;
+        } else {
+            KasState.errores++;
+            KasState.racha = 0;
+        }
+        updateScore();
+        showFeedback(correcto, elegida, KasState.ejercicio);
+        document.getElementById('kas-next-btn').style.display = 'block';
+
+        if (typeof window.logEvent === 'function') {
+            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto });
+        }
+    }
+    </script>
+</body>
+</html>

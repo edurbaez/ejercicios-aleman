@@ -33,7 +33,8 @@
     palabrasContadas: 0,
     palabrasLimite:   parseInt(localStorage.getItem(LIMIT_KEY) || '100', 10),
     selectionLock:    false,
-    roundToken:       0
+    roundToken:       0,
+    modoSRS:          false,
   };
 
   const $ = id => document.getElementById(id);
@@ -59,6 +60,22 @@
 
   function nextUnseenIndex() {
     if (!State.de.length) return 0;
+
+    // SRS mode: only pick from due words
+    if (State.modoSRS) {
+      const due = srsDueIndices();
+      if (due.length === 0) {
+        State.modoSRS = false;
+        updateSRSBtnUI();
+        showToast('SRS completado — todas las palabras revisadas');
+        // Fall through to normal mode
+      } else {
+        const pick = due[Math.floor(Math.random() * due.length)];
+        State.vistos.push(pick);
+        return pick;
+      }
+    }
+
     if (State.vistos.length >= State.de.length - 3) State.vistos = [];
     let tries = 0;
     let idx = Math.floor(Math.random() * State.de.length);
@@ -126,6 +143,7 @@
     renderLista(State.es, State.de);
     renderRepeatNext();
     renderSelectionNext();
+    updateSRSBtnUI();
   }
 
   function updateSetButtonsUI() {
@@ -203,7 +221,9 @@
     State.selectionLock = true;
     if (!State.timerStarted) startTimer();
     const correct = chosenWordIndex === State.currentIndex;
-    window.logEvent(APP, 'word_answered', { word_de: State.de[State.currentIndex], correct });
+    const wordDe = State.de[State.currentIndex];
+    window.logEvent(APP, 'word_answered', { word_de: wordDe, correct });
+    updateSRSCard(wordDe, correct);
     if (correct) {
       markOptionsBackground('green');
       const acEl = $('aciertos');
@@ -217,6 +237,7 @@
       }
     }
     renderSelectionNext();
+    updateSRSBtnUI();
   }
 
   function bindSelectionEvents() {
@@ -251,6 +272,46 @@
     State.timerId = null;
   }
 
+  /* ── TTS con API OpenAI + fallback navegador ─────── */
+
+  const _ttsCache = new Map(); // word → blob URL
+
+  async function speakOnce(text, lang) {
+    if (!text) return;
+    if (lang === 'de') {
+      try {
+        const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+        if (token) {
+          if (!_ttsCache.has(text)) {
+            const resp = await fetch('/api/tts', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ text, voice: 'onyx' }),
+            });
+            if (resp.ok) {
+              const blob = await resp.blob();
+              _ttsCache.set(text, URL.createObjectURL(blob));
+            }
+          }
+          if (_ttsCache.has(text)) {
+            return new Promise(resolve => {
+              const audio = new Audio(_ttsCache.get(text));
+              audio.onended = resolve;
+              audio.onerror = resolve;
+              audio.play().catch(resolve);
+            });
+          }
+        }
+      } catch {}
+    }
+    // Fallback: TTS del navegador
+    return new Promise(resolve => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang; u.onend = resolve; u.onerror = resolve;
+      speechSynthesis.speak(u);
+    });
+  }
+
   /* ── Repetición TTS ────────────────────────────────── */
 
   function renderRepeatNext() {
@@ -262,15 +323,6 @@
     const idx = nextUnseenIndex();
     safeText($('p1'), State.es[idx]);
     safeText($('p2'), State.de[idx]);
-  }
-
-  function speakOnce(text, lang) {
-    if (!text) return Promise.resolve();
-    return new Promise(resolve => {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = lang; u.onend = resolve; u.onerror = resolve;
-      speechSynthesis.speak(u);
-    });
   }
 
   async function speakLoop() {
@@ -418,6 +470,204 @@
       .catch(() => showToast('No se pudo acceder al portapapeles'));
   }
   window.copiarErrores = copiarErrores;
+
+  /* ── SRS (Repetición Espaciada SM-2) ────────────────── */
+
+  const SRS_DB_NAME = 'srs-db-' + APP;
+  const SRS_STORE   = 'cards';
+  let _srsDb = null;
+  const _srsCache = new Map(); // word_de → { word, ease, interval, reps, due }
+
+  function openSRSDB() {
+    if (_srsDb) return Promise.resolve(_srsDb);
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(SRS_DB_NAME, 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore(SRS_STORE, { keyPath: 'word' });
+      req.onsuccess = e => { _srsDb = e.target.result; resolve(_srsDb); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function loadSRSCache() {
+    try {
+      const db = await openSRSDB();
+      const cards = await new Promise(resolve => {
+        const req = db.transaction(SRS_STORE).objectStore(SRS_STORE).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+      _srsCache.clear();
+      cards.forEach(c => _srsCache.set(c.word, c));
+    } catch {}
+  }
+
+  async function updateSRSCard(word, correct) {
+    const now  = Date.now();
+    const card = _srsCache.get(word) || { word, ease: 2.5, interval: 1, reps: 0, due: now };
+    if (correct) {
+      card.reps++;
+      if (card.reps === 1)      card.interval = 1;
+      else if (card.reps === 2) card.interval = 6;
+      else                      card.interval = Math.round(card.interval * card.ease);
+    } else {
+      card.reps = 0;
+      card.interval = 1;
+      card.ease = Math.max(1.3, card.ease - 0.2);
+    }
+    card.due = now + card.interval * 86_400_000;
+    _srsCache.set(word, card);
+    try {
+      const db = await openSRSDB();
+      const tx = db.transaction(SRS_STORE, 'readwrite');
+      tx.objectStore(SRS_STORE).put(card);
+    } catch {}
+  }
+
+  function srsDueIndices() {
+    const now = Date.now();
+    const due = [];
+    for (let i = 0; i < State.de.length; i++) {
+      const card = _srsCache.get(State.de[i]);
+      if (!card || card.due <= now) due.push(i);
+    }
+    return due;
+  }
+
+  function updateSRSBtnUI() {
+    const btn = $('btn-srs');
+    if (!btn) return;
+    const due = srsDueIndices();
+    if (State.modoSRS) {
+      btn.textContent = `SRS ON (${due.length} pendientes)`;
+      btn.style.background = '#388E3C';
+      btn.style.borderColor = '#2E7D32';
+    } else {
+      btn.textContent = due.length > 0 ? `SRS Repaso (${due.length})` : 'SRS Repaso';
+      btn.style.background = '';
+      btn.style.borderColor = '';
+    }
+  }
+
+  function montarBotonSRS() {
+    if ($('btn-srs')) { updateSRSBtnUI(); return; }
+    const footer = _getOrCreateFooterSRS();
+    const btn = document.createElement('button');
+    btn.id = 'btn-srs';
+    btn.className = 'btn';
+    btn.addEventListener('click', () => {
+      if (!State.de.length) { showToast('Selecciona una lista primero'); return; }
+      State.modoSRS = !State.modoSRS;
+      if (State.modoSRS) {
+        const due = srsDueIndices();
+        if (due.length === 0) {
+          State.modoSRS = false;
+          updateSRSBtnUI();
+          showToast('No hay palabras para repasar hoy');
+          return;
+        }
+        showToast(`SRS activado — ${due.length} palabras pendientes`);
+      } else {
+        showToast('SRS desactivado');
+      }
+      updateSRSBtnUI();
+      renderSelectionNext();
+    });
+    footer.appendChild(btn);
+    updateSRSBtnUI();
+  }
+
+  /* ── Frases en contexto ─────────────────────────────── */
+
+  function _getOrCreateFooterSRS() {
+    let footer = document.querySelector('#seleccion-multiple .footer-srs');
+    if (footer) return footer;
+    footer = document.createElement('div');
+    footer.className = 'footer-srs';
+    footer.style.cssText = 'text-align:center;margin-top:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;';
+    const section = $('seleccion-multiple');
+    if (section) section.appendChild(footer);
+    return footer;
+  }
+
+  function montarBotonFrases() {
+    if ($('btn-frases')) return;
+    const footer = _getOrCreateFooterSRS();
+    const btn = document.createElement('button');
+    btn.id = 'btn-frases';
+    btn.className = 'btn';
+    btn.textContent = 'Ver frases';
+    btn.style.cssText = `background:#5C6BC0;border-color:#3949AB;`;
+    btn.addEventListener('click', abrirFrasesModal);
+    footer.appendChild(btn);
+  }
+
+  async function abrirFrasesModal() {
+    if (State.currentIndex === null || !State.de.length) {
+      showToast('Selecciona una lista primero');
+      return;
+    }
+    const wordDe = State.de[State.currentIndex];
+    const wordEs = State.es[State.currentIndex];
+
+    let overlay = $('frases-modal-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'frases-modal-overlay';
+      overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;';
+      overlay.innerHTML = `
+        <div style="background:var(--card-bg,#fff);color:var(--text,#333);border-radius:14px;padding:24px;width:min(90vw,520px);max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.25);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h3 id="frases-modal-title" style="margin:0;font-size:18px;color:#5C6BC0;"></h3>
+            <button id="frases-modal-close" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text,#333);">✕</button>
+          </div>
+          <div id="frases-modal-body" style="font-size:15px;line-height:1.7;"></div>
+        </div>`;
+      overlay.addEventListener('click', e => { if (e.target === overlay) overlay.style.display = 'none'; });
+      document.body.appendChild(overlay);
+      $('frases-modal-close').addEventListener('click', () => { overlay.style.display = 'none'; });
+    }
+
+    $('frases-modal-title').textContent = `"${wordDe}" — ${wordEs}`;
+    $('frases-modal-body').innerHTML = '<em style="color:#999;">Generando frases…</em>';
+    overlay.style.display = 'flex';
+
+    try {
+      const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+      if (!token) {
+        $('frases-modal-body').innerHTML = '<em style="color:#c62828;">Inicia sesión para usar esta función.</em>';
+        return;
+      }
+      const level = APP === 'b1' ? 'B1' : 'B2';
+      const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          system: `Eres un profesor de alemán. Genera exactamente 3 oraciones de ejemplo de nivel ${level} usando la palabra "${wordDe}" (${wordEs} en español). Devuelve SOLO JSON sin texto adicional: {"oraciones":[{"de":"…","es":"…"}]}`,
+          messages: [{ role: 'user', content: `Genera 3 oraciones con "${wordDe}".` }],
+        }),
+      });
+      const raw = await resp.text();
+      let data;
+      try { data = JSON.parse(raw); } catch { throw new Error(raw.slice(0, 200)); }
+      if (!resp.ok) throw new Error(data.error || 'Error de API');
+
+      let parsed;
+      try { parsed = JSON.parse(data.reply); } catch { throw new Error('Respuesta inesperada'); }
+
+      const oraciones = parsed.oraciones || [];
+      if (!oraciones.length) {
+        $('frases-modal-body').innerHTML = '<em style="color:#999;">No se pudieron generar frases.</em>';
+        return;
+      }
+      $('frases-modal-body').innerHTML = oraciones.map((o, i) => `
+        <div style="margin-bottom:14px;padding:12px 14px;background:rgba(92,107,192,0.08);border-left:3px solid #5C6BC0;border-radius:4px;">
+          <div style="font-weight:bold;margin-bottom:4px;">${i + 1}. ${escapeHtml(o.de)}</div>
+          <div style="font-size:13px;opacity:0.65;">${escapeHtml(o.es)}</div>
+        </div>`).join('');
+    } catch (err) {
+      $('frases-modal-body').innerHTML = `<em style="color:#c62828;">Error: ${escapeHtml(String(err.message || err))}</em>`;
+    }
+  }
 
   /* ── Listas personales (IndexedDB) ────────────────── */
 
@@ -617,12 +867,14 @@
   /* ── Init ──────────────────────────────────────────── */
 
   async function initUnifiedApp() {
-    await inyectarListasPersonales();
+    await Promise.all([inyectarListasPersonales(), loadSRSCache()]);
     mountSetButtons();
     montarPanelMisListas();
     bindSelectionEvents();
     bindRepeatControls();
     bindCounterDblClick();
+    montarBotonSRS();
+    montarBotonFrases();
 
     const filterInput = document.getElementById('filter-lista');
     if (filterInput) {

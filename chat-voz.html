@@ -171,7 +171,7 @@
 
         if (!window.currentUser || !window.sb) return;
         const { data } = await window.sb
-            .from('user_preferences')
+            .from('user_data')
             .select('cv_rol, cv_contexto')
             .eq('user_id', window.currentUser.id)
             .maybeSingle();
@@ -189,7 +189,7 @@
         localStorage.setItem('cv_rol', State.rol);
         localStorage.setItem('cv_contexto', State.contexto);
         if (!window.currentUser || !window.sb) return;
-        await window.sb.from('user_preferences').upsert({
+        await window.sb.from('user_data').upsert({
             user_id: window.currentUser.id,
             cv_rol: State.rol,
             cv_contexto: State.contexto,

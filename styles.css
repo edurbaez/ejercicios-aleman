@@ -44,7 +44,7 @@ body {
     color: var(--text);
     text-decoration: none;
     padding: 5px 12px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: bold;
     transition: background-color 0.2s;
@@ -62,7 +62,7 @@ body {
     cursor: pointer;
     color: var(--text);
     padding: 5px 12px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 14px;
     font-weight: bold;
     transition: background-color 0.2s;
@@ -96,10 +96,16 @@ body {
     transition: background-color 0.2s;
 }
 
-#darkModeBtn {
+#darkModeBtn,
+#auth-btn {
     background: none;
     border: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    line-height: 1;
 }
 
 
@@ -150,9 +156,8 @@ body {
 }
 
 #page-b2 #darkModeBtn {
-    font-size: 20px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
 }
 
 .app {
@@ -225,7 +230,7 @@ body {
     background-color: var(--color-b2);
     color: white;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: 0.2s;
 }
 
@@ -253,7 +258,7 @@ body {
     padding: 10px;
     background: #fff3cd;
     border: 1px solid #ffc107;
-    border-radius: 6px;
+    border-radius: 8px;
     margin-bottom: 15px;
     color: #856404;
 }
@@ -366,9 +371,8 @@ th, td {
 }
 
 #page-b1 #darkModeBtn {
-    font-size: 20px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
 }
 
 #page-b1 .btn {
@@ -377,7 +381,7 @@ th, td {
     background-color: var(--color-b2);
     color: white;
     cursor: pointer;
-    border-radius: 6px;
+    border-radius: 8px;
     transition: 0.2s;
 }
 
@@ -618,7 +622,8 @@ th, td {
     position: fixed;
     top: 8px;
     right: 15px;
-    font-size: 22px;
+    padding: 6px 8px;
+    border-radius: 8px;
     z-index: 300;
 }
 
@@ -668,9 +673,8 @@ th, td {
 }
 
 #page-cv #darkModeBtn {
-    font-size: 20px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
 }
 
 .cv-app {
@@ -884,7 +888,7 @@ th, td {
     padding: 8px 18px;
     border: 2px solid var(--border);
     background: none;
-    border-radius: 7px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     color: var(--text);
@@ -901,7 +905,7 @@ th, td {
     background: #1e88e5;
     color: white;
     border: none;
-    border-radius: 7px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
@@ -1379,9 +1383,8 @@ th, td {
 }
 
 #page-kas #darkModeBtn {
-    font-size: 20px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
 }
 
 .kas-container {
@@ -1718,9 +1721,8 @@ th, td {
 }
 
 #page-cor #darkModeBtn {
-    font-size: 20px;
-    padding: 4px 8px;
-    border-radius: 5px;
+    padding: 6px 8px;
+    border-radius: 8px;
 }
 
 .cor-container {

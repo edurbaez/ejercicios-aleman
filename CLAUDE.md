@@ -24,6 +24,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `corrector.html` | Grammar correction app: upload or photograph a German text (tarea, carta, frases sueltas), sends it to GPT-4o Vision via `/api/vision`, and renders a structured list of errors with corrections and explanations. |
 | `kasus.html` | Grammar case trainer: generates fill-in-the-blank exercises (Nominativ/Akkusativ/Dativ/Genitiv) via `/api/chat`. Tracks score and streak. All JS inline. Teal theme (`#00796B`). |
 | `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
+| `gramatica.html` | Grammar rules reference SPA. Displays 10 key grammar rules per CEFR level (A1–C2) as an accordion. Level selection via pill buttons; hash-based routing (#a1…#c2). All content embedded in `gramatica.js`. Orange theme (`#E65100`). |
 
 ### API
 
@@ -66,6 +67,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `shared-game.js` | Motor de juego compartido entre `palabrasB2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS (OpenAI `tts-1` vía `/api/tts` con fallback al TTS del navegador, caché en memoria), SRS SM-2 (IndexedDB `srs-db-{APP}`, botón "SRS Repaso"), Frases en contexto (modal que llama `/api/chat`), temporizador, listas personales (IndexedDB) y PWA. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
 | `diccionario.js` | All JS logic for `diccionario.html`: uses `window.sb` from `auth.js` (no Supabase client propio), IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 | `corrector.js` | All JS logic for `corrector.html`: file/camera input handling, base64 conversion, drag-and-drop upload, `/api/vision` call, and result rendering (score, error cards with category badges, observaciones). |
+| `gramatica.js` | All data and SPA logic for `gramatica.html`. Contains `GRAMMAR_DATA` object (60 rules, 10 per CEFR level A1–C2), level tab rendering, accordion toggle, and hash-based routing. No external API calls. |
 
 ### Shared styles
 

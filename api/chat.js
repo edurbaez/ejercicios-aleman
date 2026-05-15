@@ -111,7 +111,7 @@ export default async function handler(req, res) {
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
     }
-    if (messages.length > 20) {
+    if (messages.length > 40) {
         return res.status(400).json({ error: 'Demasiados mensajes' });
     }
     if (system && String(system).length > 2000) {

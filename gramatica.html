@@ -36,10 +36,42 @@
             <p>Las 10 reglas más importantes de cada nivel CEFR del alemán</p>
         </div>
 
+        <div class="gram-search-wrap">
+            <span class="gram-search-icon">🔍</span>
+            <input id="gram-search" class="gram-search" type="search" placeholder="Buscar regla…" autocomplete="off" oninput="onSearch(this.value)">
+            <button class="gram-search-clear" id="gram-search-clear" onclick="clearSearch()" title="Limpiar">✕</button>
+        </div>
+        <div id="gram-search-label" class="gram-search-results-label" style="display:none"></div>
+
         <div id="gram-level-bar" class="gram-level-bar"></div>
+
+        <div id="gram-toolbar" class="gram-toolbar" style="display:none">
+            <div class="gram-toolbar-left">
+                <button class="gram-action-btn" onclick="openReview()">⚡ Repaso rápido</button>
+                <button class="gram-action-btn" id="fav-filter-btn" onclick="toggleFavFilter()">☆ Favoritos</button>
+            </div>
+            <span id="gram-kbd-hint" style="font-size:11px;opacity:0.4">← → niveles · ↑↓ reglas · F favorito</span>
+        </div>
 
         <div id="gram-rules" class="gram-rules-list"></div>
     </div>
+
+    <div id="gram-review-overlay" class="gram-review-overlay" style="display:none" onclick="if(event.target===this)closeReview()">
+        <div class="gram-review-card">
+            <button class="gram-review-close" onclick="closeReview()">✕</button>
+            <div id="rv-meta" class="gram-review-meta"></div>
+            <div id="rv-title" class="gram-review-title"></div>
+            <div id="rv-sub" class="gram-review-sub"></div>
+            <div id="rv-tip" class="gram-review-tip"></div>
+            <div class="gram-review-progress"><div id="rv-bar" class="gram-review-progress-bar" style="width:0%"></div></div>
+            <div class="gram-review-nav">
+                <button id="rv-prev" onclick="reviewNav(-1)">← Anterior</button>
+                <span id="rv-counter" class="gram-review-counter"></span>
+                <button id="rv-next" onclick="reviewNav(1)">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+    <div id="gram-toast" class="gram-toast"></div>
 
     <script src="gramatica.js"></script>
 </body>

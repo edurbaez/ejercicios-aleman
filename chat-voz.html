@@ -284,7 +284,7 @@ ${guides[level]}
 Regeln:
 - Antworte immer auf Deutsch
 - Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
-- Wenn der Benutzer Grammatikfehler macht, korrigiere sie kurz und freundlich am Ende deiner Antwort
+- Wenn der Benutzer Grammatikfehler macht, füge am Ende deiner Antwort einen separaten Abschnitt hinzu, der mit "---CORRECCIÓN---" beginnt. Format (eine Zeile pro Fehler): ❌ "falsche Formulierung" → ✅ "korrekte Formulierung" (kurze Erklärung auf Spanisch). Die Konversationsantwort selbst soll KEINE eingebetteten Korrekturen enthalten.
 - Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen`;
         if (State.guidedMode) {
             base += `\n\nMODO GUIADO ACTIVO: Después de tu pregunta o comentario, añade en una nueva línea exactamente "---SUGERENCIA---" seguido de una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. No expliques la sugerencia, solo escríbela en alemán.`;
@@ -366,6 +366,15 @@ Regeln:
             if (!resp.ok) throw new Error(data.error || 'Error de red');
 
             let displayReply = data.reply;
+
+            // Extract grammar correction block
+            let correctionText = null;
+            const corrParts = displayReply.split('---CORRECCIÓN---');
+            if (corrParts.length > 1) {
+                displayReply = corrParts[0].trim();
+                correctionText = corrParts[1].trim();
+            }
+
             if (State.guidedMode) {
                 const parts = displayReply.split('---SUGERENCIA---');
                 if (parts.length > 1) {
@@ -377,6 +386,7 @@ Regeln:
             }
             State.messages.push({ role: 'assistant', content: displayReply });
             updateBubble(thinkingId, displayReply);
+            if (correctionText) addCorrectionCard(correctionText);
             speak(displayReply);
         } catch (e) {
             updateBubble(thinkingId, `Error: ${e.message}`);
@@ -656,6 +666,23 @@ Regeln:
         div.classList.remove('cv-bubble-thinking');
         div.querySelector('.cv-bubble-inner').textContent = text;
         document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+    }
+
+    function addCorrectionCard(text) {
+        const area = document.getElementById('chatArea');
+        const card = document.createElement('div');
+        card.className = 'cv-correction-card';
+        const bodyId = 'corr-' + Date.now();
+        card.innerHTML =
+            `<button class="cv-correction-toggle" onclick="` +
+            `var b=document.getElementById('${bodyId}'),open=b.style.display!=='none';` +
+            `b.style.display=open?'none':'block';` +
+            `this.querySelector('.cv-correction-arrow').textContent=open?'▶':'▼';">` +
+            `<span>🔧 Corrección gramatical</span><span class="cv-correction-arrow">▼</span>` +
+            `</button>` +
+            `<div id="${bodyId}" class="cv-correction-body">${text.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`;
+        area.appendChild(card);
+        area.scrollTop = area.scrollHeight;
     }
 
     function setHint(text) {

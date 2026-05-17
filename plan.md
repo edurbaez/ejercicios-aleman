@@ -117,6 +117,7 @@ Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el pa
 
 ---
 
+
 ### 8. Guardar y revisar conversaciones (impacto bajo / esfuerzo medio)
 
 **Problema:** El usuario termina la sesión y pierde todo el historial. No puede revisar lo que aprendió ni los errores que cometió.
@@ -130,7 +131,7 @@ Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el pa
 | # | Mejora | Impacto | Esfuerzo | Prioridad |
 |---|--------|---------|----------|-----------|
 | 3 | TTS de OpenAI | Alto | Bajo | ✅ Hecho |
-| 4 | Panel de correcciones | Medio | Bajo | ⭐ 2 |
+| 4 | Panel de correcciones | Medio | Bajo | ✅ Hecho |
 | 1 | Escenarios predefinidos | Alto | Bajo | ⭐ 3 |
 | 2 | Objetivo de misión | Alto | Medio | ⭐ 4 |
 | 6 | Estadísticas de sesión | Medio | Bajo | ⭐ 5 |

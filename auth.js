@@ -171,14 +171,18 @@
     content.innerHTML = '<p style="color:#999;font-size:13px;">Cargando estadísticas…</p>';
 
     const token = window.getAuthToken();
-    let data;
+    let data, examData = [];
     try {
-      const res = await fetch(
-        `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&order=created_at.asc`,
-        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
-      );
-      if (!res.ok) throw new Error(await res.text());
-      data = await res.json();
+      const [evRes, exRes] = await Promise.all([
+        fetch(
+          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&order=created_at.asc`,
+          { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
+        ),
+        window.sb.from('exam_results').select('created_at,level,score,total').order('created_at', { ascending: false }).limit(20)
+      ]);
+      if (!evRes.ok) throw new Error(await evRes.text());
+      data = await evRes.json();
+      examData = exRes.data || [];
     } catch (err) {
       content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
       return;
@@ -231,6 +235,26 @@
       </div>`;
     }
 
+    // Exam stats
+    let examHtml;
+    if (examData.length === 0) {
+      examHtml = '<div style="color:#aaa;font-size:13px;padding:6px 0;">Sin exámenes completados.</div>';
+    } else {
+      const examAvg = Math.round(examData.reduce((s, e) => s + e.score / e.total, 0) / examData.length * 100);
+      const examRows = examData.slice(0, 5).map(e => {
+        const p = Math.round(e.score / e.total * 100);
+        const col = p >= 80 ? '#2e7d32' : p >= 60 ? '#e65100' : '#c62828';
+        const d = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
+          <span style="color:#555;">${d} · <strong>${e.level}</strong></span>
+          <strong style="color:${col}">${e.score}/${e.total}</strong>
+        </div>`;
+      }).join('');
+      examHtml = row('Total completados', examData.length) +
+        row('Promedio', examAvg + '%') +
+        `<div style="margin-top:10px;"><div style="font-size:11px;color:#999;letter-spacing:.5px;margin-bottom:5px;">ÚLTIMOS 5</div>${examRows}</div>`;
+    }
+
     const bars = days30.map((day, i) => {
       const count   = counts[i];
       const audDay  = audiosByDay[day];
@@ -276,6 +300,8 @@
       ${row('Búsquedas en diccionario', lookups || '—')}
       ${row('Audios enviados (Chat)', audios || '—')}
       ${row('Sesiones de estudio', sessions || '—')}
+      <div style="font-size:11px;font-weight:600;color:#E65100;letter-spacing:.5px;margin:16px 0 4px;">EXÁMENES DE GRAMÁTICA</div>
+      ${examHtml}
     `;
   };
 

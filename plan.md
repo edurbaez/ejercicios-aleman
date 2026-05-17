@@ -36,186 +36,120 @@
 
 ---
 
-## Modo Examen — Plan de implementación detallado
+## Modo Examen ✅
 
-> Estado: pendiente de implementar  
-> Archivos a modificar: `gramatica.html`, `gramatica.js`, `styles.css`
-
-### Concepto
-
-Quiz cerrado de 10 preguntas generadas por IA (`/api/chat`). Los temas son **N reglas aleatorias** del nivel activo (N configurable, default 5). El modelo recibe los títulos y ejemplos de esas reglas y genera 2 ejercicios por regla. El usuario responde sin feedback inmediato; al final ve la puntuación y las correcciones.
+Quiz cerrado de 10 preguntas generadas por IA. Toma 5 reglas aleatorias del nivel activo, llama a `/api/chat` con `max_tokens: 2000`, y presenta las preguntas sin feedback hasta el final. La pantalla de resultados muestra puntuación, correcciones y permite abrir el acordeón en las reglas falladas. Archivos modificados: `gramatica.html`, `gramatica.js`, `styles.css`, `api/chat.js`.
 
 ---
 
-### Selección aleatoria de reglas (detalle)
+## Resultados de examen en Supabase — Plan por fases
 
-Cada nivel tiene exactamente 10 reglas en `GRAMMAR_DATA`. El examen toma **5 reglas al azar** del nivel activo:
+> Estado: Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅  
+> Objetivo: persistir cada examen completado, mostrarlo en las estadísticas del usuario y en el dashboard del admin.
 
+---
+
+### Tabla nueva: `exam_results`
+
+```sql
+create table exam_results (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid references auth.users not null,
+  created_at  timestamptz default now() not null,
+  level       text not null,               -- 'A1'…'C2'
+  score       int  not null,               -- correctas (0-10)
+  total       int  not null default 10,
+  rules       text[] not null,             -- ids de las 5 reglas usadas
+  answers     jsonb not null               -- array de { enunciado, respuesta_correcta, user_answer, is_correct }
+);
+
+-- RLS: cada usuario solo lee/inserta sus propios registros
+alter table exam_results enable row level security;
+create policy "own rows" on exam_results
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+---
+
+
+
+### Fase 1 ✅ — Crear tabla e insertar al terminar el examen
+
+> Archivos: SQL en Supabase dashboard · `gramatica.js`
+
+**Qué se hace:**
+1. Ejecutar el SQL de creación de tabla en el dashboard de Supabase.
+2. Al mostrar los resultados en `showExamResults()`, insertar una fila en `exam_results` usando `window.sb` (cliente Supabase ya disponible desde `auth.js`).
+3. Inserción silenciosa — si falla (sin sesión, error de red) no interrumpe al usuario.
+
+**Datos que se insertan:**
 ```js
-function pickRandomRules(level, count = 5) {
-  const rules = GRAMMAR_DATA[level];           // array de 10 reglas
-  const shuffled = [...rules].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count);
+{
+  user_id: (from jwt),   // RLS lo pone automático con auth.uid()
+  level: currentLevel,
+  score: correct,
+  total: examQuestions.length,
+  rules: examSelectedRules.map(r => r.id),
+  answers: items.map(it => ({
+    enunciado: it.q.enunciado,
+    respuesta_correcta: it.q.respuesta_correcta,
+    user_answer: it.userAnswer,
+    is_correct: it.isCorrect
+  }))
 }
 ```
 
-Cada vez que el usuario inicia un examen las reglas cambian — nunca el mismo examen dos veces.
-
 ---
 
-### Llamada a la API
+### Fase 2 ✅ — Estadísticas del usuario (panel de stats)
 
-**Una sola llamada** al inicio del examen. Se envían los títulos, subtítulos y un ejemplo por regla para dar contexto al modelo sin exceder el límite de 2 000 chars del system prompt.
+> Archivos: `auth.js` (función `openStatsPanel`)
 
-**System prompt (en `gramatica.js`, constante `EXAM_SYSTEM_PROMPT`):**
-```
-Eres un profesor de alemán. Genera exactamente 10 ejercicios de gramática en JSON.
-Cada ejercicio cubre una de las reglas proporcionadas (2 ejercicios por regla).
-Tipos permitidos: "completar" (fill-in-the-blank), "elegir" (multiple choice 4 opciones).
-Varía los tipos entre los 10 ejercicios.
-Responde ÚNICAMENTE con un array JSON válido, sin texto adicional.
-```
+**Qué se añade al panel de stats existente:**
+- Nueva sección "Exámenes" debajo de las tarjetas HOY.
+- Tarjeta con: total de exámenes realizados, promedio de puntuación (%), mejor racha de niveles.
+- Mini-tabla con los últimos 5 exámenes: fecha · nivel · puntuación.
 
-**User message:** lista de las 5 reglas seleccionadas con título + subtítulo + 1 ejemplo.
-
-**Formato JSON esperado de la respuesta:**
-```json
-[
-  {
-    "tipo": "completar",
-    "enunciado": "Ich ___ gestern ins Kino gegangen.",
-    "respuesta_correcta": "bin",
-    "explicacion": "Perfekt con sein: verbos de movimiento usan sein como auxiliar.",
-    "regla_id": "b1-05"
-  },
-  {
-    "tipo": "elegir",
-    "enunciado": "¿Cuál es el artículo correcto? ___ Tisch ist neu.",
-    "opciones": ["Der", "Die", "Das", "Den"],
-    "respuesta_correcta": "Der",
-    "explicacion": "Tisch es masculino → der en nominativo.",
-    "regla_id": "a1-01"
-  }
-]
+**Query:**
+```js
+const { data } = await window.sb
+  .from('exam_results')
+  .select('created_at, level, score, total')
+  .order('created_at', { ascending: false })
+  .limit(20);
 ```
 
 ---
 
-### Estados del modo examen
+### Fase 3 ✅ — Dashboard del admin
 
-```
-IDLE → LOADING → IN_PROGRESS → RESULTS
-```
+> Archivos: `admin/index.html`
 
-| Estado | Descripción |
-|--------|-------------|
-| `IDLE` | Estado normal de la app. Botón "Modo Examen" visible en la barra de niveles. |
-| `LOADING` | Spinner mientras la API genera los ejercicios. Muestra las reglas seleccionadas para transparencia. |
-| `IN_PROGRESS` | Overlay de pantalla completa. Una pregunta a la vez. Sin feedback de correcto/incorrecto. |
-| `RESULTS` | Pantalla final con puntuación, detalle de errores y botones de acción. |
+**Qué se añade:**
+1. Nueva tarjeta de resumen: "Total exámenes completados" (conteo global).
+2. Tabla de exámenes recientes: usuario · fecha · nivel · puntuación — con paginación.
+3. Gráfico de barras: promedio de puntuación por nivel (A1…C2) para ver dónde los estudiantes tienen más dificultades.
+4. En la vista por usuario (click en la tabla de usuarios): sección "Exámenes" con historial completo del usuario seleccionado.
+
+**Queries admin** (usa `SUPABASE_SERVICE_ROLE_KEY` vía `/api/admin-*` o RLS admin):
+```sql
+-- resumen global
+select level, avg(score::float/total) as avg_pct, count(*) as total
+from exam_results group by level order by level;
+
+-- últimos exámenes (con email del usuario)
+select er.*, au.email
+from exam_results er
+join auth.users au on au.id = er.user_id
+order by er.created_at desc limit 50;
+```
 
 ---
 
-### UI — Componentes nuevos
+### Resumen de fases
 
-#### 1. Botón de entrada (barra de niveles)
-```html
-<button id="exam-btn">📝 Examen</button>
-```
-- Se añade al final de los pills de nivel en `gramatica.html`
-- Color naranja `#E65100` (mismo acento de la app)
-
-#### 2. Overlay de carga (`#exam-loading`)
-```
-┌─────────────────────────────┐
-│  Preparando tu examen...    │
-│  ○ Artículos definidos      │
-│  ○ Acusativo básico         │
-│  ○ Perfekt                  │
-│  ○ Konjunktiv II            │
-│  ○ Passiv                   │
-│  [spinner animado]          │
-└─────────────────────────────┘
-```
-
-#### 3. Pantalla de pregunta (`#exam-question`)
-```
-┌─────────────────────────────┐
-│ Pregunta 3 / 10             │
-│ ████████░░░░░░░░  30%       │
-│                             │
-│ Ich ___ gestern ins Kino    │
-│ gegangen.                   │
-│                             │
-│  [bin]  [habe]              │
-│  [war]  [wurde]             │ ← tipo "elegir"
-│                             │
-│ — o —                       │
-│                             │
-│ Ich ___ [input] gegangen.   │ ← tipo "completar"
-│                    [→]      │
-└─────────────────────────────┘
-```
-- Sin botón de salir durante el test (solo `Esc` con confirmación)
-- Respuesta seleccionada queda resaltada; botón "Siguiente" aparece al responder
-
-#### 4. Pantalla de resultados (`#exam-results`)
-```
-┌─────────────────────────────┐
-│  Resultado: 7 / 10  🎉      │
-│  Nivel B1 · 5 reglas        │
-│                             │
-│  ✅ Ich bin gegangen.       │
-│  ❌ du gehst → du gehst ✓   │
-│     [Perfekt con sein]      │
-│  ...                        │
-│                             │
-│  [Repetir examen]  [Ver reglas falladas]  [Cerrar]
-└─────────────────────────────┘
-```
-- "Ver reglas falladas": filtra y expande en el acordeón solo las reglas donde hubo error
-
----
-
-### Lógica en `gramatica.js` — Funciones nuevas
-
-| Función | Responsabilidad |
-|---------|-----------------|
-| `pickRandomRules(level, count)` | Devuelve N reglas aleatorias del nivel. |
-| `buildExamPrompt(rules)` | Construye el user message con los datos de las reglas. |
-| `fetchExamQuestions(rules)` | Llama `/api/chat`, parsea JSON, valida estructura. |
-| `startExam()` | Orquesta: `pickRandomRules` → `fetchExamQuestions` → muestra overlay. |
-| `renderQuestion(index)` | Renderiza la pregunta actual (tipo completar o elegir). |
-| `submitAnswer(answer)` | Guarda respuesta, avanza al siguiente o muestra resultados. |
-| `showResults()` | Calcula puntuación, renderiza pantalla de resultados. |
-| `highlightFailedRules()` | Abre acordeón en las reglas con errores tras cerrar resultados. |
-
----
-
-### Manejo de errores de API
-
-- Si la respuesta no es JSON válido: reintentar una vez automáticamente, luego mostrar mensaje "No se pudo generar el examen, intenta de nuevo" con botón de retry.
-- Si hay error de red o 429 (rate limit): mensaje específico "Límite de peticiones alcanzado, espera un momento".
-- Validar que el array tenga exactamente 10 items antes de iniciar; si hay menos, completar con preguntas de las reglas disponibles o mostrar error.
-
----
-
-### CSS en `styles.css` — Nuevas secciones
-
-- `.exam-overlay` — posición fixed, z-index alto, fondo blanco/oscuro, scroll interno
-- `.exam-question-card` — tarjeta centrada, max-width 600px
-- `.exam-option-btn` — botones de opción, borde naranja al hover, verde/rojo al revelar en resultados
-- `.exam-progress` — barra de progreso naranja (misma estética que repaso rápido)
-- `.exam-results-item` — fila de resultado con icono ✅/❌ y explicación colapsable
-
----
-
-### Orden de implementación
-
-1. `gramatica.js` — funciones `pickRandomRules` y `buildExamPrompt`
-2. `gramatica.js` — función `fetchExamQuestions` con manejo de errores
-3. `gramatica.html` — añadir botón y estructuras HTML del overlay
-4. `gramatica.js` — funciones `startExam`, `renderQuestion`, `submitAnswer`
-5. `gramatica.js` — función `showResults` y `highlightFailedRules`
-6. `styles.css` — estilos del examen (modo claro y oscuro)
-7. Prueba manual: generar examen, responder, verificar resultados y "ver reglas falladas"
+| Fase | Descripción | Estado |
+|------|-------------|--------|
+| 1 | Tabla SQL + inserción al terminar examen | ✅ |
+| 2 | Sección "Exámenes" en el panel de stats del usuario | ✅ |
+| 3 | Métricas de exámenes en el dashboard admin | ✅ |

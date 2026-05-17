@@ -120,6 +120,28 @@
     body.dark .stat-pill.voz { background: #3a1020; color: #ef9a9a; }
     .stat-pill.dic { background: #e8f5e9; color: #2e7d32; }
     body.dark .stat-pill.dic { background: #1a3a1d; color: #81c784; }
+
+    /* Exam level bars */
+    .exam-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .exam-bar-level { width: 36px; font-size: 13px; font-weight: 600; color: #E65100; flex-shrink: 0; }
+    .exam-bar-track { flex: 1; background: #eef0f5; border-radius: 5px; height: 22px; overflow: hidden; }
+    body.dark .exam-bar-track { background: #2e3050; }
+    .exam-bar-fill { height: 100%; background: linear-gradient(90deg, #E65100, #ff8a50); border-radius: 5px; transition: width .5s ease; }
+    .exam-bar-meta { font-size: 12px; color: #777; width: 100px; text-align: right; flex-shrink: 0; }
+
+    /* Exam table */
+    .exam-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .exam-table th { text-align: left; padding: 7px 10px; color: #888; font-weight: 500; border-bottom: 2px solid #f0f0f5; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    body.dark .exam-table th { color: #7a7e9a; border-bottom-color: #2e3050; }
+    .exam-table td { padding: 9px 10px; border-bottom: 1px solid #f5f6fa; }
+    body.dark .exam-table td { border-bottom-color: #2a2d45; color: #ccd1e8; }
+    .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+    .score-good { background: #e8f5e9; color: #2e7d32; }
+    .score-mid  { background: #fff3e0; color: #e65100; }
+    .score-bad  { background: #ffebee; color: #c62828; }
+    body.dark .score-good { background: #1a3a1d; color: #81c784; }
+    body.dark .score-mid  { background: #2a1e00; color: #ffb74d; }
+    body.dark .score-bad  { background: #3a1010; color: #ef9a9a; }
   </style>
 </head>
 <body>
@@ -151,6 +173,10 @@
         <div class="card-label">Total de eventos</div>
         <div class="card-value" id="stat-events">—</div>
       </div>
+      <div class="card">
+        <div class="card-label">Exámenes completados</div>
+        <div class="card-value" id="stat-exams" style="color:#E65100;">—</div>
+      </div>
     </div>
 
     <!-- 2. Actividad por app -->
@@ -159,7 +185,19 @@
       <div id="app-bars"><p class="empty">Cargando…</p></div>
     </div>
 
-    <!-- 3. Últimos 5 días por alumno -->
+    <!-- 3. Exámenes por nivel -->
+    <div class="section">
+      <div class="section-title">Exámenes — promedio por nivel</div>
+      <div id="exam-level-bars"><p class="empty">Cargando…</p></div>
+    </div>
+
+    <!-- 3b. Últimos exámenes -->
+    <div class="section">
+      <div class="section-title">Últimos 20 exámenes</div>
+      <div id="exam-recent"><p class="empty">Cargando…</p></div>
+    </div>
+
+    <!-- 4. Últimos 5 días por alumno -->
     <div class="section">
       <div class="section-title">Actividad últimos 5 días por alumno</div>
       <div id="last5-container"><p class="empty">Cargando…</p></div>
@@ -196,6 +234,7 @@
         <button class="close-btn" onclick="closeDetail()">✕ Cerrar</button>
       </div>
       <div id="det-events"></div>
+      <div id="det-exams" style="margin-top:20px;"></div>
     </div>
 
     <!-- 7. Invitar alumno -->
@@ -216,7 +255,9 @@
 
   let allProfiles = [];
   let allEvents   = [];
+  let allExams    = [];
   const eventsByUser = {};
+  const examsByUser  = {};
 
   // ── Dark mode ──────────────────────────────────────────
   function toggleDark() {
@@ -251,7 +292,7 @@
 
   // ── Data loading ───────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes] = await Promise.all([
+    const [profRes, evRes, exRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at')
         .order('created_at', { ascending: false }),
@@ -259,10 +300,15 @@
         .select('id, user_id, app, event_type, payload, created_at')
         .order('created_at', { ascending: false })
         .limit(10000),
+      sb.from('exam_results')
+        .select('id, user_id, created_at, level, score, total')
+        .order('created_at', { ascending: false })
+        .limit(500),
     ]);
 
     allProfiles = profRes.data || [];
     allEvents   = evRes.data  || [];
+    allExams    = exRes.data  || [];
 
     // Index events by user
     for (const e of allEvents) {
@@ -270,8 +316,15 @@
       eventsByUser[e.user_id].push(e);
     }
 
+    // Index exams by user
+    for (const x of allExams) {
+      if (!examsByUser[x.user_id]) examsByUser[x.user_id] = [];
+      examsByUser[x.user_id].push(x);
+    }
+
     renderSummary();
     renderAppBars();
+    renderExamStats();
     renderLast5Days();
     renderUsersTable(allProfiles);
   }
@@ -285,6 +338,7 @@
     document.getElementById('stat-total').textContent  = allProfiles.length;
     document.getElementById('stat-active').textContent = activeIds.size;
     document.getElementById('stat-events').textContent = allEvents.length;
+    document.getElementById('stat-exams').textContent  = allExams.length;
   }
 
   // ── Card 2: Activity by app ────────────────────────────
@@ -316,6 +370,62 @@
         </div>
         <span class="bar-count">${count}</span>
       </div>`).join('');
+  }
+
+  // ── Exam stats ─────────────────────────────────────────
+  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+  function scoreClass(pct) {
+    return pct >= 80 ? 'score-good' : pct >= 60 ? 'score-mid' : 'score-bad';
+  }
+
+  function renderExamStats() {
+    // Bar chart: avg % per level
+    const barsEl   = document.getElementById('exam-level-bars');
+    const recentEl = document.getElementById('exam-recent');
+
+    if (allExams.length === 0) {
+      barsEl.innerHTML   = '<p class="empty">Sin exámenes aún.</p>';
+      recentEl.innerHTML = '<p class="empty">Sin exámenes aún.</p>';
+      return;
+    }
+
+    // Group by level
+    const byLevel = {};
+    for (const x of allExams) {
+      if (!byLevel[x.level]) byLevel[x.level] = [];
+      byLevel[x.level].push(x.score / x.total);
+    }
+
+    barsEl.innerHTML = LEVELS.filter(l => byLevel[l]).map(l => {
+      const vals  = byLevel[l];
+      const avg   = Math.round(vals.reduce((s, v) => s + v, 0) / vals.length * 100);
+      const cls   = scoreClass(avg);
+      return `<div class="exam-bar-row">
+        <span class="exam-bar-level">${esc(l)}</span>
+        <div class="exam-bar-track">
+          <div class="exam-bar-fill" style="width:${avg}%"></div>
+        </div>
+        <span class="exam-bar-meta"><span class="score-badge ${cls}">${avg}%</span> · ${vals.length} examen${vals.length !== 1 ? 'es' : ''}</span>
+      </div>`;
+    }).join('') || '<p class="empty">Sin datos.</p>';
+
+    // Recent exams table
+    recentEl.innerHTML = `<table class="exam-table">
+      <thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Puntuación</th></tr></thead>
+      <tbody>
+        ${allExams.slice(0, 20).map(x => {
+          const p    = allProfiles.find(pr => pr.id === x.user_id);
+          const pct  = Math.round(x.score / x.total * 100);
+          return `<tr>
+            <td>${fmtDate(x.created_at)}</td>
+            <td style="color:#555;">${esc(p?.email || p?.display_name || x.user_id.slice(0,8))}</td>
+            <td><strong>${esc(x.level)}</strong></td>
+            <td><span class="score-badge ${scoreClass(pct)}">${x.score}/${x.total} (${pct}%)</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
   }
 
   // ── Last-5-days per student ────────────────────────────
@@ -409,6 +519,7 @@
   function showDetail(userId) {
     const p    = allProfiles.find(x => x.id === userId);
     const evs  = (eventsByUser[userId] || []).slice(0, 300);
+    const exms = examsByUser[userId] || [];
 
     document.getElementById('det-name').textContent  = p?.display_name || p?.email || userId;
     document.getElementById('det-email').textContent = p?.email || '';
@@ -422,6 +533,30 @@
             <span class="ev-type">${esc(e.event_type || '?')}</span>
             <span class="ev-payload">${esc(JSON.stringify(e.payload || {}))}</span>
           </div>`).join('');
+
+    const examsEl = document.getElementById('det-exams');
+    if (exms.length === 0) {
+      examsEl.innerHTML = '';
+    } else {
+      const avgPct = Math.round(exms.reduce((s, x) => s + x.score / x.total, 0) / exms.length * 100);
+      examsEl.innerHTML = `
+        <div style="font-size:13px;font-weight:600;color:#E65100;margin-bottom:8px;">
+          Exámenes de gramática — ${exms.length} total · promedio ${avgPct}%
+        </div>
+        <table class="exam-table">
+          <thead><tr><th>Fecha</th><th>Nivel</th><th>Puntuación</th></tr></thead>
+          <tbody>
+            ${exms.map(x => {
+              const pct = Math.round(x.score / x.total * 100);
+              return `<tr>
+                <td>${fmtDate(x.created_at)}</td>
+                <td><strong>${esc(x.level)}</strong></td>
+                <td><span class="score-badge ${scoreClass(pct)}">${x.score}/${x.total} (${pct}%)</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
 
     const panel = document.getElementById('detail-panel');
     panel.style.display = 'block';

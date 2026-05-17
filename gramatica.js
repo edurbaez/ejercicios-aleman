@@ -1332,6 +1332,26 @@ function showExamResults() {
   var failedCount = items.filter(function(it) { return !it.isCorrect && it.q.regla_id; }).length;
   document.getElementById('exam-show-failed-btn').style.display = failedCount > 0 ? '' : 'none';
   document.getElementById('exam-results-overlay').style.display = 'flex';
+
+  // Silent insert — does not block or alert on failure
+  if (window.sb) {
+    window.sb.from('exam_results').insert({
+      level: currentLevel,
+      score: correct,
+      total: total,
+      rules: examSelectedRules.map(function(r) { return r.id; }),
+      answers: items.map(function(it) {
+        return {
+          enunciado: it.q.enunciado,
+          respuesta_correcta: it.q.respuesta_correcta,
+          user_answer: it.userAnswer,
+          is_correct: it.isCorrect
+        };
+      })
+    }).then(function(res) {
+      if (res.error) console.warn('[exam_results] insert failed:', res.error.message);
+    });
+  }
 }
 
 function examShowFailedRules() {

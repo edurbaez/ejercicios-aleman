@@ -23,7 +23,7 @@
 
 | # | Mejora | Dependencia |
 |---|--------|-------------|
-| 9 | Audio TTS por ejemplo | `/api/tts` (ya existe) — botón 🔊 junto a cada frase alemana |
+| 9 ✅ | Audio TTS por ejemplo | `SpeechSynthesis` del navegador (`de-DE`, rate 0.9) — botón 🔊 junto a cada frase alemana en el acordeón |
 | 10 | Ejercicios generados por IA | `/api/chat` — genera fill-in-the-blank a partir de la regla activa |
 
 ---

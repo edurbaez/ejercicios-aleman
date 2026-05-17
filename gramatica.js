@@ -959,6 +959,15 @@ function renderSearchResults() {
 
 function esc(s) { return String(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
 
+function speakDe(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'de-DE';
+  u.rate = 0.9;
+  window.speechSynthesis.speak(u);
+}
+
 function renderRuleCard(rule, i, read, showLevel) {
   const isOpen = openRuleId === rule.id;
   const favMark = isFav(rule.id) ? '&#9733;' : '&#9734;';
@@ -967,7 +976,10 @@ function renderRuleCard(rule, i, read, showLevel) {
   const readClass = read[rule.id] ? ' read' : '';
   const badge = showLevel ? '<span class="gram-result-level">' + rule._level + '</span>' : '';
   const ejemplosHtml = rule.ejemplos.map(function(ej) {
-    return '<div class="gram-ejemplo"><span class="gram-ej-de">' + ej.de + '</span>' +
+    const escaped = ej.de.replace(/'/g, '&#39;');
+    return '<div class="gram-ejemplo">' +
+      '<button class="gram-tts-btn" onclick="speakDe(\'' + escaped + '\')" title="Escuchar">&#128266;</button>' +
+      '<span class="gram-ej-de">' + ej.de + '</span>' +
       '<span class="gram-ej-arrow">&rarr;</span><span class="gram-ej-es">' + ej.es + '</span></div>';
   }).join('');
   return '<div class="gram-rule-card' + (isOpen ? ' open' : '') + readClass + '" id="rule-' + rule.id + '">' +

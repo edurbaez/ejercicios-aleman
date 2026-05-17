@@ -807,6 +807,12 @@ let showFavsOnly = false;
 let reviewItems = [];
 let reviewIndex = 0;
 
+// Exam state
+let examQuestions = [];
+let examAnswers = [];
+let examCurrentIndex = 0;
+let examSelectedRules = [];
+
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('gram_favs') || '[]'); } catch(e) { return []; } }
 function saveFavs(arr) { localStorage.setItem('gram_favs', JSON.stringify(arr)); }
@@ -907,7 +913,8 @@ function renderLevelTabs() {
     return '<button class="gram-level-btn' + (lvl === currentLevel && !favsActive ? ' active' : '') +
       '" onclick="setLevel(\'' + lvl + '\')">' + lvl + prog + '</button>';
   }).join('') +
-  '<button class="gram-level-btn' + (favsActive ? ' active' : '') + '" id="fav-level-btn" onclick="toggleFavFilter()">&#9733; Favs</button>';
+  '<button class="gram-level-btn' + (favsActive ? ' active' : '') + '" id="fav-level-btn" onclick="toggleFavFilter()">&#9733; Favs</button>' +
+  '<button class="gram-level-btn exam-level-btn" id="exam-start-btn" onclick="startExam()">&#128221; Examen</button>';
   document.getElementById('gram-toolbar').style.display = '';
 }
 
@@ -1113,6 +1120,16 @@ function reviewNav(dir) {
 
 // ─── Keyboard navigation ──────────────────────────────────────────────────────
 document.addEventListener('keydown', function(e) {
+  var examQOverlay = document.getElementById('exam-question-overlay');
+  if (examQOverlay && examQOverlay.style.display !== 'none') {
+    if (e.key === 'Escape') examConfirmExit();
+    return;
+  }
+  var examResOverlay = document.getElementById('exam-results-overlay');
+  if (examResOverlay && examResOverlay.style.display !== 'none') {
+    if (e.key === 'Escape') hideAllExamOverlays();
+    return;
+  }
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
   var overlay = document.getElementById('gram-review-overlay');
   if (overlay && overlay.style.display !== 'none') {
@@ -1147,6 +1164,243 @@ document.addEventListener('keydown', function(e) {
     showToast(idx === -1 ? '★ Guardado en favoritos' : '☆ Eliminado de favoritos');
   }
 });
+
+// ─── Modo Examen ──────────────────────────────────────────────────────────────
+const EXAM_RULES_COUNT = 5;
+const EXAM_SYSTEM_PROMPT =
+  'Eres un profesor de alemán. Genera exactamente 10 ejercicios de gramática en JSON.\n' +
+  'Cada ejercicio cubre una de las reglas proporcionadas (2 ejercicios por regla).\n' +
+  'Tipos permitidos:\n' +
+  '  "completar": la frase contiene ___ donde va la respuesta (una sola palabra o forma verbal).\n' +
+  '  "elegir": 4 opciones en el campo "opciones"; la respuesta correcta es exactamente una de ellas.\n' +
+  'Varía los tipos entre los 10 ejercicios.\n' +
+  'Campos obligatorios por ejercicio: tipo, enunciado, respuesta_correcta, explicacion, regla_id.\n' +
+  'Para "elegir" añade también el campo "opciones" (array de 4 strings).\n' +
+  'Responde ÚNICAMENTE con un array JSON válido. Sin texto adicional ni bloques de código markdown.';
+
+function pickRandomRules(level, count) {
+  const rules = GRAMMAR_DATA[level];
+  return [...rules].sort(function() { return Math.random() - 0.5; }).slice(0, count);
+}
+
+function buildExamPrompt(rules) {
+  return 'Genera 10 ejercicios de gramática alemana (2 por cada regla) sobre estas ' +
+    rules.length + ' reglas:\n\n' +
+    rules.map(function(r, i) {
+      return (i + 1) + '. ' + r.titulo + ' (' + r.subtitulo + ')\n' +
+        '   Ejemplo: ' + r.ejemplos[0].de + ' → ' + r.ejemplos[0].es + '\n' +
+        '   regla_id: ' + r.id;
+    }).join('\n\n');
+}
+
+function hideAllExamOverlays() {
+  ['exam-loading-overlay', 'exam-question-overlay', 'exam-results-overlay'].forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+async function startExam() {
+  hideAllExamOverlays();
+  examSelectedRules = pickRandomRules(currentLevel, EXAM_RULES_COUNT);
+  examQuestions = [];
+  examAnswers = [];
+  examCurrentIndex = 0;
+
+  const rulesList = document.getElementById('exam-rules-list');
+  rulesList.innerHTML = examSelectedRules.map(function(r) {
+    return '<li>' + r.titulo + '</li>';
+  }).join('');
+  document.getElementById('exam-loading-error').style.display = 'none';
+  document.getElementById('exam-loading-spinner').style.display = '';
+  document.getElementById('exam-retry-btn').style.display = 'none';
+  document.getElementById('exam-loading-overlay').style.display = 'flex';
+
+  try {
+    examQuestions = await fetchExamQuestions(examSelectedRules);
+    hideAllExamOverlays();
+    renderExamQuestion(0);
+    document.getElementById('exam-question-overlay').style.display = 'flex';
+  } catch(err) {
+    document.getElementById('exam-loading-spinner').style.display = 'none';
+    var errEl = document.getElementById('exam-loading-error');
+    if (err.message === 'no_auth') {
+      errEl.textContent = 'Inicia sesión para usar el modo examen.';
+    } else if (err.message === 'rate_limit') {
+      errEl.textContent = 'Límite de peticiones alcanzado, espera un momento.';
+    } else {
+      errEl.textContent = 'No se pudo generar el examen. Intenta de nuevo.';
+    }
+    errEl.style.display = '';
+    document.getElementById('exam-retry-btn').style.display = '';
+  }
+}
+
+function renderExamQuestion(index) {
+  examCurrentIndex = index;
+  var q = examQuestions[index];
+  var total = examQuestions.length;
+  document.getElementById('exam-q-counter').textContent = 'Pregunta ' + (index + 1) + ' / ' + total;
+  document.getElementById('exam-progress-bar').style.width = ((index / total) * 100) + '%';
+  document.getElementById('exam-next-btn').style.display = 'none';
+
+  var html = '<p class="exam-enunciado">' + q.enunciado + '</p>';
+  if (q.tipo === 'elegir') {
+    html += '<div class="exam-options">' +
+      q.opciones.map(function(op) {
+        return '<button class="exam-option-btn" onclick="selectExamOption(this,\'' + esc(op) + '\')">' + op + '</button>';
+      }).join('') + '</div>';
+  } else {
+    html += '<div class="exam-input-wrap">' +
+      '<input id="exam-input" class="exam-input" type="text" placeholder="Escribe la respuesta…" autocomplete="off" ' +
+      'onkeydown="if(event.key===\'Enter\')submitExamInput()">' +
+      '<button class="exam-submit-btn" onclick="submitExamInput()">→</button>' +
+      '</div>';
+  }
+  document.getElementById('exam-q-body').innerHTML = html;
+  if (q.tipo === 'completar') {
+    setTimeout(function() {
+      var inp = document.getElementById('exam-input');
+      if (inp) inp.focus();
+    }, 50);
+  }
+}
+
+function selectExamOption(btn, value) {
+  if (btn.classList.contains('selected')) return;
+  document.querySelectorAll('.exam-option-btn').forEach(function(b) { b.disabled = true; });
+  btn.classList.add('selected');
+  examAnswers[examCurrentIndex] = value;
+  document.getElementById('exam-next-btn').style.display = '';
+}
+
+function submitExamInput() {
+  var inp = document.getElementById('exam-input');
+  if (!inp) return;
+  var val = inp.value.trim();
+  if (!val) return;
+  inp.disabled = true;
+  var submitBtn = document.querySelector('.exam-submit-btn');
+  if (submitBtn) submitBtn.disabled = true;
+  examAnswers[examCurrentIndex] = val;
+  document.getElementById('exam-next-btn').style.display = '';
+}
+
+function examNext() {
+  if (examCurrentIndex < examQuestions.length - 1) {
+    renderExamQuestion(examCurrentIndex + 1);
+  } else {
+    showExamResults();
+  }
+}
+
+function showExamResults() {
+  hideAllExamOverlays();
+  var total = examQuestions.length;
+  var correct = 0;
+  var items = examQuestions.map(function(q, i) {
+    var userAnswer = (examAnswers[i] || '').trim().toLowerCase();
+    var correctAnswer = (q.respuesta_correcta || '').trim().toLowerCase();
+    var isCorrect = userAnswer === correctAnswer;
+    if (isCorrect) correct++;
+    return { q: q, userAnswer: examAnswers[i] || '', isCorrect: isCorrect };
+  });
+
+  var pct = Math.round((correct / total) * 100);
+  var emoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚';
+
+  var html = '<h2 class="exam-score">' + emoji + ' ' + correct + ' / ' + total + '</h2>' +
+    '<p class="exam-score-sub">Nivel ' + currentLevel + ' · ' + EXAM_RULES_COUNT + ' reglas · ' + pct + '%</p>' +
+    '<div class="exam-results-list">';
+  items.forEach(function(item) {
+    html += '<div class="exam-result-item ' + (item.isCorrect ? 'correct' : 'wrong') + '">' +
+      '<span class="exam-result-icon">' + (item.isCorrect ? '✅' : '❌') + '</span>' +
+      '<div class="exam-result-detail">' +
+      '<p class="exam-result-q">' + item.q.enunciado + '</p>';
+    if (!item.isCorrect) {
+      html += '<p class="exam-result-answer">Tu respuesta: <em>' + (item.userAnswer || '—') + '</em></p>' +
+        '<p class="exam-result-answer exam-result-correct">Correcta: <strong>' + item.q.respuesta_correcta + '</strong></p>';
+    }
+    if (item.q.explicacion) {
+      html += '<p class="exam-result-exp">' + item.q.explicacion + '</p>';
+    }
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  document.getElementById('exam-results-body').innerHTML = html;
+
+  var failedCount = items.filter(function(it) { return !it.isCorrect && it.q.regla_id; }).length;
+  document.getElementById('exam-show-failed-btn').style.display = failedCount > 0 ? '' : 'none';
+  document.getElementById('exam-results-overlay').style.display = 'flex';
+}
+
+function examShowFailedRules() {
+  hideAllExamOverlays();
+  var items = examQuestions.map(function(q, i) {
+    var isCorrect = (examAnswers[i] || '').trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
+    return { reglaId: q.regla_id, isCorrect: isCorrect };
+  });
+  var failedIds = items
+    .filter(function(it) { return !it.isCorrect && it.reglaId; })
+    .map(function(it) { return it.reglaId; });
+  if (failedIds.length === 0) return;
+
+  var levelKey = failedIds[0].replace(/-.*$/, '').toUpperCase();
+  if (GRAMMAR_DATA[levelKey]) setLevel(levelKey, false);
+  openRuleId = failedIds[0];
+  renderAll();
+  setTimeout(function() {
+    var el = document.getElementById('rule-' + openRuleId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 80);
+}
+
+function examConfirmExit() {
+  if (confirm('¿Salir del examen? Se perderá el progreso.')) hideAllExamOverlays();
+}
+
+async function fetchExamQuestions(rules) {
+  const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+  if (!token) throw new Error('no_auth');
+
+  const resp = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({
+      system: EXAM_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: buildExamPrompt(rules) }]
+    })
+  });
+
+  const raw = await resp.text();
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { throw new Error('server_error'); }
+  if (!resp.ok) {
+    if (resp.status === 429) throw new Error('rate_limit');
+    throw new Error(data.error || 'api_error');
+  }
+
+  const reply = data.reply || '';
+  let questions;
+  try {
+    questions = JSON.parse(reply);
+  } catch(e) {
+    const mdMatch = reply.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (mdMatch) {
+      try { questions = JSON.parse(mdMatch[1].trim()); } catch(e2) { throw new Error('json_error'); }
+    } else {
+      const arrMatch = reply.match(/\[[\s\S]*\]/);
+      if (arrMatch) {
+        try { questions = JSON.parse(arrMatch[0]); } catch(e2) { throw new Error('json_error'); }
+      } else {
+        throw new Error('json_error');
+      }
+    }
+  }
+
+  if (!Array.isArray(questions) || questions.length === 0) throw new Error('empty_response');
+  return questions;
+}
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────
 var _moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';

@@ -73,6 +73,45 @@
     </div>
     <div id="gram-toast" class="gram-toast"></div>
 
+    <!-- Exam: Loading -->
+    <div id="exam-loading-overlay" class="exam-overlay" style="display:none">
+        <div class="exam-loading-card">
+            <h2 class="exam-loading-title">Preparando tu examen…</h2>
+            <ul id="exam-rules-list" class="exam-rules-preview"></ul>
+            <div id="exam-loading-spinner" class="exam-spinner"></div>
+            <p id="exam-loading-error" class="exam-error" style="display:none"></p>
+            <button id="exam-retry-btn" class="exam-action-btn" style="display:none" onclick="startExam()">↺ Intentar de nuevo</button>
+            <button class="exam-action-btn exam-action-secondary" onclick="hideAllExamOverlays()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Exam: Question -->
+    <div id="exam-question-overlay" class="exam-overlay" style="display:none">
+        <div class="exam-question-card">
+            <div class="exam-progress-wrap">
+                <span id="exam-q-counter" class="exam-counter"></span>
+                <div class="exam-progress"><div id="exam-progress-bar" class="exam-progress-bar"></div></div>
+            </div>
+            <div id="exam-q-body" class="exam-q-body"></div>
+            <div class="exam-q-footer">
+                <button id="exam-next-btn" class="exam-action-btn" style="display:none" onclick="examNext()">Siguiente →</button>
+                <button class="exam-action-btn exam-action-secondary" onclick="examConfirmExit()">✕ Salir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam: Results -->
+    <div id="exam-results-overlay" class="exam-overlay" style="display:none">
+        <div class="exam-results-card">
+            <div id="exam-results-body" class="exam-results-body"></div>
+            <div class="exam-results-actions">
+                <button class="exam-action-btn" onclick="startExam()">↺ Repetir</button>
+                <button id="exam-show-failed-btn" class="exam-action-btn" onclick="examShowFailedRules()">📖 Ver reglas falladas</button>
+                <button class="exam-action-btn exam-action-secondary" onclick="hideAllExamOverlays()">✕ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="gramatica.js"></script>
 </body>
 </html>

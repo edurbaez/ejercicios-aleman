@@ -792,7 +792,8 @@ th, td {
     color: var(--accent);
 }
 
-.cv-context-btn {
+.cv-context-btn,
+.cv-guided-toggle {
     padding: 6px 14px;
     border: 2px solid var(--border);
     background: none;
@@ -1111,16 +1112,6 @@ th, td {
 }
 
 /* Modo Guiado */
-.cv-guided-toggle {
-    padding: 6px 14px;
-    border: 2px solid var(--border);
-    background: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text);
-    transition: 0.15s;
-}
 .cv-guided-toggle:hover {
     border-color: #e65100;
     color: #e65100;

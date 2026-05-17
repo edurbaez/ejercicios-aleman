@@ -133,7 +133,6 @@
         rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
         dailyUsedMs: 0,
         guidedMode: false,
-        lastQuestion: '',
         lastSuggestion: '',
     };
 
@@ -317,7 +316,6 @@ Regeln:
         State.isRecording = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
         hideGuidedPanel();
-        State.lastQuestion = '';
         State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
@@ -364,14 +362,15 @@ Regeln:
             catch { throw new Error(`Respuesta inválida de /api/chat: ${rawChat.slice(0, 120)}`); }
             if (!resp.ok) throw new Error(data.error || 'Error de red');
 
-            let reply = data.reply;
-            let displayReply = reply;
-            if (State.guidedMode && reply.includes('---SUGERENCIA---')) {
-                const parts = reply.split('---SUGERENCIA---');
-                displayReply = parts[0].trim();
-                showGuidedPanel(displayReply, parts[1].trim());
-            } else if (State.guidedMode) {
-                hideGuidedPanel();
+            let displayReply = data.reply;
+            if (State.guidedMode) {
+                const parts = displayReply.split('---SUGERENCIA---');
+                if (parts.length > 1) {
+                    displayReply = parts[0].trim();
+                    showGuidedPanel(parts[1].trim());
+                } else {
+                    hideGuidedPanel();
+                }
             }
             State.messages.push({ role: 'assistant', content: displayReply });
             updateBubble(thinkingId, displayReply);
@@ -417,8 +416,7 @@ Regeln:
         if (!State.guidedMode) hideGuidedPanel();
     }
 
-    function showGuidedPanel(question, suggestion) {
-        State.lastQuestion = question;
+    function showGuidedPanel(suggestion) {
         State.lastSuggestion = suggestion;
         document.getElementById('guidedSuggestionText').textContent = suggestion;
         document.getElementById('guidedPanel').style.display = 'block';
@@ -431,7 +429,9 @@ Regeln:
     }
 
     function speakQuestion() {
-        if (State.lastQuestion) speak(State.lastQuestion);
+        const msgs = State.messages;
+        const last = msgs[msgs.length - 1];
+        if (last && last.role === 'assistant') speak(last.content);
     }
 
     function speakSuggestion() {

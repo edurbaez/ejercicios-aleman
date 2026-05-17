@@ -57,6 +57,7 @@
             </div>
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
+                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Modo Guiado: OFF</button>
                 <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
             </div>
         </div>
@@ -82,6 +83,15 @@
         <div class="cv-chat" id="chatArea">
             <div class="cv-empty" id="chatEmpty">
                 <p>Presiona <strong>Iniciar</strong> para comenzar</p>
+            </div>
+        </div>
+
+        <div id="guidedPanel" class="cv-guided-panel" style="display:none">
+            <div class="cv-guided-header">💡 Respuesta sugerida</div>
+            <p id="guidedSuggestionText" class="cv-guided-text"></p>
+            <div class="cv-guided-actions">
+                <button class="cv-guided-btn" onclick="speakQuestion()">🔊 Pregunta</button>
+                <button class="cv-guided-btn" onclick="speakSuggestion()">🔊 Sugerencia</button>
             </div>
         </div>
 
@@ -122,6 +132,9 @@
         contexto: '',
         rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
         dailyUsedMs: 0,
+        guidedMode: false,
+        lastQuestion: '',
+        lastSuggestion: '',
     };
 
     // --- Daily limit ---
@@ -262,7 +275,7 @@
             ? `\nKontext über den Benutzer: ${State.contexto}\n`
             : '';
         const rolLine = State.rol || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
-        return `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
+        let base = `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
 ${contextLine}
 ${guides[level]}
 
@@ -271,6 +284,10 @@ Regeln:
 - Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
 - Wenn der Benutzer Grammatikfehler macht, korrigiere sie kurz und freundlich am Ende deiner Antwort
 - Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen`;
+        if (State.guidedMode) {
+            base += `\n\nMODO GUIADO ACTIVO: Después de tu pregunta o comentario, añade en una nueva línea exactamente "---SUGERENCIA---" seguido de una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. No expliques la sugerencia, solo escríbela en alemán.`;
+        }
+        return base;
     }
 
     // --- Start / reset ---
@@ -299,6 +316,9 @@ Regeln:
         State.started = false;
         State.isRecording = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
+        hideGuidedPanel();
+        State.lastQuestion = '';
+        State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
         document.getElementById('recTimer').style.display = 'none';
@@ -344,10 +364,18 @@ Regeln:
             catch { throw new Error(`Respuesta inválida de /api/chat: ${rawChat.slice(0, 120)}`); }
             if (!resp.ok) throw new Error(data.error || 'Error de red');
 
-            const reply = data.reply;
-            State.messages.push({ role: 'assistant', content: reply });
-            updateBubble(thinkingId, reply);
-            speak(reply);
+            let reply = data.reply;
+            let displayReply = reply;
+            if (State.guidedMode && reply.includes('---SUGERENCIA---')) {
+                const parts = reply.split('---SUGERENCIA---');
+                displayReply = parts[0].trim();
+                showGuidedPanel(displayReply, parts[1].trim());
+            } else if (State.guidedMode) {
+                hideGuidedPanel();
+            }
+            State.messages.push({ role: 'assistant', content: displayReply });
+            updateBubble(thinkingId, displayReply);
+            speak(displayReply);
         } catch (e) {
             updateBubble(thinkingId, `Error: ${e.message}`);
             setHint('Error al conectar con la IA. Intenta de nuevo.');
@@ -378,6 +406,36 @@ Regeln:
         };
 
         speechSynthesis.speak(utter);
+    }
+
+    // --- Modo Guiado ---
+    function toggleGuidedMode() {
+        State.guidedMode = !State.guidedMode;
+        const btn = document.getElementById('guidedBtn');
+        btn.textContent = 'Modo Guiado: ' + (State.guidedMode ? 'ON' : 'OFF');
+        btn.classList.toggle('active', State.guidedMode);
+        if (!State.guidedMode) hideGuidedPanel();
+    }
+
+    function showGuidedPanel(question, suggestion) {
+        State.lastQuestion = question;
+        State.lastSuggestion = suggestion;
+        document.getElementById('guidedSuggestionText').textContent = suggestion;
+        document.getElementById('guidedPanel').style.display = 'block';
+        const ca = document.getElementById('chatArea');
+        ca.scrollTop = ca.scrollHeight;
+    }
+
+    function hideGuidedPanel() {
+        document.getElementById('guidedPanel').style.display = 'none';
+    }
+
+    function speakQuestion() {
+        if (State.lastQuestion) speak(State.lastQuestion);
+    }
+
+    function speakSuggestion() {
+        if (State.lastSuggestion) speak(State.lastSuggestion);
     }
 
     function enableRecord() {

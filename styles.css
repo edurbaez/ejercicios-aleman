@@ -1110,6 +1110,77 @@ th, td {
     font-weight: 600;
 }
 
+/* Modo Guiado */
+.cv-guided-toggle {
+    padding: 6px 14px;
+    border: 2px solid var(--border);
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    transition: 0.15s;
+}
+.cv-guided-toggle:hover {
+    border-color: #e65100;
+    color: #e65100;
+}
+.cv-guided-toggle.active {
+    background: #e65100;
+    border-color: #e65100;
+    color: #fff;
+}
+
+.cv-guided-panel {
+    margin: 0 12px 8px;
+    background: #fff8e1;
+    border: 1.5px solid #ffb300;
+    border-radius: 10px;
+    padding: 12px 14px;
+}
+.cv-guided-header {
+    font-weight: 600;
+    font-size: .85rem;
+    color: #e65100;
+    margin-bottom: 6px;
+}
+.cv-guided-text {
+    margin: 0 0 10px;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5;
+}
+.cv-guided-actions {
+    display: flex;
+    gap: 8px;
+}
+.cv-guided-btn {
+    flex: 1;
+    padding: 7px 0;
+    border-radius: 8px;
+    border: 1.5px solid #ffb300;
+    background: #fff;
+    font-size: .9rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.cv-guided-btn:hover {
+    background: #fff3cd;
+}
+
+body.dark .cv-guided-panel {
+    background: #2d2a1e;
+    border-color: #c68a00;
+}
+body.dark .cv-guided-text {
+    color: #eee;
+}
+body.dark .cv-guided-btn {
+    background: #3a3520;
+    border-color: #c68a00;
+    color: #eee;
+}
+
 @media (max-width: 600px) {
     .cv-config { gap: 10px; }
     .cv-config-group label { font-size: 13px; }

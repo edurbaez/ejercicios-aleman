@@ -58,6 +58,7 @@
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
                 <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Modo Guiado: OFF</button>
+                <button class="cv-guided-toggle" id="premiumTtsBtn" onclick="togglePremiumTTS()" title="Usa la voz de OpenAI (tts-1) en lugar del TTS del navegador. Costo ~$0.015/1000 chars.">Voz Premium: OFF</button>
                 <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
             </div>
         </div>
@@ -134,6 +135,8 @@
         dailyUsedMs: 0,
         guidedMode: false,
         lastSuggestion: '',
+        premiumTTS: localStorage.getItem('cv_tts_premium') === '1',
+        currentAudio: null,
     };
 
     // --- Daily limit ---
@@ -306,7 +309,7 @@ Regeln:
     }
 
     function newConversation() {
-        speechSynthesis.cancel();
+        cancelCurrentSpeech();
         clearInterval(State.recTimerInterval);
         if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
             State.mediaRecorder.stop();
@@ -383,28 +386,69 @@ Regeln:
     }
 
     // --- TTS ---
-    function speak(text) {
+    function cancelCurrentSpeech() {
         speechSynthesis.cancel();
+        if (State.currentAudio) {
+            State.currentAudio.pause();
+            State.currentAudio = null;
+        }
+    }
+
+    async function speak(text) {
+        cancelCurrentSpeech();
         State.isSpeaking = true;
         setHint('IA hablando...');
         disableRecord();
+
+        const onDone = () => {
+            State.isSpeaking = false;
+            setHint('Presiona "Responder" para hablar');
+            enableRecord();
+        };
+
+        if (State.premiumTTS) {
+            try {
+                const token = await (window.getAuthToken?.());
+                if (token) {
+                    const resp = await fetch('/api/tts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                        body: JSON.stringify({ text, voice: 'onyx' }),
+                    });
+                    if (resp.ok) {
+                        const blob = await resp.blob();
+                        const audio = new Audio(URL.createObjectURL(blob));
+                        State.currentAudio = audio;
+                        audio.onended = onDone;
+                        audio.onerror = onDone;
+                        audio.play().catch(onDone);
+                        return;
+                    }
+                }
+            } catch {}
+            // Cae al TTS del navegador si falla
+        }
 
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = 'de-DE';
         utter.rate = 1.1;
         if (State.selectedVoice) utter.voice = State.selectedVoice;
-
-        utter.onend = () => {
-            State.isSpeaking = false;
-            setHint('Presiona "Responder" para hablar');
-            enableRecord();
-        };
-        utter.onerror = () => {
-            State.isSpeaking = false;
-            enableRecord();
-        };
-
+        utter.onend = onDone;
+        utter.onerror = onDone;
         speechSynthesis.speak(utter);
+    }
+
+    // --- Toggle Voz Premium ---
+    function togglePremiumTTS() {
+        if (!State.premiumTTS && !window.currentUser) {
+            window.openAuthModal?.();
+            return;
+        }
+        State.premiumTTS = !State.premiumTTS;
+        localStorage.setItem('cv_tts_premium', State.premiumTTS ? '1' : '');
+        const btn = document.getElementById('premiumTtsBtn');
+        btn.textContent = 'Voz Premium: ' + (State.premiumTTS ? 'ON' : 'OFF');
+        btn.classList.toggle('active', State.premiumTTS);
     }
 
     // --- Modo Guiado ---
@@ -648,6 +692,9 @@ Regeln:
         loadPreferences();
         loadVoices();
         setupRecordButton();
+        const btn = document.getElementById('premiumTtsBtn');
+        btn.textContent = 'Voz Premium: ' + (State.premiumTTS ? 'ON' : 'OFF');
+        btn.classList.toggle('active', State.premiumTTS);
     })();
     </script>
 </body>

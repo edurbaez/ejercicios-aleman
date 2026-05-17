@@ -1,155 +1,139 @@
-# Posibles mejoras — gramatica.html / gramatica.js
+# Plan de mejoras para Chat de Voz
 
-> Última actualización: 2026-05-16
+## Estado actual
 
----
+`chat-voz.html` es una app de conversación libre: el usuario graba audio → Whisper lo transcribe → GPT-4o-mini responde en alemán → el navegador lo lee en voz alta (browser TTS). Tiene:
 
-## Implementadas ✅
-
-| # | Mejora | Notas |
-|---|--------|-------|
-| 1 | Explicaciones extendidas | 60 reglas (A1–C2) con 4-6 oraciones cada una |
-| 2 | Búsqueda de reglas | Filtra en tiempo real en todos los niveles; badge de nivel en resultados |
-| 3 | Favoritos | Botón ☆/★ por regla, persistido en `localStorage`; vista "★ Favs" en la barra de niveles |
-| 4 | Progreso de lectura | Contador `N/10` en cada pill de nivel; punto naranja en reglas ya abiertas |
-| 5 | Quiz por regla | Botón "Practicar" — muestra el español, 4 opciones, feedback con color |
-| 6 | Repaso rápido | Overlay con los tips del nivel activo, barra de progreso, navegación Anterior/Siguiente |
-| 7 | Compartir enlace | Botón "Copiar enlace" genera `gramatica.html#b2-07`; la URL abre y expande esa regla |
-| 8 | Navegación por teclado | `←`/`→` niveles · `↑`/`↓` reglas · `F` favorito · `Esc` cierra repaso |
+- Selección de nivel CEFR (A1–C2)
+- Rol e contexto personalizables por el usuario
+- **Modo Guiado**: la IA añade una respuesta modelo al final de cada turno
+- Corrección de gramática embebida en el texto de respuesta
+- Límite diario de 60 minutos
 
 ---
 
-## Pendientes (requieren servicio adicional)
+## Propuestas de mejora
 
-| # | Mejora | Dependencia |
-|---|--------|-------------|
-| 9 ✅ | Audio TTS por ejemplo | `SpeechSynthesis` del navegador (`de-DE`, rate 0.9) — botón 🔊 junto a cada frase alemana en el acordeón |
-| 10 | Ejercicios generados por IA | `/api/chat` — genera fill-in-the-blank a partir de la regla activa |
+### 1. Escenarios predefinidos (impacto alto / esfuerzo bajo)
 
----
+**Problema:** El usuario abre la app sin saber de qué hablar. El campo "Personalizar" es potente pero invisible para principiantes.
 
-## Ideas de mejora futura (sin servicios)
+**Solución:** Añadir una galería de tarjetas de escenario antes de iniciar la conversación:
 
-- **Tabla de declinaciones interactiva** — reemplazar los ejemplos de casos por una tabla der/die/das/Pl con la celda activa resaltada al pasar el cursor. Requiere añadir un campo `tabla[]` a las reglas relevantes en `GRAMMAR_DATA`.
-- **Estadísticas de quiz** — guardar en `localStorage` el historial de aciertos/errores por regla y mostrar un mini-indicador de dominio (% correcto) junto al título.
-- **Orden aleatorio en repaso rápido** — opción para barajar los tips en vez de seguir el orden de la lista.
+| Escenario | Rol de la IA |
+|-----------|-------------|
+| 🛒 Supermercado | Cajero en REWE |
+| 🏥 Médico | Doctor en consulta |
+| 🚉 Estación de tren | Empleado de información |
+| ☕ Café | Mesero en cafetería |
+| 💼 Entrevista de trabajo | Jefe que entrevista |
+| 🏠 Búsqueda de piso | Arrendador que muestra el apartamento |
 
----
+Al seleccionar uno, se precarga el rol y el objetivo de la conversación. El campo "Personalizar" sigue disponible para edición libre.
 
-## Modo Examen ✅
-
-Quiz cerrado de 10 preguntas generadas por IA. Toma 5 reglas aleatorias del nivel activo, llama a `/api/chat` con `max_tokens: 2000`, y presenta las preguntas sin feedback hasta el final. La pantalla de resultados muestra puntuación, correcciones y permite abrir el acordeón en las reglas falladas. Archivos modificados: `gramatica.html`, `gramatica.js`, `styles.css`, `api/chat.js`.
-
----
-
-## Resultados de examen en Supabase — Plan por fases
-
-> Estado: Fase 1 ✅ · Fase 2 ✅ · Fase 3 ✅  
-> Objetivo: persistir cada examen completado, mostrarlo en las estadísticas del usuario y en el dashboard del admin.
+**Valor didáctico:** El estudiante practica vocabulario concreto y situacional — el más útil en la vida real.
 
 ---
 
-### Tabla nueva: `exam_results`
+### 2. Objetivo de misión por conversación (impacto alto / esfuerzo medio)
 
-```sql
-create table exam_results (
-  id          uuid primary key default gen_random_uuid(),
-  user_id     uuid references auth.users not null,
-  created_at  timestamptz default now() not null,
-  level       text not null,               -- 'A1'…'C2'
-  score       int  not null,               -- correctas (0-10)
-  total       int  not null default 10,
-  rules       text[] not null,             -- ids de las 5 reglas usadas
-  answers     jsonb not null               -- array de { enunciado, respuesta_correcta, user_answer, is_correct }
-);
+**Problema:** La conversación es abierta y el usuario no sabe cuándo "terminó" de practicar algo.
 
--- RLS: cada usuario solo lee/inserta sus propios registros
-alter table exam_results enable row level security;
-create policy "own rows" on exam_results
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+**Solución:** Cada escenario (o sesión libre) tiene un objetivo específico visible en pantalla:
+
+> **Misión:** Pide un café con leche, pregunta el precio y paga.
+
+La IA sabe el objetivo (incluido en el system prompt) y al final evalúa si el usuario lo completó, mostrando un mensaje de logro. Esto da sensación de cierre y progreso.
+
+**Implementación:** Añadir `misionText` al system prompt como sección extra: `"Objetivo del estudiante: [misión]"`. Al detectar que el objetivo se cumplió (o al final del turno N), la IA incluye una marca `---MISION_CUMPLIDA---` que el frontend muestra como banner.
+
+---
+
+### 3. TTS de OpenAI en lugar del navegador ✅ IMPLEMENTADO
+
+**Problema:** El TTS del navegador para alemán es de baja calidad en muchos dispositivos, con acento artificial y ritmo poco natural. El usuario aprende pronunciación incorrecta.
+
+**Solución implementada:** Botón **"Voz Premium: ON/OFF"** en la barra de configuración. Cuando está ON, cada respuesta de la IA se envía a `/api/tts` (voz `onyx`) y se reproduce como audio MP3. Cuando está OFF (o si falla la API), cae automáticamente al TTS del navegador. El toggle requiere autenticación y persiste en `localStorage` (`cv_tts_premium`).
+
+**Costo estimado:** ~$0.36 extra por hora de conversación (aprox. igual al costo de Whisper).
+
+---
+
+### 4. Panel de correcciones separado (impacto medio / esfuerzo bajo)
+
+**Problema:** Las correcciones gramaticales aparecen en el flujo de texto de la IA, mezcladas con la respuesta conversacional. El usuario las ignora porque quiere seguir la conversación.
+
+**Solución:** Pedir a la IA que use una marca delimitadora para las correcciones:
+
+```
+---CORRECCIÓN---
+❌ "Ich bin gegangen in den Laden"
+✅ "Ich bin in den Laden gegangen" (Verb va al final en Perfekt)
 ```
 
----
+El frontend extrae esa sección y la muestra en un pequeño panel lateral o como una tarjeta colapsable debajo del burbuja del usuario. La burbuja de conversación queda limpia.
 
-
-
-### Fase 1 ✅ — Crear tabla e insertar al terminar el examen
-
-> Archivos: SQL en Supabase dashboard · `gramatica.js`
-
-**Qué se hace:**
-1. Ejecutar el SQL de creación de tabla en el dashboard de Supabase.
-2. Al mostrar los resultados en `showExamResults()`, insertar una fila en `exam_results` usando `window.sb` (cliente Supabase ya disponible desde `auth.js`).
-3. Inserción silenciosa — si falla (sin sesión, error de red) no interrumpe al usuario.
-
-**Datos que se insertan:**
-```js
-{
-  user_id: (from jwt),   // RLS lo pone automático con auth.uid()
-  level: currentLevel,
-  score: correct,
-  total: examQuestions.length,
-  rules: examSelectedRules.map(r => r.id),
-  answers: items.map(it => ({
-    enunciado: it.q.enunciado,
-    respuesta_correcta: it.q.respuesta_correcta,
-    user_answer: it.userAnswer,
-    is_correct: it.isCorrect
-  }))
-}
-```
+**Valor didáctico:** El usuario ve sus errores de forma clara, sin interrumpir el flujo conversacional.
 
 ---
 
-### Fase 2 ✅ — Estadísticas del usuario (panel de stats)
+### 5. Vocabulario nuevo en contexto (impacto medio / esfuerzo medio)
 
-> Archivos: `auth.js` (función `openStatsPanel`)
+**Problema:** La IA usa palabras nuevas que el usuario no entiende pero no las explica (excepto en A1/A2 donde ya hay traducción en paréntesis).
 
-**Qué se añade al panel de stats existente:**
-- Nueva sección "Exámenes" debajo de las tarjetas HOY.
-- Tarjeta con: total de exámenes realizados, promedio de puntuación (%), mejor racha de niveles.
-- Mini-tabla con los últimos 5 exámenes: fecha · nivel · puntuación.
+**Solución:** Al final de cada respuesta de la IA (especialmente B1+), incluir 2-3 palabras clave usadas en la respuesta con su traducción al español, en un panel colapsable:
 
-**Query:**
-```js
-const { data } = await window.sb
-  .from('exam_results')
-  .select('created_at, level, score, total')
-  .order('created_at', { ascending: false })
-  .limit(20);
-```
+> **Palabras nuevas:**
+> - *die Quittung* → el recibo
+> - *bezahlen* → pagar
+> - *wechseln* → dar el cambio
+
+Estas palabras se podrían guardar en localStorage como mini-vocabulario personal de la sesión y exportarse al final.
 
 ---
 
-### Fase 3 ✅ — Dashboard del admin
+### 6. Contador de turnos y estadísticas de sesión (impacto medio / esfuerzo bajo)
 
-> Archivos: `admin/index.html`
+**Problema:** El usuario no sabe cuánto habló ni cuántas correcciones recibió. Sin feedback, no hay sensación de progreso.
 
-**Qué se añade:**
-1. Nueva tarjeta de resumen: "Total exámenes completados" (conteo global).
-2. Tabla de exámenes recientes: usuario · fecha · nivel · puntuación — con paginación.
-3. Gráfico de barras: promedio de puntuación por nivel (A1…C2) para ver dónde los estudiantes tienen más dificultades.
-4. En la vista por usuario (click en la tabla de usuarios): sección "Exámenes" con historial completo del usuario seleccionado.
+**Solución:** Añadir una barra de estadísticas al final de la conversación (o accesible con botón "Ver resumen"):
 
-**Queries admin** (usa `SUPABASE_SERVICE_ROLE_KEY` vía `/api/admin-*` o RLS admin):
-```sql
--- resumen global
-select level, avg(score::float/total) as avg_pct, count(*) as total
-from exam_results group by level order by level;
+- Turnos completados: 8
+- Palabras aproximadas habladas: ~120
+- Correcciones recibidas: 3
+- Tiempo de conversación: 6:40
 
--- últimos exámenes (con email del usuario)
-select er.*, au.email
-from exam_results er
-join auth.users au on au.id = er.user_id
-order by er.created_at desc limit 50;
-```
+Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el panel de estadísticas de `auth.js`.
 
 ---
 
-### Resumen de fases
+### 7. Modo "Repetición fonética" (impacto medio / esfuerzo medio)
 
-| Fase | Descripción | Estado |
-|------|-------------|--------|
-| 1 | Tabla SQL + inserción al terminar examen | ✅ |
-| 2 | Sección "Exámenes" en el panel de stats del usuario | ✅ |
-| 3 | Métricas de exámenes en el dashboard admin | ✅ |
+**Problema:** El usuario escucha la respuesta una sola vez y a velocidad normal. No puede practicar la pronunciación de una frase específica.
+
+**Solución:** Al hacer clic en cualquier burbuja de la IA, el texto se resalta y se reproduce de nuevo (con TTS). Un botón extra "🐌 Despacio" reproduce la frase al 70% de velocidad para que el usuario pueda imitar mejor.
+
+**Implementación:** Añadir `onclick` a cada `.cv-bubble-ai`, pasar el texto a `speak()` con `rate` ajustable.
+
+---
+
+### 8. Guardar y revisar conversaciones (impacto bajo / esfuerzo medio)
+
+**Problema:** El usuario termina la sesión y pierde todo el historial. No puede revisar lo que aprendió ni los errores que cometió.
+
+**Solución:** Botón "💾 Guardar conversación" al terminar. Guarda el historial en localStorage (o Supabase si está autenticado) con fecha, nivel y escenario. Una pantalla de historial permite releer la conversación y las correcciones.
+
+---
+
+## Prioridad sugerida de implementación
+
+| # | Mejora | Impacto | Esfuerzo | Prioridad |
+|---|--------|---------|----------|-----------|
+| 3 | TTS de OpenAI | Alto | Bajo | ✅ Hecho |
+| 4 | Panel de correcciones | Medio | Bajo | ⭐ 2 |
+| 1 | Escenarios predefinidos | Alto | Bajo | ⭐ 3 |
+| 2 | Objetivo de misión | Alto | Medio | ⭐ 4 |
+| 6 | Estadísticas de sesión | Medio | Bajo | ⭐ 5 |
+| 7 | Repetición fonética | Medio | Medio | ⭐ 6 |
+| 5 | Vocabulario en contexto | Medio | Medio | ⭐ 7 |
+| 8 | Guardar conversaciones | Bajo | Medio | ⭐ 8 |

@@ -18,18 +18,17 @@
 
 **Problema:** El usuario abre la app sin saber de qué hablar. El campo "Personalizar" es potente pero invisible para principiantes.
 
-**Solución:** Añadir una galería de tarjetas de escenario antes de iniciar la conversación:
+**Solución implementada:** Galería de 7 tarjetas de escenario (incluye "Libre") visible antes de iniciar la conversación. Al seleccionar una, se precarga `State.rol` y `State.contexto`. La tarjeta activa se resalta visualmente. El campo "Personalizar" sigue disponible para edición libre. La galería se oculta al iniciar y reaparece con "Nueva conversación".
 
 | Escenario | Rol de la IA |
 |-----------|-------------|
+| 💬 Libre | Profesor por defecto |
 | 🛒 Supermercado | Cajero en REWE |
 | 🏥 Médico | Doctor en consulta |
-| 🚉 Estación de tren | Empleado de información |
-| ☕ Café | Mesero en cafetería |
-| 💼 Entrevista de trabajo | Jefe que entrevista |
-| 🏠 Búsqueda de piso | Arrendador que muestra el apartamento |
-
-Al seleccionar uno, se precarga el rol y el objetivo de la conversación. El campo "Personalizar" sigue disponible para edición libre.
+| 🚉 Estación | Empleado de información |
+| ☕ Cafetería | Mesero en cafetería |
+| 💼 Entrevista | Jefe que entrevista |
+| 🏠 Piso | Arrendador que muestra el apartamento |
 
 **Valor didáctico:** El estudiante practica vocabulario concreto y situacional — el más útil en la vida real.
 
@@ -132,9 +131,12 @@ Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el pa
 |---|--------|---------|----------|-----------|
 | 3 | TTS de OpenAI | Alto | Bajo | ✅ Hecho |
 | 4 | Panel de correcciones | Medio | Bajo | ✅ Hecho |
-| 1 | Escenarios predefinidos | Alto | Bajo | ⭐ 3 |
+| 1 | Escenarios predefinidos | Alto | Bajo | ✅ Hecho |
 | 2 | Objetivo de misión | Alto | Medio | ⭐ 4 |
 | 6 | Estadísticas de sesión | Medio | Bajo | ⭐ 5 |
 | 7 | Repetición fonética | Medio | Medio | ⭐ 6 |
 | 5 | Vocabulario en contexto | Medio | Medio | ⭐ 7 |
 | 8 | Guardar conversaciones | Bajo | Medio | ⭐ 8 |
+
+
+despues de ejecutar cualquir paso actualiza plan.md

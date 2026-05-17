@@ -81,6 +81,11 @@
             </div>
         </div>
 
+        <div class="cv-scenarios" id="scenariosSection">
+            <p class="cv-scenarios-label">¿De qué quieres hablar?</p>
+            <div class="cv-scenarios-grid" id="scenariosGrid"></div>
+        </div>
+
         <div class="cv-chat" id="chatArea">
             <div class="cv-empty" id="chatEmpty">
                 <p>Presiona <strong>Iniciar</strong> para comenzar</p>
@@ -117,6 +122,28 @@
     const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos
     const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
 
+    const SCENARIOS = [
+        { key: 'libre',       icon: '💬', name: 'Libre',       rol: DEFAULT_ROL, contexto: '' },
+        { key: 'supermercado',icon: '🛒', name: 'Supermercado',
+          rol: 'Eres un cajero amable en un supermercado REWE. Ayudas al cliente en la caja, escaneas sus productos y conversas brevemente.',
+          contexto: 'Estoy comprando en el supermercado REWE.' },
+        { key: 'medico',      icon: '🏥', name: 'Médico',
+          rol: 'Eres un médico en una consulta alemana. El paciente viene con un problema de salud y tú le haces preguntas y le das recomendaciones.',
+          contexto: 'Estoy en la consulta del médico con un problema de salud.' },
+        { key: 'tren',        icon: '🚉', name: 'Estación',
+          rol: 'Eres un empleado de información en una estación de tren alemana (Bahnhof). Ayudas a los viajeros con conexiones, precios y horarios.',
+          contexto: 'Quiero viajar en tren y necesito información sobre billetes y horarios.' },
+        { key: 'cafe',        icon: '☕', name: 'Cafetería',
+          rol: 'Eres un mesero en una cafetería alemana. Tomas pedidos, recomiendas especialidades y charlas amablemente con el cliente.',
+          contexto: 'Estoy en una cafetería alemana queriendo pedir algo.' },
+        { key: 'trabajo',     icon: '💼', name: 'Entrevista',
+          rol: 'Eres un jefe de recursos humanos en una empresa alemana. Estás entrevistando a un candidato para un puesto de trabajo.',
+          contexto: 'Estoy en una entrevista de trabajo en una empresa alemana.' },
+        { key: 'piso',        icon: '🏠', name: 'Piso',
+          rol: 'Eres un arrendador alemán que muestra un apartamento en Múnich. Describes las características del piso y respondes preguntas del interesado.',
+          contexto: 'Estoy buscando un apartamento para alquilar en Múnich.' },
+    ];
+
     const State = {
         level: 'B1',
         voiceGender: 'male',
@@ -137,6 +164,7 @@
         lastSuggestion: '',
         premiumTTS: localStorage.getItem('cv_tts_premium') === '1',
         currentAudio: null,
+        selectedScenario: 'libre',
     };
 
     // --- Daily limit ---
@@ -292,6 +320,32 @@ Regeln:
         return base;
     }
 
+    // --- Scenarios ---
+    function buildScenarioCards() {
+        const grid = document.getElementById('scenariosGrid');
+        SCENARIOS.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'cv-scenario-card' + (s.key === 'libre' ? ' active' : '');
+            btn.dataset.key = s.key;
+            btn.innerHTML = `<span class="cv-scenario-icon">${s.icon}</span><span class="cv-scenario-name">${s.name}</span>`;
+            btn.addEventListener('click', () => selectScenario(s.key));
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectScenario(key) {
+        const scenario = SCENARIOS.find(s => s.key === key);
+        if (!scenario) return;
+        State.selectedScenario = key;
+        State.rol = scenario.rol;
+        State.contexto = scenario.contexto;
+        document.querySelectorAll('.cv-scenario-card').forEach(c => {
+            c.classList.toggle('active', c.dataset.key === key);
+        });
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+    }
+
     // --- Start / reset ---
     async function startConversation() {
         if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
@@ -300,6 +354,7 @@ Regeln:
         }
         State.messages = [];
         State.started = true;
+        document.getElementById('scenariosSection').style.display = 'none';
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('recordBtn').style.display = 'inline-flex';
         disableRecord();
@@ -318,6 +373,7 @@ Regeln:
         State.started = false;
         State.isRecording = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
+        document.getElementById('scenariosSection').style.display = '';
         hideGuidedPanel();
         State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
@@ -716,6 +772,7 @@ Regeln:
 
     (function init() {
         if (localStorage.getItem('darkMode_cv') === '1') document.body.classList.add('dark');
+        buildScenarioCards();
         loadPreferences();
         loadVoices();
         setupRecordButton();

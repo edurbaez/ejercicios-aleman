@@ -917,74 +917,49 @@ th, td {
     background: #1565c0;
 }
 
-/* Scenarios */
-.cv-scenarios {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-}
-
-.cv-scenarios-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted, #666);
-    margin: 0 0 10px 0;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
+/* Scenarios (inside personalizar modal) */
 .cv-scenarios-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+    gap: 6px;
+    margin-bottom: 4px;
 }
 
 .cv-scenario-card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
-    padding: 10px 8px;
-    background: var(--bg);
-    border: 2px solid var(--border);
-    border-radius: 10px;
+    gap: 3px;
+    padding: 7px 4px;
+    background: var(--bg, #f5f0fa);
+    border: 2px solid var(--border, #ddd);
+    border-radius: 8px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
-    font-size: 13px;
-    font-weight: 500;
+    transition: border-color 0.15s, background 0.15s;
     color: var(--text, #222);
 }
 
 .cv-scenario-card:hover {
     border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 10%, var(--card-bg));
-    transform: translateY(-1px);
+    background: color-mix(in srgb, var(--accent) 10%, var(--card-bg, #fff));
 }
 
 .cv-scenario-card.active {
     border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 15%, var(--card-bg));
+    background: color-mix(in srgb, var(--accent) 15%, var(--card-bg, #fff));
     color: var(--accent);
-    font-weight: 700;
 }
 
 .cv-scenario-icon {
-    font-size: 22px;
+    font-size: 16px;
     line-height: 1;
 }
 
 .cv-scenario-name {
-    font-size: 12px;
+    font-size: 10px;
+    font-weight: 600;
     text-align: center;
-}
-
-@media (max-width: 600px) {
-    .cv-scenarios-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
-    .cv-scenario-card { padding: 8px 4px; }
-    .cv-scenario-icon { font-size: 18px; }
-    .cv-scenario-name { font-size: 11px; }
+    line-height: 1.2;
 }
 
 .cv-chat {

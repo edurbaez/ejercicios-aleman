@@ -67,7 +67,9 @@
         <div class="cv-modal-overlay" id="contextModal" onclick="closeContextModal(event)">
             <div class="cv-modal">
                 <h3>Personalizar conversación</h3>
-                <p class="cv-modal-label">Rol de la IA:</p>
+                <p class="cv-modal-label">Escenario:</p>
+                <div class="cv-scenarios-grid" id="scenariosGrid"></div>
+                <p class="cv-modal-label" style="margin-top:12px">Rol de la IA:</p>
                 <textarea id="rolText" class="cv-modal-textarea" rows="3"
                     placeholder="Ejemplos:&#10;• Eres un compañero de clase del curso de alemán&#10;• Eres un trabajador en una tienda de ropa&#10;• Eres un médico en un consultorio&#10;• Eres un mesero en un restaurante"></textarea>
                 <p class="cv-modal-label" style="margin-top:12px">Contexto sobre ti:</p>
@@ -79,11 +81,6 @@
                     <button class="cv-modal-save" onclick="saveContext()">Guardar</button>
                 </div>
             </div>
-        </div>
-
-        <div class="cv-scenarios" id="scenariosSection">
-            <p class="cv-scenarios-label">¿De qué quieres hablar?</p>
-            <div class="cv-scenarios-grid" id="scenariosGrid"></div>
         </div>
 
         <div class="cv-chat" id="chatArea">
@@ -337,13 +334,14 @@ Regeln:
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
-        State.rol = scenario.rol;
-        State.contexto = scenario.contexto;
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
         });
-        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
-        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+        // Rellenar los textareas del modal para que el usuario pueda editar
+        const rolEl = document.getElementById('rolText');
+        const ctxEl = document.getElementById('contextText');
+        if (rolEl) rolEl.value = scenario.rol;
+        if (ctxEl) ctxEl.value = scenario.contexto;
     }
 
     // --- Start / reset ---
@@ -354,7 +352,6 @@ Regeln:
         }
         State.messages = [];
         State.started = true;
-        document.getElementById('scenariosSection').style.display = 'none';
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('recordBtn').style.display = 'inline-flex';
         disableRecord();
@@ -373,7 +370,6 @@ Regeln:
         State.started = false;
         State.isRecording = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
-        document.getElementById('scenariosSection').style.display = '';
         hideGuidedPanel();
         State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
@@ -749,6 +745,10 @@ Regeln:
     function openContextModal() {
         document.getElementById('rolText').value = State.rol;
         document.getElementById('contextText').value = State.contexto;
+        // Sync active scenario highlight
+        document.querySelectorAll('.cv-scenario-card').forEach(c => {
+            c.classList.toggle('active', c.dataset.key === State.selectedScenario);
+        });
         document.getElementById('contextModal').classList.add('cv-modal-open');
         document.getElementById('rolText').focus();
     }
@@ -759,8 +759,15 @@ Regeln:
     }
 
     function saveContext() {
-        State.rol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
-        State.contexto = document.getElementById('contextText').value.trim();
+        const newRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
+        const newCtx = document.getElementById('contextText').value.trim();
+        // If user edited manually and it no longer matches the selected scenario, deselect it
+        const active = SCENARIOS.find(s => s.key === State.selectedScenario);
+        if (active && (newRol !== active.rol || newCtx !== active.contexto)) {
+            State.selectedScenario = 'libre';
+        }
+        State.rol = newRol;
+        State.contexto = newCtx;
         const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
         document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
         document.getElementById('contextModal').classList.remove('cv-modal-open');

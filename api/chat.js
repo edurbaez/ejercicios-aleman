@@ -106,7 +106,7 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { messages, system } = req.body;
+    const { messages, system, max_tokens } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
@@ -122,10 +122,14 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
     }
 
+    const resolvedMaxTokens = (Number.isInteger(max_tokens) && max_tokens > 0 && max_tokens <= 4096)
+        ? max_tokens
+        : 500;
+
     try {
         const body = {
             model: 'gpt-4o-mini',
-            max_tokens: 500,
+            max_tokens: resolvedMaxTokens,
             messages: system
                 ? [{ role: 'system', content: String(system) }, ...messages]
                 : messages,

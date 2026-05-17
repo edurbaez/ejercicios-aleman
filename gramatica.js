@@ -1368,7 +1368,8 @@ async function fetchExamQuestions(rules) {
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({
       system: EXAM_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: buildExamPrompt(rules) }]
+      messages: [{ role: 'user', content: buildExamPrompt(rules) }],
+      max_tokens: 2000
     })
   });
 

@@ -1346,8 +1346,9 @@ function showExamResults() {
   document.getElementById('exam-results-overlay').style.display = 'flex';
 
   // Silent insert — does not block or alert on failure
-  if (window.sb) {
+  if (window.sb && window.currentUser) {
     window.sb.from('exam_results').insert({
+      user_id: window.currentUser.id,
       level: currentLevel,
       score: correct,
       total: total,

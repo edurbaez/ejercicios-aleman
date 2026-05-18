@@ -5,7 +5,12 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\" -Recurse -File)",
       "Bash(Select-Object FullName)",
       "Bash(Sort-Object FullName)",
-      "Bash(Test-Path *)"
+      "Bash(Test-Path *)",
+      "Bash(mkdir -p /mnt/c/Users/edurb/.claude/commands && echo \"ok\")"
+    ],
+    "additionalDirectories": [
+      "\\mnt\\c\\Users\\edurb\\.claude",
+      "C:\\Users\\edurb\\.claude"
     ]
   },
   "enableAllProjectMcpServers": true,

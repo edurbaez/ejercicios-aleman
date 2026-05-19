@@ -1263,6 +1263,41 @@ body.dark .cv-correction-toggle {
 body.dark .cv-correction-toggle:hover { background: #4a2020; }
 body.dark .cv-correction-body { color: #eee; }
 
+/* Mission banner */
+.cv-mision-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #e3f2fd;
+    border: 1.5px solid #90caf9;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #0d47a1;
+    line-height: 1.4;
+}
+.cv-mision-banner .cv-mision-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.cv-mision-banner strong { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; color: #1565c0; }
+.cv-mision-banner.completed {
+    background: #e8f5e9;
+    border-color: #81c784;
+    color: #1b5e20;
+}
+.cv-mision-banner.completed strong { color: #2e7d32; }
+body.dark .cv-mision-banner {
+    background: #0d1f3c;
+    border-color: #1565c0;
+    color: #90caf9;
+}
+body.dark .cv-mision-banner strong { color: #64b5f6; }
+body.dark .cv-mision-banner.completed {
+    background: #0a2012;
+    border-color: #388e3c;
+    color: #a5d6a7;
+}
+body.dark .cv-mision-banner.completed strong { color: #66bb6a; }
+
 @media (max-width: 600px) {
     .cv-config { gap: 10px; }
     .cv-config-group label { font-size: 13px; }

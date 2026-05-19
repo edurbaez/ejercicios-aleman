@@ -83,6 +83,14 @@
             </div>
         </div>
 
+        <div class="cv-mision-banner" id="misionBanner" style="display:none">
+            <span class="cv-mision-icon">🎯</span>
+            <div>
+                <strong id="misionLabel">Misión</strong>
+                <span id="misionText"></span>
+            </div>
+        </div>
+
         <div class="cv-chat" id="chatArea">
             <div class="cv-empty" id="chatEmpty">
                 <p>Presiona <strong>Iniciar</strong> para comenzar</p>
@@ -120,25 +128,32 @@
     const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
 
     const SCENARIOS = [
-        { key: 'libre',       icon: '💬', name: 'Libre',       rol: DEFAULT_ROL, contexto: '' },
+        { key: 'libre',       icon: '💬', name: 'Libre',       rol: DEFAULT_ROL, contexto: '',
+          mision: 'Preséntate y cuéntale a tu interlocutor al menos 3 cosas sobre tu vida diaria.' },
         { key: 'supermercado',icon: '🛒', name: 'Supermercado',
           rol: 'Eres un cajero amable en un supermercado REWE. Ayudas al cliente en la caja, escaneas sus productos y conversas brevemente.',
-          contexto: 'Estoy comprando en el supermercado REWE.' },
+          contexto: 'Estoy comprando en el supermercado REWE.',
+          mision: 'Pide ayuda para encontrar un producto, pregunta el precio y completa el pago en caja.' },
         { key: 'medico',      icon: '🏥', name: 'Médico',
           rol: 'Eres un médico en una consulta alemana. El paciente viene con un problema de salud y tú le haces preguntas y le das recomendaciones.',
-          contexto: 'Estoy en la consulta del médico con un problema de salud.' },
+          contexto: 'Estoy en la consulta del médico con un problema de salud.',
+          mision: 'Describe tus síntomas, entiende el diagnóstico y averigua qué medicamento debes tomar.' },
         { key: 'tren',        icon: '🚉', name: 'Estación',
           rol: 'Eres un empleado de información en una estación de tren alemana (Bahnhof). Ayudas a los viajeros con conexiones, precios y horarios.',
-          contexto: 'Quiero viajar en tren y necesito información sobre billetes y horarios.' },
+          contexto: 'Quiero viajar en tren y necesito información sobre billetes y horarios.',
+          mision: 'Pide un billete de tren, confirma el horario de salida y averigua el número de andén.' },
         { key: 'cafe',        icon: '☕', name: 'Cafetería',
           rol: 'Eres un mesero en una cafetería alemana. Tomas pedidos, recomiendas especialidades y charlas amablemente con el cliente.',
-          contexto: 'Estoy en una cafetería alemana queriendo pedir algo.' },
+          contexto: 'Estoy en una cafetería alemana queriendo pedir algo.',
+          mision: 'Pide un café con leche y un pastel, pregunta el precio y solicita la cuenta.' },
         { key: 'trabajo',     icon: '💼', name: 'Entrevista',
           rol: 'Eres un jefe de recursos humanos en una empresa alemana. Estás entrevistando a un candidato para un puesto de trabajo.',
-          contexto: 'Estoy en una entrevista de trabajo en una empresa alemana.' },
+          contexto: 'Estoy en una entrevista de trabajo en una empresa alemana.',
+          mision: 'Preséntate, habla de tu experiencia laboral y haz al menos una pregunta sobre el puesto.' },
         { key: 'piso',        icon: '🏠', name: 'Piso',
           rol: 'Eres un arrendador alemán que muestra un apartamento en Múnich. Describes las características del piso y respondes preguntas del interesado.',
-          contexto: 'Estoy buscando un apartamento para alquilar en Múnich.' },
+          contexto: 'Estoy buscando un apartamento para alquilar en Múnich.',
+          mision: 'Pregunta por el alquiler mensual, las habitaciones disponibles y si se admiten mascotas.' },
     ];
 
     const State = {
@@ -162,6 +177,8 @@
         premiumTTS: localStorage.getItem('cv_tts_premium') === '1',
         currentAudio: null,
         selectedScenario: 'libre',
+        mision: SCENARIOS[0].mision,
+        misionCompleted: false,
     };
 
     // --- Daily limit ---
@@ -302,15 +319,18 @@
             ? `\nKontext über den Benutzer: ${State.contexto}\n`
             : '';
         const rolLine = State.rol || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+        const misionLine = State.mision
+            ? `\nZiel des Studenten in dieser Sitzung: ${State.mision}\n`
+            : '';
         let base = `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
-${contextLine}
+${contextLine}${misionLine}
 ${guides[level]}
 
 Regeln:
 - Antworte immer auf Deutsch
 - Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
 - Wenn der Benutzer Grammatikfehler macht, füge am Ende deiner Antwort einen separaten Abschnitt hinzu, der mit "---CORRECCIÓN---" beginnt. Format (eine Zeile pro Fehler): ❌ "falsche Formulierung" → ✅ "korrekte Formulierung" (kurze Erklärung auf Spanisch). Die Konversationsantwort selbst soll KEINE eingebetteten Korrekturen enthalten.
-- Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen`;
+- Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen${State.mision ? `\n- Wenn das Ziel des Studenten erfüllt wurde, füge am absoluten Ende deiner Antwort (nach allen anderen Abschnitten) genau "---MISION_CUMPLIDA---" hinzu` : ''}`;
         if (State.guidedMode) {
             base += `\n\nMODO GUIADO ACTIVO: Después de tu pregunta o comentario, añade en una nueva línea exactamente "---SUGERENCIA---" seguido de una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. No expliques la sugerencia, solo escríbela en alemán.`;
         }
@@ -334,14 +354,37 @@ Regeln:
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
+        State.mision = scenario.mision || '';
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
         });
-        // Rellenar los textareas del modal para que el usuario pueda editar
         const rolEl = document.getElementById('rolText');
         const ctxEl = document.getElementById('contextText');
         if (rolEl) rolEl.value = scenario.rol;
         if (ctxEl) ctxEl.value = scenario.contexto;
+    }
+
+    function showMisionBanner() {
+        const banner = document.getElementById('misionBanner');
+        if (!State.mision) { banner.style.display = 'none'; return; }
+        banner.style.display = 'flex';
+        banner.classList.remove('completed');
+        document.getElementById('misionLabel').textContent = 'Misión';
+        document.getElementById('misionText').textContent = State.mision;
+        document.querySelector('#misionBanner .cv-mision-icon').textContent = '🎯';
+    }
+
+    function showMisionCompleted() {
+        const banner = document.getElementById('misionBanner');
+        banner.style.display = 'flex';
+        banner.classList.add('completed');
+        document.getElementById('misionLabel').textContent = '¡Misión cumplida!';
+        document.getElementById('misionText').textContent = State.mision;
+        document.querySelector('#misionBanner .cv-mision-icon').textContent = '🏆';
+    }
+
+    function hideMisionBanner() {
+        document.getElementById('misionBanner').style.display = 'none';
     }
 
     // --- Start / reset ---
@@ -352,11 +395,13 @@ Regeln:
         }
         State.messages = [];
         State.started = true;
+        State.misionCompleted = false;
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('recordBtn').style.display = 'inline-flex';
         disableRecord();
         const empty = document.getElementById('chatEmpty');
         if (empty) empty.remove();
+        showMisionBanner();
         await sendToAI(null);
     }
 
@@ -369,8 +414,10 @@ Regeln:
         State.messages = [];
         State.started = false;
         State.isRecording = false;
+        State.misionCompleted = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
         hideGuidedPanel();
+        hideMisionBanner();
         State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
@@ -418,6 +465,13 @@ Regeln:
             if (!resp.ok) throw new Error(data.error || 'Error de red');
 
             let displayReply = data.reply;
+
+            // Extract mission completed marker
+            if (!State.misionCompleted && displayReply.includes('---MISION_CUMPLIDA---')) {
+                displayReply = displayReply.replace('---MISION_CUMPLIDA---', '').trim();
+                State.misionCompleted = true;
+                showMisionCompleted();
+            }
 
             // Extract grammar correction block
             let correctionText = null;

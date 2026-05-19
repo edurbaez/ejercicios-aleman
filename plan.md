@@ -132,7 +132,7 @@ Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el pa
 | 3 | TTS de OpenAI | Alto | Bajo | ✅ Hecho |
 | 4 | Panel de correcciones | Medio | Bajo | ✅ Hecho |
 | 1 | Escenarios predefinidos | Alto | Bajo | ✅ Hecho |
-| 2 | Objetivo de misión | Alto | Medio | ⭐ 4 |
+| 2 | Objetivo de misión | Alto | Medio | ✅ Hecho |
 | 6 | Estadísticas de sesión | Medio | Bajo | ⭐ 5 |
 | 7 | Repetición fonética | Medio | Medio | ⭐ 6 |
 | 5 | Vocabulario en contexto | Medio | Medio | ⭐ 7 |

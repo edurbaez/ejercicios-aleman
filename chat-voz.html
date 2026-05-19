@@ -57,8 +57,7 @@
             </div>
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
-                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Modo Guiado: OFF</button>
-                <button class="cv-guided-toggle" id="premiumTtsBtn" onclick="togglePremiumTTS()" title="Usa la voz de OpenAI (tts-1) en lugar del TTS del navegador. Costo ~$0.015/1000 chars.">Voz Premium: OFF</button>
+                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Sugerencia</button>
                 <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
             </div>
         </div>
@@ -571,7 +570,7 @@ Regeln:
     function toggleGuidedMode() {
         State.guidedMode = !State.guidedMode;
         const btn = document.getElementById('guidedBtn');
-        btn.textContent = 'Modo Guiado: ' + (State.guidedMode ? 'ON' : 'OFF');
+        btn.textContent = 'Sugerencia';
         btn.classList.toggle('active', State.guidedMode);
         if (!State.guidedMode) hideGuidedPanel();
     }

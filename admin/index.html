@@ -150,8 +150,28 @@
 
 <div id="admin-app" style="display:none">
   <div class="adm-header">
-    <h1>Dashboard de Administración</h1>
+    <div style="display:flex;align-items:center;gap:16px">
+      <a href="/palabrasB2.html" class="adm-btn" style="text-decoration:none;display:flex;align-items:center;gap:6px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Inicio
+      </a>
+      <h1 style="margin:0">Dashboard de Administración</h1>
+    </div>
     <div class="adm-header-actions">
+      <div style="position:relative">
+        <button class="adm-btn" id="nav-menu-btn" onclick="toggleNavMenu()" style="display:flex;align-items:center;gap:5px">
+          Apps
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div id="nav-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#1565C0;border:1px solid rgba(255,255,255,.2);border-radius:8px;min-width:170px;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:200;overflow:hidden">
+          <a href="/palabrasB2.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Vocabulario B2</a>
+          <a href="/B1.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Vocabulario B1</a>
+          <a href="/diccionario.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Diccionario</a>
+          <a href="/chat-voz.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Chat de Voz</a>
+          <a href="/corrector.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Corrector</a>
+          <a href="/kasus.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Kasus Trainer</a>
+          <a href="/gramatica.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px">Gramática</a>
+        </div>
+      </div>
       <button class="adm-btn" onclick="toggleDark()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>Modo oscuro</button>
       <button class="adm-btn danger" onclick="signOut()">Cerrar sesión</button>
     </div>
@@ -258,6 +278,17 @@
   let allExams    = [];
   const eventsByUser = {};
   const examsByUser  = {};
+
+  // ── Nav dropdown ───────────────────────────────────────
+  function toggleNavMenu() {
+    const dd = document.getElementById('nav-dropdown');
+    dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+  }
+  document.addEventListener('click', e => {
+    if (!document.getElementById('nav-menu-btn').contains(e.target)) {
+      document.getElementById('nav-dropdown').style.display = 'none';
+    }
+  });
 
   // ── Dark mode ──────────────────────────────────────────
   function toggleDark() {

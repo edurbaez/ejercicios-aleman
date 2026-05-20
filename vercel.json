@@ -1,7 +1,4 @@
 {
-  "rewrites": [
-    { "source": "/", "destination": "/palabrasB2.html" }
-  ],
   "functions": {
     "api/*.js": {
       "maxDuration": 30

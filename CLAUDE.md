@@ -53,8 +53,8 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `manifest-b1.json` | PWA manifest for `B1.html`. Green theme (#388E3C). |
 | `sw-b1.js` | Service Worker for B1 app — caches `B1.html`, `DataB1.json`, `manifest-b1.json`, `icon-b1.svg`. |
 | `icon-b1.svg` | PWA icon for B1: green rounded square with "B1" in white. |
-| `vercel.json` | Vercel rewrite: maps `/` → `/palabrasB2.html`. |
-| `index.html` | Redirect stub: forwards `/` to `palabrasB2.html`. |
+| `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 30`. Sin rewrites (`/` sirve `index.html` directamente). |
+| `index.html` | Landing page principal: muestra todas las apps como tarjetas. Navbar con dropdown. Auth via `auth.js`. |
 | `package.json` | Minimal Node.js package declaration — forces Vercel to treat the project as Node (required for `api/chat.js`). |
 | `.env.local` | Local env vars (not committed). Must define `OPENAI_API_KEY` for local dev. |
 

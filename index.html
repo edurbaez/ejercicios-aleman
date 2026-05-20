@@ -1,7 +1,256 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta http-equiv="refresh" content="0; url=palabrasB2.html">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alemán — Inicio</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="auth.js" defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #f0f2f7;
+      color: #222;
+      min-height: 100vh;
+    }
+    body.dark { background: #181824; color: #dde1ec; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1565C0 0%, #1976D2 50%, #0D47A1 100%);
+      color: #fff;
+      padding: 64px 24px 56px;
+      text-align: center;
+    }
+    .hero-flag { font-size: 48px; margin-bottom: 12px; line-height: 1; }
+    .hero h1 { margin: 0 0 12px; font-size: clamp(28px, 5vw, 42px); font-weight: 700; letter-spacing: -.5px; }
+    .hero p  { margin: 0; font-size: clamp(15px, 2.5vw, 18px); opacity: .85; max-width: 520px; margin: 0 auto; }
+
+    /* Grid */
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+      padding: 36px 24px 48px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* App card */
+    .app-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 24px 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform .15s, box-shadow .15s;
+      border-top: 4px solid var(--card-accent, #1976D2);
+    }
+    .app-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.12);
+    }
+    body.dark .app-card {
+      background: #23253a;
+      box-shadow: 0 2px 10px rgba(0,0,0,.3);
+    }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      background: color-mix(in srgb, var(--card-accent, #1976D2) 12%, transparent);
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--card-accent, #1976D2);
+      margin: 0;
+    }
+    body.dark .card-title { filter: brightness(1.3); }
+    .card-desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.55;
+      margin: 0;
+      flex: 1;
+    }
+    body.dark .card-desc { color: #8a90aa; }
+
+    .card-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: color-mix(in srgb, var(--card-accent, #1976D2) 12%, transparent);
+      color: var(--card-accent, #1976D2);
+      align-self: flex-start;
+    }
+    body.dark .card-tag { filter: brightness(1.3); }
+
+    /* Dark toggle (fixed) */
+    #dark-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1565C0;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+    body.dark #dark-toggle { background: #42a5f5; }
+
+    /* Section label */
+    .section-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin: 0 24px 4px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 24px;
+    }
+
+    @media (max-width: 480px) {
+      .hero { padding: 48px 16px 40px; }
+      .apps-grid { padding: 24px 16px 40px; gap: 14px; }
+    }
+  </style>
 </head>
-<body></body>
+<body>
+
+<!-- navbar shared -->
+<nav class="navbar">
+  <a href="/" class="active">Inicio</a>
+  <div class="nav-dropdown">
+    <button class="nav-dropdown-btn" id="menuBtn">Menú ▾</button>
+    <div class="nav-dropdown-content" id="menuContent">
+      <a href="palabrasB2.html">Vocabulario B2</a>
+      <a href="B1.html">Vocabulario B1</a>
+      <a href="diccionario.html">Diccionario</a>
+      <a href="lectura veloz.html">Lectura Veloz</a>
+      <a href="chat-voz.html">Chat de Voz</a>
+      <a href="corrector.html">Corrector</a>
+      <a href="kasus.html">Kasus Trainer</a>
+      <a href="gramatica.html">Gramática</a>
+    </div>
+  </div>
+  <div id="auth-area" style="margin-left:auto"></div>
+</nav>
+
+<div class="hero">
+  <div class="hero-flag">🇩🇪</div>
+  <h1>Aprende Alemán</h1>
+  <p>Vocabulario, gramática, dictado y conversación — todo en un lugar.</p>
+</div>
+
+<p class="section-label" style="padding-top:28px">Vocabulario</p>
+<div class="apps-grid" style="padding-top:12px;padding-bottom:0">
+  <a href="palabrasB2.html" class="app-card" style="--card-accent:#1976D2">
+    <div class="card-icon">📘</div>
+    <p class="card-title">Vocabulario B2</p>
+    <p class="card-desc">Quiz interactivo con palabras de nivel B2. Modo auto, repetición espaciada SRS y frases en contexto.</p>
+    <span class="card-tag">B2 · Avanzado</span>
+  </a>
+  <a href="B1.html" class="app-card" style="--card-accent:#388E3C">
+    <div class="card-icon">📗</div>
+    <p class="card-title">Vocabulario B1</p>
+    <p class="card-desc">El mismo motor del B2 pero enfocado en verbos, adjetivos, adverbios y partículas modales de nivel B1.</p>
+    <span class="card-tag">B1 · Intermedio</span>
+  </a>
+  <a href="diccionario.html" class="app-card" style="--card-accent:#5E35B1">
+    <div class="card-icon">📖</div>
+    <p class="card-title">Diccionario</p>
+    <p class="card-desc">Busca cualquier palabra alemana: traducción, nivel CEFR, definición, sinónimos y antónimos. Con caché offline.</p>
+    <span class="card-tag">A1–C2</span>
+  </a>
+</div>
+
+<p class="section-label" style="padding-top:28px">Gramática</p>
+<div class="apps-grid" style="padding-top:12px;padding-bottom:0">
+  <a href="gramatica.html" class="app-card" style="--card-accent:#E65100">
+    <div class="card-icon">📋</div>
+    <p class="card-title">Gramática</p>
+    <p class="card-desc">10 reglas gramaticales clave por nivel CEFR (A1–C2) en formato acordeón. Referencia rápida para consulta.</p>
+    <span class="card-tag">A1–C2 · Referencia</span>
+  </a>
+  <a href="kasus.html" class="app-card" style="--card-accent:#00796B">
+    <div class="card-icon">🔤</div>
+    <p class="card-title">Kasus Trainer</p>
+    <p class="card-desc">Ejercicios de rellenar huecos para practicar Nominativ, Akkusativ, Dativ y Genitiv con seguimiento de racha.</p>
+    <span class="card-tag">Casos gramaticales</span>
+  </a>
+  <a href="corrector.html" class="app-card" style="--card-accent:#AD1457">
+    <div class="card-icon">✏️</div>
+    <p class="card-title">Corrector</p>
+    <p class="card-desc">Sube o fotografía un texto en alemán y recibe una corrección detallada con errores, puntuación y explicaciones.</p>
+    <span class="card-tag">Corrección · GPT-4o</span>
+  </a>
+</div>
+
+<p class="section-label" style="padding-top:28px">Comprensión y conversación</p>
+<div class="apps-grid" style="padding-top:12px">
+  <a href="chat-voz.html" class="app-card" style="--card-accent:#C62828">
+    <div class="card-icon">🎙️</div>
+    <p class="card-title">Chat de Voz</p>
+    <p class="card-desc">Mantén una conversación hablada en alemán. Graba con el micrófono, Whisper transcribe y la IA responde en voz alta.</p>
+    <span class="card-tag">A1–C2 · Conversación</span>
+  </a>
+  <a href="lectura veloz.html" class="app-card" style="--card-accent:#00838F">
+    <div class="card-icon">⚡</div>
+    <p class="card-title">Lectura Veloz</p>
+    <p class="card-desc">RSVP: lee textos a alta velocidad palabra a palabra. Soporta TXT, PDF y DOCX. Guarda tus textos y retoma donde lo dejaste.</p>
+    <span class="card-tag">Lectura · RSVP</span>
+  </a>
+</div>
+
+<button id="dark-toggle" title="Modo oscuro" onclick="toggleDark()">🌙</button>
+
+<script>
+  // Dropdown navbar
+  const menuBtn = document.getElementById('menuBtn');
+  const menuContent = document.getElementById('menuContent');
+  menuBtn.addEventListener('click', () => menuContent.classList.toggle('open'));
+  document.addEventListener('click', e => {
+    if (!menuBtn.contains(e.target) && !menuContent.contains(e.target)) {
+      menuContent.classList.remove('open');
+    }
+  });
+
+  // Dark mode
+  function toggleDark() {
+    const dark = document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode_home', dark ? '1' : '0');
+  }
+  if (localStorage.getItem('darkMode_home') === '1') document.body.classList.add('dark');
+</script>
+</body>
 </html>

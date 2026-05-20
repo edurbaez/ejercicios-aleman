@@ -143,6 +143,43 @@ body {
     color: #c8e6a0;
 }
 
+/* ── Home (index.html) ─────────────────────────────────── */
+#page-home {
+    --bg: #f0f2f7;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+}
+#page-home.dark {
+    --bg: #181824;
+    --text: #dde1ec;
+    --border: #444;
+    --navbar-bg: #0f3460;
+}
+#page-home #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+#page-home #navbar a:hover,
+#page-home #navbar a.active,
+#page-home #navbar .nav-menu-btn:hover {
+    background-color: var(--color-b2);
+    color: white;
+}
+#page-home #darkModeBtn {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 18px;
+    transition: background-color 0.2s;
+}
+#page-home #darkModeBtn:hover { background-color: var(--color-b2); color: white; }
+
+/* ── end Home ──────────────────────────────────────────── */
+
 #page-b2 #navbar {
     background-color: var(--navbar-bg);
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);

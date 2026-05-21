@@ -97,15 +97,6 @@
             </div>
         </div>
 
-        <div id="guidedPanel" class="cv-guided-panel" style="display:none">
-            <div class="cv-guided-header">💡 Respuesta sugerida</div>
-            <p id="guidedSuggestionText" class="cv-guided-text"></p>
-            <div class="cv-guided-actions">
-                <button class="cv-guided-btn" onclick="speakQuestion()">🔊 Pregunta</button>
-                <button class="cv-guided-btn" onclick="speakSuggestion()">🔊 Sugerencia</button>
-            </div>
-        </div>
-
         <div class="cv-controls">
             <div class="cv-timer" id="recTimer" style="display:none">
                 <div class="cv-timer-bar-wrap">
@@ -173,7 +164,6 @@
         rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
         dailyUsedMs: 0,
         guidedMode: false,
-        lastSuggestion: '',
         premiumTTS: localStorage.getItem('cv_tts_premium') === '1',
         currentAudio: null,
         selectedScenario: 'libre',
@@ -332,7 +322,7 @@ Regeln:
 - Wenn der Benutzer Grammatikfehler macht, füge am Ende deiner Antwort einen separaten Abschnitt hinzu, der mit "---CORRECCIÓN---" beginnt. Format (eine Zeile pro Fehler): ❌ "falsche Formulierung" → ✅ "korrekte Formulierung" (kurze Erklärung auf Spanisch). Die Konversationsantwort selbst soll KEINE eingebetteten Korrekturen enthalten.
 - Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen${State.mision ? `\n- Wenn das Ziel des Studenten erfüllt wurde, füge am absoluten Ende deiner Antwort (nach allen anderen Abschnitten) genau "---MISION_CUMPLIDA---" hinzu` : ''}`;
         if (State.guidedMode) {
-            base += `\n\nMODO GUIADO ACTIVO: Después de tu pregunta o comentario, añade en una nueva línea exactamente "---SUGERENCIA---" seguido de una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. No expliques la sugerencia, solo escríbela en alemán.`;
+            base += `\n\nMODO GUIADO ACTIVO: Justo después de tu pregunta, escribe entre paréntesis una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. Solo en alemán, sin explicar. Ejemplo: "Wie heißt du? (Ich heiße Ana und komme aus Spanien.)"`;
         }
         return base;
     }
@@ -416,9 +406,7 @@ Regeln:
         State.isRecording = false;
         State.misionCompleted = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
-        hideGuidedPanel();
         hideMisionBanner();
-        State.lastSuggestion = '';
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
         document.getElementById('recTimer').style.display = 'none';
@@ -481,15 +469,6 @@ Regeln:
                 correctionText = corrParts[1].trim();
             }
 
-            if (State.guidedMode) {
-                const parts = displayReply.split('---SUGERENCIA---');
-                if (parts.length > 1) {
-                    displayReply = parts[0].trim();
-                    showGuidedPanel(parts[1].trim());
-                } else {
-                    hideGuidedPanel();
-                }
-            }
             State.messages.push({ role: 'assistant', content: displayReply });
             updateBubble(thinkingId, displayReply);
             if (correctionText) addCorrectionCard(correctionText);
@@ -576,27 +555,7 @@ Regeln:
         if (!State.guidedMode) hideGuidedPanel();
     }
 
-    function showGuidedPanel(suggestion) {
-        State.lastSuggestion = suggestion;
-        document.getElementById('guidedSuggestionText').textContent = suggestion;
-        document.getElementById('guidedPanel').style.display = 'block';
-        const ca = document.getElementById('chatArea');
-        ca.scrollTop = ca.scrollHeight;
-    }
-
-    function hideGuidedPanel() {
-        document.getElementById('guidedPanel').style.display = 'none';
-    }
-
-    function speakQuestion() {
-        const msgs = State.messages;
-        const last = msgs[msgs.length - 1];
-        if (last && last.role === 'assistant') speak(last.content);
-    }
-
-    function speakSuggestion() {
-        if (State.lastSuggestion) speak(State.lastSuggestion);
-    }
+    function hideGuidedPanel() {}
 
     function enableRecord() {
         const btn = document.getElementById('recordBtn');

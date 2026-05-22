@@ -173,21 +173,33 @@
     const token = window.getAuthToken();
     let data, examData = [];
     try {
+      const abort = new AbortController();
+      const tid = setTimeout(() => abort.abort(), 12000);
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 31);
+      const since = cutoff.toISOString();
       const [evRes, exRes] = await Promise.all([
         fetch(
-          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&order=created_at.asc`,
-          { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
+          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&created_at=gte.${since}&order=created_at.asc&limit=2000`,
+          { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` }, signal: abort.signal }
         ),
         window.sb.from('exam_results').select('created_at,level,score,total').order('created_at', { ascending: false }).limit(20)
       ]);
+      clearTimeout(tid);
       if (!evRes.ok) throw new Error(await evRes.text());
       data = await evRes.json();
       examData = exRes.data || [];
     } catch (err) {
-      content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
+      content.innerHTML = `<p style="color:#e53935;">Error al cargar estadísticas: ${err.name === 'AbortError' ? 'tiempo de espera agotado' : err.message}</p>`;
       return;
     }
 
+    if (!Array.isArray(data)) {
+      content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas: respuesta inesperada.</p>';
+      return;
+    }
+
+    try {
     const words    = data.filter(e => e.event_type === 'word_answered');
     const correct  = words.filter(e => e.payload && e.payload.correct).length;
     const pct      = words.length > 0 ? Math.round(correct / words.length * 100) : null;
@@ -303,6 +315,9 @@
       <div style="font-size:11px;font-weight:600;color:#E65100;letter-spacing:.5px;margin:16px 0 4px;">EXÁMENES DE GRAMÁTICA</div>
       ${examHtml}
     `;
+    } catch (renderErr) {
+      content.innerHTML = `<p style="color:#e53935;">Error al mostrar estadísticas: ${renderErr.message}</p>`;
+    }
   };
 
   window.getAuthToken = function () {

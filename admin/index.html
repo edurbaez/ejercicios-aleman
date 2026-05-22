@@ -103,6 +103,25 @@
     /* Empty / loading states */
     .empty { color: #aaa; font-size: 13px; padding: 16px 0; text-align: center; }
 
+    /* Pending users */
+    .pending-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f6fa; flex-wrap: wrap; }
+    body.dark .pending-row { border-bottom-color: #2a2d45; }
+    .pending-email { flex: 1; font-size: 13px; color: #333; min-width: 180px; }
+    body.dark .pending-email { color: #ccd1e8; }
+    .pending-date { font-size: 12px; color: #aaa; width: 90px; flex-shrink: 0; }
+    .btn-approve { padding: 5px 14px; background: #43a047; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-approve:hover { background: #388e3c; }
+    .btn-block { padding: 5px 14px; background: #e53935; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-block:hover { background: #c62828; }
+    .btn-pending { padding: 5px 14px; background: #fb8c00; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .btn-pending:hover { background: #e65100; }
+    .badge.approved { background: #e8f5e9; color: #2e7d32; }
+    body.dark .badge.approved { background: #1a3a1d; color: #81c784; }
+    .badge.pending-s { background: #fff3e0; color: #e65100; }
+    body.dark .badge.pending-s { background: #2a1e00; color: #ffb74d; }
+    .badge.blocked { background: #ffebee; color: #c62828; }
+    body.dark .badge.blocked { background: #3a1010; color: #ef9a9a; }
+
     /* Last-5-days per student */
     .student-block { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f5; }
     body.dark .student-block { border-bottom-color: #2a2d45; }
@@ -197,6 +216,10 @@
         <div class="card-label">Exámenes completados</div>
         <div class="card-value" id="stat-exams" style="color:#E65100;">—</div>
       </div>
+      <div class="card">
+        <div class="card-label">Pendientes de aprobación</div>
+        <div class="card-value" id="stat-pending" style="color:#fb8c00;">—</div>
+      </div>
     </div>
 
     <!-- 2. Actividad por app -->
@@ -223,9 +246,18 @@
       <div id="last5-container"><p class="empty">Cargando…</p></div>
     </div>
 
-    <!-- 5. Tabla de usuarios -->
+    <!-- 5. Pendientes de aprobación -->
+    <div class="section" id="pending-section">
+      <div class="section-title">
+        Pendientes de aprobación
+        <span id="pending-count" style="background:#fff3e0;color:#e65100;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;"></span>
+      </div>
+      <div id="pending-list"><p class="empty">Cargando…</p></div>
+    </div>
+
+    <!-- 6. Tabla de usuarios -->
     <div class="section">
-      <div class="section-title">Usuarios</div>
+      <div class="section-title">Todos los usuarios</div>
       <input type="search" class="search-box" id="user-search" placeholder="Buscar por nombre o email…" oninput="filterUsers(this.value)">
       <table id="users-table">
         <thead>
@@ -233,13 +265,14 @@
             <th>Nombre</th>
             <th>Email</th>
             <th>Rol</th>
+            <th>Estado</th>
             <th>Registro</th>
             <th>Última actividad</th>
             <th>Eventos</th>
           </tr>
         </thead>
         <tbody id="users-tbody">
-          <tr><td colspan="6" class="empty">Cargando…</td></tr>
+          <tr><td colspan="7" class="empty">Cargando…</td></tr>
         </tbody>
       </table>
     </div>
@@ -325,7 +358,7 @@
   async function loadData() {
     const [profRes, evRes, exRes] = await Promise.all([
       sb.from('profiles')
-        .select('id, email, display_name, role, created_at')
+        .select('id, email, display_name, role, status, created_at')
         .order('created_at', { ascending: false }),
       sb.from('usage_events')
         .select('id, user_id, app, event_type, payload, created_at')
@@ -357,6 +390,7 @@
     renderAppBars();
     renderExamStats();
     renderLast5Days();
+    renderPendingUsers();
     renderUsersTable(allProfiles);
   }
 
@@ -366,10 +400,56 @@
     const activeIds = new Set(
       allEvents.filter(e => e.created_at >= cutoff).map(e => e.user_id)
     );
-    document.getElementById('stat-total').textContent  = allProfiles.length;
-    document.getElementById('stat-active').textContent = activeIds.size;
-    document.getElementById('stat-events').textContent = allEvents.length;
-    document.getElementById('stat-exams').textContent  = allExams.length;
+    const pendingCount = allProfiles.filter(p => p.status === 'pending').length;
+    document.getElementById('stat-total').textContent   = allProfiles.length;
+    document.getElementById('stat-active').textContent  = activeIds.size;
+    document.getElementById('stat-events').textContent  = allEvents.length;
+    document.getElementById('stat-exams').textContent   = allExams.length;
+    document.getElementById('stat-pending').textContent = pendingCount;
+  }
+
+  // ── Pending users ──────────────────────────────────────
+  async function setUserStatus(userId, status) {
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const token = session?.access_token;
+      const res = await fetch('/api/approve-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ userId, status }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Error');
+      // Update local state and re-render
+      const p = allProfiles.find(x => x.id === userId);
+      if (p) p.status = status;
+      renderSummary();
+      renderPendingUsers();
+      renderUsersTable(allProfiles);
+    } catch (e) {
+      alert('Error: ' + e.message);
+    }
+  }
+
+  function renderPendingUsers() {
+    const pending = allProfiles.filter(p => p.role !== 'admin' && p.status === 'pending');
+    const countEl = document.getElementById('pending-count');
+    const listEl  = document.getElementById('pending-list');
+    countEl.textContent = pending.length || '';
+    if (pending.length === 0) {
+      listEl.innerHTML = '<p class="empty">No hay usuarios pendientes.</p>';
+      return;
+    }
+    listEl.innerHTML = pending.map(p => `
+      <div class="pending-row">
+        <span class="pending-email">${esc(p.email || p.display_name || p.id)}</span>
+        <span class="pending-date">${fmtDate(p.created_at)}</span>
+        <button class="btn-approve" onclick="setUserStatus('${esc(p.id)}','approved')">Aprobar</button>
+        <button class="btn-block"   onclick="setUserStatus('${esc(p.id)}','blocked')">Bloquear</button>
+      </div>`).join('');
   }
 
   // ── Card 2: Activity by app ────────────────────────────
@@ -513,15 +593,31 @@
   }
 
   // ── Users table ────────────────────────────────────────
+  function statusBadge(p) {
+    if (p.role === 'admin') return '';
+    if (p.status === 'approved') return `<span class="badge approved">aprobado</span>`;
+    if (p.status === 'blocked')  return `<span class="badge blocked">bloqueado</span>`;
+    return `<span class="badge pending-s">pendiente</span>`;
+  }
+
+  function statusActions(p) {
+    if (p.role === 'admin') return '—';
+    const actions = [];
+    if (p.status !== 'approved') actions.push(`<button class="btn-approve" onclick="event.stopPropagation();setUserStatus('${esc(p.id)}','approved')">Aprobar</button>`);
+    if (p.status !== 'blocked')  actions.push(`<button class="btn-block"   onclick="event.stopPropagation();setUserStatus('${esc(p.id)}','blocked')">Bloquear</button>`);
+    if (p.status !== 'pending')  actions.push(`<button class="btn-pending" onclick="event.stopPropagation();setUserStatus('${esc(p.id)}','pending')">Pendiente</button>`);
+    return actions.join(' ');
+  }
+
   function renderUsersTable(profiles) {
     const tbody = document.getElementById('users-tbody');
     if (profiles.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin usuarios.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin usuarios.</td></tr>';
       return;
     }
     tbody.innerHTML = profiles.map(p => {
-      const evs      = eventsByUser[p.id] || [];
-      const lastEv   = evs[0];
+      const evs    = eventsByUser[p.id] || [];
+      const lastEv = evs[0];
       const roleBadge = p.role === 'admin'
         ? `<span class="badge admin">admin</span>`
         : `<span class="badge">alumno</span>`;
@@ -529,6 +625,7 @@
         <td>${esc(p.display_name || '—')}</td>
         <td>${esc(p.email || '—')}</td>
         <td>${roleBadge}</td>
+        <td>${statusBadge(p)} ${statusActions(p)}</td>
         <td>${fmtDate(p.created_at)}</td>
         <td>${lastEv ? fmtDate(lastEv.created_at) : '—'}</td>
         <td>${evs.length}</td>

@@ -309,6 +309,42 @@
     return _cachedToken;
   };
 
+  let _statusChecked = false;
+
+  async function _checkAndShowPendingBanner(user) {
+    if (!user) {
+      _statusChecked = false;
+      const b = document.getElementById('auth-pending-banner');
+      if (b) b.remove();
+      return;
+    }
+    if (_statusChecked) return;
+    _statusChecked = true;
+    const { data } = await window.sb.from('profiles').select('status, role').eq('id', user.id).maybeSingle();
+    if (!data || data.role === 'admin' || data.status === 'approved') return;
+
+    let banner = document.getElementById('auth-pending-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'auth-pending-banner';
+      banner.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:10000;display:flex;align-items:center;justify-content:center;';
+      document.body.appendChild(banner);
+    }
+    const isBlocked = data.status === 'blocked';
+    banner.innerHTML = `
+      <div style="background:#fff;border-radius:14px;padding:36px 28px;max-width:360px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.25);">
+        <div style="font-size:52px;margin-bottom:14px;">${isBlocked ? '🚫' : '⏳'}</div>
+        <h3 style="margin:0 0 12px;color:#222;font-size:18px;">${isBlocked ? 'Acceso bloqueado' : 'Cuenta pendiente'}</h3>
+        <p style="color:#666;font-size:14px;line-height:1.55;margin:0 0 24px;">
+          ${isBlocked
+            ? 'Tu acceso a esta plataforma ha sido bloqueado. Contacta al administrador para más información.'
+            : 'Tu cuenta está pendiente de aprobación. El administrador te avisará cuando tengas acceso.'}
+        </p>
+        <button onclick="window.logout()" style="padding:10px 28px;background:#f44336;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:14px;font-weight:500;">Cerrar sesión</button>
+      </div>`;
+    banner.style.display = 'flex';
+  }
+
   window.logEvent = async function (app, eventType, payload) {
     if (!window.currentUser) return;
     await window.sb.from('usage_events').insert({
@@ -322,9 +358,12 @@
   window.sb.auth.onAuthStateChange(async function (event, session) {
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
+    if (event === 'SIGNED_OUT') _statusChecked = false;
     window.updateAuthUI();
-    if (event === 'SIGNED_IN' && typeof window.onAuthSignedIn === 'function') {
-      await window.onAuthSignedIn();
+    if (event === 'SIGNED_IN') {
+      _statusChecked = false;
+      await _checkAndShowPendingBanner(window.currentUser);
+      if (typeof window.onAuthSignedIn === 'function') await window.onAuthSignedIn();
     }
     if (event === 'SIGNED_OUT' && typeof window.onAuthSignedOut === 'function') {
       window.onAuthSignedOut();
@@ -336,8 +375,9 @@
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
-    if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
-      window.onAuthSignedIn();
+    if (window.currentUser) {
+      _checkAndShowPendingBanner(window.currentUser);
+      if (typeof window.onAuthSignedIn === 'function') window.onAuthSignedIn();
     }
     if (!window.currentUser) {
       if (document.readyState === 'loading') {

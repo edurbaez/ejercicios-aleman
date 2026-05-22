@@ -1,142 +1,121 @@
-# Plan de mejoras para Chat de Voz
+# regla principal de plan.md
+ despues de hacer cualquier implementacion del plan se actualizara plan.md, claude.md y readme.md con los cambios realizados.  
 
-## Estado actual
 
-`chat-voz.html` es una app de conversación libre: el usuario graba audio → Whisper lo transcribe → GPT-4o-mini responde en alemán → el navegador lo lee en voz alta (browser TTS). Tiene:
+# Plan de mejoras UX — Aplicación de Alemán
 
-- Selección de nivel CEFR (A1–C2)
-- Rol e contexto personalizables por el usuario
-- **Modo Guiado**: la IA añade una respuesta modelo al final de cada turno
-- Corrección de gramática embebida en el texto de respuesta
-- Límite diario de 60 minutos
+Prioridad: **P1** = crítico / alto impacto · **P2** = medio impacto · **P3** = pulido / bajo impacto
 
 ---
 
-## Propuestas de mejora
+## P1 — Crítico / Alto impacto
 
-### 1. Escenarios predefinidos (impacto alto / esfuerzo bajo)
+### ~~1. Corregir atributo `lang` en todas las páginas~~ ✅ DONE
+- `palabrasB2.html`, `chat-voz.html`, `kasus.html`, `B1.html` → `lang="es"`.
 
-**Problema:** El usuario abre la app sin saber de qué hablar. El campo "Personalizar" es potente pero invisible para principiantes.
+### 2. Convertir las opciones del quiz de `<div>` a `<button>`
+- **Archivos:** `shared-game.js` (renderiza `#op1`–`#op4` como `<div class="option">`), `styles.css` (ajustar estilos a `button.option`).
+- **Por qué:** Los `<div>` no son alcanzables con Tab ni activables con teclado; lectores de pantalla no los anuncian como interactivos. Afecta 100% de la funcionalidad principal.
+- **Alcance:** Cambiar el render JS + CSS (quitar `cursor:pointer` redundante). ~1h.
 
-**Solución implementada:** Galería de 7 tarjetas de escenario (incluye "Libre") visible antes de iniciar la conversación. Al seleccionar una, se precarga `State.rol` y `State.contexto`. La tarjeta activa se resalta visualmente. El campo "Personalizar" sigue disponible para edición libre. La galería se oculta al iniciar y reaparece con "Nueva conversación".
+### 3. Sincronizar modo oscuro entre páginas con una clave unificada
+- **Archivos:** `shared-game.js`, `auth.js`, `lectura veloz.html`, `diccionario.html`, `kasus.html`, `corrector.html`, `gramatica.html`, `chat-voz.html`, `index.html`.
+- **Por qué:** Cada página guarda `darkMode_<id>` por separado — el usuario activa dark mode en B2 y llega a Kasus en modo claro. Genera desorientación constante.
+- **Solución:** Usar una clave única `darkMode` en localStorage; leerla al cargar y escribirla al togglear en todos los archivos.
+- **Alcance:** Refactor de función `toggleDarkMode` / `toggleKasDark` etc. ~2h total.
 
-| Escenario | Rol de la IA |
-|-----------|-------------|
-| 💬 Libre | Profesor por defecto |
-| 🛒 Supermercado | Cajero en REWE |
-| 🏥 Médico | Doctor en consulta |
-| 🚉 Estación | Empleado de información |
-| ☕ Cafetería | Mesero en cafetería |
-| 💼 Entrevista | Jefe que entrevista |
-| 🏠 Piso | Arrendador que muestra el apartamento |
+### 4. Añadir `focus trap` y `aria-*` al modal de autenticación
+- **Archivos:** `auth.js` (función `_injectModal`).
+- **Por qué:** El Tab sale del modal hacia el fondo; no tiene `role="dialog"` ni `aria-modal="true"`. Viola WCAG 2.1 criterio 2.1.2.
+- **Solución:** Agregar `role="dialog" aria-modal="true" aria-labelledby="auth-title"`, capturar Tab/Shift+Tab dentro del modal, restaurar foco al cerrarlo.
+- **Alcance:** ~1.5h.
 
-**Valor didáctico:** El estudiante practica vocabulario concreto y situacional — el más útil en la vida real.
+### ~~5. Eliminar sombra roja de las cards del quiz~~ ✅ DONE
+- `styles.css` `.card` y `.option` → `box-shadow: rgba(0,0,0,0.08)`.
 
----
-
-### 2. Objetivo de misión por conversación (impacto alto / esfuerzo medio)
-
-**Problema:** La conversación es abierta y el usuario no sabe cuándo "terminó" de practicar algo.
-
-**Solución:** Cada escenario (o sesión libre) tiene un objetivo específico visible en pantalla:
-
-> **Misión:** Pide un café con leche, pregunta el precio y paga.
-
-La IA sabe el objetivo (incluido en el system prompt) y al final evalúa si el usuario lo completó, mostrando un mensaje de logro. Esto da sensación de cierre y progreso.
-
-**Implementación:** Añadir `misionText` al system prompt como sección extra: `"Objetivo del estudiante: [misión]"`. Al detectar que el objetivo se cumplió (o al final del turno N), la IA incluye una marca `---MISION_CUMPLIDA---` que el frontend muestra como banner.
+### ~~6. Marcar "Vocabulario B2" como `active` en el navbar de `palabrasB2.html`~~ ✅ DONE
+- Añadido `<a href="palabrasB2.html" class="active">Vocabulario B2</a>` al dropdown.
 
 ---
 
-### 3. TTS de OpenAI en lugar del navegador ✅ IMPLEMENTADO
+## P2 — Medio impacto
 
-**Problema:** El TTS del navegador para alemán es de baja calidad en muchos dispositivos, con acento artificial y ritmo poco natural. El usuario aprende pronunciación incorrecta.
+### ~~7. Corregir cabeceras de tabla "Uno" / "Dos" → "Español" / "Alemán"~~ ✅ DONE
+- `palabrasB2.html` y `B1.html` → `<th>Español</th>` / `<th>Alemán</th>`.
 
-**Solución implementada:** Botón **"Voz Premium: ON/OFF"** en la barra de configuración. Cuando está ON, cada respuesta de la IA se envía a `/api/tts` (voz `onyx`) y se reproduce como audio MP3. Cuando está OFF (o si falla la API), cae automáticamente al TTS del navegador. El toggle requiere autenticación y persiste en `localStorage` (`cv_tts_premium`).
+### 8. Añadir `aria-live` para feedback dinámico del quiz y el chat
+- **Archivos:** `shared-game.js` (resultado de respuesta), `chat-voz.html` (`#chatArea`), `kasus.html` (feedback de ejercicio).
+- **Por qué:** El contenido dinámico no se anuncia a lectores de pantalla.
+- **Solución:** Agregar `aria-live="polite"` al contenedor de feedback; `aria-live="assertive"` para respuestas correctas/incorrectas inmediatas.
+- **Alcance:** ~45 min.
 
-**Costo estimado:** ~$0.36 extra por hora de conversación (aprox. igual al costo de Whisper).
+### 9. Estandarizar el orden y categorías del menú en todas las páginas
+- **Archivos:** Todos los `<nav id="navbar">` en las 8 páginas HTML.
+- **Por qué:** El dropdown de sub-páginas tiene orden diferente al de la landing (sin categorías, orden distinto). El usuario no puede predecir dónde está cada app.
+- **Solución:** Copiar la estructura categorizada de `index.html` al dropdown de cada sub-página, o al menos unificar el orden: Vocabulario B2, B1, Diccionario | Gramática, Kasus, Corrector | Chat de Voz, Lectura Veloz.
+- **Alcance:** ~1h (copiar/pegar + ajustar estilos).
 
----
+### 10. Añadir estado vacío instructivo al quiz B2/B1
+- **Archivos:** `shared-game.js` (sección donde se muestra `#palabra`).
+- **Por qué:** Si no hay listas seleccionadas, las opciones aparecen vacías sin ningún mensaje. Primer uso confuso.
+- **Solución:** Mostrar un mensaje centrado "Selecciona al menos una lista en el selector de arriba para comenzar" cuando `State.de.length === 0`.
+- **Alcance:** ~30 min.
 
-### 4. Panel de correcciones separado (impacto medio / esfuerzo bajo)
+### 11. Mejorar el estado visual de botones de modo (Auto/Dual/Leer)
+- **Archivos:** `styles.css` (`.btn-active`), `shared-game.js`.
+- **Por qué:** `.btn-active` usa `red` que se percibe como error. No comunica "modo activo" de forma positiva.
+- **Solución:** Cambiar a un color de acento positivo (ej. `#2E7D32` verde oscuro o el color de acento de la app) con ícono de check o borde más grueso.
+- **Alcance:** ~30 min CSS.
 
-**Problema:** Las correcciones gramaticales aparecen en el flujo de texto de la IA, mezcladas con la respuesta conversacional. El usuario las ignora porque quiere seguir la conversación.
+### 12. Corregir overflow horizontal de `lectura veloz.html` en móvil
+- **Archivos:** `styles.css` sección `#page-lv`, posiblemente `lectura veloz.html`.
+- **Por qué:** `#page-lv { margin: 20px }` aplica margen al body en lugar del contenedor, causando scroll horizontal en pantallas < 360px.
+- **Solución:** Mover el `margin` al contenedor interno; el body solo debe tener `padding-top: 56px`.
+- **Alcance:** ~20 min.
 
-**Solución:** Pedir a la IA que use una marca delimitadora para las correcciones:
-
-```
----CORRECCIÓN---
-❌ "Ich bin gegangen in den Laden"
-✅ "Ich bin in den Laden gegangen" (Verb va al final en Perfekt)
-```
-
-El frontend extrae esa sección y la muestra en un pequeño panel lateral o como una tarjeta colapsable debajo del burbuja del usuario. La burbuja de conversación queda limpia.
-
-**Valor didáctico:** El usuario ve sus errores de forma clara, sin interrumpir el flujo conversacional.
-
----
-
-### 5. Vocabulario nuevo en contexto (impacto medio / esfuerzo medio)
-
-**Problema:** La IA usa palabras nuevas que el usuario no entiende pero no las explica (excepto en A1/A2 donde ya hay traducción en paréntesis).
-
-**Solución:** Al final de cada respuesta de la IA (especialmente B1+), incluir 2-3 palabras clave usadas en la respuesta con su traducción al español, en un panel colapsable:
-
-> **Palabras nuevas:**
-> - *die Quittung* → el recibo
-> - *bezahlen* → pagar
-> - *wechseln* → dar el cambio
-
-Estas palabras se podrían guardar en localStorage como mini-vocabulario personal de la sesión y exportarse al final.
-
----
-
-### 6. Contador de turnos y estadísticas de sesión (impacto medio / esfuerzo bajo)
-
-**Problema:** El usuario no sabe cuánto habló ni cuántas correcciones recibió. Sin feedback, no hay sensación de progreso.
-
-**Solución:** Añadir una barra de estadísticas al final de la conversación (o accesible con botón "Ver resumen"):
-
-- Turnos completados: 8
-- Palabras aproximadas habladas: ~120
-- Correcciones recibidas: 3
-- Tiempo de conversación: 6:40
-
-Opcionalmente guardar esto en Supabase para mostrar progreso histórico en el panel de estadísticas de `auth.js`.
+### 13. Mejorar descripciones de listas en `#sets-bar`
+- **Archivos:** `shared-game.js` (render de botones del `#sets-bar`), `DATA.json`, `DataB1.json`.
+- **Por qué:** Botones como "lista1" o "c1lista1" son crípticos. El usuario no sabe qué palabras contiene cada lista.
+- **Solución:** Añadir `title` tooltip con la categoría y cantidad de palabras, o mostrar un subtítulo debajo del botón.
+- **Alcance:** ~1h.
 
 ---
 
-### 7. Modo "Repetición fonética" (impacto medio / esfuerzo medio)
+## P3 — Pulido / Bajo impacto
 
-**Problema:** El usuario escucha la respuesta una sola vez y a velocidad normal. No puede practicar la pronunciación de una frase específica.
+### 14. Unificar tipografía entre landing e interiores
+- **Archivos:** `index.html` (estilos inline del `<head>`), `styles.css`.
+- **Por qué:** La landing usa `'Segoe UI', -apple-system` y el resto usa `Arial`. Sensación tipográfica diferente al entrar a las apps.
+- **Solución:** Mover la declaración de fuente al `styles.css` global (`#page-home { font-family: Arial, Helvetica, sans-serif }`).
+- **Alcance:** 5 min.
 
-**Solución:** Al hacer clic en cualquier burbuja de la IA, el texto se resalta y se reproduce de nuevo (con TTS). Un botón extra "🐌 Despacio" reproduce la frase al 70% de velocidad para que el usuario pueda imitar mejor.
+### 15. Revisar contraste de texto secundario en modo oscuro
+- **Archivos:** `styles.css` (`.cv-hint`, `.cor-header p`, `.kas-header p`).
+- **Por qué:** Textos con `opacity: 0.65` sobre backgrounds oscuros pueden caer por debajo del ratio WCAG AA (4.5:1).
+- **Solución:** Usar colores fijos con contraste verificado en lugar de `opacity` para texto de ayuda; herramienta: https://webaim.org/resources/contrastchecker/.
+- **Alcance:** ~45 min (medir + ajustar).
 
-**Implementación:** Añadir `onclick` a cada `.cv-bubble-ai`, pasar el texto a `speak()` con `rate` ajustable.
+### 16. Agregar sugerencia de ruta de aprendizaje en la landing
+- **Archivos:** `index.html`.
+- **Por qué:** Un usuario nuevo ve 8 apps sin orientación. Añadir una sección pequeña "¿Por dónde empezar?" con pasos sugeridos (ej. A1 → B1 vocab → Kasus → B2) reduciría abandono inicial.
+- **Alcance:** ~1h (solo HTML/CSS, sin lógica).
+
+### 17. Reemplazar `alert()` de auth por mensajes inline
+- **Archivos:** `auth.js` (función `sendOtp`, `verifyOtp`).
+- **Por qué:** Los `alert()` nativos rompen la experiencia visual y no son estilizables. Inconsistente con el resto de la UI.
+- **Solución:** Mostrar el error dentro del modal con un `<p id="auth-error">` estilizado.
+- **Alcance:** ~30 min.
+
+### 18. Añadir `aria-label` a botones de icono en el navbar
+- **Archivos:** Todos los HTML (botón `#auth-btn`, `#darkModeBtn`).
+- **Por qué:** Solo tienen `title` que algunos lectores de pantalla ignoran. `aria-label="Iniciar sesión"` y `aria-label="Activar modo oscuro"` garantizan descripción accesible.
+- **Alcance:** 2 atributos por archivo. ~15 min total.
 
 ---
 
+## Notas de implementación
 
-### 8. Guardar y revisar conversaciones (impacto bajo / esfuerzo medio)
-
-**Problema:** El usuario termina la sesión y pierde todo el historial. No puede revisar lo que aprendió ni los errores que cometió.
-
-**Solución:** Botón "💾 Guardar conversación" al terminar. Guarda el historial en localStorage (o Supabase si está autenticado) con fecha, nivel y escenario. Una pantalla de historial permite releer la conversación y las correcciones.
-
----
-
-## Prioridad sugerida de implementación
-
-| # | Mejora | Impacto | Esfuerzo | Prioridad |
-|---|--------|---------|----------|-----------|
-| 3 | TTS de OpenAI | Alto | Bajo | ✅ Hecho |
-| 4 | Panel de correcciones | Medio | Bajo | ✅ Hecho |
-| 1 | Escenarios predefinidos | Alto | Bajo | ✅ Hecho |
-| 2 | Objetivo de misión | Alto | Medio | ✅ Hecho |
-| 6 | Estadísticas de sesión | Medio | Bajo | ⭐ 5 |
-| 7 | Repetición fonética | Medio | Medio | ⭐ 6 |
-| 5 | Vocabulario en contexto | Medio | Medio | ⭐ 7 |
-| 8 | Guardar conversaciones | Bajo | Medio | ⭐ 8 |
-
-
-despues de ejecutar cualquir paso actualiza plan.md
+- Los ítems 1, 5, 6, 7 son cambios de 5–15 min cada uno: buenos candidatos para una sesión rápida.
+- El ítem 3 (dark mode unificado) es el de mayor ROI para experiencia diaria — hacerlo antes que cualquier otro P2.
+- Los ítems 2 y 4 (accesibilidad de teclado) son independientes y pueden hacerse en orden cualquiera.
+- El ítem 9 (menú consistente) puede hacerse copiando el bloque HTML de `index.html` y es repetitivo pero bajo riesgo.

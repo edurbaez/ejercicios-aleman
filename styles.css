@@ -228,7 +228,7 @@ body {
     background: var(--card-bg);
     color: var(--text);
     border-radius: 8px;
-    box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
+    box-shadow: rgba(0, 0, 0, 0.08) -1px 4px 5px;
 }
 
 .word-display {
@@ -253,7 +253,7 @@ body {
     color: var(--text);
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: rgba(255, 0, 0, 0.2) -1px 4px 5px;
+    box-shadow: rgba(0, 0, 0, 0.08) -1px 4px 5px;
     transition: 0.2s;
 }
 

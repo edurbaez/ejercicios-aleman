@@ -373,15 +373,15 @@
   window.sb.auth.onAuthStateChange(async function (event, session) {
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
-    if (event === 'SIGNED_OUT') _statusChecked = false;
     window.updateAuthUI();
     if (event === 'SIGNED_IN') {
       _statusChecked = false;
       await _checkAndShowPendingBanner(window.currentUser);
       if (typeof window.onAuthSignedIn === 'function') await window.onAuthSignedIn();
     }
-    if (event === 'SIGNED_OUT' && typeof window.onAuthSignedOut === 'function') {
-      window.onAuthSignedOut();
+    if (event === 'SIGNED_OUT') {
+      _checkAndShowPendingBanner(null);
+      if (typeof window.onAuthSignedOut === 'function') window.onAuthSignedOut();
     }
   });
 

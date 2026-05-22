@@ -67,23 +67,5 @@ export default async function handler(req, res) {
     if (!inviteRes.ok) {
         return res.status(inviteRes.status).json({ error: data.message || data.msg || 'Error al enviar invitación' });
     }
-
-    // Pre-approve the invited user (upsert in case trigger already created the profile)
-    if (data.id) {
-        await fetch(
-            `${supaUrl}/rest/v1/profiles`,
-            {
-                method: 'POST',
-                headers: {
-                    apikey: serviceKey,
-                    Authorization: `Bearer ${serviceKey}`,
-                    'Content-Type': 'application/json',
-                    Prefer: 'resolution=merge-duplicates,return=minimal',
-                },
-                body: JSON.stringify({ id: data.id, email, status: 'approved', role: 'student' }),
-            }
-        );
-    }
-
     return res.status(200).json({ message: `Invitación enviada a ${email}` });
 }

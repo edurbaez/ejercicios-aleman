@@ -6,8 +6,7 @@
       "Bash(Select-Object FullName)",
       "Bash(Sort-Object FullName)",
       "Bash(Test-Path *)",
-      "Bash(mkdir -p /mnt/c/Users/edurb/.claude/commands && echo \"ok\")",
-      "Bash(git commit -m ' *)"
+      "Bash(mkdir -p /mnt/c/Users/edurb/.claude/commands && echo \"ok\")"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

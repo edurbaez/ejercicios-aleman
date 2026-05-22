@@ -23,25 +23,18 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
 | `corrector.html` | Grammar correction app: upload or photograph a German text (tarea, carta, frases sueltas), sends it to GPT-4o Vision via `/api/vision`, and renders a structured list of errors with corrections and explanations. |
 | `kasus.html` | Grammar case trainer: generates fill-in-the-blank exercises (Nominativ/Akkusativ/Dativ/Genitiv) via `/api/chat`. Tracks score and streak. All JS inline. Teal theme (`#00796B`). |
-| `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events, pending approvals), activity by app (bar chart), **pending users section** (approve/block buttons → `/api/approve-user`), users table with status column and action buttons, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
+| `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 | `gramatica.html` | Grammar rules reference SPA. Displays 10 key grammar rules per CEFR level (A1–C2) as an accordion. Level selection via pill buttons; hash-based routing (#a1…#c2). All content embedded in `gramatica.js`. Orange theme (`#E65100`). |
 
 ### API
 
 | File | Purpose |
 |------|---------|
-| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Requires JWT auth + approval check (reads `profiles.status` via service role key, cached 2 min). Rate limited to 20 req/min per user. Optional origin check and system prompt size cap (2 000 chars). Pre-warms JWKS cache at module load. |
-| `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`). Requires JWT auth + approval check. Rate limited to 10 req/min per user. JWT verification and body reading run in parallel. |
-| `api/vision.js` | Vercel serverless function — receives `{ image_base64, mime_type, type }`, calls GPT-4o with vision. Requires JWT auth + approval check. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`. |
-| `api/tts.js` | Vercel serverless function — receives `{ text, voice }`, calls OpenAI `tts-1`, returns audio/mpeg binary. Requires JWT auth + approval check. Rate limited to 30 req/min per user. Default voice: `onyx`. |
-| `api/admin-invite.js` | Vercel serverless function — invites a user by email via Supabase auth admin API. Requires JWT from an admin user. Pre-approves the invited user by upserting `profiles` with `status = 'approved'` after the invite is created. |
-| `api/approve-user.js` | Vercel serverless function — sets `profiles.status` for a given user to `approved`, `blocked`, or `pending`. Admin-only (verifies role via service role key). Called from the admin dashboard. |
-
-### Migrations
-
-| File | Purpose |
-|------|---------|
-| `migrations/add_user_status.sql` | Adds `status` column (`pending`\|`approved`\|`blocked`) to `profiles`, approves all existing users, and creates/replaces the `handle_new_user` trigger that auto-creates a profile with `status = 'pending'` on new signup. Run once in the Supabase SQL editor. |
+| `api/chat.js` | Vercel serverless function — proxies requests to OpenAI (`gpt-4o-mini`). Requires `Authorization: Bearer <supabase_jwt>` (verified with `SUPABASE_JWT_SECRET`). Rate limited to 20 req/min per user. Optional origin check via `ALLOWED_ORIGIN` env var and system prompt size cap (2 000 chars). Pre-warms the JWKS cache at module load to reduce cold-start latency. |
+| `api/whisper.js` | Vercel serverless function — receives multipart audio, forwards to OpenAI Whisper (`whisper-1`) for transcription. Requires JWT auth. Rate limited to 10 req/min per user. Pre-warms JWKS cache at module load; JWT verification and request body reading run in parallel (`Promise.all`) to reduce latency. |
+| `api/vision.js` | Vercel serverless function — receives `{ image_base64, mime_type, type }`, calls GPT-4o with vision. Returns structured JSON: `{ puntuacion, resumen, errores[], observaciones_generales }`. Requires JWT auth. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`. |
+| `api/tts.js` | Vercel serverless function — receives `{ text, voice }`, calls OpenAI `tts-1`, returns audio/mpeg binary. Requires JWT auth. Rate limited to 30 req/min per user. Default voice: `onyx`. Used by `shared-game.js` to replace browser TTS for German words. |
+| `api/admin-invite.js` | Vercel serverless function — invites a user by email via Supabase auth admin API. Requires JWT from an admin user. Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
 
 ### Data
 

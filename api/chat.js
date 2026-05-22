@@ -54,30 +54,6 @@ async function verifyJWT(token) {
     }
 }
 
-// Approval cache — avoids a Supabase call on every request
-const _approvedCache = new Map();
-const APPROVED_CACHE_TTL = 2 * 60_000;
-
-async function isApproved(userId) {
-    const cached = _approvedCache.get(userId);
-    if (cached && Date.now() - cached.ts < APPROVED_CACHE_TTL) return cached.approved;
-    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!serviceKey) return true;
-    try {
-        const r = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=status,role`,
-            { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } }
-        );
-        const data = await r.json();
-        const p = Array.isArray(data) && data[0];
-        const approved = Boolean(p && (p.role === 'admin' || p.status === 'approved'));
-        _approvedCache.set(userId, { approved, ts: Date.now() });
-        return approved;
-    } catch {
-        return false;
-    }
-}
-
 // Rate limiting: sliding window per user ID
 const RATE_LIMIT = 20;
 const WINDOW_MS  = 60_000;
@@ -128,11 +104,6 @@ export default async function handler(req, res) {
     // Rate limit by user ID
     if (isRateLimited(jwtPayload.sub)) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
-    }
-
-    // Approval check
-    if (!await isApproved(jwtPayload.sub)) {
-        return res.status(403).json({ error: 'Tu cuenta está pendiente de aprobación.' });
     }
 
     const { messages, system, max_tokens } = req.body;

@@ -58,6 +58,7 @@
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
                 <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Sugerencia</button>
+                <button class="cv-guided-toggle" id="repetirBtn" onclick="toggleRepetirMode()">Repetir</button>
                 <!-- Premium voice option available: togglePremiumTTS() uses OpenAI tts-1 instead of browser TTS (~$0.015/1000 chars). Logic in State.premiumTTS + togglePremiumTTS(). Re-add #premiumTtsBtn button to expose it. -->
                 <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
             </div>
@@ -89,6 +90,21 @@
                 <strong id="misionLabel">Misión</strong>
                 <span id="misionText"></span>
             </div>
+        </div>
+
+        <div id="repetirPanel" class="cv-repetir-panel" style="display:none">
+            <div class="cv-repetir-header">
+                <span class="cv-repetir-counter" id="repetirCounter">1 / 10</span>
+                <span class="cv-repetir-nivel" id="repetirNivel">B1</span>
+            </div>
+            <div class="cv-repetir-phrase" id="repetirPhrase">Cargando frases...</div>
+            <div class="cv-repetir-actions">
+                <button class="cv-repetir-listen-btn" id="repetirListenBtn" onclick="repetirListen()" disabled>🔊 Escuchar</button>
+                <button class="cv-repetir-rec-btn" id="repetirRecBtn" onclick="toggleRepetirRecord()" disabled>🎙 Repetir</button>
+            </div>
+            <div class="cv-repetir-result" id="repetirResult" style="display:none"></div>
+            <button class="cv-repetir-next-btn" id="repetirNextBtn" style="display:none" onclick="nextRepetirPhrase()">Siguiente →</button>
+            <p class="cv-repetir-hint" id="repetirHint"></p>
         </div>
 
         <div class="cv-chat" id="chatArea">
@@ -169,6 +185,9 @@
         selectedScenario: 'libre',
         mision: SCENARIOS[0].mision,
         misionCompleted: false,
+        repetirMode: false,
+        repetirFrases: [],
+        repetirIndex: 0,
     };
 
     // --- Daily limit ---
@@ -787,6 +806,250 @@ Regeln:
         persistPreferences();
     }
 
+    // --- Repetir mode ---
+    const RepetirRec = {
+        isRecording: false,
+        mediaRecorder: null,
+        audioChunks: [],
+        recSeconds: 0,
+        timerInterval: null,
+    };
+
+    function toggleRepetirMode() {
+        State.repetirMode = !State.repetirMode;
+        document.getElementById('repetirBtn').classList.toggle('active', State.repetirMode);
+
+        const panel = document.getElementById('repetirPanel');
+        const chat = document.getElementById('chatArea');
+        const controls = document.querySelector('.cv-controls');
+
+        if (State.repetirMode) {
+            cancelCurrentSpeech();
+            chat.style.display = 'none';
+            controls.style.display = 'none';
+            panel.style.display = 'flex';
+            loadRepetirFrases();
+        } else {
+            cancelCurrentSpeech();
+            if (RepetirRec.isRecording) stopRepetirRecording();
+            panel.style.display = 'none';
+            chat.style.display = '';
+            controls.style.display = '';
+            State.repetirFrases = [];
+            State.repetirIndex = 0;
+        }
+    }
+
+    async function loadRepetirFrases() {
+        document.getElementById('repetirPhrase').textContent = 'Cargando frases...';
+        document.getElementById('repetirHint').textContent = '';
+        document.getElementById('repetirResult').style.display = 'none';
+        document.getElementById('repetirNextBtn').style.display = 'none';
+        document.getElementById('repetirListenBtn').disabled = true;
+        document.getElementById('repetirRecBtn').disabled = true;
+        document.getElementById('repetirRecBtn').textContent = '🎙 Repetir';
+        document.getElementById('repetirNivel').textContent = State.level;
+
+        try {
+            const token = await window.getAuthToken?.();
+            if (!token) { window.openAuthModal?.(); throw new Error('Inicia sesión para usar este modo.'); }
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    system: `Du bist ein Deutschlehrer. Erstelle genau 10 kurze Sätze auf Deutsch (5–10 Wörter) passend für das Niveau ${State.level}. Antworte NUR mit einem JSON-Array der Sätze, ohne weitere Erklärungen. Beispiel: ["Ich gehe heute in die Schule.", "Das Wetter ist sehr schön."]`,
+                    messages: [{ role: 'user', content: 'Erstelle die 10 Sätze.' }],
+                }),
+            });
+            if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para usar este modo.'); }
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor.'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+            let frases;
+            try {
+                const match = data.reply.match(/\[[\s\S]*\]/);
+                frases = JSON.parse(match ? match[0] : data.reply);
+            } catch {
+                frases = data.reply.split('\n')
+                    .map(l => l.replace(/^[\d.\-*\s"]+|"+$/g, '').trim())
+                    .filter(l => l.length > 3);
+            }
+            if (!Array.isArray(frases) || frases.length === 0) throw new Error('No se pudieron cargar las frases.');
+
+            State.repetirFrases = frases;
+            State.repetirIndex = 0;
+            showRepetirPhrase(0);
+        } catch (e) {
+            document.getElementById('repetirPhrase').textContent = '';
+            document.getElementById('repetirHint').textContent = `Error: ${e.message}`;
+        }
+    }
+
+    function showRepetirPhrase(index) {
+        const frase = State.repetirFrases[index];
+        document.getElementById('repetirPhrase').textContent = frase;
+        document.getElementById('repetirCounter').textContent = `${index + 1} / ${State.repetirFrases.length}`;
+        document.getElementById('repetirResult').style.display = 'none';
+        document.getElementById('repetirNextBtn').style.display = 'none';
+        document.getElementById('repetirListenBtn').disabled = false;
+        document.getElementById('repetirRecBtn').disabled = false;
+        document.getElementById('repetirRecBtn').textContent = '🎙 Repetir';
+        document.getElementById('repetirHint').textContent = 'Escucha la frase y repítela';
+        speak(frase);
+    }
+
+    function repetirListen() {
+        const frase = State.repetirFrases[State.repetirIndex];
+        if (frase) speak(frase);
+    }
+
+    function toggleRepetirRecord() {
+        if (State.isSpeaking) return;
+        if (RepetirRec.isRecording) {
+            stopRepetirRecording();
+        } else {
+            startRepetirRecording();
+        }
+    }
+
+    async function startRepetirRecording() {
+        if (RepetirRec.isRecording) return;
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            document.getElementById('repetirHint').textContent = 'Límite diario de 60 min alcanzado.';
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            RepetirRec.audioChunks = [];
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+            RepetirRec.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            RepetirRec.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) RepetirRec.audioChunks.push(e.data); };
+            RepetirRec.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(RepetirRec.audioChunks, { type: RepetirRec.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeAndCheck(blob);
+            };
+            RepetirRec.mediaRecorder.start(100);
+            RepetirRec.isRecording = true;
+            RepetirRec.recSeconds = 0;
+
+            const btn = document.getElementById('repetirRecBtn');
+            btn.textContent = '⏹ Enviar';
+            btn.classList.add('recording');
+            document.getElementById('repetirListenBtn').disabled = true;
+            document.getElementById('repetirHint').textContent = 'Grabando... presiona Enviar cuando termines';
+
+            RepetirRec.timerInterval = setInterval(() => {
+                RepetirRec.recSeconds++;
+                if (RepetirRec.recSeconds >= 30) stopRepetirRecording();
+            }, 1000);
+        } catch {
+            document.getElementById('repetirHint').textContent = 'Error: no se pudo acceder al micrófono';
+        }
+    }
+
+    function stopRepetirRecording() {
+        if (!RepetirRec.isRecording) return;
+        RepetirRec.isRecording = false;
+        clearInterval(RepetirRec.timerInterval);
+        const btn = document.getElementById('repetirRecBtn');
+        btn.textContent = '🎙 Repetir';
+        btn.classList.remove('recording');
+        btn.disabled = true;
+        document.getElementById('repetirListenBtn').disabled = true;
+        document.getElementById('repetirHint').textContent = 'Transcribiendo...';
+        if (RepetirRec.mediaRecorder && RepetirRec.mediaRecorder.state !== 'inactive') {
+            RepetirRec.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeAndCheck(audioBlob) {
+        const durationMs = RepetirRec.recSeconds * 1000;
+        window.logEvent?.('chat-voz', 'audio_sent', { level: State.level, duration_ms: durationMs });
+        State.dailyUsedMs += durationMs;
+
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'de');
+
+        try {
+            const token = await window.getAuthToken?.();
+            const resp = await fetch('/api/whisper', {
+                method: 'POST',
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: formData,
+            });
+            if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+
+            const text = data.text?.trim();
+            if (!text) {
+                document.getElementById('repetirHint').textContent = 'No se detectó voz. Intenta de nuevo.';
+                document.getElementById('repetirRecBtn').disabled = false;
+                document.getElementById('repetirListenBtn').disabled = false;
+                return;
+            }
+            const expected = State.repetirFrases[State.repetirIndex];
+            showRepetirResult(matchScore(expected, text), expected, text);
+        } catch (e) {
+            document.getElementById('repetirHint').textContent = `Error: ${e.message}`;
+            document.getElementById('repetirRecBtn').disabled = false;
+            document.getElementById('repetirListenBtn').disabled = false;
+        }
+    }
+
+    function matchScore(expected, got) {
+        const norm = s => s.toLowerCase().replace(/[.,!?;:'"¿¡]/g, '').trim();
+        const aWords = norm(expected).split(/\s+/);
+        const bWords = norm(got).split(/\s+/);
+        const matched = aWords.filter(w => bWords.includes(w)).length;
+        return Math.round((matched / aWords.length) * 100);
+    }
+
+    function showRepetirResult(pct, expected, got) {
+        const resultEl = document.getElementById('repetirResult');
+        let level, emoji;
+        if (pct >= 80) { level = 'good'; emoji = '✅'; }
+        else if (pct >= 50) { level = 'ok'; emoji = '⚠️'; }
+        else { level = 'bad'; emoji = '❌'; }
+
+        resultEl.className = `cv-repetir-result cv-repetir-result-${level}`;
+        resultEl.innerHTML =
+            `<div class="cv-repetir-score">${emoji} ${pct}% de coincidencia</div>` +
+            `<div class="cv-repetir-expected"><span>Frase:</span> ${expected}</div>` +
+            `<div class="cv-repetir-got"><span>Dijiste:</span> ${got}</div>`;
+        resultEl.style.display = 'flex';
+
+        document.getElementById('repetirHint').textContent =
+            pct >= 80 ? '¡Muy bien!' : pct >= 50 ? 'Casi. Escucha y vuelve a intentarlo.' : 'Sigue practicando.';
+        document.getElementById('repetirRecBtn').disabled = false;
+        document.getElementById('repetirListenBtn').disabled = false;
+
+        const isLast = State.repetirIndex >= State.repetirFrases.length - 1;
+        const nextBtn = document.getElementById('repetirNextBtn');
+        nextBtn.textContent = isLast ? '🔄 Nueva tanda' : 'Siguiente →';
+        nextBtn.style.display = 'inline-flex';
+    }
+
+    function nextRepetirPhrase() {
+        cancelCurrentSpeech();
+        if (State.repetirIndex >= State.repetirFrases.length - 1) {
+            State.repetirFrases = [];
+            State.repetirIndex = 0;
+            loadRepetirFrases();
+        } else {
+            State.repetirIndex++;
+            showRepetirPhrase(State.repetirIndex);
+        }
+    }
+
     // --- Init ---
     window.onAuthSignedIn = () => { loadDailyUsage(); loadPreferences(); };
 
@@ -797,8 +1060,10 @@ Regeln:
         loadVoices();
         setupRecordButton();
         const btn = document.getElementById('premiumTtsBtn');
-        btn.textContent = 'Voz Premium: ' + (State.premiumTTS ? 'ON' : 'OFF');
-        btn.classList.toggle('active', State.premiumTTS);
+        if (btn) {
+            btn.textContent = 'Voz Premium: ' + (State.premiumTTS ? 'ON' : 'OFF');
+            btn.classList.toggle('active', State.premiumTTS);
+        }
     })();
     </script>
 </body>

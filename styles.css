@@ -1335,6 +1335,132 @@ body.dark .cv-mision-banner.completed {
 }
 body.dark .cv-mision-banner.completed strong { color: #66bb6a; }
 
+/* Repetir mode panel */
+.cv-repetir-panel {
+    background: #fff;
+    border: 1px solid #e3eaf5;
+    border-radius: 16px;
+    padding: 24px 20px;
+    width: 100%;
+    max-width: 680px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    box-sizing: border-box;
+}
+.cv-repetir-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.cv-repetir-counter { font-size: 13px; color: #888; font-weight: 500; }
+.cv-repetir-nivel {
+    font-size: 12px;
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+.cv-repetir-phrase {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a2030;
+    text-align: center;
+    line-height: 1.4;
+    padding: 12px 8px;
+    min-height: 56px;
+}
+.cv-repetir-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.cv-repetir-listen-btn {
+    background: #e3f2fd;
+    color: #1565c0;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+.cv-repetir-listen-btn:hover:not(:disabled) { background: #bbdefb; }
+.cv-repetir-listen-btn:disabled { opacity: .45; cursor: default; }
+.cv-repetir-rec-btn {
+    background: #1976D2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+}
+.cv-repetir-rec-btn:hover:not(:disabled) { background: #1565c0; }
+.cv-repetir-rec-btn.recording {
+    background: #d32f2f;
+    animation: cv-rec-pulse 1.2s ease-in-out infinite;
+}
+.cv-repetir-rec-btn:disabled { opacity: .45; cursor: default; }
+@keyframes cv-rec-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(211,47,47,.4); }
+    50% { box-shadow: 0 0 0 8px rgba(211,47,47,0); }
+}
+.cv-repetir-result {
+    width: 100%;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 14px;
+    flex-direction: column;
+    gap: 6px;
+    box-sizing: border-box;
+}
+.cv-repetir-result-good { background: #e8f5e9; border: 1px solid #a5d6a7; }
+.cv-repetir-result-ok   { background: #fff8e1; border: 1px solid #ffe082; }
+.cv-repetir-result-bad  { background: #ffebee; border: 1px solid #ef9a9a; }
+.cv-repetir-score { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.cv-repetir-result-good .cv-repetir-score { color: #2e7d32; }
+.cv-repetir-result-ok   .cv-repetir-score { color: #f57f17; }
+.cv-repetir-result-bad  .cv-repetir-score { color: #c62828; }
+.cv-repetir-expected, .cv-repetir-got { font-size: 13px; color: #444; line-height: 1.4; }
+.cv-repetir-expected span, .cv-repetir-got span { font-weight: 600; color: #555; }
+.cv-repetir-next-btn {
+    background: #1976D2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 26px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.cv-repetir-next-btn:hover { background: #1565c0; }
+.cv-repetir-hint { font-size: 13px; color: #888; text-align: center; margin: 0; min-height: 18px; }
+
+body.dark .cv-repetir-panel   { background: #1a2332; border-color: #2a3a50; }
+body.dark .cv-repetir-phrase  { color: #e8eef5; }
+body.dark .cv-repetir-nivel   { background: #1e3a5f; color: #64b5f6; }
+body.dark .cv-repetir-listen-btn { background: #1e3a5f; color: #64b5f6; }
+body.dark .cv-repetir-listen-btn:hover:not(:disabled) { background: #1a3358; }
+body.dark .cv-repetir-result-good { background: #1b3a23; border-color: #2e7d32; }
+body.dark .cv-repetir-result-ok   { background: #332b00; border-color: #f57f17; }
+body.dark .cv-repetir-result-bad  { background: #3a1a1a; border-color: #c62828; }
+body.dark .cv-repetir-result-good .cv-repetir-score { color: #66bb6a; }
+body.dark .cv-repetir-result-ok   .cv-repetir-score { color: #ffa726; }
+body.dark .cv-repetir-result-bad  .cv-repetir-score { color: #ef5350; }
+body.dark .cv-repetir-expected,
+body.dark .cv-repetir-got         { color: #b0bec5; }
+body.dark .cv-repetir-expected span,
+body.dark .cv-repetir-got span    { color: #90a4ae; }
+body.dark .cv-repetir-hint        { color: #6b7a8d; }
+body.dark .cv-repetir-counter     { color: #6b7a8d; }
+
 @media (max-width: 600px) {
     .cv-config { gap: 10px; }
     .cv-config-group label { font-size: 13px; }
@@ -1342,6 +1468,8 @@ body.dark .cv-mision-banner.completed strong { color: #66bb6a; }
     .cv-chat { max-height: 320px; }
     .cv-start-btn, .cv-record-btn, .cv-send-btn { padding: 12px 28px; font-size: 16px; }
     .cv-new-btn { margin-left: 0; }
+    .cv-repetir-phrase { font-size: 1.3rem; }
+    .cv-repetir-listen-btn, .cv-repetir-rec-btn { padding: 10px 18px; font-size: 14px; }
 }
 
 

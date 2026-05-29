@@ -2915,6 +2915,59 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
     .gram-review-card { padding: 20px 16px; }
 }
 
+/* ── SRS Rating ───────────────────────────────────────────────── */
+.gram-srs-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 0 4px;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+}
+.gram-srs-label { font-size: 12px; opacity: 0.55; font-weight: 500; }
+.gram-srs-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.gram-srs-btn {
+    flex: 1;
+    min-width: 72px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+}
+.gram-srs-btn:hover { opacity: 0.8; transform: scale(1.04); }
+.gram-srs-btn.no   { border-color: #c62828; color: #c62828; }
+.gram-srs-btn.hard { border-color: #e65100; color: #e65100; }
+.gram-srs-btn.ok   { border-color: #1976D2; color: #1976D2; }
+.gram-srs-btn.easy { border-color: #388E3C; color: #388E3C; }
+#page-gram.dark .gram-srs-btn.no   { border-color: #ef9a9a; color: #ef9a9a; }
+#page-gram.dark .gram-srs-btn.hard { border-color: #ffb74d; color: #ffb74d; }
+#page-gram.dark .gram-srs-btn.ok   { border-color: #90caf9; color: #90caf9; }
+#page-gram.dark .gram-srs-btn.easy { border-color: #a5d6a7; color: #a5d6a7; }
+.gram-srs-next { font-size: 11px; opacity: 0.5; font-style: italic; }
+
+.gram-action-btn.srs-due {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* ── Kasus link ───────────────────────────────────────────────── */
+a.gram-kasus-link {
+    text-decoration: none;
+    border-color: #00796B;
+    color: #00796B;
+    display: inline-flex;
+    align-items: center;
+}
+a.gram-kasus-link:hover { background: #00796B; color: #fff; border-color: #00796B; }
+#page-gram.dark a.gram-kasus-link { border-color: #4db6ac; color: #4db6ac; }
+#page-gram.dark a.gram-kasus-link:hover { background: #4db6ac; color: #111; border-color: #4db6ac; }
+
 /* ── Modo Examen ──────────────────────────────────────────────── */
 #page-gram .exam-level-btn {
     background: var(--accent);

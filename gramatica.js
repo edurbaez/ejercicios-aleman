@@ -807,6 +807,19 @@ let showFavsOnly = false;
 let reviewItems = [];
 let reviewIndex = 0;
 
+// Rules that map directly to a Kasus-Trainer case
+const KASUS_LINKS = {
+  'a1-06': 'Akkusativ',
+  'a2-03': 'Dativ',
+  'a2-04': 'Akkusativ',
+  'a2-05': 'Dativ',
+  'a2-06': 'Todos',
+  'b1-03': 'Todos',
+  'b1-04': 'Genitiv',
+  'b1-05': 'Todos',
+  'b1-07': 'Akkusativ',
+};
+
 // Exam state
 let examQuestions = [];
 let examAnswers = [];
@@ -817,7 +830,7 @@ let examSelectedRules = [];
 function getFavs() { try { return JSON.parse(localStorage.getItem('gram_favs') || '[]'); } catch(e) { return []; } }
 function saveFavs(arr) { localStorage.setItem('gram_favs', JSON.stringify(arr)); }
 function getRead() { try { return JSON.parse(localStorage.getItem('gram_read') || '{}'); } catch(e) { return {}; } }
-function markRead(id) { const r = getRead(); r[id] = true; localStorage.setItem('gram_read', JSON.stringify(r)); }
+function markRead(id) { const r = getRead(); r[id] = true; localStorage.setItem('gram_read', JSON.stringify(r)); syncToSupabase(); }
 function isFav(id) { return getFavs().includes(id); }
 
 function toggleFav(id, e) {
@@ -826,8 +839,120 @@ function toggleFav(id, e) {
   const idx = favs.indexOf(id);
   if (idx === -1) favs.push(id); else favs.splice(idx, 1);
   saveFavs(favs);
+  syncToSupabase();
   renderAll();
 }
+
+// ─── SRS (SM-2) ───────────────────────────────────────────────────────────────
+function getSRS() { try { return JSON.parse(localStorage.getItem('gram_srs') || '{}'); } catch(e) { return {}; } }
+function saveSRS(d) { localStorage.setItem('gram_srs', JSON.stringify(d)); }
+function getSRSEntry(id) { return getSRS()[id] || { interval: 1, ease: 2.5, reps: 0, due: null }; }
+function isDue(id) { const e = getSRSEntry(id); return !!(e.due && new Date(e.due) <= new Date()); }
+function countDue() {
+  let n = 0;
+  for (const lvl of LEVELS) for (const r of GRAMMAR_DATA[lvl]) if (isDue(r.id)) n++;
+  return n;
+}
+function srsNextLabel(id) {
+  const e = getSRSEntry(id);
+  if (!e.due) return null;
+  const days = Math.round((new Date(e.due) - new Date()) / 86400000);
+  if (days <= 0) return 'Repaso pendiente';
+  if (days === 1) return 'Repaso en 1 día';
+  return 'Repaso en ' + days + ' días';
+}
+function updateSRSEntry(id, rating) {
+  const srs = getSRS();
+  const e = srs[id] || { interval: 1, ease: 2.5, reps: 0, due: null };
+  if (rating >= 3) {
+    if (e.reps < 1) e.interval = 1;
+    else if (e.reps < 2) e.interval = 6;
+    else e.interval = Math.max(1, Math.round(e.interval * e.ease));
+    e.ease = Math.max(1.3, Math.min(2.5, e.ease + 0.1 - (5 - rating) * (0.08 + (5 - rating) * 0.02)));
+    e.reps++;
+  } else {
+    e.reps = 0;
+    e.interval = 1;
+    e.ease = Math.max(1.3, e.ease - 0.2);
+  }
+  const due = new Date();
+  due.setDate(due.getDate() + e.interval);
+  e.due = due.toISOString();
+  srs[id] = e;
+  saveSRS(srs);
+  syncToSupabase();
+}
+
+function rateSRS(id, rating) {
+  updateSRSEntry(id, rating);
+  const labels = { 1: '✗ No lo sé', 2: '~ Difícil', 4: '✓ Bien', 5: '★ Fácil' };
+  const next = srsNextLabel(id);
+  showToast(labels[rating] + (next ? ' · ' + next : ''));
+  renderAll();
+}
+
+function openSrsReview() {
+  const due = [];
+  for (const lvl of LEVELS) {
+    for (const r of GRAMMAR_DATA[lvl]) {
+      if (isDue(r.id)) due.push(Object.assign({}, r, { _level: lvl }));
+    }
+  }
+  if (due.length === 0) { showToast('No hay reglas pendientes de repaso.'); return; }
+  reviewItems = due;
+  reviewIndex = 0;
+  document.getElementById('gram-review-overlay').style.display = '';
+  renderReviewCard();
+}
+
+function updateSrsBadge() {
+  const btn = document.getElementById('srs-btn');
+  if (!btn) return;
+  const due = countDue();
+  btn.textContent = due > 0 ? '🔁 SRS (' + due + ')' : '🔁 SRS Repaso';
+  btn.classList.toggle('srs-due', due > 0);
+}
+
+// ─── Supabase sync ────────────────────────────────────────────────────────────
+function syncToSupabase() {
+  if (!window.sb || !window.currentUser) return;
+  const payload = { favs: getFavs(), read: getRead(), srs: getSRS() };
+  window.sb.from('grammar_state').upsert(
+    { user_id: window.currentUser.id, data: payload, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id' }
+  ).then(function(res) {
+    if (res.error) console.warn('[grammar_state]', res.error.message);
+  });
+}
+
+async function loadFromSupabase() {
+  if (!window.sb || !window.currentUser) return;
+  try {
+    const { data, error } = await window.sb.from('grammar_state')
+      .select('data').eq('user_id', window.currentUser.id).single();
+    if (error || !data) return;
+    const remote = data.data || {};
+    if (Array.isArray(remote.favs)) {
+      saveFavs([...new Set([...getFavs(), ...remote.favs])]);
+    }
+    if (remote.read && typeof remote.read === 'object') {
+      localStorage.setItem('gram_read', JSON.stringify(Object.assign({}, remote.read, getRead())));
+    }
+    if (remote.srs && typeof remote.srs === 'object') {
+      const local = getSRS();
+      const merged = Object.assign({}, remote.srs);
+      Object.keys(local).forEach(function(id) {
+        if (!merged[id] || (local[id].due && (!merged[id].due || local[id].due > merged[id].due))) {
+          merged[id] = local[id];
+        }
+      });
+      saveSRS(merged);
+    }
+    renderAll();
+  } catch(e) { /* silent */ }
+}
+
+window.onAuthSignedIn = loadFromSupabase;
 
 // ─── Hash routing ─────────────────────────────────────────────────────────────
 function parseHash() {
@@ -902,6 +1027,7 @@ function renderAll() {
     renderLevelTabs();
     renderRuleList();
   }
+  updateSrsBadge();
 }
 
 function renderLevelTabs() {
@@ -1001,7 +1127,22 @@ function renderRuleCard(rule, i, read, showLevel) {
     '<div class="gram-quiz-actions">' +
     '<button class="gram-quiz-btn" onclick="startQuiz(\'' + rule.id + '\')">&#127919; Practicar</button>' +
     '<button class="gram-quiz-btn" onclick="copyRuleLink(\'' + rule.id + '\')">&#128279; Copiar enlace</button>' +
+    (KASUS_LINKS[rule.id]
+      ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?caso=' + KASUS_LINKS[rule.id] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
+      : '') +
     '</div></div>' +
+    (isOpen
+      ? '<div class="gram-srs-section">' +
+        '<span class="gram-srs-label">&#127997; ¿Cuánto lo dominas?</span>' +
+        '<div class="gram-srs-btns">' +
+        '<button class="gram-srs-btn no" onclick="rateSRS(\'' + esc(rule.id) + '\',1)">✗ No lo sé</button>' +
+        '<button class="gram-srs-btn hard" onclick="rateSRS(\'' + esc(rule.id) + '\',2)">~ Difícil</button>' +
+        '<button class="gram-srs-btn ok" onclick="rateSRS(\'' + esc(rule.id) + '\',4)">✓ Bien</button>' +
+        '<button class="gram-srs-btn easy" onclick="rateSRS(\'' + esc(rule.id) + '\',5)">★ Fácil</button>' +
+        '</div>' +
+        (srsNextLabel(rule.id) ? '<span class="gram-srs-next">' + srsNextLabel(rule.id) + '</span>' : '') +
+        '</div>'
+      : '') +
     '</div></div>';
 }
 
@@ -1033,9 +1174,20 @@ function startQuiz(ruleId) {
   if (!rule || rule.ejemplos.length === 0) return;
   var qIdx = Math.floor(Math.random() * rule.ejemplos.length);
   var correct = rule.ejemplos[qIdx];
-  var allDe = getAllExamples().filter(function(s) { return s !== correct.de; });
-  allDe.sort(function() { return Math.random() - 0.5; });
-  var distractors = allDe.slice(0, 3);
+  // Prefer distractors from the same rule, then same level, then any rule
+  var sameRuleDe = rule.ejemplos
+    .filter(function(_, i) { return i !== qIdx; })
+    .map(function(e) { return e.de; });
+  var distractors = sameRuleDe.slice();
+  if (distractors.length < 3) {
+    var lvl = LEVELS.find(function(l) { return GRAMMAR_DATA[l].some(function(r) { return r.id === ruleId; }); });
+    var sameLvl = [];
+    GRAMMAR_DATA[lvl].forEach(function(r) {
+      if (r.id !== ruleId) r.ejemplos.forEach(function(e) { sameLvl.push(e.de); });
+    });
+    sameLvl.sort(function() { return Math.random() - 0.5; });
+    distractors = distractors.concat(sameLvl.slice(0, 3 - distractors.length));
+  }
   var options = [correct.de].concat(distractors).sort(function() { return Math.random() - 0.5; });
   var optsHtml = options.map(function(opt) {
     return '<button class="gram-quiz-opt" onclick="checkQuiz(this,\'' + esc(correct.de) + '\',\'' + esc(opt) + '\',\'quiz-' + ruleId + '\')">' + opt + '</button>';

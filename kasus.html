@@ -297,6 +297,19 @@
             window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto });
         }
     }
+
+    // Deep-link support: kasus.html?caso=Akkusativ
+    (function () {
+        const params = new URLSearchParams(location.search);
+        const initCaso = params.get('caso');
+        if (initCaso && ['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'].includes(initCaso)) {
+            KasState.caso = initCaso;
+            document.querySelectorAll('.kas-case-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.caso === initCaso);
+            });
+            generarEjercicio();
+        }
+    })();
     </script>
 </body>
 </html>

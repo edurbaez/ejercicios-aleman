@@ -1332,14 +1332,25 @@ document.addEventListener('keydown', function(e) {
 // ─── Modo Examen ──────────────────────────────────────────────────────────────
 const EXAM_RULES_COUNT = 5;
 const EXAM_SYSTEM_PROMPT =
-  'Eres un profesor de alemán. Genera exactamente 10 ejercicios de gramática en JSON.\n' +
-  'Cada ejercicio cubre una de las reglas proporcionadas (2 ejercicios por regla).\n' +
-  'Tipos permitidos:\n' +
-  '  "completar": la frase contiene ___ donde va la respuesta (una sola palabra o forma verbal).\n' +
-  '  "elegir": 4 opciones en el campo "opciones"; la respuesta correcta es exactamente una de ellas.\n' +
-  'Varía los tipos entre los 10 ejercicios.\n' +
-  'Campos obligatorios por ejercicio: tipo, enunciado, respuesta_correcta, explicacion, regla_id.\n' +
-  'Para "elegir" añade también el campo "opciones" (array de 4 strings).\n' +
+  'Eres un profesor de alemán. Genera exactamente 10 ejercicios de gramática alemana en JSON.\n' +
+  'Cada ejercicio practica una de las reglas indicadas (2 por regla). Varía los tipos.\n\n' +
+  'TIPO "completar":\n' +
+  '  instruccion: frase corta en español que indica exactamente QUÉ debe escribir el alumno.\n' +
+  '    Ejemplos: "Escribe el artículo en Akkusativ." / "Conjuga el verbo en Präsens (ich)."\n' +
+  '  enunciado: frase alemana con UN solo hueco marcado como ___\n' +
+  '  respuesta_correcta: la única forma correcta del hueco (minúscula si no es nombre propio)\n\n' +
+  'TIPO "elegir":\n' +
+  '  instruccion: frase corta en español sobre lo que se evalúa.\n' +
+  '    Ejemplos: "Elige la preposición correcta." / "¿Cuál es la forma verbal correcta?"\n' +
+  '  enunciado: la frase o contexto en alemán (sin las opciones)\n' +
+  '  opciones: array de 4 strings que difieren SOLO en el aspecto gramatical evaluado\n' +
+  '    (p.ej. cuatro formas del mismo artículo o cuatro conjugaciones del mismo verbo)\n' +
+  '  respuesta_correcta: exactamente una de las opciones, con la misma grafía\n\n' +
+  'PARA TODOS:\n' +
+  '  explicacion: 2-3 frases explicando POR QUÉ esa es la respuesta correcta según la regla.\n' +
+  '  regla_id: el id de la regla evaluada.\n\n' +
+  'Campos obligatorios: tipo, instruccion, enunciado, respuesta_correcta, explicacion, regla_id.\n' +
+  'Para "elegir": incluye también opciones.\n\n' +
   'Responde ÚNICAMENTE con un array JSON válido. Sin texto adicional ni bloques de código markdown.';
 
 function pickRandomRules(level, count) {
@@ -1351,9 +1362,12 @@ function buildExamPrompt(rules) {
   return 'Genera 10 ejercicios de gramática alemana (2 por cada regla) sobre estas ' +
     rules.length + ' reglas:\n\n' +
     rules.map(function(r, i) {
-      return (i + 1) + '. ' + r.titulo + ' (' + r.subtitulo + ')\n' +
-        '   Ejemplo: ' + r.ejemplos[0].de + ' → ' + r.ejemplos[0].es + '\n' +
-        '   regla_id: ' + r.id;
+      var ejemplos = r.ejemplos.slice(0, 2).map(function(e) {
+        return '     • ' + e.de + ' → ' + e.es;
+      }).join('\n');
+      return (i + 1) + '. [regla_id: ' + r.id + '] ' + r.titulo + ' — ' + r.subtitulo + '\n' +
+        '   Clave: ' + r.tip + '\n' +
+        '   Ejemplos:\n' + ejemplos;
     }).join('\n\n');
 }
 
@@ -1407,7 +1421,8 @@ function renderExamQuestion(index) {
   document.getElementById('exam-progress-bar').style.width = ((index / total) * 100) + '%';
   document.getElementById('exam-next-btn').style.display = 'none';
 
-  var html = '<p class="exam-enunciado">' + q.enunciado + '</p>';
+  var html = (q.instruccion ? '<p class="exam-instruccion">' + q.instruccion + '</p>' : '') +
+    '<p class="exam-enunciado">' + q.enunciado + '</p>';
   if (q.tipo === 'elegir') {
     html += '<div class="exam-options">' +
       q.opciones.map(function(op) {

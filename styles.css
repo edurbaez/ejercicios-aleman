@@ -3052,7 +3052,19 @@ a.gram-kasus-link:hover { background: #00796B; color: #fff; border-color: #00796
     overflow: hidden;
 }
 .exam-progress-bar { height: 100%; background: var(--accent); transition: width 0.3s; }
-.exam-q-body { display: flex; flex-direction: column; gap: 16px; }
+.exam-q-body { display: flex; flex-direction: column; gap: 12px; }
+.exam-instruccion {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin: 0;
+    padding: 6px 10px;
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    border-radius: 3px;
+}
 .exam-enunciado {
     font-size: 18px;
     font-weight: 600;

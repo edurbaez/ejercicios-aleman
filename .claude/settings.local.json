@@ -8,7 +8,10 @@
       "Bash(Test-Path *)",
       "Bash(mkdir -p /mnt/c/Users/edurb/.claude/commands && echo \"ok\")",
       "Bash(git commit -m ' *)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); text=d['result']['content'][0]['text']; inner=json.loads\\(text\\); rows=json.loads\\(inner['result'].split\\('<untrusted-data'\\)[1].split\\('>'\\)[1].split\\('</untrusted'\\)[0]\\); [print\\(f\\\\\"{r['table_name']:20} {r['column_name']:25} {r['data_type']:20} nullable={r['is_nullable']}\\\\\"\\) for r in rows]\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d['result']['content'][0]['text']\\)\")"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

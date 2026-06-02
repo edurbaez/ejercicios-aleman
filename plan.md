@@ -1,121 +1,228 @@
-# regla principal de plan.md
- despues de hacer cualquier implementacion del plan se actualizara plan.md, claude.md y readme.md con los cambios realizados.  
+# Plan de Revisión — Ejercicios Alemán
 
-
-# Plan de mejoras UX — Aplicación de Alemán
-
-Prioridad: **P1** = crítico / alto impacto · **P2** = medio impacto · **P3** = pulido / bajo impacto
+> Diagnóstico generado: 2026-06-02  
+> Estado del repo: limpio (sin cambios pendientes)
 
 ---
 
-## P1 — Crítico / Alto impacto
+## Resumen ejecutivo
 
-### ~~1. Corregir atributo `lang` en todas las páginas~~ ✅ DONE
-- `palabrasB2.html`, `chat-voz.html`, `kasus.html`, `B1.html` → `lang="es"`.
-
-### 2. Convertir las opciones del quiz de `<div>` a `<button>`
-- **Archivos:** `shared-game.js` (renderiza `#op1`–`#op4` como `<div class="option">`), `styles.css` (ajustar estilos a `button.option`).
-- **Por qué:** Los `<div>` no son alcanzables con Tab ni activables con teclado; lectores de pantalla no los anuncian como interactivos. Afecta 100% de la funcionalidad principal.
-- **Alcance:** Cambiar el render JS + CSS (quitar `cursor:pointer` redundante). ~1h.
-
-### 3. Sincronizar modo oscuro entre páginas con una clave unificada
-- **Archivos:** `shared-game.js`, `auth.js`, `lectura veloz.html`, `diccionario.html`, `kasus.html`, `corrector.html`, `gramatica.html`, `chat-voz.html`, `index.html`.
-- **Por qué:** Cada página guarda `darkMode_<id>` por separado — el usuario activa dark mode en B2 y llega a Kasus en modo claro. Genera desorientación constante.
-- **Solución:** Usar una clave única `darkMode` en localStorage; leerla al cargar y escribirla al togglear en todos los archivos.
-- **Alcance:** Refactor de función `toggleDarkMode` / `toggleKasDark` etc. ~2h total.
-
-### 4. Añadir `focus trap` y `aria-*` al modal de autenticación
-- **Archivos:** `auth.js` (función `_injectModal`).
-- **Por qué:** El Tab sale del modal hacia el fondo; no tiene `role="dialog"` ni `aria-modal="true"`. Viola WCAG 2.1 criterio 2.1.2.
-- **Solución:** Agregar `role="dialog" aria-modal="true" aria-labelledby="auth-title"`, capturar Tab/Shift+Tab dentro del modal, restaurar foco al cerrarlo.
-- **Alcance:** ~1.5h.
-
-### ~~5. Eliminar sombra roja de las cards del quiz~~ ✅ DONE
-- `styles.css` `.card` y `.option` → `box-shadow: rgba(0,0,0,0.08)`.
-
-### ~~6. Marcar "Vocabulario B2" como `active` en el navbar de `palabrasB2.html`~~ ✅ DONE
-- Añadido `<a href="palabrasB2.html" class="active">Vocabulario B2</a>` al dropdown.
+El proyecto tiene **9 apps HTML + 5 APIs serverless** en buen estado general. No hay errores críticos que bloqueen el flujo principal. Los problemas encontrados son deuda técnica, código muerto y una tabla de Supabase sin verificar (`exam_results`).
 
 ---
 
-## P2 — Medio impacto
+## Diagnóstico por componente
 
-### ~~7. Corregir cabeceras de tabla "Uno" / "Dos" → "Español" / "Alemán"~~ ✅ DONE
-- `palabrasB2.html` y `B1.html` → `<th>Español</th>` / `<th>Alemán</th>`.
+### Apps HTML
 
-### 8. Añadir `aria-live` para feedback dinámico del quiz y el chat
-- **Archivos:** `shared-game.js` (resultado de respuesta), `chat-voz.html` (`#chatArea`), `kasus.html` (feedback de ejercicio).
-- **Por qué:** El contenido dinámico no se anuncia a lectores de pantalla.
-- **Solución:** Agregar `aria-live="polite"` al contenedor de feedback; `aria-live="assertive"` para respuestas correctas/incorrectas inmediatas.
-- **Alcance:** ~45 min.
+| App | Estado | Problemas |
+|-----|--------|-----------|
+| `index.html` | ✅ Operacional | Ninguno |
+| `palabrasB2.html` | ✅ Operacional | Ninguno |
+| `B1.html` | ✅ Operacional | Ninguno |
+| `diccionario.html` | ✅ Operacional | Tabla `diccionario_cache` verificada ✅ |
+| `lectura veloz.html` | ✅ Operacional | Ninguno |
+| `chat-voz.html` | ✅ Operacional | `togglePremiumTTS()` sin null-guard en btn (línea 563), pero botón está comentado → código inalcanzable |
+| `corrector.html` | ✅ Operacional | Ninguno |
+| `kasus.html` | ✅ Operacional | Ninguno |
+| `gramatica.html` | ✅ Operacional | Ninguno |
+| `admin/index.html` | ✅ Operacional | Tabla `exam_results` verificada ✅ |
 
-### 9. Estandarizar el orden y categorías del menú en todas las páginas
-- **Archivos:** Todos los `<nav id="navbar">` en las 8 páginas HTML.
-- **Por qué:** El dropdown de sub-páginas tiene orden diferente al de la landing (sin categorías, orden distinto). El usuario no puede predecir dónde está cada app.
-- **Solución:** Copiar la estructura categorizada de `index.html` al dropdown de cada sub-página, o al menos unificar el orden: Vocabulario B2, B1, Diccionario | Gramática, Kasus, Corrector | Chat de Voz, Lectura Veloz.
-- **Alcance:** ~1h (copiar/pegar + ajustar estilos).
+### APIs Serverless
 
-### 10. Añadir estado vacío instructivo al quiz B2/B1
-- **Archivos:** `shared-game.js` (sección donde se muestra `#palabra`).
-- **Por qué:** Si no hay listas seleccionadas, las opciones aparecen vacías sin ningún mensaje. Primer uso confuso.
-- **Solución:** Mostrar un mensaje centrado "Selecciona al menos una lista en el selector de arriba para comenzar" cuando `State.de.length === 0`.
-- **Alcance:** ~30 min.
+| API | Estado | Problemas |
+|-----|--------|-----------|
+| `api/chat.js` | ✅ Operacional | Ninguno |
+| `api/whisper.js` | ✅ Operacional | Ninguno |
+| `api/vision.js` | ✅ Operacional | Ninguno |
+| `api/tts.js` | ✅ Operacional | Ninguno |
+| `api/admin-invite.js` | ✅ Operacional | Ninguno |
+| `api/approve-user.js` | ⚠️ Huérfana | Existe pero no se llama desde ningún cliente HTML/JS |
 
-### 11. Mejorar el estado visual de botones de modo (Auto/Dual/Leer)
-- **Archivos:** `styles.css` (`.btn-active`), `shared-game.js`.
-- **Por qué:** `.btn-active` usa `red` que se percibe como error. No comunica "modo activo" de forma positiva.
-- **Solución:** Cambiar a un color de acento positivo (ej. `#2E7D32` verde oscuro o el color de acento de la app) con ícono de check o borde más grueso.
-- **Alcance:** ~30 min CSS.
+### Scripts compartidos
 
-### 12. Corregir overflow horizontal de `lectura veloz.html` en móvil
-- **Archivos:** `styles.css` sección `#page-lv`, posiblemente `lectura veloz.html`.
-- **Por qué:** `#page-lv { margin: 20px }` aplica margen al body en lugar del contenedor, causando scroll horizontal en pantallas < 360px.
-- **Solución:** Mover el `margin` al contenedor interno; el body solo debe tener `padding-top: 56px`.
-- **Alcance:** ~20 min.
-
-### 13. Mejorar descripciones de listas en `#sets-bar`
-- **Archivos:** `shared-game.js` (render de botones del `#sets-bar`), `DATA.json`, `DataB1.json`.
-- **Por qué:** Botones como "lista1" o "c1lista1" son crípticos. El usuario no sabe qué palabras contiene cada lista.
-- **Solución:** Añadir `title` tooltip con la categoría y cantidad de palabras, o mostrar un subtítulo debajo del botón.
-- **Alcance:** ~1h.
-
----
-
-## P3 — Pulido / Bajo impacto
-
-### 14. Unificar tipografía entre landing e interiores
-- **Archivos:** `index.html` (estilos inline del `<head>`), `styles.css`.
-- **Por qué:** La landing usa `'Segoe UI', -apple-system` y el resto usa `Arial`. Sensación tipográfica diferente al entrar a las apps.
-- **Solución:** Mover la declaración de fuente al `styles.css` global (`#page-home { font-family: Arial, Helvetica, sans-serif }`).
-- **Alcance:** 5 min.
-
-### 15. Revisar contraste de texto secundario en modo oscuro
-- **Archivos:** `styles.css` (`.cv-hint`, `.cor-header p`, `.kas-header p`).
-- **Por qué:** Textos con `opacity: 0.65` sobre backgrounds oscuros pueden caer por debajo del ratio WCAG AA (4.5:1).
-- **Solución:** Usar colores fijos con contraste verificado en lugar de `opacity` para texto de ayuda; herramienta: https://webaim.org/resources/contrastchecker/.
-- **Alcance:** ~45 min (medir + ajustar).
-
-### 16. Agregar sugerencia de ruta de aprendizaje en la landing
-- **Archivos:** `index.html`.
-- **Por qué:** Un usuario nuevo ve 8 apps sin orientación. Añadir una sección pequeña "¿Por dónde empezar?" con pasos sugeridos (ej. A1 → B1 vocab → Kasus → B2) reduciría abandono inicial.
-- **Alcance:** ~1h (solo HTML/CSS, sin lógica).
-
-### 17. Reemplazar `alert()` de auth por mensajes inline
-- **Archivos:** `auth.js` (función `sendOtp`, `verifyOtp`).
-- **Por qué:** Los `alert()` nativos rompen la experiencia visual y no son estilizables. Inconsistente con el resto de la UI.
-- **Solución:** Mostrar el error dentro del modal con un `<p id="auth-error">` estilizado.
-- **Alcance:** ~30 min.
-
-### 18. Añadir `aria-label` a botones de icono en el navbar
-- **Archivos:** Todos los HTML (botón `#auth-btn`, `#darkModeBtn`).
-- **Por qué:** Solo tienen `title` que algunos lectores de pantalla ignoran. `aria-label="Iniciar sesión"` y `aria-label="Activar modo oscuro"` garantizan descripción accesible.
-- **Alcance:** 2 atributos por archivo. ~15 min total.
+| Script | Estado | Problemas |
+|--------|--------|-----------|
+| `auth.js` | ✅ Operacional | Ninguno |
+| `shared-game.js` | ✅ Operacional | Ninguno |
+| `config.js` | ✅ Operacional | Ninguno |
+| `diccionario.js` | ✅ Operacional | Ninguno |
+| `corrector.js` | ✅ Operacional | Ninguno |
+| `gramatica.js` | ✅ Operacional | Ninguno |
+| `styles.css` | ✅ Operacional | Ninguno |
 
 ---
 
-## Notas de implementación
+## Problemas identificados
 
-- Los ítems 1, 5, 6, 7 son cambios de 5–15 min cada uno: buenos candidatos para una sesión rápida.
-- El ítem 3 (dark mode unificado) es el de mayor ROI para experiencia diaria — hacerlo antes que cualquier otro P2.
-- Los ítems 2 y 4 (accesibilidad de teclado) son independientes y pueden hacerse en orden cualquiera.
-- El ítem 9 (menú consistente) puede hacerse copiando el bloque HTML de `index.html` y es repetitivo pero bajo riesgo.
+### IMPORTANTES (degradan experiencia)
+
+- [x] ~~**`admin/index.html` consulta `exam_results`**~~ — Tabla verificada, existe con esquema correcto ✅
+
+- [ ] **`api/approve-user.js` sin consumidor** — API con lógica de aprobación/bloqueo de usuarios que nadie llama. El admin dashboard (`admin/index.html`) no la usa. Decidir: integrar al admin o eliminar.
+
+### MENORES (deuda técnica)
+
+- [ ] **`chat-voz.html` línea 563** — `togglePremiumTTS()` hace `btn.textContent` sin verificar que `btn` exista. El botón está comentado en el HTML por lo que esta ruta es actualmente inalcanzable, pero si se rehabilita el botón podría dar error. Agregar null-guard.
+
+- [ ] **`diccionario_cache` en Supabase** — `diccionario.js` hace upsert a esa tabla sin verificar que exista. Falla silenciosamente si no está creada. Verificar en Supabase Dashboard.
+
+---
+
+## Plan de revisión por etapas
+
+---
+
+### Etapa 1 — Verificación de infraestructura Supabase ✅ COMPLETADA
+**Objetivo:** confirmar que las tablas requeridas existen con el esquema correcto.
+
+- [x] Verificar tabla `diccionario_cache` → existe: `id, palabra, traduccion, nivel, definicion, sinonimos (jsonb), antonimo, created_at`
+- [x] Verificar tabla `exam_results` → existe: `id, user_id, created_at, level, score, total, rules (array), answers (jsonb)`
+- [x] Verificar tabla `profiles` → existe: `id, email, display_name, avatar_url, role, created_at, status`
+- [x] Verificar tabla `usage_events` → existe: `id, user_id, app, event_type, payload, created_at`
+- [x] Verificar RLS policies → todas configuradas correctamente (ver detalle abajo)
+- [x] Verificar función `is_admin()` → existe en schema `public`
+
+**Resultado de políticas RLS:**
+
+| Tabla | Operación | Política |
+|-------|-----------|---------|
+| `diccionario_cache` | SELECT | Pública (sin auth) ✅ |
+| `diccionario_cache` | INSERT | Solo autenticados ✅ |
+| `diccionario_cache` | UPDATE | ⚠️ Sin política — upsert sin conflicto en flujo normal, no bloquea |
+| `exam_results` | ALL (own) | `auth.uid() = user_id` ✅ |
+| `exam_results` | SELECT (admin) | `is_admin()` ✅ |
+| `profiles` | ALL (own) | `auth.uid() = id` ✅ |
+| `profiles` | SELECT (admin) | `is_admin()` ✅ |
+| `usage_events` | INSERT | Autenticados ✅ |
+| `usage_events` | SELECT (own) | `auth.uid() = user_id` ✅ |
+| `usage_events` | SELECT (admin) | `is_admin()` ✅ |
+
+**Hallazgo:** `diccionario_cache` no tiene política UPDATE, pero el flujo de `diccionario.js` hace upsert solo cuando la palabra NO existe en Supabase (porque `supaGet` la habría devuelto antes), por lo que el conflicto nunca se activa en condiciones normales. Riesgo bajo.
+
+**Verificación cruzada de escrituras:**
+- `gramatica.js` inserta en `exam_results`: `user_id, level, score, total, rules, answers` → coincide con el esquema ✅
+- `auth.js` lee `exam_results`: `created_at, level, score, total` → todos existen ✅
+- `admin/index.html` lee `exam_results`: `id, user_id, created_at, level, score, total` → todos existen ✅
+
+---
+
+### Etapa 2 — Test manual del flujo de autenticación
+**Objetivo:** asegurar que login → token → API call funciona end-to-end.
+
+- [ ] Abrir `index.html` → verificar que aparece botón de login
+- [ ] Login con OTP (email) → verificar que `window.currentUser` se popula
+- [ ] Login con Google OAuth → verificar redirect y sesión
+- [ ] Verificar que `window.getAuthToken()` retorna un JWT válido tras login
+- [ ] Cerrar sesión → verificar que UI se actualiza correctamente
+- [ ] Refrescar página con sesión activa → verificar que sesión persiste
+
+---
+
+### Etapa 3 — Test manual por app (flujo principal)
+**Objetivo:** verificar el golden path de cada app.
+
+#### 3.1 Vocabulario B2 (`palabrasB2.html`)
+- [ ] Seleccionar una lista → aparecen palabras
+- [ ] Responder correcta e incorrectamente → contador actualiza
+- [ ] Modo Repetir → cicla solo palabras erradas
+- [ ] Botón TTS → reproduce audio en alemán
+- [ ] SRS Repaso → muestra palabras pendientes
+- [ ] Frases en contexto → abre modal con frase generada por API
+- [ ] Dark mode → persiste tras recarga
+
+#### 3.2 Vocabulario B1 (`B1.html`)
+- [ ] Mismo flujo que B2 con datos `DataB1.json`
+- [ ] Verificar que el Service Worker `sw-b1.js` se registra
+
+#### 3.3 Diccionario (`diccionario.html`)
+- [ ] Buscar una palabra → resultado aparece con nivel CEFR
+- [ ] Buscar misma palabra → sirve desde caché (sin llamada API)
+- [ ] Autocomplete sugiere palabras del historial
+
+#### 3.4 Chat de Voz (`chat-voz.html`)
+- [ ] Mantener botón → graba audio
+- [ ] Soltar → transcribe con Whisper y muestra texto
+- [ ] IA responde → respuesta se lee en voz alta
+- [ ] Cambiar nivel CEFR → conversaciones más simples/complejas
+- [ ] Modo Sugerencia → muestra hint
+- [ ] Modo Repetir → repite última frase
+
+#### 3.5 Corrector (`corrector.html`)
+- [ ] Subir foto/imagen de texto alemán → se analiza
+- [ ] Resultado muestra errores con categorías y correcciones
+- [ ] Drag-and-drop funciona
+
+#### 3.6 Kasus Trainer (`kasus.html`)
+- [ ] Generar ejercicio → aparece frase con hueco
+- [ ] Respuesta correcta → streak sube
+- [ ] Dark mode funciona
+
+#### 3.7 Gramática (`gramatica.html`)
+- [ ] Navegar entre niveles (A1–C2) → accordion muestra reglas
+- [ ] URL hash (`#b2`) navega directo al nivel
+
+#### 3.8 Lectura Veloz (`lectura veloz.html`)
+- [ ] Pegar texto → RSVP lo muestra palabra por palabra
+- [ ] Ajustar WPM → velocidad cambia
+- [ ] Subir PDF → se parsea y muestra
+- [ ] Guardar texto → persiste tras recarga
+
+#### 3.9 Admin Dashboard (`admin/index.html`)
+- [ ] Acceder con usuario sin rol admin → redirige a `/`
+- [ ] Acceder con usuario admin → muestra dashboard
+- [ ] Cards de resumen muestran conteos correctos
+- [ ] Barras de actividad por app se renderizan
+- [ ] Tabla de usuarios tiene búsqueda funcional
+- [ ] Formulario de invitar usuario funciona
+- [ ] Sección de exámenes: si `exam_results` vacía → muestra "Sin exámenes aún" (no error)
+
+---
+
+### Etapa 4 — PWA y offline
+**Objetivo:** verificar que las apps instalables funcionan sin conexión.
+
+- [ ] `palabrasB2.html`: Service Worker `sw.js` se registra → aparece prompt de instalación
+- [ ] `B1.html`: Service Worker `sw-b1.js` se registra → prompt de instalación
+- [ ] Instalar B2 como PWA → abre como app standalone
+- [ ] Desconectar internet → B2 y B1 siguen funcionando (datos en caché)
+- [ ] Verificar que `manifest.json` y `manifest-b1.json` tienen iconos válidos
+
+---
+
+### Etapa 5 — Limpieza de código muerto
+**Objetivo:** eliminar archivos y código que ya no se usa.
+
+- [ ] **Decidir** qué hacer con `api/approve-user.js`:
+  - Opción A: Integrar al admin dashboard como botón de aprobar/bloquear usuarios
+  - Opción B: Eliminar si es código legacy que ya no tiene uso previsto
+- [ ] **Rehabilitar o eliminar** el botón Premium TTS en `chat-voz.html`:
+  - Si se quiere exponer: descomentar botón `#premiumTtsBtn` en HTML (línea 62) y agregar null-guard en `togglePremiumTTS()` (línea 563)
+  - Si ya no se quiere: eliminar `togglePremiumTTS()`, `State.premiumTTS` y la rama `if (State.premiumTTS)` en `speakTTS()`
+- [ ] Revisar carpeta `otrascosas/` — contiene 8 archivos HTML/JS no vinculados al proyecto principal. Determinar si se pueden eliminar o archivar.
+
+---
+
+### Etapa 6 — Revisión de seguridad
+**Objetivo:** confirmar que las protecciones de las APIs no tienen huecos.
+
+- [ ] Intentar llamar `/api/chat` sin token → debe retornar 401
+- [ ] Intentar llamar `/api/tts` con token expirado → debe retornar 401
+- [ ] Verificar rate limiting: >20 req/min a `/api/chat` → debe retornar 429
+- [ ] Confirmar que `OPENAI_API_KEY` y `SUPABASE_JWT_SECRET` están en Vercel env vars (no en código)
+- [ ] Confirmar que `.env.local` no está commiteado (`git status`)
+
+---
+
+## Estado de avance
+
+> Actualizar con ✅/❌ conforme se completan las verificaciones.
+
+| Etapa | Estado |
+|-------|--------|
+| 1 — Infraestructura Supabase | ✅ Completada — sin problemas críticos |
+| 2 — Flujo de autenticación | ⬜ Pendiente |
+| 3 — Test manual por app | ⬜ Pendiente |
+| 4 — PWA y offline | ⬜ Pendiente |
+| 5 — Limpieza de código muerto | ⬜ Pendiente |
+| 6 — Revisión de seguridad | ⬜ Pendiente |

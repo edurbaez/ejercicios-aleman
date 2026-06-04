@@ -184,6 +184,7 @@ El proyecto tiene **9 apps HTML + 5 APIs serverless** en buen estado general. No
 
 ---
 
+
 ### Etapa 4 — PWA y offline
 **Objetivo:** verificar que las apps instalables funcionan sin conexión.
 

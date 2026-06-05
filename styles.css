@@ -2891,6 +2891,77 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 }
 .gram-toast.show { transform: translateX(-50%) translateY(0); }
 
+/* ── Bloque 1: estructura didáctica ──────────────────────────────── */
+.gram-regla-base {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.55;
+    background: linear-gradient(135deg, rgba(230,81,0,0.10) 0%, rgba(230,81,0,0.05) 100%);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    color: var(--text);
+}
+.gram-regla-base-icon { margin-right: 6px; }
+
+.gram-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+}
+.gram-tabla th {
+    background: var(--accent);
+    color: #fff;
+    padding: 6px 10px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+}
+.gram-tabla td {
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+.gram-tabla tr:last-child td { border-bottom: none; }
+.gram-tabla tr:nth-child(even) td { background: rgba(0,0,0,0.03); }
+#page-gram.dark .gram-tabla tr:nth-child(even) td { background: rgba(255,255,255,0.04); }
+.gram-tabla td:first-child { font-weight: 600; opacity: 0.75; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+.gram-excepcion {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.55;
+    background: rgba(194,64,0,0.07);
+    border-left: 3px solid #e65100;
+    border-radius: 0 8px 8px 0;
+    padding: 9px 12px;
+    color: var(--text);
+}
+.gram-excepcion-icon { flex-shrink: 0; }
+
+.gram-exp-toggle {
+    align-self: flex-start;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text);
+    opacity: 0.6;
+    transition: 0.12s;
+}
+.gram-exp-toggle:hover { opacity: 1; border-color: var(--accent); color: var(--accent); }
+
+.gram-rule-explicacion { display: none; font-size: 14px; line-height: 1.65; margin: 0; opacity: 0.9; }
+.gram-rule-explicacion.open { display: block; }
+
 /* Search result level badge */
 .gram-result-level {
     font-size: 10px;

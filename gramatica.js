@@ -964,6 +964,8 @@ let examQuestions = [];
 let examAnswers = [];
 let examCurrentIndex = 0;
 let examSelectedRules = [];
+let examTotalExpected = 0;
+let examIsMixed = false;
 
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('gram_favs') || '[]'); } catch(e) { return []; } }
@@ -1180,7 +1182,8 @@ function renderLevelTabs() {
       '" onclick="setLevel(\'' + lvl + '\')">' + lvl + prog + '</button>';
   }).join('') +
   '<button class="gram-level-btn' + (favsActive ? ' active' : '') + '" id="fav-level-btn" onclick="toggleFavFilter()">&#9733; Favs</button>' +
-  '<button class="gram-level-btn exam-level-btn" id="exam-start-btn" onclick="startExam()">&#128221; Examen</button>';
+  '<button class="gram-level-btn exam-level-btn" id="exam-start-btn" onclick="startExam()">&#128221; Examen</button>' +
+  '<button class="gram-level-btn exam-mixed-btn" id="exam-mixed-btn" onclick="startMixedExam()">&#127922; Mixto</button>';
   document.getElementById('gram-toolbar').style.display = '';
 }
 
@@ -1492,26 +1495,38 @@ document.addEventListener('keydown', function(e) {
 
 // ─── Modo Examen ──────────────────────────────────────────────────────────────
 const EXAM_RULES_COUNT = 5;
+const EXAM_MIXED_RULES_PER_LEVEL = 2;
+
 const EXAM_SYSTEM_PROMPT =
-  'Eres un profesor de alemán. Genera exactamente 10 ejercicios de gramática alemana en JSON.\n' +
-  'Cada ejercicio practica una de las reglas indicadas (2 por regla). Varía los tipos.\n\n' +
+  'Eres un profesor de alemán. Genera exactamente 2 ejercicios de gramática alemana en JSON para la regla indicada.\n\n' +
   'TIPO "completar":\n' +
-  '  instruccion: frase corta en español que indica exactamente QUÉ debe escribir el alumno.\n' +
+  '  instruccion: frase corta en español que indica qué escribir.\n' +
   '    Ejemplos: "Escribe el artículo en Akkusativ." / "Conjuga el verbo en Präsens (ich)."\n' +
   '  enunciado: frase alemana con UN solo hueco marcado como ___\n' +
   '  respuesta_correcta: la única forma correcta del hueco (minúscula si no es nombre propio)\n\n' +
   'TIPO "elegir":\n' +
   '  instruccion: frase corta en español sobre lo que se evalúa.\n' +
-  '    Ejemplos: "Elige la preposición correcta." / "¿Cuál es la forma verbal correcta?"\n' +
   '  enunciado: la frase o contexto en alemán (sin las opciones)\n' +
   '  opciones: array de 4 strings que difieren SOLO en el aspecto gramatical evaluado\n' +
-  '    (p.ej. cuatro formas del mismo artículo o cuatro conjugaciones del mismo verbo)\n' +
   '  respuesta_correcta: exactamente una de las opciones, con la misma grafía\n\n' +
+  'TIPO "detectar_error":\n' +
+  '  instruccion: "Corrige el error gramatical." (en español)\n' +
+  '  enunciado: frase alemana con UN solo error gramatical\n' +
+  '  respuesta_correcta: solo la forma correcta de la palabra errónea (no toda la frase)\n\n' +
+  'TIPO "transformar":\n' +
+  '  instruccion: instrucción clara en español (ej. "Transforma al Perfekt." / "Pon en plural.")\n' +
+  '  enunciado: la frase alemana base\n' +
+  '  respuesta_correcta: solo el fragmento transformado clave\n\n' +
+  'TIPO "ordenar":\n' +
+  '  instruccion: "Escribe las palabras en el orden correcto."\n' +
+  '  enunciado: palabras desordenadas separadas por / (ej. "ins / gehe / ich / Kino")\n' +
+  '  respuesta_correcta: la frase completa correcta\n\n' +
   'PARA TODOS:\n' +
-  '  explicacion: 2-3 frases explicando POR QUÉ esa es la respuesta correcta según la regla.\n' +
+  '  explicacion: 2-3 frases explicando POR QUÉ esa es la respuesta correcta.\n' +
   '  regla_id: el id de la regla evaluada.\n\n' +
   'Campos obligatorios: tipo, instruccion, enunciado, respuesta_correcta, explicacion, regla_id.\n' +
-  'Para "elegir": incluye también opciones.\n\n' +
+  'Para "elegir": incluye también opciones.\n' +
+  'Usa tipos variados — los 2 ejercicios deben ser de tipos distintos si es posible.\n\n' +
   'Responde ÚNICAMENTE con un array JSON válido. Sin texto adicional ni bloques de código markdown.';
 
 function pickRandomRules(level, count) {
@@ -1519,17 +1534,25 @@ function pickRandomRules(level, count) {
   return [...rules].sort(function() { return Math.random() - 0.5; }).slice(0, count);
 }
 
-function buildExamPrompt(rules) {
-  return 'Genera 10 ejercicios de gramática alemana (2 por cada regla) sobre estas ' +
-    rules.length + ' reglas:\n\n' +
-    rules.map(function(r, i) {
-      var ejemplos = r.ejemplos.slice(0, 2).map(function(e) {
-        return '     • ' + e.de + ' → ' + e.es;
-      }).join('\n');
-      return (i + 1) + '. [regla_id: ' + r.id + '] ' + r.titulo + ' — ' + r.subtitulo + '\n' +
-        '   Clave: ' + r.tip + '\n' +
-        '   Ejemplos:\n' + ejemplos;
-    }).join('\n\n');
+function buildExamPromptForRule(rule) {
+  var ejemplos = rule.ejemplos.slice(0, 2).map(function(e) {
+    return '     • ' + e.de + ' → ' + e.es;
+  }).join('\n');
+  return 'Genera 2 ejercicios sobre esta regla:\n\n' +
+    '[regla_id: ' + rule.id + '] ' + rule.titulo + ' — ' + rule.subtitulo + '\n' +
+    'Clave: ' + rule.tip + '\n' +
+    'Ejemplos:\n' + ejemplos;
+}
+
+function findRuleById(id) {
+  var levels = Object.keys(GRAMMAR_DATA);
+  for (var i = 0; i < levels.length; i++) {
+    var rules = GRAMMAR_DATA[levels[i]];
+    for (var j = 0; j < rules.length; j++) {
+      if (rules[j].id === id) return rules[j];
+    }
+  }
+  return null;
 }
 
 function hideAllExamOverlays() {
@@ -1538,12 +1561,34 @@ function hideAllExamOverlays() {
   });
 }
 
+function examRepeat() {
+  if (examIsMixed) { startMixedExam(); } else { startExam(); }
+}
+
 async function startExam() {
-  hideAllExamOverlays();
+  examIsMixed = false;
   examSelectedRules = pickRandomRules(currentLevel, EXAM_RULES_COUNT);
+  startExamWithRules();
+}
+
+async function startMixedExam() {
+  examIsMixed = true;
+  var levels = ['A1', 'A2', 'B1', 'B2'];
+  examSelectedRules = [];
+  levels.forEach(function(lvl) {
+    var rules = GRAMMAR_DATA[lvl] || [];
+    var shuffled = [...rules].sort(function() { return Math.random() - 0.5; });
+    examSelectedRules = examSelectedRules.concat(shuffled.slice(0, EXAM_MIXED_RULES_PER_LEVEL));
+  });
+  startExamWithRules();
+}
+
+async function startExamWithRules() {
+  hideAllExamOverlays();
   examQuestions = [];
   examAnswers = [];
   examCurrentIndex = 0;
+  examTotalExpected = examSelectedRules.length * 2;
 
   const rulesList = document.getElementById('exam-rules-list');
   rulesList.innerHTML = examSelectedRules.map(function(r) {
@@ -1555,10 +1600,36 @@ async function startExam() {
   document.getElementById('exam-loading-overlay').style.display = 'flex';
 
   try {
-    examQuestions = await fetchExamQuestions(examSelectedRules);
+    var firstBatch = await fetchRuleQuestions(examSelectedRules[0]);
+    examQuestions[0] = firstBatch[0] || null;
+    examQuestions[1] = firstBatch[1] || null;
+
     hideAllExamOverlays();
     renderExamQuestion(0);
     document.getElementById('exam-question-overlay').style.display = 'flex';
+
+    // Fetch remaining rules in parallel, updating slots as they arrive
+    examSelectedRules.slice(1).forEach(function(rule, idx) {
+      var ruleIdx = idx + 1;
+      var baseIdx = ruleIdx * 2;
+      examQuestions[baseIdx] = { _state: 'loading' };
+      examQuestions[baseIdx + 1] = { _state: 'loading' };
+
+      fetchRuleQuestions(rule).then(function(batch) {
+        examQuestions[baseIdx] = batch[0] || null;
+        examQuestions[baseIdx + 1] = batch[1] || null;
+        if (examCurrentIndex === baseIdx || examCurrentIndex === baseIdx + 1) {
+          renderExamQuestion(examCurrentIndex);
+        }
+      }).catch(function() {
+        examQuestions[baseIdx] = { _state: 'error', ruleIdx: ruleIdx };
+        examQuestions[baseIdx + 1] = { _state: 'error', ruleIdx: ruleIdx };
+        if (examCurrentIndex === baseIdx || examCurrentIndex === baseIdx + 1) {
+          renderExamQuestion(examCurrentIndex);
+        }
+      });
+    });
+
   } catch(err) {
     document.getElementById('exam-loading-spinner').style.display = 'none';
     var errEl = document.getElementById('exam-loading-error');
@@ -1574,20 +1645,58 @@ async function startExam() {
   }
 }
 
+async function retryRuleBatch(ruleIdx) {
+  var baseIdx = ruleIdx * 2;
+  examQuestions[baseIdx] = { _state: 'loading' };
+  examQuestions[baseIdx + 1] = { _state: 'loading' };
+  if (examCurrentIndex === baseIdx || examCurrentIndex === baseIdx + 1) {
+    renderExamQuestion(examCurrentIndex);
+  }
+  try {
+    var batch = await fetchRuleQuestions(examSelectedRules[ruleIdx]);
+    examQuestions[baseIdx] = batch[0] || null;
+    examQuestions[baseIdx + 1] = batch[1] || null;
+  } catch(e) {
+    examQuestions[baseIdx] = { _state: 'error', ruleIdx: ruleIdx };
+    examQuestions[baseIdx + 1] = { _state: 'error', ruleIdx: ruleIdx };
+  }
+  if (examCurrentIndex === baseIdx || examCurrentIndex === baseIdx + 1) {
+    renderExamQuestion(examCurrentIndex);
+  }
+}
+
 function renderExamQuestion(index) {
   examCurrentIndex = index;
   var q = examQuestions[index];
-  var total = examQuestions.length;
+  var total = examTotalExpected;
   document.getElementById('exam-q-counter').textContent = 'Pregunta ' + (index + 1) + ' / ' + total;
   document.getElementById('exam-progress-bar').style.width = ((index / total) * 100) + '%';
   document.getElementById('exam-next-btn').style.display = 'none';
 
-  var html = (q.instruccion ? '<p class="exam-instruccion">' + q.instruccion + '</p>' : '') +
-    '<p class="exam-enunciado">' + q.enunciado + '</p>';
+  if (!q || q._state === 'loading') {
+    document.getElementById('exam-q-body').innerHTML =
+      '<div class="exam-q-pending"><div class="exam-spinner exam-spinner-sm"></div>' +
+      '<p>Cargando pregunta…</p></div>';
+    return;
+  }
+
+  if (q._state === 'error') {
+    var ri = q.ruleIdx;
+    document.getElementById('exam-q-body').innerHTML =
+      '<div class="exam-q-pending exam-q-error">' +
+      '<p>No se pudo cargar esta pregunta.</p>' +
+      '<button class="exam-action-btn" onclick="retryRuleBatch(' + ri + ')">↺ Reintentar</button>' +
+      '</div>';
+    return;
+  }
+
+  var html = (q.instruccion ? '<p class="exam-instruccion">' + esc(q.instruccion) + '</p>' : '') +
+    '<p class="exam-enunciado">' + esc(q.enunciado) + '</p>';
+
   if (q.tipo === 'elegir') {
     html += '<div class="exam-options">' +
-      q.opciones.map(function(op) {
-        return '<button class="exam-option-btn" onclick="selectExamOption(this,\'' + esc(op) + '\')">' + op + '</button>';
+      (q.opciones || []).map(function(op) {
+        return '<button class="exam-option-btn" onclick="selectExamOption(this,\'' + esc(op) + '\')">' + esc(op) + '</button>';
       }).join('') + '</div>';
   } else {
     html += '<div class="exam-input-wrap">' +
@@ -1596,8 +1705,11 @@ function renderExamQuestion(index) {
       '<button class="exam-submit-btn" onclick="submitExamInput()">→</button>' +
       '</div>';
   }
+
+  html += '<div id="exam-feedback" class="exam-feedback" style="display:none"></div>';
   document.getElementById('exam-q-body').innerHTML = html;
-  if (q.tipo === 'completar') {
+
+  if (q.tipo !== 'elegir') {
     setTimeout(function() {
       var inp = document.getElementById('exam-input');
       if (inp) inp.focus();
@@ -1605,12 +1717,41 @@ function renderExamQuestion(index) {
   }
 }
 
+function showExamFeedback(isCorrect, q) {
+  var fb = document.getElementById('exam-feedback');
+  if (!fb) return;
+  fb.className = 'exam-feedback ' + (isCorrect ? 'correct' : 'wrong');
+  var expText = q.explicacion ? '<span class="exam-fb-exp">' + esc(q.explicacion) + '</span>' : '';
+  fb.innerHTML =
+    '<span class="exam-fb-icon">' + (isCorrect ? '✓' : '✗') + '</span>' +
+    '<div class="exam-fb-text">' +
+    (isCorrect
+      ? '<strong>Correcto</strong>'
+      : 'Incorrecto — la respuesta era <strong>' + esc(q.respuesta_correcta) + '</strong>') +
+    (expText ? '<br>' + expText : '') +
+    '</div>';
+  fb.style.display = 'flex';
+
+  var isLast = examCurrentIndex >= examTotalExpected - 1;
+  var nextBtn = document.getElementById('exam-next-btn');
+  nextBtn.textContent = isLast ? 'Ver resultados' : 'Siguiente →';
+  nextBtn.style.display = '';
+}
+
 function selectExamOption(btn, value) {
   if (btn.classList.contains('selected')) return;
-  document.querySelectorAll('.exam-option-btn').forEach(function(b) { b.disabled = true; });
-  btn.classList.add('selected');
+  var q = examQuestions[examCurrentIndex];
+  var isCorrect = value.trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
+
+  document.querySelectorAll('.exam-option-btn').forEach(function(b) {
+    b.disabled = true;
+    if (b.textContent.trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase()) {
+      b.classList.add('exam-opt-correct');
+    }
+  });
+  btn.classList.add('selected', isCorrect ? 'exam-opt-correct' : 'exam-opt-wrong');
   examAnswers[examCurrentIndex] = value;
-  document.getElementById('exam-next-btn').style.display = '';
+  showExamFeedback(isCorrect, q);
 }
 
 function submitExamInput() {
@@ -1621,12 +1762,14 @@ function submitExamInput() {
   inp.disabled = true;
   var submitBtn = document.querySelector('.exam-submit-btn');
   if (submitBtn) submitBtn.disabled = true;
+  var q = examQuestions[examCurrentIndex];
+  var isCorrect = val.toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
   examAnswers[examCurrentIndex] = val;
-  document.getElementById('exam-next-btn').style.display = '';
+  showExamFeedback(isCorrect, q);
 }
 
 function examNext() {
-  if (examCurrentIndex < examQuestions.length - 1) {
+  if (examCurrentIndex < examTotalExpected - 1) {
     renderExamQuestion(examCurrentIndex + 1);
   } else {
     showExamResults();
@@ -1635,37 +1778,82 @@ function examNext() {
 
 function showExamResults() {
   hideAllExamOverlays();
-  var total = examQuestions.length;
+  var total = examTotalExpected;
   var correct = 0;
-  var items = examQuestions.map(function(q, i) {
+  var items = [];
+  for (var i = 0; i < total; i++) {
+    var q = examQuestions[i];
+    if (!q || q._state) {
+      items.push({ q: { enunciado: '—', respuesta_correcta: '—', regla_id: null }, userAnswer: '', isCorrect: false });
+      continue;
+    }
     var userAnswer = (examAnswers[i] || '').trim().toLowerCase();
     var correctAnswer = (q.respuesta_correcta || '').trim().toLowerCase();
     var isCorrect = userAnswer === correctAnswer;
     if (isCorrect) correct++;
-    return { q: q, userAnswer: examAnswers[i] || '', isCorrect: isCorrect };
-  });
+    items.push({ q: q, userAnswer: examAnswers[i] || '', isCorrect: isCorrect });
+  }
 
   var pct = Math.round((correct / total) * 100);
   var emoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚';
+  var levelLabel = examIsMixed ? 'Mixto A1–B2' : 'Nivel ' + currentLevel;
+  var rulesLabel = examSelectedRules.length + ' reglas';
 
   var html = '<h2 class="exam-score">' + emoji + ' ' + correct + ' / ' + total + '</h2>' +
-    '<p class="exam-score-sub">Nivel ' + currentLevel + ' · ' + EXAM_RULES_COUNT + ' reglas · ' + pct + '%</p>' +
+    '<p class="exam-score-sub">' + levelLabel + ' · ' + rulesLabel + ' · ' + pct + '%</p>' +
     '<div class="exam-results-list">';
   items.forEach(function(item) {
     html += '<div class="exam-result-item ' + (item.isCorrect ? 'correct' : 'wrong') + '">' +
       '<span class="exam-result-icon">' + (item.isCorrect ? '✅' : '❌') + '</span>' +
       '<div class="exam-result-detail">' +
-      '<p class="exam-result-q">' + item.q.enunciado + '</p>';
-    if (!item.isCorrect) {
-      html += '<p class="exam-result-answer">Tu respuesta: <em>' + (item.userAnswer || '—') + '</em></p>' +
-        '<p class="exam-result-answer exam-result-correct">Correcta: <strong>' + item.q.respuesta_correcta + '</strong></p>';
+      '<p class="exam-result-q">' + esc(item.q.enunciado) + '</p>';
+    if (!item.isCorrect && item.q.respuesta_correcta !== '—') {
+      html += '<p class="exam-result-answer">Tu respuesta: <em>' + esc(item.userAnswer || '—') + '</em></p>' +
+        '<p class="exam-result-answer exam-result-correct">Correcta: <strong>' + esc(item.q.respuesta_correcta) + '</strong></p>';
     }
     if (item.q.explicacion) {
-      html += '<p class="exam-result-exp">' + item.q.explicacion + '</p>';
+      html += '<p class="exam-result-exp">' + esc(item.q.explicacion) + '</p>';
     }
     html += '</div></div>';
   });
   html += '</div>';
+
+  // Rule summary for failed rules (3.3)
+  var rulePerf = {};
+  items.forEach(function(item) {
+    var rid = item.q.regla_id;
+    if (!rid) return;
+    if (!rulePerf[rid]) rulePerf[rid] = { total: 0, correct: 0 };
+    rulePerf[rid].total++;
+    if (item.isCorrect) rulePerf[rid].correct++;
+  });
+  var failedRuleIds = Object.keys(rulePerf).filter(function(rid) {
+    return rulePerf[rid].correct < rulePerf[rid].total;
+  });
+  if (failedRuleIds.length > 0) {
+    html += '<div class="exam-rule-summary"><p class="exam-rule-summary-title">📖 Reglas a repasar:</p><ul>';
+    failedRuleIds.forEach(function(rid) {
+      var perf = rulePerf[rid];
+      var rule = findRuleById(rid);
+      var title = rule ? rule.titulo : rid;
+      html += '<li>' + esc(title) + ' — ' + perf.correct + '/' + perf.total +
+        ' <a href="#' + rid + '" class="exam-rule-link" onclick="examGoToRule(\'' + esc(rid) + '\');return false;">→ Ver regla</a></li>';
+    });
+    html += '</ul></div>';
+  }
+
+  // SRS auto-update (3.6)
+  var srsUpdatedCount = 0;
+  Object.keys(rulePerf).forEach(function(rid) {
+    var perf = rulePerf[rid];
+    var rating = perf.correct === perf.total ? 4 : (perf.correct > 0 ? 2 : 1);
+    updateSRSEntry(rid, rating);
+    if (rating <= 2) srsUpdatedCount++;
+  });
+  if (srsUpdatedCount > 0) {
+    html += '<p class="exam-srs-note">✓ SRS actualizado — ' + srsUpdatedCount + ' regla' +
+      (srsUpdatedCount > 1 ? 's' : '') + ' programada' + (srsUpdatedCount > 1 ? 's' : '') + ' para repaso.</p>';
+  }
 
   document.getElementById('exam-results-body').innerHTML = html;
 
@@ -1673,11 +1861,10 @@ function showExamResults() {
   document.getElementById('exam-show-failed-btn').style.display = failedCount > 0 ? '' : 'none';
   document.getElementById('exam-results-overlay').style.display = 'flex';
 
-  // Silent insert — does not block or alert on failure
   if (window.sb && window.currentUser) {
     window.sb.from('exam_results').insert({
       user_id: window.currentUser.id,
-      level: currentLevel,
+      level: examIsMixed ? 'MIXED' : currentLevel,
       score: correct,
       total: total,
       rules: examSelectedRules.map(function(r) { return r.id; }),
@@ -1695,32 +1882,38 @@ function showExamResults() {
   }
 }
 
-function examShowFailedRules() {
+function examGoToRule(ruleId) {
   hideAllExamOverlays();
-  var items = examQuestions.map(function(q, i) {
+  var levelKey = ruleId.replace(/-.*$/, '').toUpperCase();
+  if (GRAMMAR_DATA[levelKey]) setLevel(levelKey, false);
+  openRuleId = ruleId;
+  renderAll();
+  setTimeout(function() {
+    var el = document.getElementById('rule-' + ruleId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 80);
+}
+
+function examShowFailedRules() {
+  var items = [];
+  for (var i = 0; i < examTotalExpected; i++) {
+    var q = examQuestions[i];
+    if (!q || q._state) continue;
     var isCorrect = (examAnswers[i] || '').trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
-    return { reglaId: q.regla_id, isCorrect: isCorrect };
-  });
+    items.push({ reglaId: q.regla_id, isCorrect: isCorrect });
+  }
   var failedIds = items
     .filter(function(it) { return !it.isCorrect && it.reglaId; })
     .map(function(it) { return it.reglaId; });
   if (failedIds.length === 0) return;
-
-  var levelKey = failedIds[0].replace(/-.*$/, '').toUpperCase();
-  if (GRAMMAR_DATA[levelKey]) setLevel(levelKey, false);
-  openRuleId = failedIds[0];
-  renderAll();
-  setTimeout(function() {
-    var el = document.getElementById('rule-' + openRuleId);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 80);
+  examGoToRule(failedIds[0]);
 }
 
 function examConfirmExit() {
   if (confirm('¿Salir del examen? Se perderá el progreso.')) hideAllExamOverlays();
 }
 
-async function fetchExamQuestions(rules) {
+async function fetchRuleQuestions(rule) {
   const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
   if (!token) throw new Error('no_auth');
 
@@ -1729,8 +1922,8 @@ async function fetchExamQuestions(rules) {
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
     body: JSON.stringify({
       system: EXAM_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: buildExamPrompt(rules) }],
-      max_tokens: 2000
+      messages: [{ role: 'user', content: buildExamPromptForRule(rule) }],
+      max_tokens: 700
     })
   });
 

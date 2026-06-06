@@ -24,7 +24,8 @@
       "PowerShell(npm list -g playwright 2>$null)",
       "PowerShell(npx playwright --version 2>$null)",
       "PowerShell(Get-Command chrome, msedge, firefox -ErrorAction SilentlyContinue)",
-      "Read(//c/Program Files/Google/Chrome/Application/**)"
+      "Read(//c/Program Files/Google/Chrome/Application/**)",
+      "Bash(node --check \"c:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\\\\gramatica.js\")"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

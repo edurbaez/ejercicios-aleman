@@ -263,8 +263,19 @@ Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
 |--------|--------|
 | 1 — Explicaciones didácticas | ✅ Completado (2026-06-05) |
 | 2 — Ejercicios variados + feedback | ⬜ Pendiente |
-| 3 — Examen mejorado | ⬜ Pendiente |
+| 3 — Examen mejorado | ✅ Completado (2026-06-06) |
 | 4 — UX y variedad visual | ⬜ Pendiente |
+
+### Bloque 3 — Detalle de lo implementado
+
+- **3.1 Nuevos tipos en el examen**: `EXAM_SYSTEM_PROMPT` ampliado con `detectar_error`, `transformar`, `ordenar`. Cada llamada pide 2 ejercicios de tipos variados por regla.
+- **3.2 Feedback inmediato por pregunta**: `selectExamOption` y `submitExamInput` muestran `showExamFeedback()` con ✓/✗, respuesta correcta y `q.explicacion`. Las opciones se colorean (verde/rojo) al responder.
+- **3.3 Resumen por regla en resultados**: `showExamResults()` agrupa por `regla_id` y muestra "📖 Reglas a repasar:" con contador N/M y enlace "→ Ver regla" que abre el acordeón.
+- **3.4 Examen incremental**: `startExamWithRules()` hace fetch de la primera regla para desbloquear la UI, luego las restantes en paralelo. Si una falla, muestra estado `{_state:'error'}` con botón "↺ Reintentar". `renderExamQuestion` maneja estados `loading` / `error` / normal.
+- **3.5 Examen mixto**: `startMixedExam()` — botón "🎲 Mixto" en la barra. Elige 2 reglas al azar de A1, A2, B1, B2 (= 8 reglas / ~16 preguntas). `examRepeat()` repite el tipo correcto al terminar.
+- **3.6 SRS automático desde resultados**: `showExamResults()` calcula rating por regla (1/2/4) y llama `updateSRSEntry()`. Muestra "✓ SRS actualizado — N reglas programadas para repaso."
+
+---
 
 ### Bloque 1 — Detalle de lo implementado
 

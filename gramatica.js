@@ -974,6 +974,10 @@ let fcFlipped = false;
 let fcTouchStartX = 0;
 let fcTouchStartY = 0;
 
+// ─── Quiz session state ───────────────────────────────────────────────────────
+let quizSession = null;
+let ordenarSelected = [];
+
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('gram_favs') || '[]'); } catch(e) { return []; } }
 function saveFavs(arr) { localStorage.setItem('gram_favs', JSON.stringify(arr)); }
@@ -1346,76 +1350,246 @@ function toggleRule(id) {
 }
 
 // ─── Quiz ─────────────────────────────────────────────────────────────────────
-function getAllExamples() {
-  var all = [];
-  for (var i = 0; i < LEVELS.length; i++) {
-    GRAMMAR_DATA[LEVELS[i]].forEach(function(r) { r.ejemplos.forEach(function(e) { all.push(e.de); }); });
+const ARTICLE_SET = new Set(['der','die','das','den','dem','des','ein','eine','einen','einem','einer','eines','kein','keine','keinen','keinem','keiner','keines']);
+
+function detectArticle(sentence) {
+  const words = sentence.split(/\s+/);
+  for (let i = 0; i < words.length; i++) {
+    const clean = words[i].replace(/[.,!?]$/, '').toLowerCase();
+    if (ARTICLE_SET.has(clean)) return { idx: i, clean };
   }
-  return all;
+  return null;
+}
+
+function getDailyScore() {
+  try {
+    const d = JSON.parse(localStorage.getItem('gram_daily') || '{}');
+    return d.date === new Date().toDateString() ? (d.score || 0) : 0;
+  } catch(e) { return 0; }
+}
+
+function incrementDailyScore() {
+  try {
+    const today = new Date().toDateString();
+    const d = JSON.parse(localStorage.getItem('gram_daily') || '{}');
+    const score = (d.date === today ? d.score : 0) + 1;
+    localStorage.setItem('gram_daily', JSON.stringify({ date: today, score }));
+  } catch(e) {}
+  updateDailyDisplay();
+}
+
+function updateDailyDisplay() {
+  const el = document.getElementById('gram-daily-score');
+  if (!el) return;
+  const n = getDailyScore();
+  el.textContent = 'Hoy: ' + n + ' ✓';
+  el.style.display = n > 0 ? '' : 'none';
+}
+
+function safeAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildQOpcion(rule, ex, type) {
+  const lvl = LEVELS.find(l => GRAMMAR_DATA[l].some(r => r.id === rule.id));
+  let pool = [];
+  GRAMMAR_DATA[lvl].forEach(r => { if (r.id !== rule.id) r.ejemplos.forEach(e => pool.push(e)); });
+  pool = [...rule.ejemplos.filter(e => e !== ex), ...pool].sort(() => Math.random() - 0.5);
+  const dist = pool.slice(0, 3);
+  if (type === 'opcion_multiple') {
+    return { type, example: ex, correct: ex.de, options: [ex.de, ...dist.map(d => d.de)].sort(() => Math.random() - 0.5) };
+  }
+  return { type, example: ex, correct: ex.es, options: [ex.es, ...dist.map(d => d.es)].sort(() => Math.random() - 0.5) };
+}
+
+function buildQOrdenar(ex) {
+  const raw = ex.de.replace(/[.!?,]$/, '');
+  const words = raw.split(/\s+/);
+  if (words.length < 3 || words.length > 8) return null;
+  let shuffled = words.slice().sort(() => Math.random() - 0.5);
+  let tries = 0;
+  while (shuffled.join(' ') === words.join(' ') && ++tries < 10) shuffled.sort(() => Math.random() - 0.5);
+  return { type: 'ordenar', example: ex, words: shuffled, correct: words.join(' ') };
+}
+
+function buildQArticulo(ex) {
+  const art = detectArticle(ex.de);
+  if (!art) return null;
+  const parts = ex.de.split(/\s+/);
+  parts[art.idx] = '___';
+  const pool = [...ARTICLE_SET].filter(a => a !== art.clean).sort(() => Math.random() - 0.5);
+  return { type: 'articulo', example: ex, sentence: parts.join(' '), correct: art.clean, options: [art.clean, ...pool.slice(0, 3)].sort(() => Math.random() - 0.5) };
+}
+
+function buildQuizQuestions(rule) {
+  const exs = rule.ejemplos.slice().sort(() => Math.random() - 0.5);
+  const pool = [exs[0], exs[1 % exs.length], exs[2 % exs.length]];
+  const used = new Set();
+  return pool.map(ex => {
+    const typeOrder = ['opcion_multiple', 'identificar', 'ordenar', 'articulo'].sort(() => Math.random() - 0.5);
+    for (const t of typeOrder) {
+      if (used.has(t)) continue;
+      let q = null;
+      if (t === 'opcion_multiple' || t === 'identificar') q = buildQOpcion(rule, ex, t);
+      else if (t === 'ordenar') q = buildQOrdenar(ex);
+      else if (t === 'articulo') q = buildQArticulo(ex);
+      if (q) { used.add(t); return q; }
+    }
+    return buildQOpcion(rule, ex, used.has('opcion_multiple') ? 'identificar' : 'opcion_multiple');
+  });
 }
 
 function startQuiz(ruleId) {
-  var rule = null;
-  for (var i = 0; i < LEVELS.length; i++) {
-    var found = GRAMMAR_DATA[LEVELS[i]].find(function(r) { return r.id === ruleId; });
-    if (found) { rule = found; break; }
+  let rule = null;
+  for (const lvl of LEVELS) {
+    rule = GRAMMAR_DATA[lvl].find(r => r.id === ruleId);
+    if (rule) break;
   }
-  if (!rule || rule.ejemplos.length === 0) return;
-  var qIdx = Math.floor(Math.random() * rule.ejemplos.length);
-  var correct = rule.ejemplos[qIdx];
-  // Prefer distractors from the same rule, then same level, then any rule
-  var sameRuleDe = rule.ejemplos
-    .filter(function(_, i) { return i !== qIdx; })
-    .map(function(e) { return e.de; });
-  var distractors = sameRuleDe.slice();
-  if (distractors.length < 3) {
-    var lvl = LEVELS.find(function(l) { return GRAMMAR_DATA[l].some(function(r) { return r.id === ruleId; }); });
-    var sameLvl = [];
-    GRAMMAR_DATA[lvl].forEach(function(r) {
-      if (r.id !== ruleId) r.ejemplos.forEach(function(e) { sameLvl.push(e.de); });
-    });
-    sameLvl.sort(function() { return Math.random() - 0.5; });
-    distractors = distractors.concat(sameLvl.slice(0, 3 - distractors.length));
-  }
-  var options = [correct.de].concat(distractors).sort(function() { return Math.random() - 0.5; });
-  var optsHtml = options.map(function(opt) {
-    return '<button class="gram-quiz-opt" onclick="checkQuiz(this,\'' + esc(correct.de) + '\',\'' + esc(opt) + '\',\'quiz-' + ruleId + '\')">' + opt + '</button>';
-  }).join('');
-  var wrap = document.getElementById('quiz-' + ruleId);
-  wrap.innerHTML =
-    '<div class="gram-quiz-question"><small>¿Cómo se dice en alemán?</small>' + correct.es + '</div>' +
-    '<div class="gram-quiz-options">' + optsHtml + '</div>' +
-    '<div class="gram-quiz-feedback" id="qfb-' + ruleId + '"></div>' +
-    '<div class="gram-quiz-actions">' +
-    '<button class="gram-quiz-btn primary" onclick="startQuiz(\'' + ruleId + '\')">Nueva pregunta</button>' +
-    '<button class="gram-quiz-btn" onclick="resetQuiz(\'' + ruleId + '\')">Cerrar</button>' +
-    '</div>';
+  if (!rule || !rule.ejemplos.length) return;
+  quizSession = { ruleId, rule, questions: buildQuizQuestions(rule), currentIndex: 0, results: [] };
+  ordenarSelected = [];
+  renderQuizQuestion();
 }
 
-function checkQuiz(btn, correct, chosen, wrapId) {
-  var wrap = document.getElementById(wrapId);
-  var opts = wrap.querySelectorAll('.gram-quiz-opt');
-  opts.forEach(function(o) {
-    o.disabled = true;
-    if (o.textContent.trim() === correct) o.classList.add('correct');
-  });
-  var fb = wrap.querySelector('.gram-quiz-feedback');
-  if (chosen === correct) {
-    btn.classList.add('correct');
-    fb.textContent = '✓ ¡Correcto!';
-  } else {
-    btn.classList.add('wrong');
-    fb.textContent = '✗ La respuesta correcta era: "' + correct + '"';
+function renderQuizQuestion() {
+  const { ruleId, questions, currentIndex } = quizSession;
+  const q = questions[currentIndex];
+  const wrap = document.getElementById('quiz-' + ruleId);
+  const pct = (currentIndex / questions.length * 100).toFixed(0);
+
+  let bodyHtml = '';
+  if (q.type === 'opcion_multiple') {
+    const opts = q.options.map(o =>
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+    ).join('');
+    bodyHtml = '<div class="gram-quiz-question"><small>¿Cómo se dice en alemán?</small>' + q.example.es + '</div>' +
+      '<div class="gram-quiz-options">' + opts + '</div>';
+  } else if (q.type === 'identificar') {
+    const opts = q.options.map(o =>
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+    ).join('');
+    bodyHtml = '<div class="gram-quiz-question"><small>¿Qué significa en español?</small>' + q.example.de + '</div>' +
+      '<div class="gram-quiz-options">' + opts + '</div>';
+  } else if (q.type === 'articulo') {
+    const opts = q.options.map(o =>
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+    ).join('');
+    bodyHtml = '<div class="gram-quiz-question"><small>Completa con el artículo correcto:</small>' + q.sentence + '</div>' +
+      '<div class="gram-quiz-options gram-quiz-opts-4">' + opts + '</div>';
+  } else if (q.type === 'ordenar') {
+    const wordBtns = q.words.map((w, i) =>
+      '<button class="gram-quiz-word" onclick="ordenarClick(this,' + i + ')">' + w + '</button>'
+    ).join('');
+    bodyHtml = '<div class="gram-quiz-question"><small>Ordena las palabras:</small>' +
+      '<small class="gram-quiz-q-hint">' + q.example.es + '</small></div>' +
+      '<div class="gram-quiz-ordenar-result" id="ordenar-result">' +
+        '<span class="gram-quiz-ordenar-placeholder">Toca las palabras en orden…</span>' +
+      '</div>' +
+      '<div class="gram-quiz-ordenar-words" id="ordenar-words">' + wordBtns + '</div>' +
+      '<button class="gram-quiz-btn primary" id="submit-ordenar" onclick="submitOrdenar()" disabled>Comprobar</button>';
   }
+
+  wrap.innerHTML =
+    '<div class="gram-quiz-progress">' +
+      '<div class="gram-quiz-progress-track">' +
+        '<div class="gram-quiz-progress-bar" style="width:' + pct + '%"></div>' +
+      '</div>' +
+      '<span class="gram-quiz-progress-label">' + (currentIndex + 1) + ' / ' + questions.length + '</span>' +
+    '</div>' +
+    bodyHtml +
+    '<div class="gram-quiz-feedback" id="qfb-' + ruleId + '"></div>';
+}
+
+function checkQuizAnswer(chosen) {
+  const { ruleId, questions, currentIndex, rule } = quizSession;
+  const q = questions[currentIndex];
+  const isCorrect = chosen === q.correct;
+
+  document.querySelectorAll('#quiz-' + ruleId + ' .gram-quiz-opt, #submit-ordenar').forEach(b => { b.disabled = true; });
+  document.querySelectorAll('#quiz-' + ruleId + ' .gram-quiz-opt').forEach(b => {
+    if (b.dataset.val === q.correct) b.classList.add('correct');
+    else if (b.dataset.val === chosen && !isCorrect) b.classList.add('wrong');
+  });
+
+  quizSession.results.push(isCorrect);
+  if (isCorrect) incrementDailyScore();
+
+  const isLast = currentIndex >= questions.length - 1;
+  const fb = document.getElementById('qfb-' + ruleId);
+  fb.innerHTML =
+    (isCorrect ? '<span class="qfb-correct">✓ ¡Correcto!</span>' : '<span class="qfb-wrong">✗ Era: <strong>' + q.correct + '</strong></span>') +
+    '<div class="qfb-tip">💡 ' + rule.tip + '</div>' +
+    '<div class="gram-quiz-actions">' +
+    (isLast
+      ? '<button class="gram-quiz-btn primary" onclick="showQuizResult()">Ver resultado →</button>'
+      : '<button class="gram-quiz-btn primary" onclick="nextQuizQuestion()">Siguiente →</button>') +
+    '</div>';
   fb.classList.add('visible');
 }
 
-function resetQuiz(ruleId) {
-  var wrap = document.getElementById('quiz-' + ruleId);
-  wrap.innerHTML = '<div class="gram-quiz-actions">' +
-    '<button class="gram-quiz-btn" onclick="startQuiz(\'' + ruleId + '\')">&#127919; Practicar</button>' +
-    '<button class="gram-quiz-btn" onclick="copyRuleLink(\'' + ruleId + '\')">&#128279; Copiar enlace</button>' +
+function nextQuizQuestion() {
+  quizSession.currentIndex++;
+  ordenarSelected = [];
+  renderQuizQuestion();
+}
+
+function showQuizResult() {
+  const { ruleId, results } = quizSession;
+  const correct = results.filter(Boolean).length;
+  const total = results.length;
+  updateSRSEntry(ruleId, correct === total ? 4 : correct >= 2 ? 3 : 1);
+  const stars = ['☆☆☆','★☆☆','★★☆','★★★'][correct] || '★★★';
+  const rachaHtml = correct === total ? '<div class="gram-quiz-racha">⚡ ¡Racha perfecta!</div>' : '';
+  document.getElementById('quiz-' + ruleId).innerHTML =
+    rachaHtml +
+    '<div class="gram-quiz-result">' +
+      '<div class="gram-quiz-result-score">' + correct + ' / ' + total + '</div>' +
+      '<div class="gram-quiz-result-stars">' + stars + '</div>' +
+    '</div>' +
+    '<div class="gram-quiz-actions">' +
+      '<button class="gram-quiz-btn primary" onclick="startQuiz(\'' + ruleId + '\')">↺ Repetir</button>' +
+      '<button class="gram-quiz-btn" onclick="resetQuiz(\'' + ruleId + '\')">Cerrar</button>' +
     '</div>';
+}
+
+function resetQuiz(ruleId) {
+  quizSession = null;
+  ordenarSelected = [];
+  document.getElementById('quiz-' + ruleId).innerHTML =
+    '<div class="gram-quiz-actions">' +
+      '<button class="gram-quiz-btn" onclick="startQuiz(\'' + ruleId + '\')">&#127919; Practicar</button>' +
+      '<button class="gram-quiz-btn" onclick="copyRuleLink(\'' + ruleId + '\')">&#128279; Copiar enlace</button>' +
+      (KASUS_LINKS[ruleId]
+        ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?caso=' + KASUS_LINKS[ruleId] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
+        : '') +
+    '</div>';
+}
+
+function ordenarClick(btn, idx) {
+  if (btn.classList.contains('used')) {
+    const pos = ordenarSelected.indexOf(idx);
+    if (pos !== -1) { ordenarSelected.splice(pos, 1); btn.classList.remove('used'); }
+  } else {
+    ordenarSelected.push(idx);
+    btn.classList.add('used');
+  }
+  updateOrdenarResult();
+}
+
+function updateOrdenarResult() {
+  const q = quizSession.questions[quizSession.currentIndex];
+  const el = document.getElementById('ordenar-result');
+  const btn = document.getElementById('submit-ordenar');
+  if (!el) return;
+  const text = ordenarSelected.map(i => q.words[i]).join(' ');
+  el.innerHTML = text
+    ? '<span>' + text + '</span>'
+    : '<span class="gram-quiz-ordenar-placeholder">Toca las palabras en orden…</span>';
+  if (btn) btn.disabled = ordenarSelected.length !== q.words.length;
+}
+
+function submitOrdenar() {
+  checkQuizAnswer(ordenarSelected.map(i => quizSession.questions[quizSession.currentIndex].words[i]).join(' '));
 }
 
 // ─── Share URL ─────────────────────────────────────────────────────────────────
@@ -2149,6 +2323,7 @@ document.addEventListener('DOMContentLoaded', function() {
   openRuleId = parsed.ruleId;
   if (parsed.ruleId) markRead(parsed.ruleId);
   renderAll();
+  updateDailyDisplay();
   if (parsed.ruleId) {
     setTimeout(function() {
       var el = document.getElementById('rule-' + parsed.ruleId);

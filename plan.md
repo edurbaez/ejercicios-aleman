@@ -262,9 +262,20 @@ Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
 | Bloque | Estado |
 |--------|--------|
 | 1 — Explicaciones didácticas | ✅ Completado (2026-06-05) |
-| 2 — Ejercicios variados + feedback | ⬜ Pendiente |
+| 2 — Ejercicios variados + feedback | ✅ Completado (2026-06-11) |
 | 3 — Examen mejorado | ✅ Completado (2026-06-06) |
 | 4 — UX y variedad visual | ✅ Completado (2026-06-11) |
+
+### Bloque 2 — Detalle de lo implementado
+
+- **2.1 Nuevos tipos de ejercicio inline**: 4 tipos generados dinámicamente desde `GRAMMAR_DATA` sin API:
+  - `opcion_multiple` — elige la frase alemana dado el español (existía, mejorado).
+  - `identificar` — elige la traducción española dado el alemán (nuevo, inverso).
+  - `ordenar` — palabras de un ejemplo mezcladas; el estudiante toca en orden para reconstruir la frase. Solo aplica a ejemplos de 3–8 palabras. Botón "Comprobar" activado al colocar todas.
+  - `articulo` — auto-detecta el primer artículo en el ejemplo alemán, lo reemplaza con `___` y ofrece 4 opciones de artículo. Aplica a cualquier ejemplo con artículo (der/die/das/den/dem…).
+- **2.2 Feedback explicativo**: después de responder, el feedback muestra ✓/✗ + respuesta correcta + el `tip` completo de la regla (`💡`). Siempre visible tanto en acierto como en error.
+- **2.3 Mini-racha de 3 preguntas**: `QuizSession` ({ruleId, rule, questions, currentIndex, results}) gestiona 3 preguntas consecutivas con tipos variados. Barra de progreso en la parte superior (`gram-quiz-progress-track`). Al terminar: resultado `N/3` con estrellas (★☆☆ → ★★★), SRS actualizado automáticamente (rating 1/3/4), y botones Repetir / Cerrar.
+- **2.4 Gamificación liviana**: animación `⚡ ¡Racha perfecta!` CSS (`racha-pop`) cuando se aciertan las 3 preguntas. Contador diario `gram_daily_score` en `localStorage` (por fecha), mostrado en la barra de herramientas como "Hoy: N ✓" (badge verde, oculto si N = 0). Funciones: `getDailyScore()`, `incrementDailyScore()`, `updateDailyDisplay()`.
 
 ### Bloque 4 — Detalle de lo implementado
 

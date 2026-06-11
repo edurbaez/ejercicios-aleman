@@ -264,7 +264,14 @@ Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
 | 1 — Explicaciones didácticas | ✅ Completado (2026-06-05) |
 | 2 — Ejercicios variados + feedback | ⬜ Pendiente |
 | 3 — Examen mejorado | ✅ Completado (2026-06-06) |
-| 4 — UX y variedad visual | ⬜ Pendiente |
+| 4 — UX y variedad visual | ✅ Completado (2026-06-11) |
+
+### Bloque 4 — Detalle de lo implementado
+
+- **4.1 Modo Flashcard**: botón "🃏 Flashcards" en la barra de niveles. Overlay con tarjeta flip 3D (CSS `rotateY`). Anverso: título, subtítulo, `regla_base` y tip. Reverso: `regla_base`, tabla, excepciones, explicación y primeros 3 ejemplos. Navegación con botones, teclado (←→ navegar, Espacio/Enter voltear, Escape cerrar) y swipe táctil horizontal. Si estaba en modo favoritos muestra solo esas reglas; si no, las del nivel activo. Función `openFlashcards()`, `closeFlashcards()`, `flipCard()`, `flashcardNav()`, `renderFlashcard()`.
+- **4.2 Indicador de progreso circular**: sustituye el `done/total` textual en las pestañas de nivel por un anillo SVG inline (`gram-ring`, r=9, `stroke-dasharray` proporcional al progreso). El texto `done/total` se mantiene dentro del SVG. El trazo del anillo activo pasa a blanco cuando la pestaña está seleccionada.
+- **4.3 Estimación de tiempo de lectura**: cada tarjeta de regla muestra `~N min · 3 ej.` debajo del subtítulo. El tiempo se calcula con `Math.ceil(explicacion.split(' ').length / 200)`. Estilo `.gram-rule-readtime`.
+- **4.4 Historial de exámenes**: botón "📊 Historial" en la barra de niveles. Panel modal que consulta `exam_results` en Supabase (últimas 5 entradas del usuario), mostrando nivel, puntuación con porcentaje y fecha. Maneja no-auth y sin resultados con mensaje descriptivo. Función `openHistory()`, `closeHistory()`.
 
 ### Bloque 3 — Detalle de lo implementado
 

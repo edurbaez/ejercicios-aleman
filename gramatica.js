@@ -967,6 +967,13 @@ let examSelectedRules = [];
 let examTotalExpected = 0;
 let examIsMixed = false;
 
+// ─── Flashcard state ──────────────────────────────────────────────────────────
+let fcRules = [];
+let fcIndex = 0;
+let fcFlipped = false;
+let fcTouchStartX = 0;
+let fcTouchStartY = 0;
+
 // ─── Persistence helpers ──────────────────────────────────────────────────────
 function getFavs() { try { return JSON.parse(localStorage.getItem('gram_favs') || '[]'); } catch(e) { return []; } }
 function saveFavs(arr) { localStorage.setItem('gram_favs', JSON.stringify(arr)); }
@@ -1172,18 +1179,35 @@ function renderAll() {
   updateSrsBadge();
 }
 
+function levelProgressRing(done, total) {
+  var r = 9, circ = 2 * Math.PI * r;
+  var filled = (done / total) * circ;
+  var trackColor = 'rgba(128,128,128,0.25)';
+  return '<svg class="gram-ring" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="' + r + '" fill="none" stroke="' + trackColor + '" stroke-width="2.5"/>' +
+    (done > 0
+      ? '<circle cx="12" cy="12" r="' + r + '" fill="none" stroke="currentColor" stroke-width="2.5"' +
+        ' stroke-dasharray="' + filled.toFixed(1) + ' ' + circ.toFixed(1) + '"' +
+        ' transform="rotate(-90 12 12)"/>'
+      : '') +
+    '<text x="12" y="16" text-anchor="middle" font-size="7" fill="currentColor">' + done + '/' + total + '</text>' +
+    '</svg>';
+}
+
 function renderLevelTabs() {
   const bar = document.getElementById('gram-level-bar');
   const favsActive = showFavsOnly;
   bar.innerHTML = LEVELS.map(lvl => {
     const { done, total } = getLevelProgress(lvl);
-    const prog = done > 0 ? ' <span class="gram-level-progress">' + done + '/' + total + '</span>' : '';
+    const ring = levelProgressRing(done, total);
     return '<button class="gram-level-btn' + (lvl === currentLevel && !favsActive ? ' active' : '') +
-      '" onclick="setLevel(\'' + lvl + '\')">' + lvl + prog + '</button>';
+      '" onclick="setLevel(\'' + lvl + '\')">' + lvl + ring + '</button>';
   }).join('') +
   '<button class="gram-level-btn' + (favsActive ? ' active' : '') + '" id="fav-level-btn" onclick="toggleFavFilter()">&#9733; Favs</button>' +
   '<button class="gram-level-btn exam-level-btn" id="exam-start-btn" onclick="startExam()">&#128221; Examen</button>' +
-  '<button class="gram-level-btn exam-mixed-btn" id="exam-mixed-btn" onclick="startMixedExam()">&#127922; Mixto</button>';
+  '<button class="gram-level-btn exam-mixed-btn" id="exam-mixed-btn" onclick="startMixedExam()">&#127922; Mixto</button>' +
+  '<button class="gram-level-btn fc-level-btn" onclick="openFlashcards()">&#127183; Flashcards</button>' +
+  '<button class="gram-level-btn history-level-btn" onclick="openHistory()">&#128202; Historial</button>';
   document.getElementById('gram-toolbar').style.display = '';
 }
 
@@ -1275,6 +1299,7 @@ function renderRuleCard(rule, i, read, showLevel) {
     '<span class="gram-rule-titles">' +
     '<span class="gram-rule-title">' + rule.titulo + badge + '</span>' +
     '<span class="gram-rule-subtitle">' + rule.subtitulo + '</span>' +
+    '<span class="gram-rule-readtime">~' + Math.ceil(rule.explicacion.split(' ').length / 200) + ' min · 3 ej.</span>' +
     '</span>' +
     '<button class="gram-fav-btn' + favClass + '" onclick="toggleFav(\'' + esc(rule.id) + '\',event)" title="' + favTitle + '">' + favMark + '</button>' +
     '<span class="gram-rule-chevron">' + (isOpen ? '&#9650;' : '&#9660;') + '</span>' +
@@ -1955,6 +1980,137 @@ async function fetchRuleQuestions(rule) {
 
   if (!Array.isArray(questions) || questions.length === 0) throw new Error('empty_response');
   return questions;
+}
+
+// ─── Flashcard mode ──────────────────────────────────────────────────────────
+function openFlashcards() {
+  fcRules = showFavsOnly
+    ? (function() {
+        var favs = getFavs(), all = [];
+        for (var l of LEVELS) GRAMMAR_DATA[l].forEach(function(r) { if (favs.includes(r.id)) all.push(r); });
+        return all;
+      })()
+    : GRAMMAR_DATA[currentLevel].slice();
+  if (fcRules.length === 0) { showToast('No hay reglas para mostrar.'); return; }
+  fcIndex = 0;
+  fcFlipped = false;
+  renderFlashcard();
+  document.getElementById('fc-overlay').style.display = 'flex';
+}
+
+function closeFlashcards() {
+  document.getElementById('fc-overlay').style.display = 'none';
+}
+
+function renderFlashcard() {
+  var rule = fcRules[fcIndex];
+  if (!rule) return;
+  var card = document.getElementById('fc-card');
+  card.classList.toggle('flipped', fcFlipped);
+
+  var readTimeMin = Math.ceil(rule.explicacion.split(' ').length / 200);
+  var frontHtml =
+    '<span class="fc-front-num">Regla ' + (fcIndex + 1) + ' de ' + fcRules.length + '</span>' +
+    '<span class="fc-front-title">' + rule.titulo + '</span>' +
+    '<span class="fc-front-sub">' + rule.subtitulo + '</span>' +
+    (rule.regla_base ? '<div class="fc-front-base">' + rule.regla_base + '</div>' : '') +
+    '<div class="fc-front-tip">💡 ' + rule.tip + '</div>';
+
+  var backExamples = rule.ejemplos.slice(0, 3).map(function(ej) {
+    return '<div class="fc-back-ej"><strong>' + ej.de + '</strong> → ' + ej.es + '</div>';
+  }).join('');
+
+  var backHtml =
+    '<span class="fc-back-title">' + rule.titulo + '</span>' +
+    (rule.regla_base ? '<div class="gram-regla-base" style="font-size:13px;margin-bottom:8px"><span class="gram-regla-base-icon">📌</span>' + rule.regla_base + '</div>' : '') +
+    (rule.tabla ? renderTabla(rule.tabla) : '') +
+    (rule.excepciones ? '<div class="gram-excepcion" style="font-size:12px;margin-bottom:8px"><span class="gram-excepcion-icon">⚠️</span><span>' + rule.excepciones + '</span></div>' : '') +
+    '<p class="fc-back-exp">' + rule.explicacion + '</p>' +
+    '<div class="fc-back-examples">' + backExamples + '</div>' +
+    '<span style="font-size:11px;opacity:0.4;margin-top:8px">~' + readTimeMin + ' min</span>';
+
+  document.getElementById('fc-front').innerHTML = frontHtml;
+  document.getElementById('fc-back').innerHTML = backHtml;
+  document.getElementById('fc-counter').textContent = (fcIndex + 1) + ' / ' + fcRules.length;
+  document.getElementById('fc-hint').textContent = fcFlipped ? 'Toca para ocultar' : 'Toca para ver';
+  document.getElementById('fc-prev').disabled = fcIndex === 0;
+  document.getElementById('fc-next').textContent = fcIndex === fcRules.length - 1 ? '✓ Fin' : 'Siguiente →';
+}
+
+function flipCard() {
+  fcFlipped = !fcFlipped;
+  document.getElementById('fc-card').classList.toggle('flipped', fcFlipped);
+  document.getElementById('fc-hint').textContent = fcFlipped ? 'Toca para ocultar' : 'Toca para ver';
+}
+
+function flashcardNav(dir) {
+  var next = fcIndex + dir;
+  if (next < 0 || next >= fcRules.length) {
+    if (dir > 0 && next >= fcRules.length) closeFlashcards();
+    return;
+  }
+  fcIndex = next;
+  fcFlipped = false;
+  renderFlashcard();
+}
+
+(function initFlashcardKeys() {
+  document.addEventListener('keydown', function(e) {
+    if (document.getElementById('fc-overlay').style.display === 'none') return;
+    if (e.key === 'ArrowRight') flashcardNav(1);
+    else if (e.key === 'ArrowLeft') flashcardNav(-1);
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flipCard(); }
+    else if (e.key === 'Escape') closeFlashcards();
+  });
+  document.getElementById('fc-overlay').addEventListener('touchstart', function(e) {
+    fcTouchStartX = e.touches[0].clientX;
+    fcTouchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.getElementById('fc-overlay').addEventListener('touchend', function(e) {
+    if (e.target.closest('.fc-modal') === null) return;
+    var dx = e.changedTouches[0].clientX - fcTouchStartX;
+    var dy = e.changedTouches[0].clientY - fcTouchStartY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      flashcardNav(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+})();
+
+// ─── Exam history ─────────────────────────────────────────────────────────────
+async function openHistory() {
+  document.getElementById('history-overlay').style.display = 'flex';
+  var body = document.getElementById('history-body');
+  body.innerHTML = '<div class="history-empty">Cargando…</div>';
+
+  if (!window.sb || !window.currentUser) {
+    body.innerHTML = '<div class="history-empty">Inicia sesión para ver tu historial.</div>';
+    return;
+  }
+
+  var res = await window.sb.from('exam_results')
+    .select('level,score,total,created_at')
+    .eq('user_id', window.currentUser.id)
+    .order('created_at', { ascending: false })
+    .limit(5);
+
+  if (res.error || !res.data || res.data.length === 0) {
+    body.innerHTML = '<div class="history-empty">No hay exámenes registrados todavía.</div>';
+    return;
+  }
+
+  body.innerHTML = res.data.map(function(row) {
+    var pct = row.total > 0 ? Math.round((row.score / row.total) * 100) : 0;
+    var date = new Date(row.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    return '<div class="history-row">' +
+      '<span class="history-row-level">' + row.level + '</span>' +
+      '<span class="history-row-score">' + row.score + ' / ' + row.total + ' <span style="opacity:0.5;font-size:13px">(' + pct + '%)</span></span>' +
+      '<span class="history-row-date">' + date + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function closeHistory() {
+  document.getElementById('history-overlay').style.display = 'none';
 }
 
 // ─── Dark mode ────────────────────────────────────────────────────────────────

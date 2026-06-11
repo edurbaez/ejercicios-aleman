@@ -113,6 +113,34 @@
         </div>
     </div>
 
+    <!-- Flashcard overlay -->
+    <div id="fc-overlay" class="fc-overlay" style="display:none" onclick="if(event.target===this)closeFlashcards()">
+        <div class="fc-modal">
+            <button class="fc-close" onclick="closeFlashcards()">✕</button>
+            <div id="fc-counter" class="fc-counter"></div>
+            <div class="fc-scene" onclick="flipCard()">
+                <div class="fc-card" id="fc-card">
+                    <div class="fc-front" id="fc-front"></div>
+                    <div class="fc-back" id="fc-back"></div>
+                </div>
+            </div>
+            <div id="fc-hint" class="fc-hint">Toca para ver</div>
+            <div class="fc-nav">
+                <button id="fc-prev" onclick="flashcardNav(-1)">← Anterior</button>
+                <button id="fc-next" onclick="flashcardNav(1)">Siguiente →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam history overlay -->
+    <div id="history-overlay" class="fc-overlay" style="display:none" onclick="if(event.target===this)closeHistory()">
+        <div class="history-modal">
+            <button class="fc-close" onclick="closeHistory()">✕</button>
+            <h3 class="history-title">📊 Últimos exámenes</h3>
+            <div id="history-body" class="history-body"></div>
+        </div>
+    </div>
+
     <script src="gramatica.js"></script>
 </body>
 </html>

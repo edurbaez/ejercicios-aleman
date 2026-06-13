@@ -272,39 +272,10 @@
     State.timerId = null;
   }
 
-  /* ── TTS con API OpenAI + fallback navegador ─────── */
-
-  const _ttsCache = new Map(); // word → blob URL
+  /* ── TTS navegador ─────────────────────────────────── */
 
   async function speakOnce(text, lang) {
     if (!text) return;
-    if (lang === 'de') {
-      try {
-        const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
-        if (token) {
-          if (!_ttsCache.has(text)) {
-            const resp = await fetch('/api/tts', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ text, voice: 'onyx' }),
-            });
-            if (resp.ok) {
-              const blob = await resp.blob();
-              _ttsCache.set(text, URL.createObjectURL(blob));
-            }
-          }
-          if (_ttsCache.has(text)) {
-            return new Promise(resolve => {
-              const audio = new Audio(_ttsCache.get(text));
-              audio.onended = resolve;
-              audio.onerror = resolve;
-              audio.play().catch(resolve);
-            });
-          }
-        }
-      } catch {}
-    }
-    // Fallback: TTS del navegador
     return new Promise(resolve => {
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang; u.onend = resolve; u.onerror = resolve;

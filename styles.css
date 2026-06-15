@@ -814,7 +814,7 @@ th, td {
 }
 
 .cv-new-btn {
-    padding: 6px 14px;
+    padding: 6px 8px;
     border: 2px solid var(--border);
     background: none;
     border-radius: 6px;
@@ -822,6 +822,10 @@ th, td {
     font-size: 13px;
     color: var(--text);
     transition: 0.15s;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cv-new-btn:hover {
@@ -839,6 +843,14 @@ th, td {
     font-size: 13px;
     color: var(--text);
     transition: 0.15s;
+}
+
+.cv-guided-toggle {
+    padding: 6px 8px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cv-context-btn:hover {
@@ -1202,6 +1214,29 @@ th, td {
     background: #e65100;
     border-color: #e65100;
     color: #fff;
+}
+
+.cv-btn-flash {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-size: 11px;
+    white-space: nowrap;
+    padding: 3px 8px;
+    border-radius: 4px;
+    pointer-events: none;
+    animation: cv-flash 0.55s ease forwards;
+    z-index: 100;
+}
+
+@keyframes cv-flash {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+    20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(0); }
 }
 
 .cv-guided-panel {

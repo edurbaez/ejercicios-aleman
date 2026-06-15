@@ -57,10 +57,10 @@
             </div>
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
-                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()">Sugerencia</button>
-                <button class="cv-guided-toggle" id="repetirBtn" onclick="toggleRepetirMode()">Repetir</button>
+                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()" title="Sugerencia"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg></button>
+                <button class="cv-guided-toggle" id="repetirBtn" onclick="toggleRepetirMode()" title="Repetir"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></button>
                 <!-- Premium voice option available: togglePremiumTTS() uses OpenAI tts-1 instead of browser TTS (~$0.015/1000 chars). Logic in State.premiumTTS + togglePremiumTTS(). Re-add #premiumTtsBtn button to expose it. -->
-                <button class="cv-new-btn" onclick="newConversation()">Nueva conversación</button>
+                <button class="cv-new-btn" id="newConvBtn" onclick="newConversation()" title="Nueva conversación"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="10" y1="10" x2="14" y2="10"/></svg></button>
             </div>
         </div>
 
@@ -415,6 +415,7 @@ Regeln:
     }
 
     function newConversation() {
+        showBtnLabel(document.getElementById('newConvBtn'), 'Nueva conversación');
         cancelCurrentSpeech();
         clearInterval(State.recTimerInterval);
         if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
@@ -565,12 +566,21 @@ Regeln:
         btn.classList.toggle('active', State.premiumTTS);
     }
 
+    // --- Flash label helper ---
+    function showBtnLabel(btn, text) {
+        const el = document.createElement('span');
+        el.className = 'cv-btn-flash';
+        el.textContent = text;
+        btn.appendChild(el);
+        setTimeout(() => el.remove(), 550);
+    }
+
     // --- Modo Guiado ---
     function toggleGuidedMode() {
         State.guidedMode = !State.guidedMode;
         const btn = document.getElementById('guidedBtn');
-        btn.textContent = 'Sugerencia';
         btn.classList.toggle('active', State.guidedMode);
+        showBtnLabel(btn, 'Sugerencia');
         if (!State.guidedMode) hideGuidedPanel();
     }
 
@@ -817,7 +827,9 @@ Regeln:
 
     function toggleRepetirMode() {
         State.repetirMode = !State.repetirMode;
-        document.getElementById('repetirBtn').classList.toggle('active', State.repetirMode);
+        const repetirBtn = document.getElementById('repetirBtn');
+        repetirBtn.classList.toggle('active', State.repetirMode);
+        showBtnLabel(repetirBtn, 'Repetir');
 
         const panel = document.getElementById('repetirPanel');
         const chat = document.getElementById('chatArea');

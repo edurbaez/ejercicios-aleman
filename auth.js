@@ -353,5 +353,12 @@
   } else {
     _injectModal();
   }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    window.updateAuthUI();
+    if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
+      window.onAuthSignedIn();
+    }
+  });
 })();
 

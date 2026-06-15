@@ -305,3 +305,214 @@ Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
 - **`toggleExplicacion`** nueva función para mostrar/ocultar el texto largo (DOM directo, sin re-render).
 - **`getSearchResults`** actualizado para incluir `regla_base` y `excepciones` en el índice de búsqueda.
 - **CSS** en `styles.css`: `.gram-regla-base`, `.gram-tabla`, `.gram-excepcion`, `.gram-exp-toggle`, `.gram-rule-explicacion.open`.
+
+---
+
+---
+
+# Plan — chat-reformulaciones.html
+
+> Iniciado: 2026-06-15  
+> Scope: nuevo archivo `chat-reformulaciones.html` (standalone, sin build)  
+> Objetivo: practicar reformulación de frases en alemán con IA, guiado por las reglas de `gramatica.js`
+
+## regla obligatoria
+- Después de implementar cualquier etapa actualiza el estado de la etapa en este plan.
+
+---
+
+## Concepto
+
+El usuario selecciona una o varias reglas gramaticales (tomadas de `GRAMMAR_DATA` de `gramatica.js`). La IA presenta una frase y pide al usuario que la reformule aplicando la regla activa. El usuario responde por **voz** (Whisper) o **texto**. La IA evalúa, corrige y da la siguiente frase. Si el usuario no selecciona reglas, la app elige al azar.
+
+### Diferencia con `chat-voz.html`
+| Aspecto | chat-voz | chat-reformulaciones |
+|---------|----------|---------------------|
+| Objetivo | conversación libre | reformulación guiada por reglas |
+| Turno del usuario | responde a una pregunta | transforma una frase concreta |
+| Feedback | corrección al vuelo | evaluación explícita de la reformulación + nota |
+| Selección de tema | nivel CEFR | reglas gramaticales individuales |
+
+---
+
+## Arquitectura de datos
+
+### Fuente de reglas
+`gramatica.js` ya expone `GRAMMAR_DATA` como variable global. `chat-reformulaciones.html` carga ese script y lo consume directamente — no se duplican datos.
+
+Estructura de cada regla que se usa en este archivo:
+```
+{ id, titulo, regla_base, ejemplos[{ de, es }], tip, nivel }
+```
+`nivel` se infiere del prefijo del `id` (a1, a2, b1, b2, c1, c2).
+
+### Estado del juego (`State`)
+```js
+{
+  selectedRules: [],      // IDs de las reglas activas
+  currentRule: null,      // regla en curso
+  ruleQueue: [],          // cola aleatoria de reglas seleccionadas
+  sessionScore: { correct: 0, total: 0 },
+  messages: [],           // historial para la API
+  isRecording: false,
+  // mismo patrón de audio que chat-voz
+}
+```
+
+---
+
+## Etapas de implementación
+
+---
+
+### ETAPA 1 — Selector de reglas
+
+**Objetivo:** el usuario elige qué reglas practicar antes de iniciar.
+
+**UI:**
+- Panel superior con filtro por nivel (pills A1–C2, todos activos por defecto).
+- Lista de reglas como chips seleccionables: `[id] título`. Múltiple selección.
+- Botón "Selección aleatoria" que marca 5 reglas al azar del nivel activo.
+- Botón "Limpiar" que deselecciona todo.
+- Contador: "N reglas seleccionadas".
+- Si no hay ninguna seleccionada al pulsar Iniciar → se usan 5 al azar (comportamiento por defecto).
+
+**Implementación:**
+- Cargar `GRAMMAR_DATA` desde `gramatica.js` (script tag antes de la lógica).
+- Renderizar chips en un grid con `Object.entries(GRAMMAR_DATA).flatMap(...)`.
+- `State.selectedRules` se actualiza al hacer click en cada chip.
+
+**Estado:** ⬜ Pendiente
+
+---
+
+### ETAPA 2 — Motor de sesión
+
+**Objetivo:** gestionar la cola de reglas y el turno actual.
+
+**Lógica:**
+- `startSession()`: copia `selectedRules` (o genera 5 al azar si vacío) en `State.ruleQueue`, mezcla, asigna `State.currentRule = ruleQueue[0]`.
+- `nextRule()`: avanza en la cola; al agotarse, reinicia la cola mezclada.
+- `buildSystemPrompt(rule)`: construye el system prompt incluyendo `rule.regla_base`, `rule.tip` y 2 ejemplos de `rule.ejemplos`.
+
+**System prompt base:**
+```
+Du bist ein Deutschlehrer. Deine Aufgabe: präsentiere dem Studenten EINEN deutschen Satz und fordere ihn auf, ihn gemäß dieser Grammatikregel umzuformulieren:
+
+REGEL: {rule.regla_base}
+TIPP: {rule.tip}
+
+Regeln:
+- Zeige NUR einen Satz pro Nachricht (8-15 Wörter, angepasst an Niveau {nivel}).
+- Nach der Reformulierung des Studenten: bewerte sie mit ✅ / ⚠️ / ❌, erkläre kurz den Fehler (auf Spanisch) und gib die korrekte Variante an.
+- Trenne Bewertung und neuer Satz mit "---NUEVA---".
+- Halte Erklärungen kurz (1-2 Sätze auf Spanisch).
+```
+
+**Estado:** ⬜ Pendiente
+
+---
+
+### ETAPA 3 — Interfaz de práctica (chat)
+
+**Objetivo:** el usuario ve la frase a reformular, responde por voz o texto, y recibe feedback.
+
+**UI (igual que chat-voz, simplificada):**
+- Header: `[icono regla] Regla actual: {titulo}` + `{N/M en cola}`.
+- Área de chat (burbujas IA / usuario), idéntica a `chat-voz`.
+- Panel de info de la regla (colapsable): muestra `regla_base` + `tip` de la regla activa — referencia rápida sin salir de la app.
+- Controles: botón Grabar (voz) + campo de texto alternativo + botón Siguiente regla.
+- Marcador de sesión: `✓ N correctas · Total M`.
+
+**Flujo de un turno:**
+1. IA envía frase (primera respuesta al iniciar).
+2. Usuario graba o escribe su reformulación.
+3. Se envía a `/api/chat` con el historial completo.
+4. IA devuelve evaluación + nueva frase (separadas por `---NUEVA---`).
+5. La evaluación se muestra en una tarjeta de color (verde/naranja/rojo).
+6. La nueva frase se muestra en la burbuja siguiente lista para el próximo turno.
+
+**Parsing de la respuesta:**
+```js
+const parts = reply.split('---NUEVA---');
+const feedback = parts[0].trim();   // evaluación del turno anterior
+const nextPrompt = parts[1]?.trim(); // nueva frase (si existe)
+```
+
+**Estado:** ⬜ Pendiente
+
+---
+
+### ETAPA 4 — Entrada de voz (reutilizar patrón de chat-voz)
+
+**Objetivo:** copiar el módulo de grabación de `chat-voz.html` sin modificar la API.
+
+**Implementación:**
+- Copiar directamente las funciones `startRecording()`, `stopRecording()`, `transcribeAndSend()` de `chat-voz.html`.
+- La única diferencia: en `transcribeAndSend()` llamar a `sendToAI(text)` del nuevo motor.
+- Botón de texto alternativo: `<textarea>` + botón Enviar para los que no quieran usar voz.
+- Reutilizar `speak()` (browser TTS con `lang='de-DE'`) para leer la frase que debe reformular el usuario.
+
+**Estado:** ⬜ Pendiente
+
+---
+
+### ETAPA 5 — Resultado de sesión
+
+**Objetivo:** al terminar (o al pulsar "Finalizar"), mostrar un resumen.
+
+**UI:**
+- Overlay con: puntuación total `N/M`, lista de reglas practicadas con resultado por regla, botón "Volver a intentarlo" (mismas reglas) y "Nueva sesión" (vuelve al selector).
+- Opcional: enlace "Ver regla en gramática" por cada regla fallida (→ `gramatica.html#{id}`).
+
+**Estado:** ⬜ Pendiente
+
+---
+
+### ETAPA 6 — Navbar, dark mode y auth
+
+**Objetivo:** integrar con el resto de las apps.
+
+- Copiar la navbar estándar de cualquier otra página; añadir enlace a `chat-reformulaciones.html` en el menú dropdown de todas las páginas.
+- Cargar `config.js` + `auth.js` (igual que todas las demás apps).
+- Usar `window.getAuthToken()` para las llamadas a `/api/chat` y `/api/whisper`.
+- Dark mode: `localStorage` key `darkMode_cr`.
+- `logEvent('chat-reformulaciones', 'session_end', { correct, total, rules })` al finalizar.
+
+**Estado:** ⬜ Pendiente
+
+---
+
+## Dependencias externas
+
+| Recurso | Origen | Propósito |
+|---------|--------|-----------|
+| `gramatica.js` | local | fuente de `GRAMMAR_DATA` |
+| `config.js` | local | credenciales Supabase |
+| `auth.js` | local | auth modal, `getAuthToken`, `logEvent` |
+| `styles.css` | local | navbar, dark mode, base |
+| `/api/chat` | Vercel | generación de frases + evaluación |
+| `/api/whisper` | Vercel | transcripción de voz |
+
+---
+
+## Archivos a crear / modificar
+
+| Acción | Archivo | Cambio |
+|--------|---------|--------|
+| Crear | `chat-reformulaciones.html` | nuevo app |
+| Modificar | todas las páginas con navbar | añadir enlace en dropdown |
+| Modificar | `CLAUDE.md` | entrada en tabla Active Files |
+
+---
+
+## Estado de etapas
+
+| Etapa | Descripción | Estado |
+|-------|-------------|--------|
+| 1 | Selector de reglas | ✅ Completado (2026-06-15) |
+| 2 | Motor de sesión + system prompt | ✅ Completado (2026-06-15) |
+| 3 | Interfaz de práctica (chat + feedback) | ✅ Completado (2026-06-15) |
+| 4 | Entrada de voz (grabación + Whisper) | ✅ Completado (2026-06-15) |
+| 5 | Resultado de sesión | ✅ Completado (2026-06-15) |
+| 6 | Navbar, dark mode, auth, logEvent | ✅ Completado (2026-06-15) |

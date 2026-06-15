@@ -25,6 +25,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `kasus.html` | Grammar case trainer: generates fill-in-the-blank exercises (Nominativ/Akkusativ/Dativ/Genitiv) via `/api/chat`. Tracks score and streak. All JS inline. Teal theme (`#00796B`). |
 | `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 | `gramatica.html` | Grammar rules reference SPA. Displays 10 key grammar rules per CEFR level (A1–C2) as an accordion. Level selection via pill buttons; hash-based routing (#a1…#c2). All content embedded in `gramatica.js`. Orange theme (`#E65100`). |
+| `chat-reformulaciones.html` | Voice/text reformulation practice app. User selects grammar rules from `GRAMMAR_DATA` (or random), the AI presents a German sentence to reformulate, evaluates with ✅/⚠️/❌ and separates next task with `---NUEVA---`. Uses `/api/chat` + `/api/whisper`. Purple theme (`#6A1B9A`). |
 
 ### API
 

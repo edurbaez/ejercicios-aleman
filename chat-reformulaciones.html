@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reformulaciones — Alemán</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="gramatica.js"></script>
+</head>
+<body id="page-cr">
+
+<nav id="navbar">
+    <a href="/">Inicio</a>
+    <div class="nav-dropdown" id="navDropdown">
+        <button class="nav-menu-btn" type="button"
+            onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+        <div class="nav-dropdown-menu">
+            <a href="palabrasB2.html">Vocabulario B2</a>
+            <a href="B1.html">Vocabulario B1</a>
+            <a href="diccionario.html">Diccionario</a>
+            <a href="lectura veloz.html">Lectura Veloz</a>
+            <a href="chat-voz.html">Chat de Voz</a>
+            <a href="corrector.html">Corrector</a>
+            <a href="kasus.html">Kasus-Trainer</a>
+            <a href="gramatica.html">Gramática</a>
+            <a href="chat-reformulaciones.html" class="active">Reformulaciones</a>
+        </div>
+    </div>
+    <div class="spacer"></div>
+    <button id="auth-btn" title="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+    <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+</nav>
+<script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
+
+<div class="cr-app">
+
+    <!-- ===== FASE 1: Selector de reglas ===== -->
+    <div class="cr-setup" id="crSetup">
+        <div class="cr-setup-header">
+            <h1>Reformulaciones</h1>
+            <p>Elige las reglas gramaticales que quieres practicar.<br>Sin selección se usarán 5 reglas al azar.</p>
+        </div>
+
+        <div class="cr-level-filter" id="levelFilter"></div>
+
+        <div class="cr-rules-grid" id="rulesGrid"></div>
+
+        <div class="cr-setup-footer">
+            <span class="cr-selected-count" id="selectedCount">Sin selección — se usarán 5 al azar</span>
+            <div class="cr-setup-btns">
+                <button class="cr-btn-secondary" onclick="randomSelect()">Aleatorio (5)</button>
+                <button class="cr-btn-secondary" onclick="clearSelection()">Limpiar</button>
+                <button class="cr-btn-primary" onclick="startSession()">Iniciar sesión →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FASE 2: Práctica ===== -->
+    <div class="cr-practice" id="crPractice" style="display:none">
+
+        <div class="cr-rule-header" id="ruleHeader">
+            <div class="cr-rule-info">
+                <span class="cr-nivel-badge" id="nivelBadge">A1</span>
+                <div>
+                    <strong id="ruleTitle">Cargando...</strong>
+                    <span class="cr-rule-progress" id="ruleProgress">Regla 1 de 5</span>
+                </div>
+            </div>
+            <button class="cr-hint-toggle-btn" id="hintToggleBtn" onclick="toggleHint()">💡 Ver regla</button>
+        </div>
+
+        <div class="cr-hint-panel" id="hintPanel" style="display:none">
+            <p class="cr-hint-base" id="hintBase"></p>
+            <p class="cr-hint-tip" id="hintTip"></p>
+        </div>
+
+        <div class="cr-chat" id="chatArea">
+            <div class="cv-empty" id="chatEmpty"><p>Cargando primera frase...</p></div>
+        </div>
+
+        <div class="cr-session-score" id="sessionScore">✅ 0 &nbsp; ⚠️ 0 &nbsp; ❌ 0</div>
+
+        <div class="cr-controls">
+            <div class="cv-timer" id="recTimer" style="display:none">
+                <div class="cv-timer-bar-wrap"><div class="cv-timer-bar" id="recTimerBar"></div></div>
+                <span id="recTimerText">0:00</span>
+            </div>
+
+            <div class="cr-text-row">
+                <textarea class="cr-textarea" id="textInput"
+                    placeholder="O escribe tu reformulación aquí... (Ctrl+Enter para enviar)" rows="2"></textarea>
+                <button class="cr-send-text-btn" onclick="sendText()">Enviar</button>
+            </div>
+
+            <div class="cr-btn-row">
+                <button class="cr-record-btn" id="recordBtn">🎙 Responder</button>
+                <button class="cr-stop-btn" id="sendBtn" style="display:none">⏹ Enviar</button>
+                <button class="cr-skip-btn" onclick="skipRule()">Siguiente regla →</button>
+                <button class="cr-end-btn" onclick="endSession()">Finalizar</button>
+            </div>
+
+            <p class="cr-status-hint" id="crHint">Escucha la frase y reformúlala</p>
+        </div>
+    </div>
+
+    <!-- ===== FASE 3: Resultados ===== -->
+    <div class="cr-results-overlay" id="crResults" style="display:none">
+        <div class="cr-results-card">
+            <div class="cr-results-title">Sesión terminada</div>
+            <div class="cr-results-score" id="resultsScore"></div>
+            <div class="cr-results-rules" id="resultsRules"></div>
+            <div class="cr-results-actions">
+                <button class="cr-btn-secondary" onclick="restartSameRules()">Repetir mismas reglas</button>
+                <button class="cr-btn-primary" onclick="backToSetup()">Nueva sesión</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- .cr-app -->
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────────────────────────────────
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+const State = {
+    allRules: [],
+    filteredRules: [],
+    selectedIds: new Set(),
+    activeFilter: 'all',
+    ruleQueue: [],
+    queueIndex: 0,
+    currentRule: null,
+    messages: [],
+    ruleScores: {},
+    sessionScore: { correct: 0, partial: 0, incorrect: 0 },
+    isRecording: false,
+    mediaRecorder: null,
+    audioChunks: [],
+    recSeconds: 0,
+    recTimerInterval: null,
+    isSpeaking: false,
+    currentAudio: null,
+    voices: [],
+    selectedVoice: null,
+};
+
+// ── GRAMMAR DATA ──────────────────────────────────────────────────────────────
+function buildAllRules() {
+    return LEVELS.flatMap(nivel =>
+        (GRAMMAR_DATA[nivel] || []).map(r => ({ ...r, nivel }))
+    );
+}
+
+// ── SETUP PHASE ───────────────────────────────────────────────────────────────
+function renderLevelFilter() {
+    const el = document.getElementById('levelFilter');
+    const pills = [{ label: 'Todos', value: 'all' }, ...LEVELS.map(l => ({ label: l, value: l }))];
+    el.innerHTML = pills.map(p =>
+        `<button class="cr-level-pill${p.value === 'all' ? ' active' : ''}"
+            data-level="${p.value}" onclick="setLevelFilter('${p.value}')">${p.label}</button>`
+    ).join('');
+}
+
+function setLevelFilter(level) {
+    State.activeFilter = level;
+    document.querySelectorAll('.cr-level-pill').forEach(b =>
+        b.classList.toggle('active', b.dataset.level === level)
+    );
+    State.filteredRules = level === 'all'
+        ? State.allRules
+        : State.allRules.filter(r => r.nivel === level);
+    renderRuleChips();
+}
+
+function renderRuleChips() {
+    const grid = document.getElementById('rulesGrid');
+    grid.innerHTML = State.filteredRules.map(r =>
+        `<button class="cr-rule-chip${State.selectedIds.has(r.id) ? ' selected' : ''}"
+            data-id="${r.id}" onclick="toggleRule('${r.id}')">
+            <span class="cr-chip-nivel">${r.nivel}</span>
+            <span class="cr-chip-titulo">${r.titulo}</span>
+         </button>`
+    ).join('');
+    updateSelectedCount();
+}
+
+function toggleRule(id) {
+    if (State.selectedIds.has(id)) {
+        State.selectedIds.delete(id);
+    } else {
+        State.selectedIds.add(id);
+    }
+    const chip = document.querySelector(`.cr-rule-chip[data-id="${id}"]`);
+    if (chip) chip.classList.toggle('selected', State.selectedIds.has(id));
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const n = State.selectedIds.size;
+    document.getElementById('selectedCount').textContent = n === 0
+        ? 'Sin selección — se usarán 5 al azar'
+        : `${n} regla${n !== 1 ? 's' : ''} seleccionada${n !== 1 ? 's' : ''}`;
+}
+
+function randomSelect() {
+    const pool = State.filteredRules.length > 0 ? State.filteredRules : State.allRules;
+    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 5);
+    State.selectedIds.clear();
+    shuffled.forEach(r => State.selectedIds.add(r.id));
+    renderRuleChips();
+}
+
+function clearSelection() {
+    State.selectedIds.clear();
+    renderRuleChips();
+}
+
+// ── SESSION ───────────────────────────────────────────────────────────────────
+function startSession() {
+    let rules;
+    if (State.selectedIds.size === 0) {
+        rules = [...State.allRules].sort(() => Math.random() - 0.5).slice(0, 5);
+    } else {
+        rules = State.allRules
+            .filter(r => State.selectedIds.has(r.id))
+            .sort(() => Math.random() - 0.5);
+    }
+
+    State.ruleQueue = rules;
+    State.queueIndex = 0;
+    State.sessionScore = { correct: 0, partial: 0, incorrect: 0 };
+    State.ruleScores = {};
+    rules.forEach(r => { State.ruleScores[r.id] = { correct: 0, partial: 0, incorrect: 0 }; });
+
+    document.getElementById('crSetup').style.display = 'none';
+    document.getElementById('crPractice').style.display = 'flex';
+    document.getElementById('crResults').style.display = 'none';
+
+    loadRule(State.ruleQueue[0]);
+}
+
+function loadRule(rule) {
+    State.currentRule = rule;
+    State.messages = [];
+    cancelCurrentSpeech();
+
+    document.getElementById('nivelBadge').textContent = rule.nivel;
+    document.getElementById('ruleTitle').textContent = rule.titulo;
+    document.getElementById('ruleProgress').textContent =
+        `Regla ${State.queueIndex + 1} de ${State.ruleQueue.length}`;
+
+    document.getElementById('hintBase').textContent = rule.regla_base || '';
+    document.getElementById('hintTip').textContent = rule.tip ? `💡 ${rule.tip}` : '';
+    document.getElementById('hintPanel').style.display = 'none';
+    document.getElementById('hintToggleBtn').textContent = '💡 Ver regla';
+
+    document.getElementById('chatArea').innerHTML =
+        '<div class="cv-empty" id="chatEmpty"><p>Cargando primera frase...</p></div>';
+    document.getElementById('textInput').value = '';
+
+    setHint('Espera la primera frase...');
+    disableInput();
+    updateScoreDisplay();
+    sendToAI(null);
+}
+
+function buildSystemPrompt(rule) {
+    const ejemplos = (rule.ejemplos || []).slice(0, 2).map(e => `  • ${e.de}`).join('\n');
+    return `Du bist ein Deutschlehrer und machst Reformulierungsübungen.
+
+Aktuelle Grammatikregel (Niveau ${rule.nivel}):
+REGEL: ${rule.regla_base || rule.titulo}
+TIPP: ${rule.tip || ''}
+BEISPIELE:
+${ejemplos}
+
+ABLAUF:
+1. Beim ersten Aufruf: schreibe NUR eine Aufgabe im Format "Reformuliere: [Satz]" (8–15 Wörter, Niveau ${rule.nivel}). Keine Bewertung, keine Begrüßung.
+2. Wenn der Student antwortet: bewerte zuerst mit ✅ (korrekt) / ⚠️ (teilweise) / ❌ (falsch). Erkläre den Fehler kurz auf Spanisch (1–2 Sätze) und zeige die korrekte Variante. Trenne dann mit "---NUEVA---" auf einer eigenen Zeile. Danach folgt die nächste Aufgabe im gleichen Format.
+3. Variiere die Sätze und steigere die Schwierigkeit leicht mit jedem Durchgang.`;
+}
+
+// ── AI CALL ───────────────────────────────────────────────────────────────────
+async function sendToAI(userText) {
+    const rule = State.currentRule;
+    if (!rule) return;
+
+    if (userText) {
+        State.messages.push({ role: 'user', content: userText });
+        addBubble('user', userText);
+    }
+
+    const thinkingId = addBubble('ai', '...', true);
+    setHint('IA pensando...');
+    disableInput();
+
+    const msgs = userText
+        ? State.messages
+        : [{ role: 'user', content: 'Beginne mit der ersten Aufgabe.' }];
+
+    try {
+        const token = await window.getAuthToken?.();
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ system: buildSystemPrompt(rule), messages: msgs }),
+        });
+
+        if (resp.status === 401) {
+            window.openAuthModal?.();
+            throw new Error('Inicia sesión para usar Reformulaciones.');
+        }
+
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { throw new Error(`Respuesta inválida: ${raw.slice(0, 120)}`); }
+        if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+        const reply = data.reply || '';
+        const parts = reply.split('---NUEVA---');
+
+        if (parts.length === 1) {
+            const task = parts[0].trim();
+            State.messages.push({ role: 'assistant', content: task });
+            updateBubble(thinkingId, task);
+            speakTask(task);
+        } else {
+            const evaluation = parts[0].trim();
+            const newTask = parts[1].trim();
+
+            recordScore(evaluation);
+            removeBubble(thinkingId);
+            addFeedbackCard(evaluation);
+
+            if (newTask) {
+                State.messages.push({ role: 'assistant', content: newTask });
+                addBubble('ai', newTask);
+                speakTask(newTask);
+            }
+        }
+
+        const empty = document.getElementById('chatEmpty');
+        if (empty) empty.remove();
+        enableInput();
+        setHint('Reformula la frase en voz alta o por escrito');
+
+    } catch (e) {
+        updateBubble(thinkingId, `Error: ${e.message}`);
+        setHint('Error al conectar. Intenta de nuevo.');
+        enableInput();
+    }
+}
+
+function speakTask(text) {
+    const match = text.match(/Reformuliere:\s*(.+?)(?:\n|$)/i);
+    const sentence = match ? match[1].trim() : text.split('\n')[0].replace(/^[^:]+:\s*/, '').trim();
+    if (sentence) speak(sentence);
+}
+
+function recordScore(evaluation) {
+    const rule = State.currentRule;
+    if (!rule) return;
+    const rs = State.ruleScores[rule.id] || { correct: 0, partial: 0, incorrect: 0 };
+    if (evaluation.includes('✅')) {
+        State.sessionScore.correct++;
+        rs.correct++;
+    } else if (evaluation.includes('⚠️')) {
+        State.sessionScore.partial++;
+        rs.partial++;
+    } else if (evaluation.includes('❌')) {
+        State.sessionScore.incorrect++;
+        rs.incorrect++;
+    }
+    State.ruleScores[rule.id] = rs;
+    updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+    const { correct, partial, incorrect } = State.sessionScore;
+    document.getElementById('sessionScore').innerHTML =
+        `✅ ${correct} &nbsp; ⚠️ ${partial} &nbsp; ❌ ${incorrect}`;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function skipRule() {
+    State.queueIndex++;
+    if (State.queueIndex >= State.ruleQueue.length) {
+        endSession();
+    } else {
+        loadRule(State.ruleQueue[State.queueIndex]);
+    }
+}
+
+function endSession() {
+    cancelCurrentSpeech();
+    window.logEvent?.('chat-reformulaciones', 'session_end', {
+        ...State.sessionScore,
+        rules: State.ruleQueue.map(r => r.id),
+    });
+    showResults();
+}
+
+function showResults() {
+    document.getElementById('crPractice').style.display = 'none';
+    document.getElementById('crResults').style.display = 'flex';
+
+    const { correct, partial, incorrect } = State.sessionScore;
+    const total = correct + partial + incorrect;
+    const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+    document.getElementById('resultsScore').innerHTML =
+        `<span class="cr-res-correct">✅ ${correct} correctas</span>` +
+        `<span class="cr-res-partial">⚠️ ${partial} parciales</span>` +
+        `<span class="cr-res-incorrect">❌ ${incorrect} incorrectas</span>` +
+        (total > 0 ? `<span class="cr-res-pct">${pct}% de acierto</span>` : '');
+
+    document.getElementById('resultsRules').innerHTML = State.ruleQueue.map(r => {
+        const s = State.ruleScores[r.id] || { correct: 0, partial: 0, incorrect: 0 };
+        const t = s.correct + s.partial + s.incorrect;
+        const emoji = t === 0 ? '—' : s.incorrect > s.correct ? '❌' : s.partial > 0 && s.correct === 0 ? '⚠️' : '✅';
+        return `<div class="cr-res-rule">
+            <span class="cr-res-emoji">${emoji}</span>
+            <span class="cr-res-info">
+                <strong>${r.titulo}</strong>
+                <small>${r.nivel} · ${t} turno${t !== 1 ? 's' : ''}</small>
+            </span>
+            <a class="cr-res-link" href="gramatica.html#${r.id}" target="_blank">Ver regla →</a>
+        </div>`;
+    }).join('');
+}
+
+function restartSameRules() {
+    document.getElementById('crResults').style.display = 'none';
+    State.sessionScore = { correct: 0, partial: 0, incorrect: 0 };
+    State.ruleQueue.forEach(r => { State.ruleScores[r.id] = { correct: 0, partial: 0, incorrect: 0 }; });
+    State.queueIndex = 0;
+    document.getElementById('crPractice').style.display = 'flex';
+    loadRule(State.ruleQueue[0]);
+}
+
+function backToSetup() {
+    document.getElementById('crResults').style.display = 'none';
+    document.getElementById('crSetup').style.display = 'flex';
+}
+
+// ── HINT PANEL ────────────────────────────────────────────────────────────────
+function toggleHint() {
+    const panel = document.getElementById('hintPanel');
+    const btn = document.getElementById('hintToggleBtn');
+    const open = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? '💡 Ver regla' : '🙈 Ocultar regla';
+}
+
+// ── CHAT BUBBLES ──────────────────────────────────────────────────────────────
+function addBubble(role, text, isThinking) {
+    const area = document.getElementById('chatArea');
+    const id = 'b-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    const div = document.createElement('div');
+    div.id = id;
+    div.className = `cv-bubble cv-bubble-${role}${isThinking ? ' cv-bubble-thinking' : ''}`;
+    const inner = document.createElement('div');
+    inner.className = 'cv-bubble-inner';
+    inner.textContent = text;
+    div.appendChild(inner);
+    area.appendChild(div);
+    area.scrollTop = area.scrollHeight;
+    return id;
+}
+
+function updateBubble(id, text) {
+    const div = document.getElementById(id);
+    if (!div) return;
+    div.classList.remove('cv-bubble-thinking');
+    div.querySelector('.cv-bubble-inner').textContent = text;
+    document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+}
+
+function removeBubble(id) {
+    document.getElementById(id)?.remove();
+}
+
+function addFeedbackCard(text) {
+    const area = document.getElementById('chatArea');
+    const card = document.createElement('div');
+    const cls = text.includes('✅') ? 'cr-fb-correct'
+               : text.includes('⚠️') ? 'cr-fb-partial'
+               : 'cr-fb-incorrect';
+    card.className = `cr-feedback-card ${cls}`;
+    card.textContent = text;
+    area.appendChild(card);
+    area.scrollTop = area.scrollHeight;
+}
+
+// ── TTS ───────────────────────────────────────────────────────────────────────
+function loadVoices() {
+    const all = speechSynthesis.getVoices();
+    State.voices = all.filter(v => v.lang.startsWith('de'));
+    if (!State.voices.length) State.voices = all;
+    State.selectedVoice = State.voices[0] || null;
+}
+
+function cancelCurrentSpeech() {
+    speechSynthesis.cancel();
+    if (State.currentAudio) { State.currentAudio.pause(); State.currentAudio = null; }
+    State.isSpeaking = false;
+}
+
+function speak(text) {
+    if (!text) return;
+    cancelCurrentSpeech();
+    State.isSpeaking = true;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'de-DE';
+    utter.rate = 0.95;
+    if (State.selectedVoice) utter.voice = State.selectedVoice;
+    utter.onend = () => { State.isSpeaking = false; };
+    utter.onerror = () => { State.isSpeaking = false; };
+    speechSynthesis.speak(utter);
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+
+// ── INPUT CONTROL ─────────────────────────────────────────────────────────────
+function enableInput() {
+    const rec = document.getElementById('recordBtn');
+    rec.disabled = false;
+    rec.style.display = 'inline-flex';
+    document.getElementById('sendBtn').style.display = 'none';
+    document.getElementById('textInput').disabled = false;
+    document.getElementById('textInput').focus();
+}
+
+function disableInput() {
+    document.getElementById('recordBtn').disabled = true;
+    document.getElementById('textInput').disabled = true;
+}
+
+function sendText() {
+    const ta = document.getElementById('textInput');
+    const text = ta.value.trim();
+    if (!text) return;
+    ta.value = '';
+    sendToAI(text);
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.ctrlKey) sendText();
+});
+
+// ── RECORDING ─────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('recordBtn').addEventListener('click', () => {
+        if (document.getElementById('recordBtn').disabled) return;
+        startRecording();
+    });
+    document.getElementById('sendBtn').addEventListener('click', stopRecording);
+});
+
+async function startRecording() {
+    if (State.isRecording) return;
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        State.audioChunks = [];
+        const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+            .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+        State.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+        State.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) State.audioChunks.push(e.data); };
+        State.mediaRecorder.onstop = async () => {
+            stream.getTracks().forEach(t => t.stop());
+            const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
+            await transcribeAndSend(blob);
+        };
+        State.mediaRecorder.start(100);
+        State.isRecording = true;
+        State.recSeconds = 0;
+
+        document.getElementById('recTimer').style.display = 'flex';
+        document.getElementById('recordBtn').style.display = 'none';
+        document.getElementById('sendBtn').style.display = 'inline-flex';
+        updateRecTimer();
+
+        State.recTimerInterval = setInterval(() => {
+            State.recSeconds++;
+            updateRecTimer();
+            if (State.recSeconds >= 60) stopRecording();
+        }, 1000);
+
+        setHint('Grabando... presiona Enviar cuando termines');
+    } catch {
+        setHint('Error: no se pudo acceder al micrófono');
+    }
+}
+
+function stopRecording() {
+    if (!State.isRecording) return;
+    State.isRecording = false;
+    clearInterval(State.recTimerInterval);
+    document.getElementById('recTimer').style.display = 'none';
+    document.getElementById('sendBtn').style.display = 'none';
+    document.getElementById('recordBtn').style.display = 'inline-flex';
+    document.getElementById('recordBtn').disabled = true;
+    document.getElementById('recTimerBar').style.width = '0%';
+    if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') State.mediaRecorder.stop();
+}
+
+function updateRecTimer() {
+    const s = State.recSeconds;
+    document.getElementById('recTimerText').textContent =
+        `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    const pct = s / 60;
+    const hue = Math.round(270 - 90 * pct);
+    const color = `hsl(${hue}, 65%, 42%)`;
+    const bar = document.getElementById('recTimerBar');
+    bar.style.width = `${pct * 100}%`;
+    bar.style.background = color;
+    document.getElementById('recTimerText').style.color = color;
+}
+
+async function transcribeAndSend(blob) {
+    setHint('Transcribiendo...');
+    const formData = new FormData();
+    formData.append('file', blob, 'audio.webm');
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'de');
+    try {
+        const token = await window.getAuthToken?.();
+        const resp = await fetch('/api/whisper', {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+        });
+        if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
+        if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+        const text = data.text?.trim();
+        if (!text) { setHint('No se detectó voz. Intenta de nuevo.'); enableInput(); return; }
+        sendToAI(text);
+    } catch (e) {
+        setHint(`Error: ${e.message}`);
+        enableInput();
+    }
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function setHint(text) {
+    document.getElementById('crHint').textContent = text;
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode_cr', document.body.classList.contains('dark') ? '1' : '');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+window.onAuthSignedIn = () => {};
+
+(function init() {
+    if (localStorage.getItem('darkMode_cr') === '1') document.body.classList.add('dark');
+    State.allRules = buildAllRules();
+    State.filteredRules = State.allRules;
+    renderLevelFilter();
+    renderRuleChips();
+    loadVoices();
+})();
+</script>
+</body>
+</html>

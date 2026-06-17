@@ -499,14 +499,27 @@ function buildQuizQuestions(rule) {
   });
 }
 
-function startQuiz(ruleId) {
+async function startQuiz(ruleId) {
   let rule = null;
+  let level = null;
   for (const lvl of LEVELS) {
     rule = GRAMMAR_DATA[lvl].find(r => r.id === ruleId);
-    if (rule) break;
+    if (rule) { level = lvl; break; }
   }
   if (!rule || !rule.ejemplos.length) return;
-  quizSession = { ruleId, rule, questions: buildQuizQuestions(rule), currentIndex: 0, results: [] };
+
+  const wrap = document.getElementById('quiz-' + ruleId);
+  wrap.innerHTML = '<div class="gram-quiz-loading">Generando práctica…</div>';
+
+  let practicaEjs;
+  try {
+    practicaEjs = await fetchPracticeSentences(rule, level);
+  } catch(e) {
+    practicaEjs = rule.ejemplos;
+  }
+
+  const practiceRule = Object.assign({}, rule, { ejemplos: practicaEjs });
+  quizSession = { ruleId, rule, questions: buildQuizQuestions(practiceRule), currentIndex: 0, results: [] };
   ordenarSelected = [];
   renderQuizQuestion();
 }
@@ -751,6 +764,76 @@ document.addEventListener('keydown', function(e) {
     showToast(idx === -1 ? '★ Guardado en favoritos' : '☆ Eliminado de favoritos');
   }
 });
+
+// ─── Práctica con IA ─────────────────────────────────────────────────────────
+
+const LEVEL_TOPICS = {
+  A1: 'saludos, familia, números, colores, objetos cotidianos',
+  A2: 'saludos, familia, números, colores, objetos cotidianos, compras, comida, tiempo libre, viajes simples, rutina diaria',
+  B1: 'saludos, familia, compras, comida, tiempo libre, viajes, rutina, trabajo, estudios, opiniones, noticias simples, experiencias personales',
+  B2: 'familia, trabajo, estudios, opiniones, noticias, cultura, argumentación, temas abstractos, medio ambiente, sociedad',
+  C1: 'cultura, argumentación, temas abstractos, sociedad, ámbito académico, expresiones matizadas, debates complejos, política, economía',
+  C2: 'ámbito académico, debates complejos, política, economía, literatura, filosofía, ironía, lenguaje idiomático avanzado, retórica',
+};
+
+const PRACTICE_SYSTEM_PROMPT =
+  'Eres un profesor de alemán. Genera exactamente 3 oraciones de práctica en JSON para una regla gramatical.\n' +
+  'Responde ÚNICAMENTE con un array JSON válido: [{"de":"...","es":"..."},...]\n' +
+  'Sin texto adicional ni bloques de código markdown.\n' +
+  'Las oraciones deben ser distintas entre sí y distintas a los ejemplos ya usados en la explicación.\n' +
+  'Usa vocabulario y temas apropiados al nivel CEFR indicado.';
+
+function buildPracticePrompt(rule, level) {
+  const topics = LEVEL_TOPICS[level] || LEVEL_TOPICS.A1;
+  const existing = rule.ejemplos.map(e => e.de).join(' / ');
+  return (
+    'Nivel: ' + level + '\n' +
+    'Regla: ' + rule.titulo + ' — ' + rule.subtitulo + '\n' +
+    'Clave: ' + rule.tip + '\n' +
+    'Temas disponibles: ' + topics + '\n' +
+    'Ejemplos YA USADOS (no repetir): ' + existing + '\n\n' +
+    'Genera 3 oraciones nuevas que practiquen esta regla. Varía los temas entre sí.'
+  );
+}
+
+async function fetchPracticeSentences(rule, level) {
+  const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+  if (!token) throw new Error('no_auth');
+
+  const resp = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({
+      system: PRACTICE_SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: buildPracticePrompt(rule, level) }],
+      max_tokens: 400
+    })
+  });
+
+  const raw = await resp.text();
+  let data;
+  try { data = JSON.parse(raw); } catch(e) { throw new Error('server_error'); }
+  if (!resp.ok) {
+    if (resp.status === 429) throw new Error('rate_limit');
+    throw new Error(data.error || 'api_error');
+  }
+
+  const reply = data.reply || '';
+  let sentences;
+  try {
+    sentences = JSON.parse(reply);
+  } catch(e) {
+    const arrMatch = reply.match(/\[[\s\S]*\]/);
+    if (arrMatch) {
+      try { sentences = JSON.parse(arrMatch[0]); } catch(e2) { throw new Error('json_error'); }
+    } else {
+      throw new Error('json_error');
+    }
+  }
+
+  if (!Array.isArray(sentences) || sentences.length === 0) throw new Error('empty_response');
+  return sentences;
+}
 
 // ─── Modo Examen ──────────────────────────────────────────────────────────────
 const EXAM_RULES_COUNT = 5;

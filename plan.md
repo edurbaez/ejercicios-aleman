@@ -1,46 +1,85 @@
-# Plan de Mejoras — Sección Gramática
-
-> Iniciado: 2026-06-04  
-> Scope: `gramatica.js` + `gramatica.html` + estilos en `styles.css`  
-> Base: diagnóstico de la implementación actual (acordeón A1–C2, quiz de opción múltiple, examen vía API, SRS, repaso rápido)
+# Plan de Mejoras
 
 ## regla obligatoria
- - despues de imsplementar cualquier cosa actualiza plan.md
+- Después de implementar cualquier cosa, actualiza el estado en este plan.
+
+---
+
+## Archivo — Sección Gramática ✅
+
+> Completado: 2026-06-11  
+> Scope: `gramatica.js` + `gramatica.html` + `styles.css`
+
+| Bloque | Descripción | Estado |
+|--------|-------------|--------|
+| 1 | Explicaciones didácticas (regla_base, tabla, excepciones) | ✅ 2026-06-05 |
+| 2 | Ejercicios variados + feedback + mini-racha + gamificación | ✅ 2026-06-11 |
+| 3 | Examen mejorado (incremental, mixto, SRS, resumen por regla) | ✅ 2026-06-06 |
+| 4 | UX visual (flashcards, anillo de progreso, historial) | ✅ 2026-06-11 |
+
+---
+
+## Archivo — chat-reformulaciones.html v1 ✅
+
+> Completado: 2026-06-15  
+> Scope: `chat-reformulaciones.html` (standalone)
+
+| Etapa | Descripción | Estado |
+|-------|-------------|--------|
+| 1 | Selector de reglas (chips, filtro por nivel, aleatorio) | ✅ 2026-06-15 |
+| 2 | Motor de sesión + system prompt | ✅ 2026-06-15 |
+| 3 | Interfaz de práctica (burbujas, feedback cards, score) | ✅ 2026-06-15 |
+| 4 | Entrada de voz (grabación + Whisper) | ✅ 2026-06-15 |
+| 5 | Resultados por sesión y por regla | ✅ 2026-06-15 |
+| 6 | Navbar, dark mode, auth, logEvent | ✅ 2026-06-15 |
+
+---
+
+---
+
+# Plan — chat-reformulaciones.html v2
+
+> Iniciado: 2026-06-17  
+> Scope: `chat-reformulaciones.html` + `styles.css`  
+> Base: diagnóstico del código actual (v1 completado)
 
 ---
 
 ## Diagnóstico del estado actual
 
-### Lo que funciona bien
-- Acordeón por nivel (A1–C2) con 10 reglas cada uno.
-- Explicaciones detalladas con ejemplos y tip.
-- SRS (SM-2) para espaciar el repaso.
-- Examen por nivel: genera 10 preguntas vía GPT-4o (5 reglas × 2 ejercicios). Tipos: `completar` y `elegir`.
-- Búsqueda global de reglas.
-- Favoritos, lectura marcada, hash routing.
+### Lo que funciona
+- Selector de reglas con chips, filtro por nivel y aleatorio.
+- Motor de sesión con cola de reglas, system prompt estructurado.
+- Burbujas de chat + tarjetas de feedback verde/naranja/rojo.
+- Grabación → Whisper → respuesta IA con evaluación `---NUEVA---`.
+- Score por sesión (✅/⚠️/❌) y resumen por regla al finalizar.
+- Dark mode, auth, logEvent.
 
 ### Problemas identificados
 
-#### En las explicaciones
-- El texto es denso: un solo párrafo largo por regla. El estudiante no distingue a primera vista la estructura (regla base → excepciones → patrones → trampas).
-- Los ejemplos son solo 4 frases estáticas. No hay contexto situacional ni variedad por nivel de dificultad.
-- El `tip` es la parte más útil pero está al final y pasa desapercibido visualmente.
-- No hay diferenciación visual entre el concepto central y los casos borde.
+#### Rendimiento y costo de API
+- El array `State.messages` crece sin límite: en una sesión larga con muchas reglas se envían decenas de turnos al modelo. Costo y latencia crecen linealmente.
+- No hay indicación al usuario de cuántos tokens aproximados se están enviando.
 
-#### En los ejercicios por regla (quiz inline)
-- Solo un tipo de ejercicio: opción múltiple de traducción directa (elige la frase alemana que corresponde a la española).
-- Las distractoras son otras frases del mismo nivel, no variantes gramaticales. No fuerzan razonar la regla.
-- No hay feedback explicativo: solo "✓ Correcto" o "✗ La respuesta era X". No enseña por qué.
-- Una sola pregunta a la vez; no hay progreso visible ni incentivo a continuar.
-- Ninguna mecánica de variedad: siempre es "elige la traducción".
+#### Calidad de TTS
+- Usa `SpeechSynthesisUtterance` (browser TTS). En Windows/Chrome la voz alemana es robótica y a veces no está disponible. `shared-game.js` ya resuelve esto con `/api/tts` (OpenAI `tts-1`) con fallback al TTS del browser.
 
-#### En el examen por nivel
-- Pide todas las preguntas a la vez (10 en un solo call). Si falla la API, el usuario ve solo un spinner y un error; pierde todo.
-- El resultado muestra ✅/❌ pero no relaciona el error con la regla específica ni sugiere qué repasar.
-- No hay resumen por regla (ej. "fallaste 2 de 2 en Wechselpräpositionen").
-- Feedback visual de resultados: lista plana de preguntas, difícil de procesar.
-- Sin variedad de tipos: el prompt no incluye tipos como "ordenar palabras", "detectar el error", "completar con la forma correcta del artículo".
-- No hay examen mixto (multi-nivel), útil para estudiantes que quieren consolidar varios niveles.
+#### Continuidad entre sesiones
+- Las reglas seleccionadas se pierden al cerrar o recargar la página.
+- No hay historial de sesiones anteriores: el usuario no sabe qué reglas practicó ayer ni cuántos intentos lleva acumulados.
+- No hay integración con el SRS de `gramatica.html`: si fallas mucho en una regla, no se programa para repaso automático.
+
+#### UX dentro de la sesión
+- "Siguiente regla →" no requiere ningún mínimo de turnos: el usuario puede saltar sin haber respondido nada.
+- No hay barra de progreso visual de la cola (solo texto "Regla N de M").
+- El hint panel muestra `regla_base` + `tip` pero no los ejemplos: el usuario no tiene referencias concretas sin salir de la app.
+- No hay atajo de teclado para iniciar/detener la grabación (la app es de voz, el mouse interrumpe el flujo).
+- El botón "Finalizar" no pide confirmación: es fácil terminarlo sin querer.
+
+#### Calidad del selector de reglas
+- Con 60 reglas, el grid es difícil de navegar. No hay búsqueda por texto.
+- No se recuerdan las reglas seleccionadas de la sesión anterior.
+- No hay integración con los favoritos de `gramatica.html` (no se pueden filtrar por favoritos).
 
 ---
 
@@ -48,192 +87,168 @@
 
 ---
 
-### BLOQUE 1 — Explicaciones más didácticas
+### BLOQUE A — Robustez de la sesión
 
-**Objetivo:** que el estudiante entienda la regla en 30 segundos antes de practicar.
+#### A.1 Límite de contexto en el historial enviado a la API
 
-#### 1.1 Reestructurar el contenido de cada regla en secciones visuales
+Actualmente se envía `State.messages` completo. Limitar a los últimos 8 mensajes (4 turnos) para mantener el contexto suficiente sin crecer indefinidamente.
 
-En vez de un párrafo plano, mostrar:
-
-```
-┌──────────────────────────────────────────────┐
-│  REGLA BASE (1–2 frases, texto destacado)    │
-│  PATRÓN / TABLA (cuando aplica)              │
-│  EXCEPCIÓN (etiqueta "⚠️ Cuidado")           │
-│  TRUCO MNEMOTÉCNICO (etiqueta "💡 Tip")      │
-└──────────────────────────────────────────────┘
+```js
+const msgs = userText
+    ? State.messages.slice(-8)
+    : [{ role: 'user', content: 'Beginne mit der ersten Aufgabe.' }];
 ```
 
-**Implementación:**
-- Agregar campos opcionales a cada regla en `GRAMMAR_DATA`:
-  - `regla_base`: string — la regla nuclear en 1–2 frases.
-  - `tabla`: array de filas `{ label, value }` para tablas de declinación/conjugación.
-  - `excepciones`: string — casos especiales o trampas.
-- El campo `explicacion` actual pasa a ser el "desarrollo completo" (colapsable con "Leer más").
-- El `tip` se promueve visualmente: badge naranja fijo, siempre visible al abrir la regla.
+El array completo sigue en `State.messages` (para referencia interna), solo se recorta al enviar.
 
-#### 1.2 Ejemplos con audio y contexto situacional
-
-- Cada regla puede tener hasta 6 ejemplos organizados en dos grupos:
-  - `ejemplos_basicos` (2–3): ilustran el caso más simple.
-  - `ejemplos_avanzados` (2–3, opcional): muestran el caso en oraciones más naturales o con excepciones.
-- Cada ejemplo lleva un botón TTS (ya existe, mantener).
-- Para los niveles B2–C2 agregar `contexto` a cada ejemplo: una etiqueta pequeña que indica el registro (formal, coloquial, literario, etc.).
-
-#### 1.3 Tabla de referencia rápida para reglas con declinación/conjugación
-
-Para reglas de artículos, verbos modales, casos, comparativo: renderizar una tabla compacta en lugar de (o además de) texto.
-
-```
-Nominativo   der   die   das   die (pl)
-Acusativo    den   die   das   die (pl)
-Dativo       dem   der   dem   den+n
-Genitivo     des   der   des   der
-```
-
-**Implementación:** campo `tabla` en `GRAMMAR_DATA`. Si existe, `renderRuleCard` inserta una `<table class="gram-table">` antes del bloque de ejemplos.
+**Esfuerzo:** Muy bajo. Una línea de cambio.  
+**Estado:** ⬜ Pendiente
 
 ---
 
-### BLOQUE 2 — Ejercicios por regla más variados y con feedback real
+#### A.2 Mínimo de turnos antes de permitir "Siguiente regla"
 
-**Objetivo:** cada sesión de práctica se siente diferente; el estudiante razona la regla, no solo reconoce.
+Deshabilitar el botón "Siguiente regla →" hasta que el usuario haya respondido al menos **2 veces** a la regla actual. Pasados los 2 turnos, el botón se habilita.
 
-#### 2.1 Nuevos tipos de ejercicio (inline, sin API)
+**Implementación:** Agregar `State.currentRuleTurns` (contador de respuestas del usuario en la regla actual). Incrementar en `recordScore()`. `loadRule()` lo resetea a 0. El botón `cr-skip-btn` tiene `disabled` hasta que `currentRuleTurns >= 2`.
 
-Los tipos actuales y nuevos se ejecutan completamente en el cliente, usando los datos ya embebidos en `GRAMMAR_DATA`. Sin llamadas a la API — respuesta instantánea, disponibles offline.
-
-| Tipo | Descripción | Dónde aplica |
-|------|-------------|-------------|
-| `opcion_multiple` | Actual: elige la frase alemana (mejorar distractoras) | Todos |
-| `completar_articulo` | La frase tiene `___` y el estudiante elige entre 4 formas del artículo (der/die/das/den/dem…) | Reglas de casos |
-| `ordenar_palabras` | Palabras desordenadas → arrastrar o clic para ordenar la frase correcta (V2, verbos separables) | A1-08, A2-07 |
-| `detectar_error` | Se muestra la frase con un error gramatical; el estudiante lo identifica y lo corrige | B1–C2 |
-| `traduccion_inversa` | Se muestra la frase en español; el estudiante escribe la forma alemana (solo la palabra crítica, no la frase entera) | Todos |
-| `par_correcto` | Mostrar 4 pares de (artículo + sustantivo) y elegir el correcto para el caso indicado | Casos |
-
-**Cómo asignar tipos por regla:**
-- Agregar campo `ejercicio_tipos` a cada regla: `['completar_articulo', 'ordenar_palabras']`.
-- `startQuiz()` elige al azar uno de los tipos disponibles para esa regla → variedad garantizada.
-- Las preguntas se construyen dinámicamente a partir de `rule.ejemplos` (no requieren datos extra).
-
-#### 2.2 Feedback explicativo después de cada respuesta
-
-Actualmente: "✗ La respuesta correcta era X".  
-Nuevo: mostrar el `tip` de la regla + una frase corta de por qué:
-
-```
-✗ Incorrecto — la respuesta era "den Mann".
-💡 En acusativo, solo el artículo masculino cambia: der → den.
-   Recuerda: femenino, neutro y plural no cambian en acusativo.
-```
-
-**Implementación:** al construir cada ejercicio inline, guardar el `tip` de la regla; mostrarlo en el `gram-quiz-feedback` siempre (correcto o incorrecto), con estilo diferente.
-
-#### 2.3 Mini-racha por regla (3 preguntas en secuencia)
-
-En vez de una sola pregunta con "Nueva pregunta" manual, mostrar automáticamente 3 preguntas consecutivas (tipos variados) con barra de progreso. Al terminar: resultado `N/3` con opción "Repetir" o "Cerrar".
-
-**Implementación:**
-- `QuizSession` object: `{ ruleId, questions: [], currentIndex, results: [] }`.
-- `startQuiz(ruleId)` genera 3 preguntas de tipos diferentes.
-- `nextQuizQuestion()` avanza automáticamente.
-- Al llegar a 3: muestra mini-resultado, actualiza SRS con el rating basado en aciertos.
-
-#### 2.4 Gamificación liviana: racha y estrellas
-
-- Si el estudiante responde bien las 3: aparece un "⚡ ¡Racha!" con animación CSS breve.
-- El botón SRS de la regla muestra `★★★` / `★★☆` / `★☆☆` según el rendimiento reciente.
-- Un contador global `gram_daily_score` en localStorage: cuántos ejercicios correctos hoy (visible en el toolbar como "Hoy: N ✓").
+**Esfuerzo:** Bajo.  
+**Estado:** ⬜ Pendiente
 
 ---
 
-### BLOQUE 3 — Examen por nivel mejorado
+#### A.3 Confirmación antes de Finalizar
 
-**Objetivo:** examen más robusto, resultados más útiles, más variedad de tipos.
+Reemplazar `onclick="endSession()"` por una función que muestre un `confirm()` nativo o un mini-modal inline si hay al menos 1 turno completado.
 
-#### 3.1 Nuevos tipos de pregunta en el examen (vía API)
-
-Ampliar el `EXAM_SYSTEM_PROMPT` con 3 tipos adicionales:
-
-| Tipo | Descripción |
-|------|-------------|
-| `ordenar` | 4–6 palabras desordenadas; el estudiante escribe la frase correcta (valida ignorando espacios extra) |
-| `detectar_error` | Frase con un error gramatical; el estudiante escribe la forma correcta |
-| `transformar` | Se da una frase base y una instrucción ("Transforma a plural", "Pon en Perfekt"); el estudiante escribe la forma transformada |
-
-**Distribución sugerida:** de las 10 preguntas, 4 tipo `elegir`, 3 tipo `completar`, 2 tipo `detectar_error`, 1 tipo `transformar`. El prompt lo especifica con cuotas.
-
-#### 3.2 Feedback inmediato por pregunta (no al final)
-
-- Actualmente: el estudiante responde las 10 sin ver si va bien; solo ve resultados al terminar.
-- Nuevo: después de cada respuesta, mostrar ✓/✗ con explicación de 2–3 líneas, luego "Siguiente →".
-- Mantener la explicación que ya genera la API (`q.explicacion`), simplemente mostrarla después de responder.
-
-**Implementación:** `selectExamOption()` y `submitExamInput()` muestran la explicación y el botón "Siguiente →" en el mismo panel, sin saltar a la siguiente pregunta automáticamente.
-
-#### 3.3 Resumen por regla en resultados
-
-Al mostrar resultados, agrupar los errores por regla:
-
-```
-📖 Reglas a repasar:
-  • Wechselpräpositionen — 0 / 2 correctas  [→ Ver regla]
-  • Comparativo            — 1 / 2 correctas  [→ Ver regla]
-```
-
-Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
-
-**Implementación:** tras `showExamResults()`, agrupar `items` por `q.regla_id`. Para cada regla con al menos un error: mostrar bloque con enlace hash.
-
-#### 3.4 Examen incremental (pregunta por pregunta, no batch)
-
-- Problema actual: si la API tarda o falla, el usuario espera 10+ segundos y puede perder todo.
-- Nuevo flujo:
-  1. Generar las preguntas de 2 en 2 (llamadas de 2 preguntas).
-  2. Mostrar la primera pareja mientras se solicitan las siguientes.
-  3. Si falla una llamada: mostrar "No se pudo cargar la siguiente pregunta" con botón "Reintentar".
-- Esto requiere cambiar `buildExamPrompt` para aceptar 1 regla y generar 2 preguntas, y encadenar las llamadas.
-
-#### 3.5 Examen mixto multi-nivel
-
-- Nuevo botón en el toolbar: "🎲 Examen mixto" — elige 1 regla al azar de cada nivel (A1–B2) para un examen de 8 reglas / ~16 preguntas.
-- Útil para estudiantes que ya pasaron varios niveles y quieren mantenerse.
-- Implementar como `startMixedExam()` con `pickRandomRules` por cada nivel.
-
-#### 3.6 Activar SRS automáticamente desde resultados del examen
-
-- Si una regla falló ≥1 pregunta → llamar `updateSRSEntry(rule.id, 1)` para marcarla como "no la sé" y programar repaso.
-- Si acertó ambas → llamar `updateSRSEntry(rule.id, 4)`.
-- Mostrar en resultados: "✓ SRS actualizado — X reglas programadas para repaso."
+**Esfuerzo:** Muy bajo.  
+**Estado:** ⬜ Pendiente
 
 ---
 
-### BLOQUE 4 — Mejoras de UX y variedad visual
+### BLOQUE B — TTS con OpenAI
 
-#### 4.1 Modo "Flashcard" por nivel
+#### B.1 Reemplazar browser TTS por `/api/tts`
 
-- Un nuevo botón en el toolbar: "🃏 Flashcards".
-- Muestra una regla a la vez en formato tarjeta: anverso = título + subtítulo; reverso = explicación + ejemplos.
-- Navegar con teclas ← → o swipe (touch).
-- Diferente del "Repaso rápido" actual (que solo muestra el tip): las flashcards incluyen el contenido completo.
-- No requiere API; es una presentación alternativa de `GRAMMAR_DATA`.
+Adaptar el patrón de `shared-game.js`: llamar `POST /api/tts` con `{ text, voice: 'onyx' }`, reproducir el audio/mpeg devuelto. Fallback a `SpeechSynthesisUtterance` si la llamada falla o el usuario no está autenticado.
 
-#### 4.2 Indicador de progreso más visual
+```js
+async function speak(text) {
+    try {
+        const token = await window.getAuthToken?.();
+        if (!token) throw new Error('no auth');
+        const resp = await fetch('/api/tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ text, voice: 'onyx' }),
+        });
+        if (!resp.ok) throw new Error('tts error');
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        State.currentAudio = new Audio(url);
+        State.currentAudio.onended = () => { State.isSpeaking = false; URL.revokeObjectURL(url); };
+        State.currentAudio.play();
+        State.isSpeaking = true;
+    } catch {
+        speakBrowser(text); // fallback
+    }
+}
+```
 
-- Cambiar los números `3/10` en las pestañas de nivel por una barra de progreso circular pequeña (SVG).
-- Añadir en el header de cada nivel: "Completadas: 7 · Pendientes SRS: 2 · Sin ver: 1".
+**Esfuerzo:** Bajo.  
+**Estado:** ⬜ Pendiente
 
-#### 4.3 Estimación de tiempo de lectura
+---
 
-- Cada regla muestra debajo del subtítulo: "~2 min lectura · 3 ejercicios".
-- El "~2 min" se calcula con `Math.ceil(explicacion.split(' ').length / 200)`.
+### BLOQUE C — Persistencia y continuidad
 
-#### 4.4 Historial de exámenes
+#### C.1 Guardar reglas seleccionadas en localStorage
 
-- Tabla de los últimos 5 exámenes del usuario (nivel, puntuación, fecha) visible en un panel expandible.
-- Datos ya se guardan en Supabase (`exam_results`); solo falta leerlos y mostrarlos.
+Al hacer `startSession()`, guardar el array de IDs seleccionados como `cr_last_rules` en localStorage. Al cargar la página, restaurar esa selección automáticamente.
+
+**Esfuerzo:** Muy bajo.  
+**Estado:** ⬜ Pendiente
+
+---
+
+#### C.2 Historial de sesiones (localStorage)
+
+Al `endSession()`, guardar un registro en `cr_history` (array en localStorage, max 20 entradas):
+
+```js
+{ date: ISO, rules: [id...], correct, partial, incorrect, total }
+```
+
+En la pantalla de resultados, mostrar al final un acordeón "Últimas sesiones" con las 5 más recientes: fecha, reglas, porcentaje de acierto.
+
+**Esfuerzo:** Bajo-Medio.  
+**Estado:** ⬜ Pendiente
+
+---
+
+#### C.3 Integración con SRS de gramática
+
+Después de mostrar resultados: para cada regla con más `incorrect` que `correct`, llamar `updateSRSEntry(ruleId, 1)` del módulo SRS de `gramatica.js` si está disponible en el mismo contexto. Si no (páginas separadas), guardar los IDs en `cr_srs_pending` en localStorage; `gramatica.html` los consumiría al cargar.
+
+Mostrar en resultados: "📌 N reglas marcadas para repaso en Gramática."
+
+**Esfuerzo:** Medio (requiere coordinar con el módulo SRS de gramatica.js).  
+**Estado:** ⬜ Pendiente
+
+---
+
+### BLOQUE D — UX del selector
+
+#### D.1 Búsqueda por texto en el grid de reglas
+
+Agregar un `<input type="search">` encima del grid. Al escribir, filtrar `State.filteredRules` por coincidencia en `titulo` o `regla_base` (case-insensitive). Se combina con el filtro de nivel activo.
+
+**Esfuerzo:** Bajo.  
+**Estado:** ⬜ Pendiente
+
+---
+
+#### D.2 Filtrar por favoritos de gramática
+
+Si `localStorage.getItem('gram_favorites')` existe (array de IDs guardado por `gramatica.html`), mostrar un pill extra "⭐ Favoritos" en el filtro de nivel. Al activarlo, `filteredRules` solo muestra reglas en ese array.
+
+**Esfuerzo:** Bajo (los favoritos ya están en localStorage con la misma clave).  
+**Estado:** ⬜ Pendiente
+
+---
+
+### BLOQUE E — UX dentro de la sesión
+
+#### E.1 Atajo de teclado para grabar (Espacio)
+
+Mientras la práctica está activa y el `textInput` no tiene foco:
+- `Espacio` → iniciar grabación (si no está grabando y el botón no está disabled).
+- `Espacio` de nuevo → detener.
+
+Esto permite flujo continuo: escuchar → Espacio → hablar → Espacio → escuchar respuesta, sin tocar el mouse.
+
+**Implementación:** Listener `keydown` en `document`; activo solo cuando `crPractice` es visible y `document.activeElement` no es el textarea.
+
+**Esfuerzo:** Bajo.  
+**Estado:** ⬜ Pendiente
+
+---
+
+#### E.2 Barra de progreso visual de la cola
+
+Reemplazar el texto "Regla N de M" por una barra de progreso fina (similar a `gram-quiz-progress-track` en gramática) debajo del `cr-rule-header`. Cada segmento representa una regla: completado (verde), actual (naranja), pendiente (gris).
+
+**Esfuerzo:** Bajo.  
+**Estado:** ⬜ Pendiente
+
+---
+
+#### E.3 Ejemplos en el panel de pista
+
+El panel "💡 Ver regla" actualmente muestra solo `regla_base` + `tip`. Agregar los primeros 2 ejemplos de `rule.ejemplos` como referencias concretas, con botón de TTS por ejemplo.
+
+**Esfuerzo:** Muy bajo.  
+**Estado:** ⬜ Pendiente
 
 ---
 
@@ -241,278 +256,27 @@ Cada ítem tiene un enlace que lleva a `gramatica.html#<rule-id>` directamente.
 
 | Prioridad | Bloque | Tarea | Esfuerzo |
 |-----------|--------|-------|---------|
-| 🔴 Alta | 2 | Feedback explicativo después de cada respuesta | Bajo |
-| 🔴 Alta | 3 | Feedback inmediato por pregunta en examen | Bajo |
-| 🔴 Alta | 3 | Resumen por regla en resultados del examen | Medio |
-| 🟡 Media | 2 | Mini-racha de 3 preguntas por regla | Medio |
-| 🟡 Media | 2 | Nuevos tipos de ejercicio inline (completar_articulo, detectar_error) | Medio |
-| 🟡 Media | 1 | Reestructurar contenido de regla (regla_base, tabla, excepciones) | Alto |
-| 🟡 Media | 3 | Nuevos tipos de pregunta en examen (detectar_error, transformar) | Medio |
-| 🟢 Baja | 3 | Examen incremental (pregunta por pregunta) | Alto |
-| 🟢 Baja | 3 | Examen mixto multi-nivel | Bajo |
-| 🟢 Baja | 3 | Activar SRS automáticamente desde resultados | Bajo |
-| 🟢 Baja | 4 | Modo Flashcard | Medio |
-| 🟢 Baja | 4 | Historial de exámenes | Bajo |
-| 🟢 Baja | 2 | Gamificación liviana (racha, contador diario) | Bajo |
+| 🔴 Alta | A | A.1 Límite de contexto (slice -8) | Muy bajo |
+| 🔴 Alta | B | B.1 TTS con OpenAI + fallback | Bajo |
+| 🔴 Alta | A | A.2 Mínimo 2 turnos antes de saltar regla | Bajo |
+| 🟡 Media | C | C.1 Guardar reglas seleccionadas en localStorage | Muy bajo |
+| 🟡 Media | D | D.1 Búsqueda por texto en el selector | Bajo |
+| 🟡 Media | E | E.1 Atajo Espacio para grabar | Bajo |
+| 🟡 Media | E | E.2 Barra de progreso visual de la cola | Bajo |
+| 🟡 Media | C | C.2 Historial de sesiones | Bajo-Medio |
+| 🟡 Media | E | E.3 Ejemplos en el panel de pista | Muy bajo |
+| 🟡 Media | A | A.3 Confirmación antes de Finalizar | Muy bajo |
+| 🟢 Baja | D | D.2 Filtrar por favoritos de gramática | Bajo |
+| 🟢 Baja | C | C.3 Integración con SRS de gramática | Medio |
 
 ---
 
 ## Estado
 
-| Bloque | Estado |
-|--------|--------|
-| 1 — Explicaciones didácticas | ✅ Completado (2026-06-05) |
-| 2 — Ejercicios variados + feedback | ✅ Completado (2026-06-11) |
-| 3 — Examen mejorado | ✅ Completado (2026-06-06) |
-| 4 — UX y variedad visual | ✅ Completado (2026-06-11) |
-
-### Bloque 2 — Detalle de lo implementado
-
-- **2.1 Nuevos tipos de ejercicio inline**: 4 tipos generados dinámicamente desde `GRAMMAR_DATA` sin API:
-  - `opcion_multiple` — elige la frase alemana dado el español (existía, mejorado).
-  - `identificar` — elige la traducción española dado el alemán (nuevo, inverso).
-  - `ordenar` — palabras de un ejemplo mezcladas; el estudiante toca en orden para reconstruir la frase. Solo aplica a ejemplos de 3–8 palabras. Botón "Comprobar" activado al colocar todas.
-  - `articulo` — auto-detecta el primer artículo en el ejemplo alemán, lo reemplaza con `___` y ofrece 4 opciones de artículo. Aplica a cualquier ejemplo con artículo (der/die/das/den/dem…).
-- **2.2 Feedback explicativo**: después de responder, el feedback muestra ✓/✗ + respuesta correcta + el `tip` completo de la regla (`💡`). Siempre visible tanto en acierto como en error.
-- **2.3 Mini-racha de 3 preguntas**: `QuizSession` ({ruleId, rule, questions, currentIndex, results}) gestiona 3 preguntas consecutivas con tipos variados. Barra de progreso en la parte superior (`gram-quiz-progress-track`). Al terminar: resultado `N/3` con estrellas (★☆☆ → ★★★), SRS actualizado automáticamente (rating 1/3/4), y botones Repetir / Cerrar.
-- **2.4 Gamificación liviana**: animación `⚡ ¡Racha perfecta!` CSS (`racha-pop`) cuando se aciertan las 3 preguntas. Contador diario `gram_daily_score` en `localStorage` (por fecha), mostrado en la barra de herramientas como "Hoy: N ✓" (badge verde, oculto si N = 0). Funciones: `getDailyScore()`, `incrementDailyScore()`, `updateDailyDisplay()`.
-
-### Bloque 4 — Detalle de lo implementado
-
-- **4.1 Modo Flashcard**: botón "🃏 Flashcards" en la barra de niveles. Overlay con tarjeta flip 3D (CSS `rotateY`). Anverso: título, subtítulo, `regla_base` y tip. Reverso: `regla_base`, tabla, excepciones, explicación y primeros 3 ejemplos. Navegación con botones, teclado (←→ navegar, Espacio/Enter voltear, Escape cerrar) y swipe táctil horizontal. Si estaba en modo favoritos muestra solo esas reglas; si no, las del nivel activo. Función `openFlashcards()`, `closeFlashcards()`, `flipCard()`, `flashcardNav()`, `renderFlashcard()`.
-- **4.2 Indicador de progreso circular**: sustituye el `done/total` textual en las pestañas de nivel por un anillo SVG inline (`gram-ring`, r=9, `stroke-dasharray` proporcional al progreso). El texto `done/total` se mantiene dentro del SVG. El trazo del anillo activo pasa a blanco cuando la pestaña está seleccionada.
-- **4.3 Estimación de tiempo de lectura**: cada tarjeta de regla muestra `~N min · 3 ej.` debajo del subtítulo. El tiempo se calcula con `Math.ceil(explicacion.split(' ').length / 200)`. Estilo `.gram-rule-readtime`.
-- **4.4 Historial de exámenes**: botón "📊 Historial" en la barra de niveles. Panel modal que consulta `exam_results` en Supabase (últimas 5 entradas del usuario), mostrando nivel, puntuación con porcentaje y fecha. Maneja no-auth y sin resultados con mensaje descriptivo. Función `openHistory()`, `closeHistory()`.
-
-### Bloque 3 — Detalle de lo implementado
-
-- **3.1 Nuevos tipos en el examen**: `EXAM_SYSTEM_PROMPT` ampliado con `detectar_error`, `transformar`, `ordenar`. Cada llamada pide 2 ejercicios de tipos variados por regla.
-- **3.2 Feedback inmediato por pregunta**: `selectExamOption` y `submitExamInput` muestran `showExamFeedback()` con ✓/✗, respuesta correcta y `q.explicacion`. Las opciones se colorean (verde/rojo) al responder.
-- **3.3 Resumen por regla en resultados**: `showExamResults()` agrupa por `regla_id` y muestra "📖 Reglas a repasar:" con contador N/M y enlace "→ Ver regla" que abre el acordeón.
-- **3.4 Examen incremental**: `startExamWithRules()` hace fetch de la primera regla para desbloquear la UI, luego las restantes en paralelo. Si una falla, muestra estado `{_state:'error'}` con botón "↺ Reintentar". `renderExamQuestion` maneja estados `loading` / `error` / normal.
-- **3.5 Examen mixto**: `startMixedExam()` — botón "🎲 Mixto" en la barra. Elige 2 reglas al azar de A1, A2, B1, B2 (= 8 reglas / ~16 preguntas). `examRepeat()` repite el tipo correcto al terminar.
-- **3.6 SRS automático desde resultados**: `showExamResults()` calcula rating por regla (1/2/4) y llama `updateSRSEntry()`. Muestra "✓ SRS actualizado — N reglas programadas para repaso."
-
----
-
-### Bloque 1 — Detalle de lo implementado
-
-- **60 reglas enriquecidas** (A1–C2) con campo `regla_base` (núcleo de la regla en 1–2 frases).
-- **Tablas** (`tabla`) añadidas a ~35 reglas: declinaciones, conjugaciones, listas de preposiciones, conectores, etc.
-- **Excepciones** (`excepciones`) añadidas a ~40 reglas: trampas y casos borde con etiqueta ⚠️.
-- **`renderRuleCard`** actualizado: muestra regla_base en bloque naranja destacado, tabla si existe, excepciones si existen, botón "▼ Leer más" para colapsar/expandir el texto `explicacion`.
-- **`renderTabla`** nueva función que construye `<table class="gram-tabla">` desde datos estructurados.
-- **`toggleExplicacion`** nueva función para mostrar/ocultar el texto largo (DOM directo, sin re-render).
-- **`getSearchResults`** actualizado para incluir `regla_base` y `excepciones` en el índice de búsqueda.
-- **CSS** en `styles.css`: `.gram-regla-base`, `.gram-tabla`, `.gram-excepcion`, `.gram-exp-toggle`, `.gram-rule-explicacion.open`.
-
----
-
----
-
-# Plan — chat-reformulaciones.html
-
-> Iniciado: 2026-06-15  
-> Scope: nuevo archivo `chat-reformulaciones.html` (standalone, sin build)  
-> Objetivo: practicar reformulación de frases en alemán con IA, guiado por las reglas de `gramatica.js`
-
-## regla obligatoria
-- Después de implementar cualquier etapa actualiza el estado de la etapa en este plan.
-
----
-
-## Concepto
-
-El usuario selecciona una o varias reglas gramaticales (tomadas de `GRAMMAR_DATA` de `gramatica.js`). La IA presenta una frase y pide al usuario que la reformule aplicando la regla activa. El usuario responde por **voz** (Whisper) o **texto**. La IA evalúa, corrige y da la siguiente frase. Si el usuario no selecciona reglas, la app elige al azar.
-
-### Diferencia con `chat-voz.html`
-| Aspecto | chat-voz | chat-reformulaciones |
-|---------|----------|---------------------|
-| Objetivo | conversación libre | reformulación guiada por reglas |
-| Turno del usuario | responde a una pregunta | transforma una frase concreta |
-| Feedback | corrección al vuelo | evaluación explícita de la reformulación + nota |
-| Selección de tema | nivel CEFR | reglas gramaticales individuales |
-
----
-
-## Arquitectura de datos
-
-### Fuente de reglas
-`gramatica.js` ya expone `GRAMMAR_DATA` como variable global. `chat-reformulaciones.html` carga ese script y lo consume directamente — no se duplican datos.
-
-Estructura de cada regla que se usa en este archivo:
-```
-{ id, titulo, regla_base, ejemplos[{ de, es }], tip, nivel }
-```
-`nivel` se infiere del prefijo del `id` (a1, a2, b1, b2, c1, c2).
-
-### Estado del juego (`State`)
-```js
-{
-  selectedRules: [],      // IDs de las reglas activas
-  currentRule: null,      // regla en curso
-  ruleQueue: [],          // cola aleatoria de reglas seleccionadas
-  sessionScore: { correct: 0, total: 0 },
-  messages: [],           // historial para la API
-  isRecording: false,
-  // mismo patrón de audio que chat-voz
-}
-```
-
----
-
-## Etapas de implementación
-
----
-
-### ETAPA 1 — Selector de reglas
-
-**Objetivo:** el usuario elige qué reglas practicar antes de iniciar.
-
-**UI:**
-- Panel superior con filtro por nivel (pills A1–C2, todos activos por defecto).
-- Lista de reglas como chips seleccionables: `[id] título`. Múltiple selección.
-- Botón "Selección aleatoria" que marca 5 reglas al azar del nivel activo.
-- Botón "Limpiar" que deselecciona todo.
-- Contador: "N reglas seleccionadas".
-- Si no hay ninguna seleccionada al pulsar Iniciar → se usan 5 al azar (comportamiento por defecto).
-
-**Implementación:**
-- Cargar `GRAMMAR_DATA` desde `gramatica.js` (script tag antes de la lógica).
-- Renderizar chips en un grid con `Object.entries(GRAMMAR_DATA).flatMap(...)`.
-- `State.selectedRules` se actualiza al hacer click en cada chip.
-
-**Estado:** ⬜ Pendiente
-
----
-
-### ETAPA 2 — Motor de sesión
-
-**Objetivo:** gestionar la cola de reglas y el turno actual.
-
-**Lógica:**
-- `startSession()`: copia `selectedRules` (o genera 5 al azar si vacío) en `State.ruleQueue`, mezcla, asigna `State.currentRule = ruleQueue[0]`.
-- `nextRule()`: avanza en la cola; al agotarse, reinicia la cola mezclada.
-- `buildSystemPrompt(rule)`: construye el system prompt incluyendo `rule.regla_base`, `rule.tip` y 2 ejemplos de `rule.ejemplos`.
-
-**System prompt base:**
-```
-Du bist ein Deutschlehrer. Deine Aufgabe: präsentiere dem Studenten EINEN deutschen Satz und fordere ihn auf, ihn gemäß dieser Grammatikregel umzuformulieren:
-
-REGEL: {rule.regla_base}
-TIPP: {rule.tip}
-
-Regeln:
-- Zeige NUR einen Satz pro Nachricht (8-15 Wörter, angepasst an Niveau {nivel}).
-- Nach der Reformulierung des Studenten: bewerte sie mit ✅ / ⚠️ / ❌, erkläre kurz den Fehler (auf Spanisch) und gib die korrekte Variante an.
-- Trenne Bewertung und neuer Satz mit "---NUEVA---".
-- Halte Erklärungen kurz (1-2 Sätze auf Spanisch).
-```
-
-**Estado:** ⬜ Pendiente
-
----
-
-### ETAPA 3 — Interfaz de práctica (chat)
-
-**Objetivo:** el usuario ve la frase a reformular, responde por voz o texto, y recibe feedback.
-
-**UI (igual que chat-voz, simplificada):**
-- Header: `[icono regla] Regla actual: {titulo}` + `{N/M en cola}`.
-- Área de chat (burbujas IA / usuario), idéntica a `chat-voz`.
-- Panel de info de la regla (colapsable): muestra `regla_base` + `tip` de la regla activa — referencia rápida sin salir de la app.
-- Controles: botón Grabar (voz) + campo de texto alternativo + botón Siguiente regla.
-- Marcador de sesión: `✓ N correctas · Total M`.
-
-**Flujo de un turno:**
-1. IA envía frase (primera respuesta al iniciar).
-2. Usuario graba o escribe su reformulación.
-3. Se envía a `/api/chat` con el historial completo.
-4. IA devuelve evaluación + nueva frase (separadas por `---NUEVA---`).
-5. La evaluación se muestra en una tarjeta de color (verde/naranja/rojo).
-6. La nueva frase se muestra en la burbuja siguiente lista para el próximo turno.
-
-**Parsing de la respuesta:**
-```js
-const parts = reply.split('---NUEVA---');
-const feedback = parts[0].trim();   // evaluación del turno anterior
-const nextPrompt = parts[1]?.trim(); // nueva frase (si existe)
-```
-
-**Estado:** ⬜ Pendiente
-
----
-
-### ETAPA 4 — Entrada de voz (reutilizar patrón de chat-voz)
-
-**Objetivo:** copiar el módulo de grabación de `chat-voz.html` sin modificar la API.
-
-**Implementación:**
-- Copiar directamente las funciones `startRecording()`, `stopRecording()`, `transcribeAndSend()` de `chat-voz.html`.
-- La única diferencia: en `transcribeAndSend()` llamar a `sendToAI(text)` del nuevo motor.
-- Botón de texto alternativo: `<textarea>` + botón Enviar para los que no quieran usar voz.
-- Reutilizar `speak()` (browser TTS con `lang='de-DE'`) para leer la frase que debe reformular el usuario.
-
-**Estado:** ⬜ Pendiente
-
----
-
-### ETAPA 5 — Resultado de sesión
-
-**Objetivo:** al terminar (o al pulsar "Finalizar"), mostrar un resumen.
-
-**UI:**
-- Overlay con: puntuación total `N/M`, lista de reglas practicadas con resultado por regla, botón "Volver a intentarlo" (mismas reglas) y "Nueva sesión" (vuelve al selector).
-- Opcional: enlace "Ver regla en gramática" por cada regla fallida (→ `gramatica.html#{id}`).
-
-**Estado:** ⬜ Pendiente
-
----
-
-### ETAPA 6 — Navbar, dark mode y auth
-
-**Objetivo:** integrar con el resto de las apps.
-
-- Copiar la navbar estándar de cualquier otra página; añadir enlace a `chat-reformulaciones.html` en el menú dropdown de todas las páginas.
-- Cargar `config.js` + `auth.js` (igual que todas las demás apps).
-- Usar `window.getAuthToken()` para las llamadas a `/api/chat` y `/api/whisper`.
-- Dark mode: `localStorage` key `darkMode_cr`.
-- `logEvent('chat-reformulaciones', 'session_end', { correct, total, rules })` al finalizar.
-
-**Estado:** ⬜ Pendiente
-
----
-
-## Dependencias externas
-
-| Recurso | Origen | Propósito |
-|---------|--------|-----------|
-| `gramatica.js` | local | fuente de `GRAMMAR_DATA` |
-| `config.js` | local | credenciales Supabase |
-| `auth.js` | local | auth modal, `getAuthToken`, `logEvent` |
-| `styles.css` | local | navbar, dark mode, base |
-| `/api/chat` | Vercel | generación de frases + evaluación |
-| `/api/whisper` | Vercel | transcripción de voz |
-
----
-
-## Archivos a crear / modificar
-
-| Acción | Archivo | Cambio |
-|--------|---------|--------|
-| Crear | `chat-reformulaciones.html` | nuevo app |
-| Modificar | todas las páginas con navbar | añadir enlace en dropdown |
-| Modificar | `CLAUDE.md` | entrada en tabla Active Files |
-
----
-
-## Estado de etapas
-
-| Etapa | Descripción | Estado |
-|-------|-------------|--------|
-| 1 | Selector de reglas | ✅ Completado (2026-06-15) |
-| 2 | Motor de sesión + system prompt | ✅ Completado (2026-06-15) |
-| 3 | Interfaz de práctica (chat + feedback) | ✅ Completado (2026-06-15) |
-| 4 | Entrada de voz (grabación + Whisper) | ✅ Completado (2026-06-15) |
-| 5 | Resultado de sesión | ✅ Completado (2026-06-15) |
-| 6 | Navbar, dark mode, auth, logEvent | ✅ Completado (2026-06-15) |
+| Bloque | Descripción | Estado |
+|--------|-------------|--------|
+| A — Robustez de sesión | Límite de contexto, mínimo de turnos, confirmación | ⬜ Pendiente |
+| B — TTS con OpenAI | Reemplazar browser TTS | ⬜ Pendiente |
+| C — Persistencia | localStorage de selección, historial, SRS | ⬜ Pendiente |
+| D — Selector UX | Búsqueda por texto, filtro favoritos | ⬜ Pendiente |
+| E — UX en sesión | Atajo teclado, barra progreso, ejemplos en hint | ⬜ Pendiente |

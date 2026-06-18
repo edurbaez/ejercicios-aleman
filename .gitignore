@@ -6,6 +6,7 @@ otrascosas/
 .env*.local
 .mcp.json
 
+
 # ── Sistema operativo ───────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db

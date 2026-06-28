@@ -145,12 +145,27 @@ const CRYPTO_LIST = [
 ];
 
 const INDEX_LIST = [
-    { id: 'SPX',   name: 'S&P 500',          symbol: 'SPX',   asset_type: 'index' },
-    { id: 'IXIC',  name: 'NASDAQ Composite', symbol: 'IXIC',  asset_type: 'index' },
-    { id: 'DJI',   name: 'Dow Jones',        symbol: 'DJI',   asset_type: 'index' },
-    { id: 'GDAXI', name: 'DAX (Alemania)',   symbol: 'GDAXI', asset_type: 'index' },
-    { id: 'FTSE',  name: 'FTSE 100 (UK)',    symbol: 'FTSE',  asset_type: 'index' },
-    { id: 'NKY',   name: 'Nikkei 225',       symbol: 'NKY',   asset_type: 'index' },
+    { id: '^GSPC',  name: 'S&P 500',          symbol: 'SPX',  asset_type: 'index' },
+    { id: '^IXIC',  name: 'NASDAQ Composite', symbol: 'IXIC', asset_type: 'index' },
+    { id: '^DJI',   name: 'Dow Jones',        symbol: 'DJI',  asset_type: 'index' },
+    { id: '^GDAXI', name: 'DAX (Alemania)',   symbol: 'DAX',  asset_type: 'index' },
+    { id: '^FTSE',  name: 'FTSE 100 (UK)',    symbol: 'FTSE', asset_type: 'index' },
+    { id: '^N225',  name: 'Nikkei 225',       symbol: 'N225', asset_type: 'index' },
+];
+
+const ETF_LIST = [
+    { id: 'SPY',  name: 'SPDR S&P 500',       symbol: 'SPY',  asset_type: 'index' },
+    { id: 'QQQ',  name: 'Invesco NASDAQ 100', symbol: 'QQQ',  asset_type: 'index' },
+    { id: 'DIA',  name: 'SPDR Dow Jones',     symbol: 'DIA',  asset_type: 'index' },
+    { id: 'IWM',  name: 'iShares Russell 2000',symbol: 'IWM', asset_type: 'index' },
+    { id: 'EWG',  name: 'iShares Germany',    symbol: 'EWG',  asset_type: 'index' },
+    { id: 'EWU',  name: 'iShares UK',         symbol: 'EWU',  asset_type: 'index' },
+    { id: 'EWJ',  name: 'iShares Japan',      symbol: 'EWJ',  asset_type: 'index' },
+    { id: 'GLD',  name: 'SPDR Gold',          symbol: 'GLD',  asset_type: 'index' },
+    { id: 'SLV',  name: 'iShares Silver',     symbol: 'SLV',  asset_type: 'index' },
+    { id: 'VT',   name: 'Vanguard Total World',symbol: 'VT',  asset_type: 'index' },
+    { id: 'VTI',  name: 'Vanguard Total US',  symbol: 'VTI',  asset_type: 'index' },
+    { id: 'ARKK', name: 'ARK Innovation',     symbol: 'ARKK', asset_type: 'index' },
 ];
 
 const DONUT_COLORS = ['#3B82F6','#16A34A','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#F97316'];
@@ -430,7 +445,7 @@ function renderWatchlist() {
                     <div class="fin-card-name">${item.name}</div>
                     <div class="fin-card-sym">${item.symbol.toUpperCase()}</div>
                 </div>
-                <span class="fin-card-badge ${item.asset_type}">${item.asset_type === 'crypto' ? 'Crypto' : 'Índice'}</span>
+                <span class="fin-card-badge ${item.asset_type}">${item.asset_type === 'crypto' ? 'Crypto' : item.symbol.startsWith('^') ? 'Índice' : 'ETF'}</span>
             </div>
             <div class="fin-card-price">${price != null ? formatPrice(price) : '<span class="fin-card-loading">Cargando…</span>'}</div>
             <div class="fin-card-change ${change != null ? pctClass(change) : ''}">${change != null ? formatPct(change) + ' hoy' : ''}</div>
@@ -725,7 +740,7 @@ function filterAssets(query) {
 
 function renderAssetList() {
     const watched = new Set(State.watchlist.map(w => w.symbol));
-    const all = [...CRYPTO_LIST, ...INDEX_LIST];
+    const all = [...CRYPTO_LIST, ...INDEX_LIST, ...ETF_LIST];
     const q = State.assetFilter;
     const filtered = q
         ? all.filter(a =>
@@ -742,7 +757,7 @@ function renderAssetList() {
                 <div class="fin-asset-item">
                     <div>
                         <div class="fin-asset-item-name">${a.name}</div>
-                        <div class="fin-asset-item-sub">${a.symbol} · ${a.asset_type === 'crypto' ? 'Crypto' : 'Índice'}</div>
+                        <div class="fin-asset-item-sub">${a.symbol} · ${a.asset_type === 'crypto' ? 'Crypto' : a.id.startsWith('^') ? 'Índice' : 'ETF'}</div>
                     </div>
                     <button class="fin-asset-item-add" ${inList ? 'disabled' : ''}
                         onclick="addToWatchlist(${itemJson})">
@@ -760,7 +775,7 @@ function renderAssetList() {
 function openAddPosition() {
     if (!window.currentUser) { window.openAuthModal?.(); return; }
     const sel = document.getElementById('pos-symbol-sel');
-    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST].map(a =>
+    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST, ...ETF_LIST].map(a =>
         `<option value="${a.id}" data-type="${a.asset_type}" data-name="${a.name}">
             ${a.name} (${a.symbol})
         </option>`
@@ -795,7 +810,7 @@ function savePosition() {
 function openAddAlert() {
     if (!window.currentUser) { window.openAuthModal?.(); return; }
     const sel = document.getElementById('alert-symbol-sel');
-    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST].map(a =>
+    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST, ...ETF_LIST].map(a =>
         `<option value="${a.id}" data-type="${a.asset_type}" data-name="${a.name}">
             ${a.name} (${a.symbol})
         </option>`

@@ -37,20 +37,26 @@ async function fetchIndexHistory(symbol, days = 30) {
     const cached = fromCache(cacheKey);
     if (cached) return cached;
 
-    const apiKey = process.env.TWELVE_DATA_API_KEY;
-    if (!apiKey) throw new Error('TWELVE_DATA_API_KEY no configurada');
-
-    const url = `https://api.twelvedata.com/time_series?symbol=${symbol}&interval=1day&outputsize=${days}&apikey=${apiKey}`;
-    const resp = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!resp.ok) throw new Error(`Twelve Data error ${resp.status}`);
+    const range = days <= 7 ? '5d' : days <= 30 ? '1mo' : '3mo';
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=${range}`;
+    const resp = await fetch(url, {
+        headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+    });
+    if (!resp.ok) throw new Error(`Yahoo Finance error ${resp.status}`);
     const raw = await resp.json();
 
-    if (raw.code) throw new Error(raw.message || 'Error de Twelve Data');
+    const result = raw?.chart?.result?.[0];
+    if (!result) throw new Error('Sin datos para este símbolo');
 
-    // raw.values: [{ datetime, close, ... }, ...] — más reciente primero
-    const data = (raw.values || [])
-        .reverse()
-        .map(v => ({ t: new Date(v.datetime).getTime(), p: parseFloat(v.close) }));
+    const timestamps = result.timestamp || [];
+    const closes = result.indicators?.quote?.[0]?.close || [];
+
+    const data = timestamps
+        .map((t, i) => ({ t: t * 1000, p: closes[i] }))
+        .filter(d => d.p != null);
 
     toCache(cacheKey, data);
     return data;

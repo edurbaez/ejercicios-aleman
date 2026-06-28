@@ -2,7 +2,6 @@ import { verifyJWT, createRateLimiter } from './_lib.js';
 
 const isRateLimited = createRateLimiter(10, 60_000, 'rl:finanzas-price');
 
-// In-memory cache: evita agotar el free tier de Twelve Data (800 req/día)
 const cache = new Map();
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
 
@@ -37,37 +36,25 @@ async function fetchIndices(symbols) {
     const cached = fromCache(cacheKey);
     if (cached) return cached;
 
-    const apiKey = process.env.TWELVE_DATA_API_KEY;
-    if (!apiKey) throw new Error('TWELVE_DATA_API_KEY no configurada');
-
-    const url = `https://api.twelvedata.com/quote?symbol=${symbols.join(',')}&apikey=${apiKey}`;
-    const resp = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!resp.ok) throw new Error(`Twelve Data error ${resp.status}`);
+    const encoded = symbols.map(s => encodeURIComponent(s)).join(',');
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encoded}&fields=regularMarketPrice,regularMarketChange,regularMarketChangePercent,shortName`;
+    const resp = await fetch(url, {
+        headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+    });
+    if (!resp.ok) throw new Error(`Yahoo Finance error ${resp.status}`);
     const raw = await resp.json();
 
-    // Twelve Data devuelve el objeto directamente si es 1 símbolo,
-    // o un objeto { SYMBOL: {...} } si son varios
     const data = {};
-    if (symbols.length === 1) {
-        const s = symbols[0];
-        if (raw.code) throw new Error(raw.message || 'Error de Twelve Data');
-        data[s] = {
-            price: parseFloat(raw.close),
-            change: parseFloat(raw.change),
-            percent_change: parseFloat(raw.percent_change),
-            name: raw.name,
+    for (const q of (raw?.quoteResponse?.result || [])) {
+        data[q.symbol] = {
+            price: q.regularMarketPrice,
+            change: q.regularMarketChange,
+            percent_change: q.regularMarketChangePercent,
+            name: q.shortName || q.symbol,
         };
-    } else {
-        for (const s of symbols) {
-            const q = raw[s];
-            if (!q || q.code) continue;
-            data[s] = {
-                price: parseFloat(q.close),
-                change: parseFloat(q.change),
-                percent_change: parseFloat(q.percent_change),
-                name: q.name,
-            };
-        }
     }
     toCache(cacheKey, data);
     return data;

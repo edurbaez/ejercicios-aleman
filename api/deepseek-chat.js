@@ -66,8 +66,16 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        return res.status(200).json({ reply: data.choices[0].message.content });
-    } catch {
-        return res.status(500).json({ error: 'Error interno' });
+        const msg = data.choices?.[0]?.message;
+        const reply = msg?.content || msg?.reasoning_content || '';
+        if (!reply) {
+            return res.status(500).json({
+                error: 'DeepSeek devolvió respuesta vacía',
+                debug: JSON.stringify(data).slice(0, 300),
+            });
+        }
+        return res.status(200).json({ reply });
+    } catch (e) {
+        return res.status(500).json({ error: 'Error interno', debug: e?.message });
     }
 }

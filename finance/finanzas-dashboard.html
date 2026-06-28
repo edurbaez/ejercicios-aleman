@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financiero</title>
+    <link rel="stylesheet" href="finanzas-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="../config.js"></script>
+    <script src="../auth.js"></script>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="fin-nav">
+    <a href="/" class="fin-nav-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Inicio
+    </a>
+    <span class="fin-nav-title">Finanzas</span>
+    <span class="fin-nav-badge">Beta</span>
+    <button id="auth-btn" class="fin-nav-btn" title="Cuenta" aria-label="Cuenta">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
+    <button class="fin-nav-btn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+    </button>
+</nav>
+
+<!-- Main -->
+<div class="fin-main">
+    <div class="fin-tabs">
+        <button class="fin-tab active" data-tab="watchlist" onclick="switchTab('watchlist')">Watchlist</button>
+        <button class="fin-tab" data-tab="portfolio" onclick="switchTab('portfolio')">Portfolio</button>
+        <button class="fin-tab" data-tab="alertas" onclick="switchTab('alertas')">Alertas</button>
+    </div>
+
+    <section id="tab-watchlist" class="fin-section active"></section>
+    <section id="tab-portfolio" class="fin-section"></section>
+    <section id="tab-alertas" class="fin-section"></section>
+</div>
+
+<!-- Modal: Añadir activo (watchlist) -->
+<div id="modal-add-asset" class="fin-modal-overlay" onclick="if(event.target===this)closeModal('modal-add-asset')">
+    <div class="fin-modal">
+        <div class="fin-modal-title">Añadir activo</div>
+        <input id="asset-search" class="fin-modal-search" type="search"
+            placeholder="Buscar por nombre o símbolo..." oninput="filterAssets(this.value)">
+        <div id="asset-list" class="fin-asset-list"></div>
+        <div class="fin-modal-actions">
+            <button class="fin-btn-cancel" onclick="closeModal('modal-add-asset')">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Añadir posición (portfolio) -->
+<div id="modal-add-position" class="fin-modal-overlay" onclick="if(event.target===this)closeModal('modal-add-position')">
+    <div class="fin-modal">
+        <div class="fin-modal-title">Nueva posición</div>
+        <div class="fin-form">
+            <div class="fin-form-group">
+                <label>Activo</label>
+                <select id="pos-symbol-sel"></select>
+            </div>
+            <div class="fin-form-group">
+                <label>Cantidad</label>
+                <input id="pos-qty" type="number" step="any" min="0" placeholder="Ej: 0.5">
+            </div>
+            <div class="fin-form-group">
+                <label>Precio de compra (USD)</label>
+                <input id="pos-buy-price" type="number" step="any" min="0" placeholder="Ej: 60000">
+            </div>
+            <div class="fin-form-group">
+                <label>Fecha de compra (opcional)</label>
+                <input id="pos-buy-date" type="date">
+            </div>
+        </div>
+        <div class="fin-modal-actions">
+            <button class="fin-btn-cancel" onclick="closeModal('modal-add-position')">Cancelar</button>
+            <button class="fin-btn-save" onclick="savePosition()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Nueva alerta -->
+<div id="modal-add-alert" class="fin-modal-overlay" onclick="if(event.target===this)closeModal('modal-add-alert')">
+    <div class="fin-modal">
+        <div class="fin-modal-title">Nueva alerta de precio</div>
+        <div class="fin-form">
+            <div class="fin-form-group">
+                <label>Activo</label>
+                <select id="alert-symbol-sel"></select>
+            </div>
+            <div class="fin-form-group">
+                <label>Condición</label>
+                <select id="alert-condition">
+                    <option value="above">Supera el precio</option>
+                    <option value="below">Cae por debajo del precio</option>
+                </select>
+            </div>
+            <div class="fin-form-group">
+                <label>Precio objetivo (USD)</label>
+                <input id="alert-target" type="number" step="any" min="0" placeholder="Ej: 70000">
+            </div>
+        </div>
+        <div class="fin-modal-actions">
+            <button class="fin-btn-cancel" onclick="closeModal('modal-add-alert')">Cancelar</button>
+            <button class="fin-btn-save" onclick="saveAlert()">Guardar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Gráfico histórico -->
+<div id="modal-chart" class="fin-modal-overlay" onclick="if(event.target===this)closeChart()">
+    <div class="fin-modal fin-modal-chart">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <div class="fin-modal-title" id="modal-chart-title" style="margin-bottom:0"></div>
+            <button onclick="closeChart()" style="background:none;border:none;cursor:pointer;color:var(--fin-muted);font-size:20px;line-height:1">✕</button>
+        </div>
+        <div class="fin-chart-container" id="chart-container"></div>
+    </div>
+</div>
+
+<script>
+// ================================================================
+// CONSTANTS
+// ================================================================
+
+const CRYPTO_LIST = [
+    { id: 'bitcoin',       name: 'Bitcoin',    symbol: 'BTC',  asset_type: 'crypto' },
+    { id: 'ethereum',      name: 'Ethereum',   symbol: 'ETH',  asset_type: 'crypto' },
+    { id: 'solana',        name: 'Solana',     symbol: 'SOL',  asset_type: 'crypto' },
+    { id: 'binancecoin',   name: 'BNB',        symbol: 'BNB',  asset_type: 'crypto' },
+    { id: 'ripple',        name: 'XRP',        symbol: 'XRP',  asset_type: 'crypto' },
+    { id: 'cardano',       name: 'Cardano',    symbol: 'ADA',  asset_type: 'crypto' },
+    { id: 'avalanche-2',   name: 'Avalanche',  symbol: 'AVAX', asset_type: 'crypto' },
+    { id: 'dogecoin',      name: 'Dogecoin',   symbol: 'DOGE', asset_type: 'crypto' },
+    { id: 'polkadot',      name: 'Polkadot',   symbol: 'DOT',  asset_type: 'crypto' },
+    { id: 'chainlink',     name: 'Chainlink',  symbol: 'LINK', asset_type: 'crypto' },
+    { id: 'litecoin',      name: 'Litecoin',   symbol: 'LTC',  asset_type: 'crypto' },
+    { id: 'matic-network', name: 'Polygon',    symbol: 'MATIC',asset_type: 'crypto' },
+    { id: 'uniswap',       name: 'Uniswap',    symbol: 'UNI',  asset_type: 'crypto' },
+    { id: 'tron',          name: 'TRON',       symbol: 'TRX',  asset_type: 'crypto' },
+];
+
+const INDEX_LIST = [
+    { id: 'SPX',   name: 'S&P 500',          symbol: 'SPX',   asset_type: 'index' },
+    { id: 'IXIC',  name: 'NASDAQ Composite', symbol: 'IXIC',  asset_type: 'index' },
+    { id: 'DJI',   name: 'Dow Jones',        symbol: 'DJI',   asset_type: 'index' },
+    { id: 'GDAXI', name: 'DAX (Alemania)',   symbol: 'GDAXI', asset_type: 'index' },
+    { id: 'FTSE',  name: 'FTSE 100 (UK)',    symbol: 'FTSE',  asset_type: 'index' },
+    { id: 'NKY',   name: 'Nikkei 225',       symbol: 'NKY',   asset_type: 'index' },
+];
+
+const DONUT_COLORS = ['#3B82F6','#16A34A','#F59E0B','#EF4444','#8B5CF6','#EC4899','#06B6D4','#F97316'];
+
+// ================================================================
+// STATE
+// ================================================================
+
+const State = {
+    tab: 'watchlist',
+    watchlist: [],
+    positions: [],
+    alerts: [],
+    prices: {},
+    refreshSeconds: 300,
+    refreshTimer: null,
+    countdownTimer: null,
+    chartInstance: null,
+    assetFilter: '',
+};
+
+// ================================================================
+// UTILS
+// ================================================================
+
+function formatPrice(p) {
+    if (p == null || isNaN(p)) return '--';
+    if (p < 0.01)  return '$' + p.toFixed(6);
+    if (p < 1)     return '$' + p.toFixed(4);
+    if (p < 100)   return '$' + p.toFixed(2);
+    return '$' + p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatPct(p) {
+    if (p == null || isNaN(p)) return '--';
+    return (p >= 0 ? '+' : '') + Number(p).toFixed(2) + '%';
+}
+
+function formatUSD(v) {
+    if (v == null || isNaN(v)) return '--';
+    const abs = Math.abs(v);
+    const sign = v < 0 ? '-' : '';
+    return sign + '$' + abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function pctClass(v) { return v >= 0 ? 'up' : 'down'; }
+
+// ================================================================
+// DARK MODE / TABS
+// ================================================================
+
+function toggleDarkMode() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('fin_dark', document.body.classList.contains('dark') ? '1' : '');
+}
+
+function switchTab(name) {
+    State.tab = name;
+    document.querySelectorAll('.fin-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.fin-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    document.querySelector(`.fin-tab[data-tab="${name}"]`).classList.add('active');
+    if (name === 'portfolio') renderPortfolio();
+    if (name === 'alertas')   renderAlerts();
+}
+
+// ================================================================
+// AUTH
+// ================================================================
+
+window.onAuthSignedIn = async () => {
+    await loadAll();
+    startRefreshCycle();
+};
+
+async function loadAll() {
+    await Promise.all([loadWatchlist(), loadPositions(), loadAlerts()]);
+    await fetchAndRender();
+}
+
+// ================================================================
+// SUPABASE CRUD
+// ================================================================
+
+async function loadWatchlist() {
+    const { data } = await window.sb.from('watchlist')
+        .select('*').eq('user_id', window.currentUser.id).order('created_at');
+    State.watchlist = data || [];
+}
+
+async function addToWatchlist(item) {
+    const { error } = await window.sb.from('watchlist').insert({
+        user_id: window.currentUser.id,
+        symbol: item.id,
+        asset_type: item.asset_type,
+        name: item.name,
+    });
+    if (error) { alert('Error: ' + error.message); return; }
+    await loadWatchlist();
+    await fetchAndRender();
+    renderAssetList();
+}
+
+async function removeFromWatchlist(id) {
+    await window.sb.from('watchlist').delete().eq('id', id);
+    State.watchlist = State.watchlist.filter(w => w.id !== id);
+    renderWatchlist();
+}
+
+async function loadPositions() {
+    const { data } = await window.sb.from('portfolio_positions')
+        .select('*').eq('user_id', window.currentUser.id).order('created_at');
+    State.positions = data || [];
+}
+
+async function addPosition(payload) {
+    const { error } = await window.sb.from('portfolio_positions').insert({
+        user_id: window.currentUser.id, ...payload,
+    });
+    if (error) { alert('Error: ' + error.message); return; }
+    await loadPositions();
+    renderPortfolio();
+    closeModal('modal-add-position');
+}
+
+async function removePosition(id) {
+    await window.sb.from('portfolio_positions').delete().eq('id', id);
+    State.positions = State.positions.filter(p => p.id !== id);
+    renderPortfolio();
+}
+
+async function loadAlerts() {
+    const { data } = await window.sb.from('price_alerts')
+        .select('*').eq('user_id', window.currentUser.id).order('created_at', { ascending: false });
+    State.alerts = data || [];
+}
+
+async function addAlert(payload) {
+    const { error } = await window.sb.from('price_alerts').insert({
+        user_id: window.currentUser.id, active: true, ...payload,
+    });
+    if (error) { alert('Error: ' + error.message); return; }
+    await loadAlerts();
+    renderAlerts();
+    closeModal('modal-add-alert');
+}
+
+async function removeAlert(id) {
+    await window.sb.from('price_alerts').delete().eq('id', id);
+    State.alerts = State.alerts.filter(a => a.id !== id);
+    renderAlerts();
+}
+
+async function triggerAlert(alert) {
+    await window.sb.from('price_alerts').update({
+        active: false, triggered_at: new Date().toISOString(),
+    }).eq('id', alert.id);
+    alert.active = false;
+    alert.triggered_at = new Date().toISOString();
+    showAlertBanner(alert);
+    if (State.tab === 'alertas') renderAlerts();
+}
+
+// ================================================================
+// PRICE FETCHING
+// ================================================================
+
+function collectSymbols() {
+    const crypto = new Set(), indices = new Set();
+    [...State.watchlist, ...State.positions, ...State.alerts].forEach(item => {
+        if (item.asset_type === 'crypto') crypto.add(item.symbol);
+        else if (item.asset_type === 'index') indices.add(item.symbol);
+    });
+    return { crypto: [...crypto], indices: [...indices] };
+}
+
+async function fetchAndRender() {
+    const { crypto, indices } = collectSymbols();
+    if (!crypto.length && !indices.length) { renderWatchlist(); return; }
+
+    try {
+        const token = await window.getAuthToken?.();
+        const resp = await fetch('/api/finanzas-price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ crypto, indices }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error);
+
+        State.prices = {};
+        for (const [id, d] of Object.entries(data.crypto || {})) {
+            State.prices[id] = { price: d.usd, change24h: d.usd_24h_change };
+        }
+        for (const [sym, d] of Object.entries(data.indices || {})) {
+            State.prices[sym] = { price: d.price, change24h: d.percent_change };
+        }
+    } catch (e) {
+        console.error('finanzas-price error:', e);
+    }
+
+    renderWatchlist();
+    if (State.tab === 'portfolio') renderPortfolio();
+    if (State.tab === 'alertas')   renderAlerts();
+    checkAlerts();
+}
+
+function startRefreshCycle() {
+    State.refreshSeconds = 300;
+    clearInterval(State.refreshTimer);
+    clearInterval(State.countdownTimer);
+
+    State.refreshTimer = setInterval(() => {
+        State.refreshSeconds = 300;
+        fetchAndRender();
+    }, 300_000);
+
+    State.countdownTimer = setInterval(() => {
+        State.refreshSeconds = Math.max(0, State.refreshSeconds - 1);
+        const el = document.getElementById('refresh-countdown');
+        if (el) el.textContent = `Actualiza en ${State.refreshSeconds}s`;
+    }, 1000);
+}
+
+// ================================================================
+// WATCHLIST UI
+// ================================================================
+
+function renderWatchlist() {
+    const section = document.getElementById('tab-watchlist');
+
+    if (!window.currentUser) {
+        section.innerHTML = `
+            <div class="fin-auth-wall">
+                <div class="fin-auth-wall-icon">🔒</div>
+                <p>Inicia sesión para ver tu watchlist</p>
+                <button class="fin-auth-btn" onclick="window.openAuthModal?.()">Iniciar sesión</button>
+            </div>`;
+        return;
+    }
+
+    section.innerHTML = `
+        <div class="fin-section-header">
+            <div>
+                <div class="fin-section-title">Watchlist</div>
+                <div class="fin-refresh-info" id="refresh-countdown">Actualiza en ${State.refreshSeconds}s</div>
+            </div>
+            <button class="fin-add-btn" onclick="openAddAsset()">+ Añadir activo</button>
+        </div>
+        <div class="fin-cards-grid" id="watchlist-grid"></div>`;
+
+    const grid = document.getElementById('watchlist-grid');
+
+    if (!State.watchlist.length) {
+        grid.innerHTML = `
+            <div class="fin-empty">
+                <div class="fin-empty-icon">📈</div>
+                <p>Tu watchlist está vacía.</p>
+                <p style="margin-top:6px">Añade activos para empezar a monitorear.</p>
+            </div>`;
+        return;
+    }
+
+    State.watchlist.forEach(item => {
+        const p = State.prices[item.symbol];
+        const price = p?.price;
+        const change = p?.change24h;
+        const card = document.createElement('div');
+        card.className = 'fin-card';
+        card.innerHTML = `
+            <button class="fin-card-remove" onclick="removeFromWatchlist('${item.id}')" title="Eliminar">✕</button>
+            <div class="fin-card-header">
+                <div>
+                    <div class="fin-card-name">${item.name}</div>
+                    <div class="fin-card-sym">${item.symbol.toUpperCase()}</div>
+                </div>
+                <span class="fin-card-badge ${item.asset_type}">${item.asset_type === 'crypto' ? 'Crypto' : 'Índice'}</span>
+            </div>
+            <div class="fin-card-price">${price != null ? formatPrice(price) : '<span class="fin-card-loading">Cargando…</span>'}</div>
+            <div class="fin-card-change ${change != null ? pctClass(change) : ''}">${change != null ? formatPct(change) + ' hoy' : ''}</div>
+            <button class="fin-card-chart-btn" onclick="openChart('${item.symbol}','${item.asset_type}','${item.name.replace(/'/g,"\\'")}')">Ver gráfico 30d</button>`;
+        grid.appendChild(card);
+    });
+}
+
+// ================================================================
+// PORTFOLIO UI
+// ================================================================
+
+function renderPortfolio() {
+    const section = document.getElementById('tab-portfolio');
+
+    if (!window.currentUser) {
+        section.innerHTML = `
+            <div class="fin-auth-wall">
+                <div class="fin-auth-wall-icon">🔒</div>
+                <p>Inicia sesión para ver tu portfolio</p>
+                <button class="fin-auth-btn" onclick="window.openAuthModal?.()">Iniciar sesión</button>
+            </div>`;
+        return;
+    }
+
+    const enriched = State.positions.map(pos => {
+        const p = State.prices[pos.symbol];
+        const currentPrice = p?.price ?? pos.buy_price;
+        const value = pos.qty * currentPrice;
+        const cost  = pos.qty * pos.buy_price;
+        const pnl   = value - cost;
+        const pnlPct = cost > 0 ? (pnl / cost) * 100 : 0;
+        return { ...pos, currentPrice, value, cost, pnl, pnlPct };
+    });
+
+    const totalValue = enriched.reduce((s, p) => s + p.value, 0);
+    const totalCost  = enriched.reduce((s, p) => s + p.cost,  0);
+    const totalPnl   = totalValue - totalCost;
+    const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+
+    section.innerHTML = `
+        <div class="fin-section-header">
+            <div class="fin-section-title">Portfolio</div>
+            <button class="fin-add-btn" onclick="openAddPosition()">+ Añadir posición</button>
+        </div>
+        <div class="fin-summary-row">
+            <div class="fin-summary-card">
+                <div class="fin-summary-label">Valor total</div>
+                <div class="fin-summary-value">${formatUSD(totalValue)}</div>
+            </div>
+            <div class="fin-summary-card">
+                <div class="fin-summary-label">P&amp;L total</div>
+                <div class="fin-summary-value ${pctClass(totalPnl)}">${formatUSD(totalPnl)}</div>
+                <div class="fin-summary-sub ${pctClass(totalPnl)}">${formatPct(totalPnlPct)}</div>
+            </div>
+            <div class="fin-summary-card">
+                <div class="fin-summary-label">Posiciones</div>
+                <div class="fin-summary-value">${State.positions.length}</div>
+            </div>
+        </div>`;
+
+    if (!State.positions.length) {
+        section.innerHTML += `
+            <div class="fin-empty">
+                <div class="fin-empty-icon">💼</div>
+                <p>Sin posiciones. Añade tu primera compra.</p>
+            </div>`;
+        return;
+    }
+
+    section.innerHTML += `
+        <div class="fin-portfolio-grid">
+            <div class="fin-table-wrap">
+                <table class="fin-table">
+                    <thead><tr>
+                        <th>Activo</th><th>Cantidad</th>
+                        <th>Precio compra</th><th>Precio actual</th>
+                        <th>P&amp;L</th><th>Valor</th><th></th>
+                    </tr></thead>
+                    <tbody>
+                        ${enriched.map(p => `
+                        <tr>
+                            <td>
+                                <div style="font-weight:700">${p.name}</div>
+                                <div style="font-size:11px;color:var(--fin-muted)">${p.symbol.toUpperCase()}</div>
+                            </td>
+                            <td>${p.qty}</td>
+                            <td>${formatPrice(p.buy_price)}</td>
+                            <td>${formatPrice(p.currentPrice)}</td>
+                            <td class="${pctClass(p.pnl)}">
+                                ${formatUSD(p.pnl)}<br>
+                                <span style="font-size:11px">${formatPct(p.pnlPct)}</span>
+                            </td>
+                            <td style="font-weight:700">${formatUSD(p.value)}</td>
+                            <td><button class="fin-table-remove" onclick="removePosition('${p.id}')" title="Eliminar">✕</button></td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
+            <div class="fin-donut-wrap">
+                <div class="fin-donut" id="donut-chart"></div>
+                <div class="fin-donut-legend" id="donut-legend"></div>
+            </div>
+        </div>`;
+
+    // Donut chart (CSS conic-gradient)
+    if (totalValue > 0) {
+        const parts = []; let cum = 0;
+        enriched.forEach((p, i) => {
+            const pct = (p.value / totalValue) * 100;
+            const color = DONUT_COLORS[i % DONUT_COLORS.length];
+            parts.push(`${color} ${cum.toFixed(1)}% ${(cum + pct).toFixed(1)}%`);
+            cum += pct;
+            document.getElementById('donut-legend').innerHTML +=
+                `<div class="fin-donut-legend-item">
+                    <div class="fin-donut-dot" style="background:${color}"></div>
+                    <span>${p.name} <span style="color:var(--fin-muted)">${pct.toFixed(1)}%</span></span>
+                </div>`;
+        });
+        document.getElementById('donut-chart').style.background = `conic-gradient(${parts.join(',')})`;
+    }
+}
+
+// ================================================================
+// ALERTS UI
+// ================================================================
+
+function renderAlerts() {
+    const section = document.getElementById('tab-alertas');
+
+    if (!window.currentUser) {
+        section.innerHTML = `
+            <div class="fin-auth-wall">
+                <div class="fin-auth-wall-icon">🔒</div>
+                <p>Inicia sesión para ver tus alertas</p>
+                <button class="fin-auth-btn" onclick="window.openAuthModal?.()">Iniciar sesión</button>
+            </div>`;
+        return;
+    }
+
+    section.innerHTML = `
+        <div class="fin-section-header">
+            <div class="fin-section-title">Alertas de precio</div>
+            <button class="fin-add-btn" onclick="openAddAlert()">+ Nueva alerta</button>
+        </div>
+        <div class="fin-alerts-list" id="alerts-list"></div>`;
+
+    const list = document.getElementById('alerts-list');
+
+    if (!State.alerts.length) {
+        list.innerHTML = `
+            <div class="fin-empty">
+                <div class="fin-empty-icon">🔔</div>
+                <p>Sin alertas configuradas.</p>
+            </div>`;
+        return;
+    }
+
+    State.alerts.forEach(alert => {
+        const p = State.prices[alert.symbol];
+        const currentPrice = p?.price;
+        const fired = !alert.active && alert.triggered_at;
+        const condLabel = alert.condition === 'above' ? 'supere' : 'caiga por debajo de';
+        const row = document.createElement('div');
+        row.className = 'fin-alert-row' + (fired ? ` triggered-${alert.condition === 'above' ? 'up' : 'down'}` : '');
+        row.innerHTML = `
+            <div class="fin-alert-icon">${fired ? (alert.condition === 'above' ? '📈' : '📉') : '🔔'}</div>
+            <div class="fin-alert-info">
+                <div class="fin-alert-name">${alert.name} <span style="font-weight:400;color:var(--fin-muted)">(${alert.symbol.toUpperCase()})</span></div>
+                <div class="fin-alert-desc">
+                    Cuando ${condLabel} ${formatPrice(alert.target_price)}
+                    ${currentPrice != null ? `· Actual: <strong>${formatPrice(currentPrice)}</strong>` : ''}
+                    ${fired ? `· Disparada: ${new Date(alert.triggered_at).toLocaleDateString('es')}` : ''}
+                </div>
+            </div>
+            <span class="fin-alert-status ${fired ? 'triggered' : 'active'}">${fired ? 'Disparada' : 'Activa'}</span>
+            <button class="fin-table-remove" onclick="removeAlert('${alert.id}')" title="Eliminar">✕</button>`;
+        list.appendChild(row);
+    });
+}
+
+function checkAlerts() {
+    State.alerts.filter(a => a.active).forEach(alert => {
+        const p = State.prices[alert.symbol];
+        if (!p) return;
+        const hit = alert.condition === 'above'
+            ? p.price >= alert.target_price
+            : p.price <= alert.target_price;
+        if (hit) triggerAlert(alert);
+    });
+}
+
+function showAlertBanner(alert) {
+    const isUp = alert.condition === 'above';
+    const banner = document.createElement('div');
+    Object.assign(banner.style, {
+        position: 'fixed', top: '60px', right: '16px',
+        background: isUp ? '#16A34A' : '#DC2626',
+        color: '#fff', borderRadius: '10px', padding: '14px 18px',
+        zIndex: '400', boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+        fontSize: '14px', maxWidth: '300px', lineHeight: '1.5',
+    });
+    banner.innerHTML = `<strong>🔔 Alerta disparada</strong><br>
+        ${alert.name} ${isUp ? 'superó' : 'cayó por debajo de'} ${formatPrice(alert.target_price)}`;
+    document.body.appendChild(banner);
+    setTimeout(() => banner.remove(), 7000);
+}
+
+// ================================================================
+// CHART MODAL
+// ================================================================
+
+async function openChart(symbol, assetType, name) {
+    document.getElementById('modal-chart-title').textContent = `${name} — últimos 30 días`;
+    openModal('modal-chart');
+    const container = document.getElementById('chart-container');
+    container.innerHTML = '<div style="padding:24px;color:var(--fin-muted)">Cargando gráfico…</div>';
+    if (State.chartInstance) { State.chartInstance.remove(); State.chartInstance = null; }
+
+    try {
+        const token = await window.getAuthToken?.();
+        const resp = await fetch('/api/finanzas-history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ symbol, asset_type: assetType, days: 30 }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error);
+
+        container.innerHTML = '';
+        const dark = document.body.classList.contains('dark');
+        const chart = LightweightCharts.createChart(container, {
+            width: container.clientWidth || 600,
+            height: 280,
+            layout: {
+                background: { type: 'solid', color: dark ? '#1E293B' : '#FFFFFF' },
+                textColor: dark ? '#94A3B8' : '#64748B',
+            },
+            grid: {
+                vertLines: { color: dark ? '#334155' : '#E2E8F0' },
+                horzLines: { color: dark ? '#334155' : '#E2E8F0' },
+            },
+            rightPriceScale: { borderColor: dark ? '#334155' : '#E2E8F0' },
+            timeScale: { borderColor: dark ? '#334155' : '#E2E8F0', timeVisible: false },
+            handleScroll: false, handleScale: false,
+        });
+
+        const prices = data.prices || [];
+        const isUp = prices.length > 1 ? prices[prices.length - 1].p >= prices[0].p : true;
+
+        const series = chart.addAreaSeries({
+            lineColor: isUp ? '#16A34A' : '#DC2626',
+            topColor:  isUp ? 'rgba(22,163,74,0.25)' : 'rgba(220,38,38,0.25)',
+            bottomColor: 'rgba(0,0,0,0)',
+            lineWidth: 2,
+            crosshairMarkerRadius: 4,
+        });
+
+        series.setData(prices.map(p => ({ time: Math.floor(p.t / 1000), value: p.p })));
+        chart.timeScale().fitContent();
+        State.chartInstance = chart;
+    } catch (e) {
+        container.innerHTML = `<div style="padding:24px;color:var(--color-down)">Error: ${e.message}</div>`;
+    }
+}
+
+function closeChart() {
+    closeModal('modal-chart');
+    if (State.chartInstance) { State.chartInstance.remove(); State.chartInstance = null; }
+}
+
+// ================================================================
+// ADD ASSET MODAL
+// ================================================================
+
+function openAddAsset() {
+    if (!window.currentUser) { window.openAuthModal?.(); return; }
+    State.assetFilter = '';
+    document.getElementById('asset-search').value = '';
+    renderAssetList();
+    openModal('modal-add-asset');
+    setTimeout(() => document.getElementById('asset-search').focus(), 100);
+}
+
+function filterAssets(query) {
+    State.assetFilter = query.toLowerCase();
+    renderAssetList();
+}
+
+function renderAssetList() {
+    const watched = new Set(State.watchlist.map(w => w.symbol));
+    const all = [...CRYPTO_LIST, ...INDEX_LIST];
+    const q = State.assetFilter;
+    const filtered = q
+        ? all.filter(a =>
+            a.name.toLowerCase().includes(q) ||
+            a.id.toLowerCase().includes(q) ||
+            a.symbol.toLowerCase().includes(q))
+        : all;
+
+    document.getElementById('asset-list').innerHTML = filtered.length
+        ? filtered.map(a => {
+            const inList = watched.has(a.id);
+            const itemJson = JSON.stringify(a).replace(/"/g, '&quot;');
+            return `
+                <div class="fin-asset-item">
+                    <div>
+                        <div class="fin-asset-item-name">${a.name}</div>
+                        <div class="fin-asset-item-sub">${a.symbol} · ${a.asset_type === 'crypto' ? 'Crypto' : 'Índice'}</div>
+                    </div>
+                    <button class="fin-asset-item-add" ${inList ? 'disabled' : ''}
+                        onclick="addToWatchlist(${itemJson})">
+                        ${inList ? '✓ Añadido' : '+ Añadir'}
+                    </button>
+                </div>`;
+        }).join('')
+        : '<div style="padding:20px;text-align:center;color:var(--fin-muted)">Sin resultados</div>';
+}
+
+// ================================================================
+// ADD POSITION MODAL
+// ================================================================
+
+function openAddPosition() {
+    if (!window.currentUser) { window.openAuthModal?.(); return; }
+    const sel = document.getElementById('pos-symbol-sel');
+    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST].map(a =>
+        `<option value="${a.id}" data-type="${a.asset_type}" data-name="${a.name}">
+            ${a.name} (${a.symbol})
+        </option>`
+    ).join('');
+    document.getElementById('pos-qty').value = '';
+    document.getElementById('pos-buy-price').value = '';
+    document.getElementById('pos-buy-date').value = '';
+    openModal('modal-add-position');
+}
+
+function savePosition() {
+    const sel = document.getElementById('pos-symbol-sel');
+    const opt = sel.options[sel.selectedIndex];
+    const qty = parseFloat(document.getElementById('pos-qty').value);
+    const buyPrice = parseFloat(document.getElementById('pos-buy-price').value);
+    const buyDate  = document.getElementById('pos-buy-date').value;
+    if (!qty || qty <= 0)      { alert('Cantidad inválida'); return; }
+    if (!buyPrice || buyPrice <= 0) { alert('Precio de compra inválido'); return; }
+    addPosition({
+        symbol: sel.value,
+        asset_type: opt.dataset.type,
+        name: opt.dataset.name,
+        qty, buy_price: buyPrice,
+        buy_date: buyDate || null,
+    });
+}
+
+// ================================================================
+// ADD ALERT MODAL
+// ================================================================
+
+function openAddAlert() {
+    if (!window.currentUser) { window.openAuthModal?.(); return; }
+    const sel = document.getElementById('alert-symbol-sel');
+    sel.innerHTML = [...CRYPTO_LIST, ...INDEX_LIST].map(a =>
+        `<option value="${a.id}" data-type="${a.asset_type}" data-name="${a.name}">
+            ${a.name} (${a.symbol})
+        </option>`
+    ).join('');
+    document.getElementById('alert-target').value = '';
+    openModal('modal-add-alert');
+}
+
+function saveAlert() {
+    const sel = document.getElementById('alert-symbol-sel');
+    const opt = sel.options[sel.selectedIndex];
+    const condition   = document.getElementById('alert-condition').value;
+    const targetPrice = parseFloat(document.getElementById('alert-target').value);
+    if (!targetPrice || targetPrice <= 0) { alert('Precio objetivo inválido'); return; }
+    addAlert({
+        symbol: sel.value,
+        asset_type: opt.dataset.type,
+        name: opt.dataset.name,
+        condition,
+        target_price: targetPrice,
+    });
+}
+
+// ================================================================
+// MODAL HELPERS
+// ================================================================
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.fin-modal-overlay.open')
+            .forEach(m => m.classList.remove('open'));
+        if (State.chartInstance) { State.chartInstance.remove(); State.chartInstance = null; }
+    }
+});
+
+// ================================================================
+// INIT
+// ================================================================
+
+(function init() {
+    if (localStorage.getItem('fin_dark') === '1') document.body.classList.add('dark');
+    renderWatchlist();
+})();
+</script>
+</body>
+</html>

@@ -164,11 +164,11 @@ Notificaciones cuando un activo cruza un precio objetivo.
 |-----------|--------|-------|--------|
 | 1 | API | `finanzas-price.js` — CoinGecko + Twelve Data + caché | ✅ |
 | 2 | API | `finanzas-history.js` — histórico 30 días | ✅ |
-| 3 | UI | Shell: navbar, tabs, dark mode, auth | ⬜ |
-| 4 | UI | Watchlist: tarjetas, buscador, auto-refresh | ⬜ |
-| 5 | UI | Portfolio: formulario, tabla, P&L, donut | ⬜ |
-| 6 | UI | Alertas: formulario, lista, check automático | ⬜ |
-| 7 | UI | Gráficos: sparklines watchlist + histórico portfolio | ⬜ |
+| 3 | UI | Shell: navbar, tabs, dark mode, auth | ✅ |
+| 4 | UI | Watchlist: tarjetas, buscador, auto-refresh | ✅ |
+| 5 | UI | Portfolio: formulario, tabla, P&L, donut | ✅ |
+| 6 | UI | Alertas: formulario, lista, check automático | ✅ |
+| 7 | UI | Gráficos: histórico 30d por activo (modal) | ✅ |
 
 ---
 
@@ -178,7 +178,7 @@ Notificaciones cuando un activo cruza un precio objetivo.
 |--------|-------------|--------|
 | 1 — API precios | finanzas-price.js | ✅ Completo |
 | 2 — API histórico | finanzas-history.js | ✅ Completo |
-| 3 — Portfolio | Posiciones + P&L | ⬜ Pendiente |
-| 4 — Watchlist | Tarjetas + buscador | ⬜ Pendiente |
-| 5 — Alertas | Formulario + check | ⬜ Pendiente |
-| 6 — UI Shell | Navbar + tabs + estilos | ⬜ Pendiente |
+| 3 — Portfolio | Posiciones + P&L + donut | ✅ Completo |
+| 4 — Watchlist | Tarjetas + buscador + auto-refresh | ✅ Completo |
+| 5 — Alertas | Formulario + check automático | ✅ Completo |
+| 6 — UI Shell | Navbar + tabs + estilos + gráficos | ✅ Completo |

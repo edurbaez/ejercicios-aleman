@@ -5,7 +5,7 @@
 
 ---
 
-## Stack
+## Stack 
 
 | Capa | Tecnología |
 |------|-----------|

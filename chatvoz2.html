@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat de Voz · DeepSeek</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <style>
+        .cv2-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 48px;
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 16px;
+            z-index: 100;
+        }
+        body.dark .cv2-navbar { background: #1a1a1a; border-color: #333; }
+        .cv2-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: #555;
+            text-decoration: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+        body.dark .cv2-back-btn { color: #aaa; }
+        .cv2-back-btn:hover { background: #f0f0f0; }
+        body.dark .cv2-back-btn:hover { background: #2a2a2a; }
+        .cv2-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            flex: 1;
+        }
+        body.dark .cv2-title { color: #eee; }
+        .cv2-badge {
+            font-size: 11px;
+            background: #e8f4fd;
+            color: #1565C0;
+            border: 1px solid #90CAF9;
+            border-radius: 4px;
+            padding: 2px 7px;
+            font-weight: 600;
+        }
+        body.dark .cv2-badge { background: #1a2a3a; color: #64B5F6; border-color: #1565C0; }
+        .cv2-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .cv2-icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+        body.dark .cv2-icon-btn { color: #aaa; }
+        .cv2-icon-btn:hover { background: #f0f0f0; }
+        body.dark .cv2-icon-btn:hover { background: #2a2a2a; }
+        body { padding-top: 48px; }
+        .cv-app { padding-top: 0; }
+    </style>
+</head>
+<body id="page-cv">
+    <nav class="cv2-navbar">
+        <a href="/" class="cv2-back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Inicio
+        </a>
+        <span class="cv2-title">Chat de Voz</span>
+        <span class="cv2-badge">DeepSeek</span>
+        <div class="cv2-nav-right">
+            <button id="auth-btn" class="cv2-icon-btn" title="Iniciar sesión" aria-label="Iniciar sesión">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            <button class="cv2-icon-btn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <div class="cv-app">
+        <div class="cv-header">
+            <h1>Chat de Voz</h1>
+            <p>Practica alemán conversando con IA</p>
+        </div>
+
+        <div class="cv-config">
+            <div class="cv-config-group">
+                <label>Nivel:</label>
+                <div class="cv-level-btns" id="levelBtns">
+                    <button class="cv-level-btn" data-level="A1">A1</button>
+                    <button class="cv-level-btn" data-level="A2">A2</button>
+                    <button class="cv-level-btn active" data-level="B1">B1</button>
+                    <button class="cv-level-btn" data-level="B2">B2</button>
+                    <button class="cv-level-btn" data-level="C1">C1</button>
+                    <button class="cv-level-btn" data-level="C2">C2</button>
+                </div>
+            </div>
+            <div class="cv-config-actions">
+                <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
+                <button class="cv-guided-toggle" id="guidedBtn" onclick="toggleGuidedMode()" title="Sugerencia" aria-label="Sugerencia">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                </button>
+                <button class="cv-guided-toggle" id="repetirBtn" onclick="toggleRepetirMode()" title="Repetir" aria-label="Modo repetir">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                </button>
+                <button class="cv-new-btn" id="newConvBtn" onclick="newConversation()" title="Nueva conversación" aria-label="Nueva conversación">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="10" y1="10" x2="14" y2="10"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal de contexto -->
+        <div class="cv-modal-overlay" id="contextModal" onclick="closeContextModal(event)">
+            <div class="cv-modal">
+                <h3>Personalizar conversación</h3>
+                <p class="cv-modal-label">Escenario:</p>
+                <div class="cv-scenarios-grid" id="scenariosGrid"></div>
+                <p class="cv-modal-label" style="margin-top:12px">Rol de la IA:</p>
+                <textarea id="rolText" class="cv-modal-textarea" rows="3"
+                    placeholder="Ejemplos:&#10;• Eres un compañero de clase del curso de alemán&#10;• Eres un trabajador en una tienda de ropa&#10;• Eres un médico en un consultorio&#10;• Eres un mesero en un restaurante"></textarea>
+                <p class="cv-modal-label" style="margin-top:12px">Contexto sobre ti:</p>
+                <p class="cv-modal-desc">Cuéntale a la IA sobre ti o dile de qué quieres hablar.</p>
+                <textarea id="contextText" class="cv-modal-textarea" rows="4"
+                    placeholder="Ejemplos:&#10;• Tengo 28 años y trabajo como ingeniero&#10;• Quiero practicar vocabulario de cocina&#10;• Me interesa hablar de viajes y cultura alemana&#10;• Soy estudiante universitario de medicina"></textarea>
+                <div class="cv-modal-actions">
+                    <button class="cv-modal-cancel" onclick="closeContextModal()">Cancelar</button>
+                    <button class="cv-modal-save" onclick="saveContext()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="cv-mision-banner" id="misionBanner" style="display:none">
+            <span class="cv-mision-icon">🎯</span>
+            <div>
+                <strong id="misionLabel">Misión</strong>
+                <span id="misionText"></span>
+            </div>
+        </div>
+
+        <div id="repetirPanel" class="cv-repetir-panel" style="display:none">
+            <div class="cv-repetir-header">
+                <span class="cv-repetir-counter" id="repetirCounter">1 / 10</span>
+                <span class="cv-repetir-nivel" id="repetirNivel">B1</span>
+            </div>
+            <div class="cv-repetir-phrase" id="repetirPhrase">Cargando frases...</div>
+            <div class="cv-repetir-actions">
+                <button class="cv-repetir-listen-btn" id="repetirListenBtn" onclick="repetirListen()" disabled>🔊 Escuchar</button>
+                <button class="cv-repetir-rec-btn" id="repetirRecBtn" onclick="toggleRepetirRecord()" disabled>🎙 Repetir</button>
+                <button class="cv-repetir-next-btn" id="repetirNextBtn" style="display:none" onclick="nextRepetirPhrase()">Siguiente →</button>
+            </div>
+            <div class="cv-repetir-result" id="repetirResult" style="display:none"></div>
+            <p class="cv-repetir-hint" id="repetirHint"></p>
+        </div>
+
+        <div class="cv-chat" id="chatArea">
+            <div class="cv-empty" id="chatEmpty">
+                <p>Presiona <strong>Iniciar</strong> para comenzar</p>
+            </div>
+        </div>
+
+        <div class="cv-controls">
+            <div class="cv-timer" id="recTimer" style="display:none">
+                <div class="cv-timer-bar-wrap">
+                    <div class="cv-timer-bar" id="recTimerBar"></div>
+                </div>
+                <span id="recTimerText">0:00</span>
+            </div>
+            <div class="cv-btn-row">
+                <button class="cv-start-btn" id="startBtn" onclick="startConversation()">Iniciar</button>
+                <button class="cv-record-btn" id="recordBtn" style="display:none">Responder</button>
+                <button class="cv-send-btn" id="sendBtn" style="display:none">Enviar</button>
+            </div>
+            <p class="cv-hint" id="cvHint">Selecciona un nivel y presiona Iniciar</p>
+            <p class="cv-daily-info" id="cvDailyInfo"></p>
+        </div>
+    </div>
+
+    <script>
+    const DAILY_LIMIT_MS = 60 * 60 * 1000;
+    const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+    const CHAT_API = '/api/deepseek-chat';
+    const STORAGE_PREFIX = 'cv2_';
+
+    const SCENARIOS = [
+        { key: 'libre',       icon: '💬', name: 'Libre',       rol: DEFAULT_ROL, contexto: '',
+          mision: 'Preséntate y cuéntale a tu interlocutor al menos 3 cosas sobre tu vida diaria.' },
+        { key: 'supermercado',icon: '🛒', name: 'Supermercado',
+          rol: 'Eres un cajero amable en un supermercado REWE. Ayudas al cliente en la caja, escaneas sus productos y conversas brevemente.',
+          contexto: 'Estoy comprando en el supermercado REWE.',
+          mision: 'Pide ayuda para encontrar un producto, pregunta el precio y completa el pago en caja.' },
+        { key: 'medico',      icon: '🏥', name: 'Médico',
+          rol: 'Eres un médico en una consulta alemana. El paciente viene con un problema de salud y tú le haces preguntas y le das recomendaciones.',
+          contexto: 'Estoy en la consulta del médico con un problema de salud.',
+          mision: 'Describe tus síntomas, entiende el diagnóstico y averigua qué medicamento debes tomar.' },
+        { key: 'tren',        icon: '🚉', name: 'Estación',
+          rol: 'Eres un empleado de información en una estación de tren alemana (Bahnhof). Ayudas a los viajeros con conexiones, precios y horarios.',
+          contexto: 'Quiero viajar en tren y necesito información sobre billetes y horarios.',
+          mision: 'Pide un billete de tren, confirma el horario de salida y averigua el número de andén.' },
+        { key: 'cafe',        icon: '☕', name: 'Cafetería',
+          rol: 'Eres un mesero en una cafetería alemana. Tomas pedidos, recomiendas especialidades y charlas amablemente con el cliente.',
+          contexto: 'Estoy en una cafetería alemana queriendo pedir algo.',
+          mision: 'Pide un café con leche y un pastel, pregunta el precio y solicita la cuenta.' },
+        { key: 'trabajo',     icon: '💼', name: 'Entrevista',
+          rol: 'Eres un jefe de recursos humanos en una empresa alemana. Estás entrevistando a un candidato para un puesto de trabajo.',
+          contexto: 'Estoy en una entrevista de trabajo en una empresa alemana.',
+          mision: 'Preséntate, habla de tu experiencia laboral y haz al menos una pregunta sobre el puesto.' },
+        { key: 'piso',        icon: '🏠', name: 'Piso',
+          rol: 'Eres un arrendador alemán que muestra un apartamento en Múnich. Describes las características del piso y respondes preguntas del interesado.',
+          contexto: 'Estoy buscando un apartamento para alquilar en Múnich.',
+          mision: 'Pregunta por el alquiler mensual, las habitaciones disponibles y si se admiten mascotas.' },
+    ];
+
+    const State = {
+        level: 'B1',
+        messages: [],
+        isRecording: false,
+        mediaRecorder: null,
+        audioChunks: [],
+        recTimerInterval: null,
+        recSeconds: 0,
+        isSpeaking: false,
+        voices: [],
+        selectedVoice: null,
+        started: false,
+        contexto: '',
+        rol: DEFAULT_ROL,
+        dailyUsedMs: 0,
+        guidedMode: false,
+        currentAudio: null,
+        selectedScenario: 'libre',
+        mision: SCENARIOS[0].mision,
+        misionCompleted: false,
+        repetirMode: false,
+        repetirFrases: [],
+        repetirIndex: 0,
+    };
+
+    // --- Daily limit ---
+    async function loadDailyUsage() {
+        if (!window.currentUser || !window.sb) return;
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const { data } = await window.sb
+            .from('usage_events')
+            .select('payload')
+            .eq('app', 'chatvoz2')
+            .eq('event_type', 'audio_sent')
+            .eq('user_id', window.currentUser.id)
+            .gte('created_at', startOfDay.toISOString());
+        if (data) {
+            State.dailyUsedMs = data.reduce((sum, e) => sum + (e.payload?.duration_ms || 0), 0);
+        }
+        updateDailyUI();
+    }
+
+    function updateDailyUI() {
+        const info = document.getElementById('cvDailyInfo');
+        if (!info) return;
+        if (!window.currentUser) { info.textContent = ''; return; }
+        const remaining = Math.max(0, DAILY_LIMIT_MS - State.dailyUsedMs);
+        const blocked = remaining === 0;
+        const usedMins = Math.floor(State.dailyUsedMs / 60000);
+        const usedSecs = Math.floor((State.dailyUsedMs % 60000) / 1000);
+        const totalMins = Math.floor(DAILY_LIMIT_MS / 60000);
+        const fmt = (m, s) => `${String(m).padStart(2, '0')}.${String(s).padStart(2, '0')}`;
+        if (blocked) {
+            info.textContent = 'Límite diario de 60 min alcanzado. Vuelve mañana.';
+            info.className = 'cv-daily-info cv-daily-blocked';
+            document.getElementById('startBtn').disabled = true;
+            const rb = document.getElementById('recordBtn');
+            rb.disabled = true;
+            rb.classList.add('cv-record-disabled');
+        } else {
+            info.textContent = `Tiempo usado hoy: ${fmt(usedMins, usedSecs)}/${fmt(totalMins, 0)}`;
+            info.className = 'cv-daily-info';
+        }
+    }
+
+    // --- User preferences ---
+    async function loadPreferences() {
+        const savedRol = localStorage.getItem(STORAGE_PREFIX + 'rol');
+        const savedContexto = localStorage.getItem(STORAGE_PREFIX + 'contexto');
+        if (savedRol) State.rol = savedRol;
+        if (savedContexto !== null) State.contexto = savedContexto;
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+    }
+
+    async function persistPreferences() {
+        localStorage.setItem(STORAGE_PREFIX + 'rol', State.rol);
+        localStorage.setItem(STORAGE_PREFIX + 'contexto', State.contexto);
+    }
+
+    // --- Dark mode ---
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark');
+        localStorage.setItem(STORAGE_PREFIX + 'darkMode', document.body.classList.contains('dark') ? '1' : '');
+    }
+
+    // --- Level selection ---
+    document.querySelectorAll('.cv-level-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.cv-level-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            State.level = btn.dataset.level;
+        });
+    });
+
+    // --- Voice ---
+    function loadVoices() {
+        const all = speechSynthesis.getVoices();
+        State.voices = all.filter(v => v.lang.startsWith('de'));
+        if (!State.voices.length) State.voices = all;
+        selectVoice();
+    }
+
+    function selectVoice() {
+        const voices = State.voices;
+        if (!voices.length) return;
+        const maleNames = /stefan|markus|hans|michael|thomas|otto|karl/i;
+        State.selectedVoice = voices.find(v => maleNames.test(v.name)) || voices[0];
+    }
+
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    // --- System prompt ---
+    function getSystemPrompt(level) {
+        const guides = {
+            A1: 'Verwende sehr einfaches Deutsch: Grundwortschatz (bis 500 Wörter), kurze Sätze (max. 8 Wörter), nur Präsens. Erkläre unbekannte Wörter auf Spanisch in Klammern.',
+            A2: 'Verwende einfaches Deutsch: einfacher Wortschatz, kurze Sätze, Präsens und Perfekt. Füge gelegentlich spanische Übersetzungen schwieriger Wörter in Klammern hinzu.',
+            B1: 'Verwende mittleres Deutsch: normaler Alltagswortschatz, mittelkomplexe Sätze, verschiedene Zeitformen.',
+            B2: 'Verwende fortgeschrittenes Deutsch: reichhaltiger Wortschatz, komplexere Strukturen, Konjunktiv.',
+            C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
+            C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
+        };
+        const contextLine = State.contexto ? `\nKontext über den Benutzer: ${State.contexto}\n` : '';
+        const misionLine = State.mision ? `\nZiel des Studenten in dieser Sitzung: ${State.mision}\n` : '';
+        let base = `${State.rol} Der Benutzer lernt Deutsch auf Niveau ${level}.
+${contextLine}${misionLine}
+${guides[level]}
+
+Regeln:
+- Antworte immer auf Deutsch
+- Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
+- Wenn der Benutzer Grammatikfehler macht, füge am Ende deiner Antwort einen separaten Abschnitt hinzu, der mit "---CORRECCIÓN---" beginnt. Format (eine Zeile pro Fehler): ❌ "falsche Formulierung" → ✅ "korrekte Formulierung" (kurze Erklärung auf Spanisch). Die Konversationsantwort selbst soll KEINE eingebetteten Korrekturen enthalten.
+- Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen${State.mision ? `\n- Wenn das Ziel des Studenten erfüllt wurde, füge am absoluten Ende deiner Antwort (nach allen anderen Abschnitten) genau "---MISION_CUMPLIDA---" hinzu` : ''}`;
+        if (State.guidedMode) {
+            base += `\n\nMODO GUIADO ACTIVO: Justo después de tu pregunta, escribe entre paréntesis una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. Solo en alemán, sin explicar. Ejemplo: "Wie heißt du? (Ich heiße Ana und komme aus Spanien.)"`;
+        }
+        return base;
+    }
+
+    // --- Scenarios ---
+    function buildScenarioCards() {
+        const grid = document.getElementById('scenariosGrid');
+        SCENARIOS.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'cv-scenario-card' + (s.key === 'libre' ? ' active' : '');
+            btn.dataset.key = s.key;
+            btn.innerHTML = `<span class="cv-scenario-icon">${s.icon}</span><span class="cv-scenario-name">${s.name}</span>`;
+            btn.addEventListener('click', () => selectScenario(s.key));
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectScenario(key) {
+        const scenario = SCENARIOS.find(s => s.key === key);
+        if (!scenario) return;
+        State.selectedScenario = key;
+        State.mision = scenario.mision || '';
+        document.querySelectorAll('.cv-scenario-card').forEach(c => {
+            c.classList.toggle('active', c.dataset.key === key);
+        });
+        const rolEl = document.getElementById('rolText');
+        const ctxEl = document.getElementById('contextText');
+        if (rolEl) rolEl.value = scenario.rol;
+        if (ctxEl) ctxEl.value = scenario.contexto;
+    }
+
+    function showMisionBanner() {
+        const banner = document.getElementById('misionBanner');
+        if (!State.mision) { banner.style.display = 'none'; return; }
+        banner.style.display = 'flex';
+        banner.classList.remove('completed');
+        document.getElementById('misionLabel').textContent = 'Misión';
+        document.getElementById('misionText').textContent = State.mision;
+        document.querySelector('#misionBanner .cv-mision-icon').textContent = '🎯';
+    }
+
+    function showMisionCompleted() {
+        const banner = document.getElementById('misionBanner');
+        banner.style.display = 'flex';
+        banner.classList.add('completed');
+        document.getElementById('misionLabel').textContent = '¡Misión cumplida!';
+        document.getElementById('misionText').textContent = State.mision;
+        document.querySelector('#misionBanner .cv-mision-icon').textContent = '🏆';
+    }
+
+    function hideMisionBanner() { document.getElementById('misionBanner').style.display = 'none'; }
+
+    // --- Start / reset ---
+    async function startConversation() {
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+            return;
+        }
+        State.messages = [];
+        State.started = true;
+        State.misionCompleted = false;
+        document.getElementById('startBtn').style.display = 'none';
+        document.getElementById('recordBtn').style.display = 'inline-flex';
+        disableRecord();
+        const empty = document.getElementById('chatEmpty');
+        if (empty) empty.remove();
+        showMisionBanner();
+        await sendToAI(null);
+    }
+
+    function newConversation() {
+        showBtnLabel(document.getElementById('newConvBtn'), 'Nueva conversación');
+        cancelCurrentSpeech();
+        clearInterval(State.recTimerInterval);
+        if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
+            State.mediaRecorder.stop();
+        }
+        State.messages = [];
+        State.started = false;
+        State.isRecording = false;
+        State.misionCompleted = false;
+        document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
+        hideMisionBanner();
+        document.getElementById('startBtn').style.display = 'inline-flex';
+        document.getElementById('recordBtn').style.display = 'none';
+        document.getElementById('recTimer').style.display = 'none';
+        document.getElementById('sendBtn').style.display = 'none';
+        setHint('Selecciona un nivel y presiona Iniciar');
+    }
+
+    // --- AI call (DeepSeek) ---
+    async function sendToAI(userText) {
+        if (userText) {
+            State.messages.push({ role: 'user', content: userText });
+            addBubble('user', userText);
+        }
+
+        const thinkingId = addBubble('ai', '...', true);
+        setHint('IA pensando...');
+
+        try {
+            const initialMessages = userText
+                ? State.messages.slice(-8)
+                : [{ role: 'user', content: 'Begrüße mich freundlich und stelle mir eine erste Frage auf Deutsch.' }];
+
+            const chatToken = await window.getAuthToken?.();
+            const resp = await fetch(CHAT_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(chatToken ? { Authorization: `Bearer ${chatToken}` } : {}),
+                },
+                body: JSON.stringify({
+                    system: getSystemPrompt(State.level),
+                    messages: initialMessages,
+                }),
+            });
+
+            if (resp.status === 401) {
+                window.openAuthModal?.();
+                throw new Error('Inicia sesión para usar el chat de voz.');
+            }
+            const rawChat = await resp.text();
+            let data;
+            try { data = JSON.parse(rawChat); }
+            catch { throw new Error(`Respuesta inválida de ${CHAT_API}: ${rawChat.slice(0, 120)}`); }
+            if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+            let displayReply = data.reply;
+
+            if (!State.misionCompleted && displayReply.includes('---MISION_CUMPLIDA---')) {
+                displayReply = displayReply.replace('---MISION_CUMPLIDA---', '').trim();
+                State.misionCompleted = true;
+                showMisionCompleted();
+            }
+
+            let correctionText = null;
+            const corrParts = displayReply.split('---CORRECCIÓN---');
+            if (corrParts.length > 1) {
+                displayReply = corrParts[0].trim();
+                correctionText = corrParts[1].trim();
+            }
+
+            State.messages.push({ role: 'assistant', content: displayReply });
+            updateBubble(thinkingId, displayReply);
+            if (correctionText) addCorrectionCard(correctionText);
+            speak(displayReply);
+        } catch (e) {
+            updateBubble(thinkingId, `Error: ${e.message}`);
+            setHint('Error al conectar con la IA. Intenta de nuevo.');
+            enableRecord();
+        }
+    }
+
+    // --- TTS (browser) ---
+    function cancelCurrentSpeech() {
+        speechSynthesis.cancel();
+        if (State.currentAudio) {
+            State.currentAudio.pause();
+            State.currentAudio = null;
+        }
+    }
+
+    function speak(text) {
+        cancelCurrentSpeech();
+        State.isSpeaking = true;
+        setHint('IA hablando...');
+        disableRecord();
+
+        const onDone = () => {
+            State.isSpeaking = false;
+            setHint('Presiona "Responder" para hablar');
+            enableRecord();
+        };
+
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'de-DE';
+        utter.rate = 1.1;
+        if (State.selectedVoice) utter.voice = State.selectedVoice;
+        utter.onend = onDone;
+        utter.onerror = onDone;
+        speechSynthesis.speak(utter);
+    }
+
+    // --- Flash label helper ---
+    function showBtnLabel(btn, text) {
+        const el = document.createElement('span');
+        el.className = 'cv-btn-flash';
+        el.textContent = text;
+        btn.appendChild(el);
+        setTimeout(() => el.remove(), 550);
+    }
+
+    // --- Modo Guiado ---
+    function toggleGuidedMode() {
+        State.guidedMode = !State.guidedMode;
+        const btn = document.getElementById('guidedBtn');
+        btn.classList.toggle('active', State.guidedMode);
+        showBtnLabel(btn, 'Sugerencia');
+    }
+
+    function enableRecord() {
+        const btn = document.getElementById('recordBtn');
+        btn.disabled = false;
+        btn.classList.remove('cv-record-disabled');
+        document.getElementById('sendBtn').style.display = 'none';
+        btn.style.display = 'inline-flex';
+    }
+
+    function disableRecord() {
+        const btn = document.getElementById('recordBtn');
+        btn.disabled = true;
+        btn.classList.add('cv-record-disabled');
+    }
+
+    // --- Recording ---
+    function setupRecordButton() {
+        document.getElementById('recordBtn').addEventListener('click', () => {
+            const btn = document.getElementById('recordBtn');
+            if (btn.disabled || State.isSpeaking) return;
+            startRecording();
+        });
+        document.getElementById('sendBtn').addEventListener('click', () => {
+            if (State.isRecording) stopRecording();
+        });
+    }
+
+    async function startRecording() {
+        if (State.isRecording) return;
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+            updateDailyUI();
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            State.audioChunks = [];
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+            State.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            State.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) State.audioChunks.push(e.data); };
+            State.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeAndSend(blob);
+            };
+            State.mediaRecorder.start(100);
+            State.isRecording = true;
+            State.recSeconds = 0;
+            document.getElementById('recTimer').style.display = 'flex';
+            document.getElementById('recordBtn').style.display = 'none';
+            document.getElementById('sendBtn').style.display = 'inline-flex';
+            updateRecTimer();
+            State.recTimerInterval = setInterval(() => {
+                State.recSeconds++;
+                updateRecTimer();
+                if (State.recSeconds >= 60) stopRecording();
+            }, 1000);
+            setHint('Grabando... presiona Enviar cuando termines');
+        } catch {
+            setHint('Error: no se pudo acceder al micrófono');
+        }
+    }
+
+    function updateRecTimer() {
+        const s = State.recSeconds;
+        document.getElementById('recTimerText').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        const pct = s / 60;
+        const hue = Math.round(210 - 90 * pct);
+        const color = `hsl(${hue}, 70%, 42%)`;
+        const bar = document.getElementById('recTimerBar');
+        bar.style.width = `${pct * 100}%`;
+        bar.style.background = color;
+        document.getElementById('recTimerText').style.color = color;
+    }
+
+    function stopRecording() {
+        if (!State.isRecording) return;
+        State.isRecording = false;
+        clearInterval(State.recTimerInterval);
+        document.getElementById('recTimer').style.display = 'none';
+        const bar = document.getElementById('recTimerBar');
+        bar.style.width = '0%';
+        bar.style.background = '#1e88e5';
+        document.getElementById('recTimerText').style.color = '#1e88e5';
+        document.getElementById('sendBtn').style.display = 'none';
+        const recordBtn = document.getElementById('recordBtn');
+        recordBtn.style.display = 'inline-flex';
+        recordBtn.disabled = true;
+        recordBtn.classList.add('cv-record-disabled');
+        if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
+            State.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeAndSend(audioBlob) {
+        const audioDurationMs = State.recSeconds * 1000;
+        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level || '', duration_ms: audioDurationMs });
+        State.dailyUsedMs += audioDurationMs;
+        updateDailyUI();
+        setHint('Transcribiendo...');
+        disableRecord();
+
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'de');
+
+        try {
+            const whisperToken = await window.getAuthToken?.();
+            const resp = await fetch('/api/whisper', {
+                method: 'POST',
+                headers: whisperToken ? { Authorization: `Bearer ${whisperToken}` } : {},
+                body: formData,
+            });
+            if (resp.status === 401) {
+                window.openAuthModal?.();
+                throw new Error('Inicia sesión para usar el chat de voz.');
+            }
+            const rawText = await resp.text();
+            let data;
+            try { data = JSON.parse(rawText); }
+            catch { throw new Error(`El servidor devolvió una respuesta inesperada: ${rawText.slice(0, 120)}`); }
+            if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+
+            const text = data.text?.trim();
+            if (!text) {
+                setHint('No se detectó voz. Intenta de nuevo.');
+                enableRecord();
+                return;
+            }
+            await sendToAI(text);
+        } catch (e) {
+            setHint(`Error: ${e.message}`);
+            enableRecord();
+        }
+    }
+
+    // --- UI helpers ---
+    function addBubble(role, text, isThinking = false) {
+        const area = document.getElementById('chatArea');
+        const id = 'bubble-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+        const div = document.createElement('div');
+        div.className = `cv-bubble cv-bubble-${role}${isThinking ? ' cv-bubble-thinking' : ''}`;
+        div.id = id;
+        const inner = document.createElement('div');
+        inner.className = 'cv-bubble-inner';
+        inner.textContent = text;
+        div.appendChild(inner);
+        area.appendChild(div);
+        area.scrollTop = area.scrollHeight;
+        return id;
+    }
+
+    function updateBubble(id, text) {
+        const div = document.getElementById(id);
+        if (!div) return;
+        div.classList.remove('cv-bubble-thinking');
+        div.querySelector('.cv-bubble-inner').textContent = text;
+        document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight;
+    }
+
+    function addCorrectionCard(text) {
+        const area = document.getElementById('chatArea');
+        const card = document.createElement('div');
+        card.className = 'cv-correction-card';
+        const bodyId = 'corr-' + Date.now();
+        card.innerHTML =
+            `<button class="cv-correction-toggle" onclick="` +
+            `var b=document.getElementById('${bodyId}'),open=b.style.display!=='none';` +
+            `b.style.display=open?'none':'block';` +
+            `this.querySelector('.cv-correction-arrow').textContent=open?'▶':'▼';">` +
+            `<span>🔧 Corrección gramatical</span><span class="cv-correction-arrow">▼</span>` +
+            `</button>` +
+            `<div id="${bodyId}" class="cv-correction-body">${text.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>`;
+        area.appendChild(card);
+        area.scrollTop = area.scrollHeight;
+    }
+
+    function setHint(text) { document.getElementById('cvHint').textContent = text; }
+
+    // --- Context modal ---
+    function openContextModal() {
+        document.getElementById('rolText').value = State.rol;
+        document.getElementById('contextText').value = State.contexto;
+        document.querySelectorAll('.cv-scenario-card').forEach(c => {
+            c.classList.toggle('active', c.dataset.key === State.selectedScenario);
+        });
+        document.getElementById('contextModal').classList.add('cv-modal-open');
+        document.getElementById('rolText').focus();
+    }
+
+    function closeContextModal(e) {
+        if (e && e.target !== document.getElementById('contextModal')) return;
+        document.getElementById('contextModal').classList.remove('cv-modal-open');
+    }
+
+    function saveContext() {
+        const newRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
+        const newCtx = document.getElementById('contextText').value.trim();
+        const active = SCENARIOS.find(s => s.key === State.selectedScenario);
+        if (active && (newRol !== active.rol || newCtx !== active.contexto)) {
+            State.selectedScenario = 'libre';
+        }
+        State.rol = newRol;
+        State.contexto = newCtx;
+        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+        document.getElementById('contextModal').classList.remove('cv-modal-open');
+        persistPreferences();
+    }
+
+    // --- Repetir mode ---
+    const RepetirRec = {
+        isRecording: false,
+        mediaRecorder: null,
+        audioChunks: [],
+        recSeconds: 0,
+        timerInterval: null,
+    };
+
+    function toggleRepetirMode() {
+        State.repetirMode = !State.repetirMode;
+        const repetirBtn = document.getElementById('repetirBtn');
+        repetirBtn.classList.toggle('active', State.repetirMode);
+        showBtnLabel(repetirBtn, 'Repetir');
+        const panel = document.getElementById('repetirPanel');
+        const chat = document.getElementById('chatArea');
+        const controls = document.querySelector('.cv-controls');
+        if (State.repetirMode) {
+            cancelCurrentSpeech();
+            chat.style.display = 'none';
+            controls.style.display = 'none';
+            panel.style.display = 'flex';
+            loadRepetirFrases();
+        } else {
+            cancelCurrentSpeech();
+            if (RepetirRec.isRecording) stopRepetirRecording();
+            panel.style.display = 'none';
+            chat.style.display = '';
+            controls.style.display = '';
+            State.repetirFrases = [];
+            State.repetirIndex = 0;
+        }
+    }
+
+    async function loadRepetirFrases() {
+        document.getElementById('repetirPhrase').textContent = 'Cargando frases...';
+        document.getElementById('repetirHint').textContent = '';
+        document.getElementById('repetirResult').style.display = 'none';
+        document.getElementById('repetirNextBtn').style.display = 'none';
+        document.getElementById('repetirListenBtn').disabled = true;
+        document.getElementById('repetirRecBtn').disabled = true;
+        document.getElementById('repetirRecBtn').textContent = '🎙 Repetir';
+        document.getElementById('repetirNivel').textContent = State.level;
+
+        try {
+            const token = await window.getAuthToken?.();
+            if (!token) { window.openAuthModal?.(); throw new Error('Inicia sesión para usar este modo.'); }
+            const resp = await fetch(CHAT_API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    system: `Du bist ein Deutschlehrer. Erstelle genau 10 kurze Sätze auf Deutsch (5–10 Wörter) passend für das Niveau ${State.level}. Antworte NUR mit einem JSON-Array der Sätze, ohne weitere Erklärungen. Beispiel: ["Ich gehe heute in die Schule.", "Das Wetter ist sehr schön."]`,
+                    messages: [{ role: 'user', content: 'Erstelle die 10 Sätze.' }],
+                }),
+            });
+            if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para usar este modo.'); }
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor.'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+            let frases;
+            try {
+                const match = data.reply.match(/\[[\s\S]*\]/);
+                frases = JSON.parse(match ? match[0] : data.reply);
+            } catch {
+                frases = data.reply.split('\n')
+                    .map(l => l.replace(/^[\d.\-*\s"]+|"+$/g, '').trim())
+                    .filter(l => l.length > 3);
+            }
+            if (!Array.isArray(frases) || frases.length === 0) throw new Error('No se pudieron cargar las frases.');
+            State.repetirFrases = frases;
+            State.repetirIndex = 0;
+            showRepetirPhrase(0);
+        } catch (e) {
+            document.getElementById('repetirPhrase').textContent = '';
+            document.getElementById('repetirHint').textContent = `Error: ${e.message}`;
+        }
+    }
+
+    function showRepetirPhrase(index) {
+        const frase = State.repetirFrases[index];
+        document.getElementById('repetirPhrase').textContent = frase;
+        document.getElementById('repetirCounter').textContent = `${index + 1} / ${State.repetirFrases.length}`;
+        document.getElementById('repetirResult').style.display = 'none';
+        document.getElementById('repetirNextBtn').style.display = 'none';
+        document.getElementById('repetirListenBtn').disabled = false;
+        document.getElementById('repetirRecBtn').disabled = false;
+        document.getElementById('repetirRecBtn').textContent = '🎙 Repetir';
+        document.getElementById('repetirHint').textContent = 'Escucha la frase y repítela';
+        speak(frase);
+    }
+
+    function repetirListen() {
+        const frase = State.repetirFrases[State.repetirIndex];
+        if (frase) speak(frase);
+    }
+
+    function toggleRepetirRecord() {
+        if (State.isSpeaking) return;
+        if (RepetirRec.isRecording) stopRepetirRecording();
+        else startRepetirRecording();
+    }
+
+    async function startRepetirRecording() {
+        if (RepetirRec.isRecording) return;
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
+            document.getElementById('repetirHint').textContent = 'Límite diario de 60 min alcanzado.';
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            RepetirRec.audioChunks = [];
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+            RepetirRec.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            RepetirRec.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) RepetirRec.audioChunks.push(e.data); };
+            RepetirRec.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(RepetirRec.audioChunks, { type: RepetirRec.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeAndCheck(blob);
+            };
+            RepetirRec.mediaRecorder.start(100);
+            RepetirRec.isRecording = true;
+            RepetirRec.recSeconds = 0;
+            const btn = document.getElementById('repetirRecBtn');
+            btn.textContent = '⏹ Enviar';
+            btn.classList.add('recording');
+            document.getElementById('repetirListenBtn').disabled = true;
+            document.getElementById('repetirHint').textContent = 'Grabando... presiona Enviar cuando termines';
+            RepetirRec.timerInterval = setInterval(() => {
+                RepetirRec.recSeconds++;
+                if (RepetirRec.recSeconds >= 30) stopRepetirRecording();
+            }, 1000);
+        } catch {
+            document.getElementById('repetirHint').textContent = 'Error: no se pudo acceder al micrófono';
+        }
+    }
+
+    function stopRepetirRecording() {
+        if (!RepetirRec.isRecording) return;
+        RepetirRec.isRecording = false;
+        clearInterval(RepetirRec.timerInterval);
+        const btn = document.getElementById('repetirRecBtn');
+        btn.textContent = '🎙 Repetir';
+        btn.classList.remove('recording');
+        btn.disabled = true;
+        document.getElementById('repetirListenBtn').disabled = true;
+        document.getElementById('repetirHint').textContent = 'Transcribiendo...';
+        if (RepetirRec.mediaRecorder && RepetirRec.mediaRecorder.state !== 'inactive') {
+            RepetirRec.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeAndCheck(audioBlob) {
+        const durationMs = RepetirRec.recSeconds * 1000;
+        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, duration_ms: durationMs });
+        State.dailyUsedMs += durationMs;
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'de');
+        try {
+            const token = await window.getAuthToken?.();
+            const resp = await fetch('/api/whisper', {
+                method: 'POST',
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: formData,
+            });
+            if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+            const text = data.text?.trim();
+            if (!text) {
+                document.getElementById('repetirHint').textContent = 'No se detectó voz. Intenta de nuevo.';
+                document.getElementById('repetirRecBtn').disabled = false;
+                document.getElementById('repetirListenBtn').disabled = false;
+                return;
+            }
+            const expected = State.repetirFrases[State.repetirIndex];
+            showRepetirResult(matchScore(expected, text), expected, text);
+        } catch (e) {
+            document.getElementById('repetirHint').textContent = `Error: ${e.message}`;
+            document.getElementById('repetirRecBtn').disabled = false;
+            document.getElementById('repetirListenBtn').disabled = false;
+        }
+    }
+
+    function matchScore(expected, got) {
+        const norm = s => s.toLowerCase().replace(/[.,!?;:'"¿¡]/g, '').trim();
+        const aWords = norm(expected).split(/\s+/);
+        const bWords = norm(got).split(/\s+/);
+        const matched = aWords.filter(w => bWords.includes(w)).length;
+        return Math.round((matched / aWords.length) * 100);
+    }
+
+    function showRepetirResult(pct, expected, got) {
+        const resultEl = document.getElementById('repetirResult');
+        let level, emoji;
+        if (pct >= 80) { level = 'good'; emoji = '✅'; }
+        else if (pct >= 50) { level = 'ok'; emoji = '⚠️'; }
+        else { level = 'bad'; emoji = '❌'; }
+        resultEl.className = `cv-repetir-result cv-repetir-result-${level}`;
+        resultEl.innerHTML =
+            `<div class="cv-repetir-score">${emoji} ${pct}% de coincidencia</div>` +
+            `<div class="cv-repetir-expected"><span>Frase:</span> ${expected}</div>` +
+            `<div class="cv-repetir-got"><span>Dijiste:</span> ${got}</div>`;
+        resultEl.style.display = 'flex';
+        document.getElementById('repetirHint').textContent =
+            pct >= 80 ? '¡Muy bien!' : pct >= 50 ? 'Casi. Escucha y vuelve a intentarlo.' : 'Sigue practicando.';
+        document.getElementById('repetirRecBtn').disabled = false;
+        document.getElementById('repetirListenBtn').disabled = false;
+        const isLast = State.repetirIndex >= State.repetirFrases.length - 1;
+        const nextBtn = document.getElementById('repetirNextBtn');
+        nextBtn.textContent = isLast ? '🔄 Nueva tanda' : 'Siguiente →';
+        nextBtn.style.display = 'inline-flex';
+    }
+
+    function nextRepetirPhrase() {
+        cancelCurrentSpeech();
+        if (State.repetirIndex >= State.repetirFrases.length - 1) {
+            State.repetirFrases = [];
+            State.repetirIndex = 0;
+            loadRepetirFrases();
+        } else {
+            State.repetirIndex++;
+            showRepetirPhrase(State.repetirIndex);
+        }
+    }
+
+    // --- Init ---
+    window.onAuthSignedIn = () => { loadDailyUsage(); loadPreferences(); };
+
+    (function init() {
+        if (localStorage.getItem(STORAGE_PREFIX + 'darkMode') === '1') document.body.classList.add('dark');
+        buildScenarioCards();
+        loadPreferences();
+        loadVoices();
+        setupRecordButton();
+    })();
+    </script>
+</body>
+</html>

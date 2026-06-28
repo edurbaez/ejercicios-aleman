@@ -5,6 +5,187 @@
   let _otpEmail = '';
   let _cachedToken = null;
 
+  // --- Push notifications helpers ---
+  function _urlBase64ToUint8Array(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const base64 = (b64 + pad).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  async function _renderNotifSection() {
+    const el = document.getElementById('notif-section');
+    if (!el) return;
+
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !window.VAPID_PUBLIC_KEY) {
+      el.style.display = 'none';
+      return;
+    }
+
+    let reg;
+    try { reg = await navigator.serviceWorker.ready; } catch { el.style.display = 'none'; return; }
+
+    const perm = Notification.permission;
+    const sub = await reg.pushManager.getSubscription();
+    const isEnabled = perm === 'granted' && !!sub;
+
+    let settings = { interval_hours: 1, window_start: 8, window_end: 20 };
+    if (isEnabled && window.getAuthToken()) {
+      try {
+        const r = await fetch('/api/push-subscribe', {
+          headers: { Authorization: `Bearer ${window.getAuthToken()}` }
+        });
+        if (r.ok) { const d = await r.json(); if (d.subscription) Object.assign(settings, d.subscription); }
+      } catch {}
+    }
+
+    window._notifInterval = settings.interval_hours;
+    const intervals = [1, 2, 3, 4, 6];
+
+    const intervalBtns = intervals.map(h => {
+      const active = settings.interval_hours === h;
+      return `<button onclick="window._setNotifInterval(${h})" id="notif-i-${h}"
+        style="padding:4px 10px;border-radius:4px;border:1px solid ${active ? '#1976D2' : '#ddd'};
+               background:${active ? '#1976D2' : '#fff'};color:${active ? '#fff' : '#333'};
+               font-size:12px;cursor:pointer;">${h}h</button>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:13px;font-weight:600;color:#333;">🔔 Recordatorios</span>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;">
+          <input type="checkbox" id="notif-toggle" ${isEnabled ? 'checked' : ''}
+            onchange="window.toggleNotifications(this.checked)"
+            style="width:16px;height:16px;cursor:pointer;">
+          <span id="notif-status-label"
+            style="font-size:12px;color:${isEnabled ? '#2e7d32' : '#999'};">
+            ${isEnabled ? 'Activados' : 'Desactivados'}
+          </span>
+        </label>
+      </div>
+      <div id="notif-settings" style="display:${isEnabled ? 'block' : 'none'};">
+        <div style="margin-bottom:10px;">
+          <div style="font-size:11px;color:#666;letter-spacing:.5px;margin-bottom:6px;">CADA</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;">${intervalBtns}</div>
+        </div>
+        <div style="display:flex;gap:16px;margin-bottom:12px;">
+          <div>
+            <div style="font-size:11px;color:#666;letter-spacing:.5px;margin-bottom:4px;">DESDE</div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <input type="number" id="notif-start" min="0" max="23" value="${settings.window_start}"
+                style="width:52px;padding:5px;border:1px solid #ddd;border-radius:4px;font-size:14px;text-align:center;">
+              <span style="font-size:11px;color:#999;">h</span>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#666;letter-spacing:.5px;margin-bottom:4px;">HASTA</div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <input type="number" id="notif-end" min="1" max="24" value="${settings.window_end}"
+                style="width:52px;padding:5px;border:1px solid #ddd;border-radius:4px;font-size:14px;text-align:center;">
+              <span style="font-size:11px;color:#999;">h</span>
+            </div>
+          </div>
+        </div>
+        <button onclick="window.saveNotifSettings()" id="notif-save-btn"
+          style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">
+          Guardar preferencias
+        </button>
+      </div>
+    `;
+  }
+
+  window._setNotifInterval = function (h) {
+    window._notifInterval = h;
+    [1, 2, 3, 4, 6].forEach(i => {
+      const b = document.getElementById(`notif-i-${i}`);
+      if (!b) return;
+      const active = i === h;
+      b.style.background = active ? '#1976D2' : '#fff';
+      b.style.color = active ? '#fff' : '#333';
+      b.style.borderColor = active ? '#1976D2' : '#ddd';
+    });
+  };
+
+  async function _pushSubscribeOnServer(pushSub) {
+    const start = parseInt(document.getElementById('notif-start')?.value ?? '8');
+    const end   = parseInt(document.getElementById('notif-end')?.value   ?? '20');
+    await fetch('/api/push-subscribe', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${window.getAuthToken()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        subscription: pushSub.toJSON(),
+        interval_hours: window._notifInterval || 1,
+        window_start: start,
+        window_end: end,
+        utc_offset_minutes: -new Date().getTimezoneOffset(),
+      }),
+    });
+  }
+
+  window.toggleNotifications = async function (enable) {
+    if (!window.VAPID_PUBLIC_KEY) return;
+    let reg;
+    try { reg = await navigator.serviceWorker.ready; } catch { return; }
+
+    if (!enable) {
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) await existing.unsubscribe();
+      await fetch('/api/push-subscribe', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${window.getAuthToken()}` },
+      });
+      const label = document.getElementById('notif-status-label');
+      if (label) { label.textContent = 'Desactivados'; label.style.color = '#999'; }
+      const s = document.getElementById('notif-settings');
+      if (s) s.style.display = 'none';
+      return;
+    }
+
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') {
+      alert('Permiso de notificaciones denegado. Actívalo en la configuración del navegador.');
+      const cb = document.getElementById('notif-toggle');
+      if (cb) cb.checked = false;
+      return;
+    }
+
+    try {
+      const pushSub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: _urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
+      });
+      await _pushSubscribeOnServer(pushSub);
+      const label = document.getElementById('notif-status-label');
+      if (label) { label.textContent = 'Activados'; label.style.color = '#2e7d32'; }
+      const s = document.getElementById('notif-settings');
+      if (s) s.style.display = 'block';
+    } catch (err) {
+      alert('Error al activar notificaciones: ' + err.message);
+      const cb = document.getElementById('notif-toggle');
+      if (cb) cb.checked = false;
+    }
+  };
+
+  window.saveNotifSettings = async function () {
+    let reg;
+    try { reg = await navigator.serviceWorker.ready; } catch { return; }
+    const pushSub = await reg.pushManager.getSubscription();
+    if (!pushSub) return;
+
+    const btn = document.getElementById('notif-save-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+
+    try {
+      await _pushSubscribeOnServer(pushSub);
+      if (btn) {
+        btn.textContent = '✓ Guardado';
+        setTimeout(() => { btn.textContent = 'Guardar preferencias'; btn.disabled = false; }, 2000);
+      }
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = 'Guardar preferencias'; }
+    }
+  };
+
   function _injectModal() {
     if (document.getElementById('auth-modal')) return;
     const el = document.createElement('div');
@@ -154,7 +335,8 @@
         </div>
         <div id="stats-user-info" style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;font-size:13px;color:#555;"></div>
         <div id="stats-content" style="font-size:14px;color:#333;"></div>
-        <div style="margin-top:24px;padding-top:16px;border-top:1px solid #eee;">
+        <div id="notif-section" style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;"></div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eee;">
           <button onclick="window.logout();window.closeStatsPanel();" style="width:100%;padding:9px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cerrar sesión</button>
         </div>`;
       document.body.appendChild(panel);
@@ -303,6 +485,8 @@
       <div style="font-size:11px;font-weight:600;color:#E65100;letter-spacing:.5px;margin:16px 0 4px;">EXÁMENES DE GRAMÁTICA</div>
       ${examHtml}
     `;
+
+    _renderNotifSection();
   };
 
   window.getAuthToken = function () {

@@ -88,6 +88,21 @@ self.addEventListener("periodicsync", (e) => {
   }
 });
 
+// Push notifications from server (Web Push API)
+self.addEventListener("push", (e) => {
+  const data = e.data ? e.data.json() : {};
+  e.waitUntil(
+    self.registration.showNotification(data.title || "¡Practica alemán! 🇩🇪", {
+      body: data.body || "Es hora de tu sesión de estudio.",
+      icon: "/icon-b1.svg",
+      badge: "/icon-b1.svg",
+      tag: "recordatorio-push",
+      renotify: true,
+      data: { url: data.url || "/B1.html" },
+    })
+  );
+});
+
 // Al hacer clic en la notificacion, abre la app
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();

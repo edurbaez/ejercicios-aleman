@@ -51,22 +51,22 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | File | Purpose |
 |------|---------|
 | `manifest.json` | PWA manifest for `palabrasB2.html`. |
-| `sw.js` | Service Worker — caches `palabrasB2.html`, `DATA.json`, `manifest.json`, `icon.svg` for offline use. |
+| `sw.js` | Service Worker — caches `palabrasB2.html`, `DATA.json`, `manifest.json`, `icon.svg` for offline use. Also handles `push` events (Web Push API): shows notification with title/body/url from the push payload. |
 | `icon.svg` | PWA icon: blue rounded square with "B2" in white. |
 | `manifest-b1.json` | PWA manifest for `B1.html`. Green theme (#388E3C). |
-| `sw-b1.js` | Service Worker for B1 app — caches `B1.html`, `DataB1.json`, `manifest-b1.json`, `icon-b1.svg`. |
+| `sw-b1.js` | Service Worker for B1 app — caches `B1.html`, `DataB1.json`, `manifest-b1.json`, `icon-b1.svg`. Also handles `push` events (same pattern as `sw.js`). |
 | `icon-b1.svg` | PWA icon for B1: green rounded square with "B1" in white. |
 | `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 30`. Sin rewrites (`/` sirve `index.html` directamente). |
 | `index.html` | Landing page principal: muestra todas las apps como tarjetas. Navbar con dropdown. Auth via `auth.js`. |
-| `package.json` | Minimal Node.js package declaration — forces Vercel to treat the project as Node (required for `api/chat.js`). |
+| `package.json` | Node.js package declaration — forces Vercel to treat the project as Node. Dependencies: `@vercel/kv`, `web-push` (used by `api/push-notify.js`). |
 | `.env.local` | Local env vars (not committed). Must define `OPENAI_API_KEY` for local dev. |
 
 ### App Scripts
 
 | File | Purpose |
 |------|---------|
-| `config.js` | Single source of truth para credenciales Supabase (`window.SUPA_URL`, `window.SUPA_KEY`). Cargado antes de `auth.js` en todas las páginas. |
-| `auth.js` | Shared authentication module loaded by all pages. Reads `SUPA_URL`/`SUPA_KEY` globals from `config.js`. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`. Pages can define `window.onAuthSignedIn` to hook into the sign-in event. `getAuthToken()` returns the cached Supabase JWT access token (used to authorize `/api/chat` and `/api/whisper`). Token is stored in a private `_cachedToken` variable populated at page load and kept up to date via `onAuthStateChange` (which fires on every automatic refresh). Never calls `getSession()` at request time — avoids SDK lock contention that previously caused indefinite hangs. `openStatsPanel()` renders a right-side drawer with: (1) two "HOY" cards — words answered + accuracy %, and audios sent; (2) a 30-day bar chart of words per day (hover tooltip shows date + words + audios); (3) a streak counter; (4) all-time totals. Queries `usage_events` with `created_at` included, groups by local date client-side. |
+| `config.js` | Single source of truth para credenciales Supabase (`window.SUPA_URL`, `window.SUPA_KEY`) y VAPID public key (`window.VAPID_PUBLIC_KEY`). Cargado antes de `auth.js` en todas las páginas. Generar VAPID keys con `npx web-push generate-vapid-keys`. |
+| `auth.js` | Shared authentication module loaded by all pages. Reads `SUPA_URL`/`SUPA_KEY` globals from `config.js`. Creates `window.sb` (Supabase client), injects the login modal (OTP + Google OAuth), and exposes `window.openAuthModal`, `window.logout`, `window.updateAuthUI`, `window.logEvent`, `window.openStatsPanel`, `window.closeStatsPanel`, `window.getAuthToken`, `window.toggleNotifications`, `window.saveNotifSettings`, `window._setNotifInterval`. `openStatsPanel()` renders a right-side drawer with: (1) HOY cards; (2) 30-day bar chart; (3) streak; (4) all-time totals; (5) sección "🔔 Recordatorios" — toggle activar/desactivar push notifications, selector de intervalo (1h/2h/3h/4h/6h) y ventana horaria (desde/hasta). La sección se renderiza via `_renderNotifSection()` que consulta `/api/push-subscribe` para cargar preferencias guardadas. Solo se muestra si `window.VAPID_PUBLIC_KEY` está configurado y el navegador soporta PushManager. |
 | `shared-game.js` | Motor de juego compartido entre `palabrasB2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS (OpenAI `tts-1` vía `/api/tts` con fallback al TTS del navegador, caché en memoria), SRS SM-2 (IndexedDB `srs-db-{APP}`, botón "SRS Repaso"), Frases en contexto (modal que llama `/api/chat`), temporizador, listas personales (IndexedDB) y PWA. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
 | `diccionario.js` | All JS logic for `diccionario.html`: uses `window.sb` from `auth.js` (no Supabase client propio), IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 | `corrector.js` | All JS logic for `corrector.html`: file/camera input handling, base64 conversion, drag-and-drop upload, `/api/vision` call, and result rendering (score, error cards with category badges, observaciones). |
@@ -211,3 +211,49 @@ Toggled by a fixed button; persisted in `localStorage` as `darkMode`.
 ### External libraries (CDN)
 - `pdf.js 3.11.174` — PDF parsing.
 - `mammoth 1.6.0` — `.docx` parsing.
+
+---
+
+## Push Notifications — Architecture
+
+### Flow
+```
+Usuario activa toggle en panel "Mi progreso"
+  → Notification.requestPermission()
+  → pushManager.subscribe({ applicationServerKey: VAPID_PUBLIC_KEY })
+  → POST /api/push-subscribe  { subscription, interval_hours, window_start, window_end, utc_offset_minutes }
+  → guardado en Supabase tabla push_subscriptions
+
+cron-job.org (cada hora)
+  → POST /api/push-notify  Authorization: Bearer <CRON_SECRET>
+  → lee todos los registros de push_subscriptions
+  → por cada usuario: convierte UTC → hora local (utc_offset_minutes)
+  → verifica ventana horaria y tiempo desde last_notified_at
+  → webpush.sendNotification() → SW recibe evento "push" → showNotification()
+  → actualiza last_notified_at; elimina suscripciones expiradas (410/404)
+```
+
+### Supabase table: `push_subscriptions`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | uuid | FK → auth.users, UNIQUE |
+| `subscription` | jsonb | PushSubscription serializada |
+| `interval_hours` | int | Cada cuántas horas notificar (1/2/3/4/6) |
+| `window_start` | int | Hora local de inicio (0–23) |
+| `window_end` | int | Hora local de fin (1–24) |
+| `utc_offset_minutes` | int | `-new Date().getTimezoneOffset()` del browser |
+| `last_notified_at` | timestamptz | Última notificación enviada |
+
+RLS activo: usuarios solo acceden a su propia fila. El endpoint usa `SUPABASE_SERVICE_ROLE_KEY` para bypass de RLS.
+
+### Vercel env vars requeridas
+| Variable | Descripción |
+|----------|-------------|
+| `VAPID_PUBLIC_KEY` | Igual que `window.VAPID_PUBLIC_KEY` en `config.js` |
+| `VAPID_PRIVATE_KEY` | Clave privada (nunca en cliente) |
+| `VAPID_SUBJECT` | `mailto:ed.urbaez@gmail.com` |
+| `CRON_SECRET` | Token que cron-job.org envía como `Authorization: Bearer` |
+| `SUPABASE_SERVICE_ROLE_KEY` | Permite leer/escribir `push_subscriptions` sin RLS |
+
+### Cron
+Plan Hobby de Vercel no soporta crons horarios. Usar **cron-job.org** (gratuito): `POST https://ejercicios-aleman.vercel.app/api/push-notify` cada hora con header `Authorization: Bearer <CRON_SECRET>`.

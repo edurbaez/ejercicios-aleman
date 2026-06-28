@@ -20,3 +20,5 @@ desktop.ini
 
 # ── Node (si se instalan dependencias localmente) ───────────────────────────
 node_modules/
+
+.vercel

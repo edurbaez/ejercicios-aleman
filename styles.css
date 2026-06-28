@@ -17,6 +17,8 @@
    COMPARTIDO
    ======================== */
 
+@keyframes _spin { to { transform: rotate(360deg); } }
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -162,7 +164,8 @@ body {
 }
 #page-home #navbar a:hover,
 #page-home #navbar a.active,
-#page-home #navbar .nav-menu-btn:hover {
+#page-home #navbar .nav-menu-btn:hover,
+#page-home #navbar .nav-menu-btn.active {
     background-color: var(--color-b2);
     color: white;
 }
@@ -187,7 +190,8 @@ body {
 
 #page-b2 #navbar a:hover,
 #page-b2 #navbar a.active,
-#page-b2 #navbar .nav-menu-btn:hover {
+#page-b2 #navbar .nav-menu-btn:hover,
+#page-b2 #navbar .nav-menu-btn.active {
     background-color: var(--color-b2);
     color: white;
 }
@@ -402,7 +406,8 @@ th, td {
 
 #page-b1 #navbar a:hover,
 #page-b1 #navbar a.active,
-#page-b1 #navbar .nav-menu-btn:hover {
+#page-b1 #navbar .nav-menu-btn:hover,
+#page-b1 #navbar .nav-menu-btn.active {
     background-color: var(--color-b2);
     color: white;
 }
@@ -594,7 +599,8 @@ th, td {
 
 #page-lv #navbar a:hover,
 #page-lv #navbar a.active,
-#page-lv #navbar .nav-menu-btn:hover {
+#page-lv #navbar .nav-menu-btn:hover,
+#page-lv #navbar .nav-menu-btn.active {
     background-color: var(--btn);
     color: white;
 }
@@ -704,7 +710,8 @@ th, td {
 
 #page-cv #navbar a:hover,
 #page-cv #navbar a.active,
-#page-cv #navbar .nav-menu-btn:hover {
+#page-cv #navbar .nav-menu-btn:hover,
+#page-cv #navbar .nav-menu-btn.active {
     background-color: var(--accent);
     color: white;
 }
@@ -1540,7 +1547,8 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 
 #page-dic #navbar a:hover,
 #page-dic #navbar a.active,
-#page-dic #navbar .nav-menu-btn:hover {
+#page-dic #navbar .nav-menu-btn:hover,
+#page-dic #navbar .nav-menu-btn.active {
     background-color: var(--accent);
     color: white;
 }
@@ -1652,6 +1660,17 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
     padding: 32px;
     color: #999;
     font-size: 14px;
+}
+#spinner::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ddd;
+    border-top-color: var(--accent, #1976D2);
+    border-radius: 50%;
+    animation: _spin 0.7s linear infinite;
+    margin: 0 auto 10px;
 }
 
 #resultado {
@@ -1765,7 +1784,8 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 
 #page-kas #navbar a:hover,
 #page-kas #navbar a.active,
-#page-kas #navbar .nav-menu-btn:hover {
+#page-kas #navbar .nav-menu-btn:hover,
+#page-kas #navbar .nav-menu-btn.active {
     background-color: var(--accent);
     color: white;
 }
@@ -1893,8 +1913,23 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 
 .kas-loading {
     font-size: 15px;
-    opacity: 0.55;
-    font-style: italic;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 0;
+}
+.kas-loading::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ccc;
+    border-top-color: var(--accent, #00796B);
+    border-radius: 50%;
+    animation: _spin 0.7s linear infinite;
+    flex-shrink: 0;
 }
 
 .kas-error {
@@ -2103,7 +2138,8 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 
 #page-cor #navbar a:hover,
 #page-cor #navbar a.active,
-#page-cor #navbar .nav-menu-btn:hover {
+#page-cor #navbar .nav-menu-btn:hover,
+#page-cor #navbar .nav-menu-btn.active {
     background-color: var(--accent);
     color: white;
 }
@@ -2304,7 +2340,18 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
     text-align: center;
     padding: 20px;
     font-size: 14px;
-    opacity: 0.6;
+    opacity: 0.7;
+}
+.cor-spinner::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-top-color: var(--accent, #E65100);
+    border-radius: 50%;
+    animation: _spin 0.7s linear infinite;
+    margin: 0 auto 10px;
 }
 
 .cor-error {
@@ -2530,7 +2577,8 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
 #page-gram #navbar { background: var(--navbar-bg); box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
 #page-gram #navbar a:hover,
 #page-gram #navbar a.active,
-#page-gram #navbar .nav-menu-btn:hover { background-color: var(--accent); color: #fff; }
+#page-gram #navbar .nav-menu-btn:hover,
+#page-gram #navbar .nav-menu-btn.active { background-color: var(--accent); color: #fff; }
 #page-gram #darkModeBtn { padding: 6px 8px; border-radius: 8px; }
 
 .gram-container {
@@ -3521,6 +3569,12 @@ a.gram-kasus-link:hover { background: #00796B; color: #fff; border-color: #00796
 
 /* ── Reformulaciones (chat-reformulaciones.html) ─────────────────────────────── */
 #page-cr { --color-cr: #6A1B9A; --color-cr-dark: #4A148C; }
+#page-cr #navbar { background: var(--navbar-bg, #fff); box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
+#page-cr #navbar a:hover,
+#page-cr #navbar a.active,
+#page-cr #navbar .nav-menu-btn:hover,
+#page-cr #navbar .nav-menu-btn.active { background-color: var(--color-cr); color: #fff; }
+#page-cr #darkModeBtn { padding: 6px 8px; border-radius: 8px; }
 
 .cr-app {
     display: flex;

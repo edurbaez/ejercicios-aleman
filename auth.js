@@ -359,6 +359,11 @@
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }
+    const activeDropdownLink = document.querySelector('.nav-dropdown-menu a.active');
+    if (activeDropdownLink) {
+      const menuBtn = document.querySelector('.nav-menu-btn');
+      if (menuBtn) menuBtn.classList.add('active');
+    }
   });
 })();
 

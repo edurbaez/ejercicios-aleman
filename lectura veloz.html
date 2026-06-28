@@ -29,18 +29,18 @@
             </div>
         </div>
         <div class="spacer"></div>
-        <button id="auth-btn" title="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <button id="auth-btn" title="Iniciar sesión" aria-label="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
     </nav>
     <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
 
-    <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
     <h1>Lectura Veloz</h1>
 
     <div id="blog-view">
         <button id="blog-back-btn" onclick="salirBlogView()">← Volver</button>
         <div id="blog-title"></div>
         <div id="blog-controls">
-            <button id="blog-play-btn" onclick="iniciarDesdeBlog()" title="Iniciar lectura veloz">▶</button>
+            <button id="blog-play-btn" onclick="iniciarDesdeBlog()" title="Iniciar lectura veloz" aria-label="Iniciar lectura veloz">▶</button>
             <select id="blog-lang">
                 <option value="es-ES">Español</option>
                 <option value="de-DE">Alemán</option>
@@ -262,6 +262,9 @@
             const ext = file.name.split('.').pop().toLowerCase();
             let text = '';
 
+            const uploadBtn = document.querySelector('button[onclick*="fileInput"]');
+            if (uploadBtn) { uploadBtn.disabled = true; uploadBtn.textContent = 'Procesando…'; }
+
             try {
                 if (ext === 'txt') {
                     text = await file.text();
@@ -284,6 +287,11 @@
                 showToast('Error al leer el archivo');
                 console.error(err);
                 return;
+            } finally {
+                if (uploadBtn) {
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir archivo';
+                }
             }
 
             text = text.trim();
@@ -293,7 +301,7 @@
             if (list.some(t => t.text === text)) { showToast('Este texto ya está guardado'); return; }
 
             const defaultName = file.name.replace(/\.[^.]+$/, '');
-            const name = prompt('Nombre para este texto:', defaultName);
+            const name = await showNameDialog('Nombre para este texto:', defaultName);
             if (name === null) return;
 
             await dbAdd({ name: name.trim() || defaultName, text });
@@ -381,7 +389,7 @@
 
         async function renombrarTexto(btn) {
             const id = parseInt(btn.dataset.id);
-            const newName = prompt('Nuevo nombre:', btn.dataset.name);
+            const newName = await showNameDialog('Nuevo nombre:', btn.dataset.name);
             if (newName === null || !newName.trim()) return;
             await dbUpdate(id, { name: newName.trim() });
             mostrarTextosGuardados();
@@ -406,7 +414,7 @@
             if (!text) { showToast('El área de texto está vacía'); return; }
             const list = await dbGetAll();
             if (list.some(t => t.text === text)) { showToast('Este texto ya está guardado'); return; }
-            const name = prompt('Nombre para este texto:', 'Texto ' + (list.length + 1));
+            const name = await showNameDialog('Nombre para este texto:', 'Texto ' + (list.length + 1));
             if (name === null) return;
             await dbAdd({ name: name.trim() || 'Sin nombre', text });
             mostrarTextosGuardados();
@@ -638,6 +646,40 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function showNameDialog(title, defaultValue) {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:center;justify-content:center;';
+                const isDark = document.body.classList.contains('dark');
+                const bg = isDark ? '#23253a' : '#fff';
+                const fg = isDark ? '#e0e0e0' : '#222';
+                const inputBg = isDark ? '#1a1c2e' : '#f8f8f8';
+                const borderColor = isDark ? '#444' : '#ccc';
+                overlay.innerHTML = `
+                  <div style="background:${bg};color:${fg};border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);">
+                    <p style="margin:0 0 12px;font-size:15px;font-weight:600;">${title}</p>
+                    <input id="lv-name-input" type="text" value="${defaultValue.replace(/"/g, '&quot;')}"
+                      style="width:100%;padding:9px 10px;border:1px solid ${borderColor};border-radius:6px;margin-bottom:14px;box-sizing:border-box;font-size:15px;background:${inputBg};color:${fg};">
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                      <button id="lv-name-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:14px;background:transparent;color:${fg};">Cancelar</button>
+                      <button id="lv-name-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Guardar</button>
+                    </div>
+                  </div>`;
+                document.body.appendChild(overlay);
+                const input = overlay.querySelector('#lv-name-input');
+                input.focus();
+                input.select();
+                const confirm = () => { const v = input.value.trim(); overlay.remove(); resolve(v || null); };
+                const cancel  = () => { overlay.remove(); resolve(null); };
+                overlay.querySelector('#lv-name-ok').onclick = confirm;
+                overlay.querySelector('#lv-name-cancel').onclick = cancel;
+                overlay.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') confirm();
+                    if (e.key === 'Escape') cancel();
+                });
+            });
         }
 
         function showToast(msg) {

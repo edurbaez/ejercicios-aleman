@@ -358,7 +358,7 @@
     try {
       const [evRes, exRes] = await Promise.all([
         fetch(
-          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&order=created_at.asc`,
+          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,session_start,lookup)&order=created_at.asc&limit=10000`,
           { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
         ),
         window.sb.from('exam_results').select('created_at,level,score,total').order('created_at', { ascending: false }).limit(20)

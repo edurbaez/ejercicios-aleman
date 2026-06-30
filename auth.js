@@ -379,13 +379,15 @@
     const audios   = data.filter(e => e.event_type === 'audio_sent').length;
     const sessions = data.filter(e => e.event_type === 'session_start').length;
 
+    const localDay = e => new Date(e.created_at).toLocaleDateString('sv-SE');
+
     // Today (local date)
-    const todayStr       = new Date().toLocaleDateString('sv-SE');
-    const todayQuiz      = quizSessions.filter(e => e.created_at?.slice(0,10) === todayStr);
-    const todayWords     = todayQuiz.reduce((s, e) => s + (e.payload?.total || 0), 0);
-    const todayCorrect   = todayQuiz.reduce((s, e) => s + (e.payload?.correct || 0), 0);
-    const todayPct       = todayWords > 0 ? Math.round(todayCorrect / todayWords * 100) : null;
-    const todayAudios    = data.filter(e => e.event_type === 'audio_sent' && e.created_at?.slice(0,10) === todayStr).length;
+    const todayStr     = new Date().toLocaleDateString('sv-SE');
+    const todayQuiz    = quizSessions.filter(e => localDay(e) === todayStr);
+    const todayWords   = todayQuiz.reduce((s, e) => s + (e.payload?.total || 0), 0);
+    const todayCorrect = todayQuiz.reduce((s, e) => s + (e.payload?.correct || 0), 0);
+    const todayPct     = todayWords > 0 ? Math.round(todayCorrect / todayWords * 100) : null;
+    const todayAudios  = data.filter(e => e.event_type === 'audio_sent' && localDay(e) === todayStr).length;
 
     // Last 30 days array (oldest → newest)
     const days30 = [];
@@ -397,12 +399,12 @@
     const countByDay  = Object.fromEntries(days30.map(d => [d, 0]));
     const audiosByDay = Object.fromEntries(days30.map(d => [d, 0]));
     quizSessions.forEach(e => {
-      const day = e.created_at?.slice(0,10);
-      if (day && countByDay[day] !== undefined) countByDay[day] += e.payload?.total || 0;
+      const day = localDay(e);
+      if (countByDay[day] !== undefined) countByDay[day] += e.payload?.total || 0;
     });
     data.filter(e => e.event_type === 'audio_sent').forEach(e => {
-      const day = e.created_at?.slice(0,10);
-      if (day && audiosByDay[day] !== undefined) audiosByDay[day]++;
+      const day = localDay(e);
+      if (audiosByDay[day] !== undefined) audiosByDay[day]++;
     });
     const counts   = days30.map(d => countByDay[d]);
     const maxCount = Math.max(...counts, 1);

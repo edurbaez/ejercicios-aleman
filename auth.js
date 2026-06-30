@@ -322,6 +322,7 @@
 
   window.openStatsPanel = async function () {
     if (!window.currentUser) { window.openAuthModal(); return; }
+    await _flushEvents();
 
     let panel = document.getElementById('stats-panel');
     if (!panel) {

@@ -25,7 +25,8 @@
       "PowerShell(npx playwright --version 2>$null)",
       "PowerShell(Get-Command chrome, msedge, firefox -ErrorAction SilentlyContinue)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
-      "Bash(node --check \"c:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\\\\gramatica.js\")"
+      "Bash(node --check \"c:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\\\\gramatica.js\")",
+      "Skill(claude-in-chrome)"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

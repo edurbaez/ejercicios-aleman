@@ -44,9 +44,8 @@ export default async function handler(req, res) {
 
     try {
         const body = {
-            model: 'deepseek-v4-flash',
+            model: 'deepseek-chat',
             max_tokens: resolvedMaxTokens,
-            thinking: { type: 'disabled' },
             messages: system
                 ? [{ role: 'system', content: String(system) }, ...messages]
                 : messages,

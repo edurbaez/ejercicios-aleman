@@ -502,9 +502,14 @@
   async function _flushEvents() {
     if (!_eventQueue.length || !window.currentUser) return;
     const batch = _eventQueue.splice(0);
-    await window.sb.from('usage_events').insert(
-      batch.map(e => ({ user_id: window.currentUser.id, ...e }))
-    );
+    try {
+      const { error } = await window.sb.from('usage_events').insert(
+        batch.map(e => ({ user_id: window.currentUser.id, ...e }))
+      );
+      if (error) throw error;
+    } catch {
+      _eventQueue.unshift(...batch);
+    }
   }
 
   function _scheduleFlush() {
@@ -516,7 +521,7 @@
 
   window.logEvent = function (app, eventType, payload) {
     if (!window.currentUser) return;
-    _eventQueue.push({ app, event_type: eventType, payload: payload || {}, created_at: new Date().toISOString() });
+    _eventQueue.push({ app, event_type: eventType, payload: payload || {} });
     _scheduleFlush();
   };
 

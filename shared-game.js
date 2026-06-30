@@ -470,6 +470,31 @@
       _srsCache.clear();
       cards.forEach(c => _srsCache.set(c.word, c));
     } catch {}
+    _syncSRSFromSupabase();
+  }
+
+  async function _syncSRSFromSupabase() {
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      const { data, error } = await window.sb
+        .from('srs_progress')
+        .select('word, ease, interval, reps, due')
+        .eq('user_id', user.id)
+        .eq('app_id', APP);
+      if (error || !data?.length) return;
+      const db = await openSRSDB();
+      const tx = db.transaction(SRS_STORE, 'readwrite');
+      const store = tx.objectStore(SRS_STORE);
+      for (const row of data) {
+        const local = _srsCache.get(row.word);
+        if (!local || row.due > local.due) {
+          const card = { word: row.word, ease: Number(row.ease), interval: row.interval, reps: row.reps, due: row.due };
+          _srsCache.set(row.word, card);
+          store.put(card);
+        }
+      }
+    } catch {}
   }
 
   async function updateSRSCard(word, correct) {
@@ -491,6 +516,23 @@
       const db = await openSRSDB();
       const tx = db.transaction(SRS_STORE, 'readwrite');
       tx.objectStore(SRS_STORE).put(card);
+    } catch {}
+    _syncSRSCardToSupabase(card);
+  }
+
+  async function _syncSRSCardToSupabase(card) {
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      await window.sb.from('srs_progress').upsert({
+        user_id: user.id,
+        app_id: APP,
+        word: card.word,
+        ease: card.ease,
+        interval: card.interval,
+        reps: card.reps,
+        due: card.due,
+      }, { onConflict: 'user_id,app_id,word' });
     } catch {}
   }
 
@@ -642,26 +684,35 @@
 
   /* ── Listas personales (IndexedDB) ────────────────── */
 
-  const LP_DB = 'listas-personales', LP_STORE = 'listas';
+  const LP_DB = 'listas-personales', LP_STORE = 'listas', LP_SYS_STORE = 'sys-cache';
+  const SYS_CACHE_TTL = 5 * 60 * 1000;
   let _lpDb = null;
 
   function abrirDBListasP() {
     if (_lpDb) return Promise.resolve(_lpDb);
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open(LP_DB, 1);
-      req.onupgradeneeded = e => e.target.result.createObjectStore(LP_STORE, { keyPath: 'id' });
+      const req = indexedDB.open(LP_DB, 2);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(LP_STORE))
+          db.createObjectStore(LP_STORE, { keyPath: 'id' });
+        if (!db.objectStoreNames.contains(LP_SYS_STORE))
+          db.createObjectStore(LP_SYS_STORE, { keyPath: 'key' });
+      };
       req.onsuccess = e => { _lpDb = e.target.result; resolve(_lpDb); };
       req.onerror = () => reject(req.error);
     });
   }
 
   async function guardarListaP(lista) {
+    if (!lista.supabase_id) lista.supabase_id = crypto.randomUUID();
     const db = await abrirDBListasP();
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       const tx = db.transaction(LP_STORE, 'readwrite');
       tx.objectStore(LP_STORE).put(lista);
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
     });
+    _syncListaToSupabase(lista);
   }
 
   async function cargarListasP() {
@@ -676,12 +727,114 @@
   }
 
   async function eliminarListaP(id) {
+    const listas = await cargarListasP();
+    const supabaseId = listas.find(l => l.id === id)?.supabase_id;
     const db = await abrirDBListasP();
-    return new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       const tx = db.transaction(LP_STORE, 'readwrite');
       tx.objectStore(LP_STORE).delete(id);
       tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
     });
+    if (supabaseId) _deleteListaFromSupabase(supabaseId);
+  }
+
+  async function _syncListaToSupabase(lista) {
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      await window.sb.from('word_lists').upsert({
+        id: lista.supabase_id,
+        user_id: user.id,
+        app_id: 'shared',
+        name: lista.nombre,
+        is_system: false,
+        words: { de: lista.de, es: lista.es },
+      }, { onConflict: 'id' });
+    } catch {}
+  }
+
+  async function _deleteListaFromSupabase(supabaseId) {
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      await window.sb.from('word_lists').delete().eq('id', supabaseId);
+    } catch {}
+  }
+
+  async function _syncPersonalListsFromSupabase() {
+    try {
+      const { data: { user } } = await window.sb.auth.getUser();
+      if (!user) return;
+      const localListas = await cargarListasP();
+
+      // Upload local lists that have no supabase_id yet (created before this feature)
+      const orphans = localListas.filter(l => !l.supabase_id);
+      for (const lista of orphans) {
+        lista.supabase_id = crypto.randomUUID();
+        const db = await abrirDBListasP();
+        const tx = db.transaction(LP_STORE, 'readwrite');
+        tx.objectStore(LP_STORE).put(lista);
+        await _syncListaToSupabase(lista);
+      }
+
+      // Download lists from Supabase that aren't in local IndexedDB
+      const { data, error } = await window.sb
+        .from('word_lists')
+        .select('id, name, words')
+        .eq('user_id', user.id)
+        .eq('is_system', false);
+      if (error || !data?.length) return;
+
+      const refreshedLocal = await cargarListasP();
+      const localBySupaId = new Map(refreshedLocal.filter(l => l.supabase_id).map(l => [l.supabase_id, l]));
+      const db = await abrirDBListasP();
+      let added = false;
+      for (const row of data) {
+        if (!localBySupaId.has(row.id)) {
+          const lista = { id: Date.now() + Math.random(), supabase_id: row.id, nombre: row.name, de: row.words.de, es: row.words.es };
+          const tx = db.transaction(LP_STORE, 'readwrite');
+          tx.objectStore(LP_STORE).put(lista);
+          DATA['mis: ' + lista.nombre] = { es: lista.es, de: lista.de };
+          added = true;
+        }
+      }
+      if (added) { mountSetButtons(); await refreshMisListas(); }
+    } catch {}
+  }
+
+  async function loadSystemLists(appId) {
+    // 1. IndexedDB cache (fast path)
+    try {
+      const db = await abrirDBListasP();
+      const entry = await new Promise(resolve => {
+        const req = db.transaction(LP_SYS_STORE).objectStore(LP_SYS_STORE).get('lists-' + appId);
+        req.onsuccess = () => resolve(req.result); req.onerror = () => resolve(null);
+      });
+      if (entry && Date.now() - entry.cached_at < SYS_CACHE_TTL) return entry.lists;
+    } catch {}
+
+    // 2. Supabase
+    try {
+      const { data, error } = await window.sb
+        .from('word_lists')
+        .select('name, words')
+        .eq('app_id', appId)
+        .eq('is_system', true);
+      if (!error && data?.length) {
+        const lists = {};
+        data.forEach(r => { lists[r.name] = r.words; });
+        try {
+          const db = await abrirDBListasP();
+          const tx = db.transaction(LP_SYS_STORE, 'readwrite');
+          tx.objectStore(LP_SYS_STORE).put({ key: 'lists-' + appId, lists, cached_at: Date.now() });
+        } catch {}
+        return lists;
+      }
+    } catch {}
+
+    // 3. Fallback: original JSON file
+    const r = await fetch(DATA_FILE);
+    return r.json();
   }
 
   function parsearPalabras(str) { return str.split(',').map(w => w.trim()).filter(w => w.length > 0); }
@@ -697,6 +850,8 @@
   async function inyectarListasPersonales() {
     const listas = await cargarListasP();
     listas.forEach(l => { DATA['mis: ' + l.nombre] = { es: l.es, de: l.de }; });
+    // Background sync: pull any lists created on other devices
+    _syncPersonalListsFromSupabase();
   }
 
   async function guardarNuevaLista() {
@@ -832,6 +987,18 @@
     const setsContainer = document.getElementById('sets-container');
     if (setsContainer) setsContainer.insertAdjacentElement('afterend', panel);
     else app.prepend(panel);
+
+    // Show/hide "Nueva lista" based on auth state
+    const _updateNewListVisibility = (user) => {
+      const details = document.querySelector('#lp-body details');
+      if (details) details.style.display = user ? '' : 'none';
+    };
+    window.sb.auth.getUser().then(({ data: { user } }) => _updateNewListVisibility(user));
+    window.sb.auth.onAuthStateChange((_, session) => {
+      _updateNewListVisibility(session?.user ?? null);
+      if (session?.user) _syncPersonalListsFromSupabase();
+    });
+
     refreshMisListas();
   }
 
@@ -916,10 +1083,9 @@
   renderSelectionNext();
 
   document.addEventListener('DOMContentLoaded', () => {
-    fetch(DATA_FILE)
-      .then(r => r.json())
+    loadSystemLists(APP)
       .then(json => { DATA = json; initUnifiedApp(); })
-      .catch(() => { document.body.innerHTML = `<p style="padding:2rem">Error cargando ${DATA_FILE}</p>`; });
+      .catch(() => { document.body.innerHTML = `<p style="padding:2rem">Error cargando listas de vocabulario</p>`; });
   });
 
   if ('serviceWorker' in navigator) {

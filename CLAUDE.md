@@ -48,8 +48,20 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `DATA.json` | Vocabulary data referenced by the Service Worker cache. |
-| `DataB1.json` | Vocabulary data for B1 app: verbos1, verbos2, adjetivos, adverbios, particulas_modales. |
+| `DATA.json` | Vocabulary data for B2: fallback source when Supabase is unavailable. Also referenced by the Service Worker cache. |
+| `DataB1.json` | Vocabulary data for B1: verbos1, verbos2, adjetivos, adverbios, particulas_modales. Fallback when Supabase is unavailable. |
+
+### Scripts (offline tools)
+
+| File | Purpose |
+|------|---------|
+| `scripts/seed-word-lists.js` | One-time Node.js script to insert DATA.json (B2) and DataB1.json (B1) into the `word_lists` Supabase table as system rows. Run after applying `supabase/migrations/001_word_lists_srs.sql`. Requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in `.env.local`. |
+
+### Database Migrations
+
+| File | Purpose |
+|------|---------|
+| `supabase/migrations/001_word_lists_srs.sql` | Creates `word_lists` (all vocabulary lists, system + user-created, with RLS) and `srs_progress` (SM-2 state per user/app/word, with RLS). Run manually in the Supabase SQL editor. |
 
 ### PWA & Deploy
 
@@ -237,6 +249,34 @@ cron-job.org (cada hora)
   → webpush.sendNotification() → SW recibe evento "push" → showNotification()
   → actualiza last_notified_at; elimina suscripciones expiradas (410/404)
 ```
+
+### Supabase table: `word_lists`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | PK (client-generated via `crypto.randomUUID()` for user lists) |
+| `user_id` | uuid | FK → auth.users; NULL for system (built-in) lists |
+| `app_id` | text | `'b1'`, `'b2'`, or `'shared'` (user lists are always `'shared'`) |
+| `name` | text | List key, e.g. `'lista1'`, `'mis: Deportes'` |
+| `is_system` | boolean | `true` for built-in vocab (seeded from JSON); `false` for user-created |
+| `words` | jsonb | `{ de: string[], es: string[] }` — parallel arrays, same length |
+| `created_at` / `updated_at` | timestamptz | Auto-managed |
+
+RLS: system lists are publicly readable (no auth). User lists are readable/writable only by their owner.
+
+### Supabase table: `srs_progress`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | uuid | PK component, FK → auth.users |
+| `app_id` | text | PK component — `'b1'` or `'b2'` |
+| `word` | text | PK component — German word |
+| `ease` | numeric | SM-2 easiness factor (starts 2.5, min 1.3) |
+| `interval` | int | Days between reviews |
+| `reps` | int | Consecutive correct answers |
+| `due` | bigint | Next review timestamp (Unix ms) |
+
+RLS: users can only read/write their own rows.
+
+Sync strategy in `shared-game.js`: IndexedDB is the local cache (instant reads); Supabase is the source of truth. On load, Supabase data is merged into IndexedDB (Supabase wins on `due` conflicts for SRS, or by `supabase_id` for lists). Writes go to IndexedDB first (optimistic), then async to Supabase.
 
 ### Supabase table: `push_subscriptions`
 | Column | Type | Description |

@@ -370,19 +370,21 @@
       return;
     }
 
-    const words    = data.filter(e => e.event_type === 'word_answered');
-    const correct  = words.filter(e => e.payload && e.payload.correct).length;
-    const pct      = words.length > 0 ? Math.round(correct / words.length * 100) : null;
+    const quizSessions = data.filter(e => e.event_type === 'quiz_session_end');
+    const totalWords   = quizSessions.reduce((s, e) => s + (e.payload?.total || 0), 0);
+    const totalCorrect = quizSessions.reduce((s, e) => s + (e.payload?.correct || 0), 0);
+    const pct          = totalWords > 0 ? Math.round(totalCorrect / totalWords * 100) : null;
     const lookups  = data.filter(e => e.event_type === 'lookup').length;
     const audios   = data.filter(e => e.event_type === 'audio_sent').length;
     const sessions = data.filter(e => e.event_type === 'session_start').length;
 
     // Today (local date)
-    const todayStr = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
-    const todayWords   = words.filter(e => e.created_at && e.created_at.slice(0,10) === todayStr);
-    const todayCorrect = todayWords.filter(e => e.payload && e.payload.correct).length;
-    const todayPct     = todayWords.length > 0 ? Math.round(todayCorrect / todayWords.length * 100) : null;
-    const todayAudios  = data.filter(e => e.event_type === 'audio_sent' && e.created_at && e.created_at.slice(0,10) === todayStr).length;
+    const todayStr       = new Date().toLocaleDateString('sv-SE');
+    const todayQuiz      = quizSessions.filter(e => e.created_at?.slice(0,10) === todayStr);
+    const todayWords     = todayQuiz.reduce((s, e) => s + (e.payload?.total || 0), 0);
+    const todayCorrect   = todayQuiz.reduce((s, e) => s + (e.payload?.correct || 0), 0);
+    const todayPct       = todayWords > 0 ? Math.round(todayCorrect / todayWords * 100) : null;
+    const todayAudios    = data.filter(e => e.event_type === 'audio_sent' && e.created_at?.slice(0,10) === todayStr).length;
 
     // Last 30 days array (oldest → newest)
     const days30 = [];
@@ -393,15 +395,15 @@
     }
     const countByDay  = Object.fromEntries(days30.map(d => [d, 0]));
     const audiosByDay = Object.fromEntries(days30.map(d => [d, 0]));
-    words.forEach(e => {
-      const day = e.created_at && e.created_at.slice(0,10);
-      if (day && countByDay[day] !== undefined) countByDay[day]++;
+    quizSessions.forEach(e => {
+      const day = e.created_at?.slice(0,10);
+      if (day && countByDay[day] !== undefined) countByDay[day] += e.payload?.total || 0;
     });
     data.filter(e => e.event_type === 'audio_sent').forEach(e => {
-      const day = e.created_at && e.created_at.slice(0,10);
+      const day = e.created_at?.slice(0,10);
       if (day && audiosByDay[day] !== undefined) audiosByDay[day]++;
     });
-    const counts  = days30.map(d => countByDay[d]);
+    const counts   = days30.map(d => countByDay[d]);
     const maxCount = Math.max(...counts, 1);
 
     // Streak: consecutive days with at least 1 word, ending on the last active day
@@ -456,8 +458,8 @@
         <div style="font-size:11px;font-weight:600;color:#1565C0;letter-spacing:.5px;margin-bottom:6px;">HOY</div>
         <div style="display:flex;gap:8px;">
           <div style="flex:1;padding:12px 10px;background:#E3F2FD;border-radius:8px;text-align:center;">
-            <div style="font-size:32px;font-weight:700;color:#1976D2;line-height:1;">${todayWords.length}</div>
-            <div style="font-size:11px;color:#555;margin-top:4px;">palabra${todayWords.length !== 1 ? 's' : ''}</div>
+            <div style="font-size:32px;font-weight:700;color:#1976D2;line-height:1;">${todayWords}</div>
+            <div style="font-size:11px;color:#555;margin-top:4px;">palabra${todayWords !== 1 ? 's' : ''}</div>
             <div style="font-size:11px;color:#1565C0;margin-top:2px;">${todayPct !== null ? `${todayPct}% ✓` : '—'}</div>
           </div>
           <div style="flex:1;padding:12px 10px;background:#E8F5E9;border-radius:8px;text-align:center;">
@@ -478,7 +480,7 @@
         </div>
       </div>
       <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:4px;">TODO EL TIEMPO</div>
-      ${row('Palabras respondidas', words.length > 0 ? `${words.length} (${pct}% ✓)` : '—')}
+      ${row('Palabras respondidas', totalWords > 0 ? `${totalWords} (${pct}% ✓)` : '—')}
       ${row('Búsquedas en diccionario', lookups || '—')}
       ${row('Audios enviados (Chat)', audios || '—')}
       ${row('Sesiones de estudio', sessions || '—')}
@@ -493,14 +495,28 @@
     return _cachedToken;
   };
 
-  window.logEvent = async function (app, eventType, payload) {
+  let _eventQueue = [];
+  let _flushTimer = null;
+
+  async function _flushEvents() {
+    if (!_eventQueue.length || !window.currentUser) return;
+    const batch = _eventQueue.splice(0);
+    await window.sb.from('usage_events').insert(
+      batch.map(e => ({ user_id: window.currentUser.id, ...e }))
+    );
+  }
+
+  function _scheduleFlush() {
+    if (_flushTimer) return;
+    _flushTimer = setTimeout(() => { _flushTimer = null; _flushEvents(); }, 30000);
+  }
+
+  window.addEventListener('pagehide', () => _flushEvents());
+
+  window.logEvent = function (app, eventType, payload) {
     if (!window.currentUser) return;
-    await window.sb.from('usage_events').insert({
-      user_id: window.currentUser.id,
-      app: app,
-      event_type: eventType,
-      payload: payload || {}
-    });
+    _eventQueue.push({ app, event_type: eventType, payload: payload || {}, created_at: new Date().toISOString() });
+    _scheduleFlush();
   };
 
   window.sb.auth.onAuthStateChange(async function (event, session) {

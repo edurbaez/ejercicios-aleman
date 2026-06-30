@@ -568,7 +568,9 @@
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const str = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const count = allEvents.filter(e => new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) === str).length;
+      const count = allEvents
+        .filter(e => new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) === str)
+        .reduce((s, e) => s + activityWeight(e), 0);
       counts.push(count);
       labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }));
     }
@@ -582,6 +584,14 @@
         <span class="spark-label">${labels[i].split(' ')[0]}</span>
       </div>`;
     }).join('');
+  }
+
+  const INFRA_EVENTS = new Set(['session_start', 'session_end', 'mode_change', 'auto_session_end']);
+
+  function activityWeight(e) {
+    if (e.event_type === 'quiz_session_end') return e.payload?.total || 0;
+    if (INFRA_EVENTS.has(e.event_type)) return 0;
+    return 1;
   }
 
   // ── Activity by app ───────────────────────────────────────
@@ -600,8 +610,10 @@
   function renderAppBars() {
     const counts = {};
     for (const e of allEvents) {
+      const w = activityWeight(e);
+      if (w === 0) continue;
       const k = e.app || '(sin app)';
-      counts[k] = (counts[k] || 0) + 1;
+      counts[k] = (counts[k] || 0) + w;
     }
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     if (sorted.length === 0) {
@@ -697,8 +709,10 @@
       const dayRows = days.map(day => {
         const pills = Object.entries(
           byDay[day].reduce((acc, e) => {
+            const w = activityWeight(e);
+            if (w === 0) return acc;
             const name = APP_NAMES[e.app] || e.app || '?';
-            acc[name] = (acc[name] || 0) + 1;
+            acc[name] = (acc[name] || 0) + w;
             return acc;
           }, {})
         ).sort((a, b) => b[1] - a[1]);

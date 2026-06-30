@@ -27,6 +27,9 @@
     timerId:          null,
     seconds:          0,
     winnummer:        100,
+    quizTotal:        0,
+    quizCorrect:      0,
+    sessionStartedAt: null,
     currentIndex:     null,
     optionIdxs:       [],
     modoInverso:      false,
@@ -106,7 +109,10 @@
     } else {
       const wasEmpty = State.activeSets.size === 0;
       State.activeSets.add(key);
-      if (wasEmpty) window.logEvent(APP, 'session_start', { app: APP });
+      if (wasEmpty) {
+        State.sessionStartedAt = Date.now();
+        window.logEvent(APP, 'session_start', { app: APP, sets_active: [key] });
+      }
     }
     updateSetButtonsUI();
     reloadActiveData();
@@ -222,7 +228,8 @@
     if (!State.timerStarted) startTimer();
     const correct = chosenWordIndex === State.currentIndex;
     const wordDe = State.de[State.currentIndex];
-    window.logEvent(APP, 'word_answered', { word_de: wordDe, correct });
+    State.quizTotal++;
+    if (correct) State.quizCorrect++;
     updateSRSCard(wordDe, correct);
     if (correct) {
       markOptionsBackground('green');
@@ -298,16 +305,12 @@
 
   async function speakLoop() {
     if (!State.modoAuto) {
-      const wordDe = $('p2')?.textContent || '';
-      window.logEvent(APP, 'word_repeated', { word_de: wordDe });
-      await speakOnce(wordDe, 'de');
+      await speakOnce($('p2')?.textContent || '', 'de');
       return;
     }
     while (State.modoAuto) {
       if (!State.modoDual) {
-        const wordDe = $('p2')?.textContent || '';
-        window.logEvent(APP, 'word_repeated', { word_de: wordDe });
-        await speakOnce(wordDe, 'de');
+        await speakOnce($('p2')?.textContent || '', 'de');
         incrementPalabraCounter();
         if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
         await wait(500); renderRepeatNext(); continue;
@@ -316,9 +319,7 @@
         await speakOnce($('p1')?.textContent || '', 'es');
         State.dualFlip = true;
       } else {
-        const wordDe = $('p2')?.textContent || '';
-        window.logEvent(APP, 'word_repeated', { word_de: wordDe });
-        await speakOnce(wordDe, 'de');
+        await speakOnce($('p2')?.textContent || '', 'de');
         State.dualFlip = false;
         incrementPalabraCounter();
         if (State.palabrasContadas >= State.palabrasLimite) { stopAutoByLimit(); return; }
@@ -339,6 +340,7 @@
   function incrementPalabraCounter() { State.palabrasContadas++; updateCounterDisplay(); }
 
   function stopAutoByLimit() {
+    window.logEvent(APP, 'auto_session_end', { words_played: State.palabrasContadas });
     State.modoAuto = false;
     const btnAuto = $('auto');
     if (btnAuto) { btnAuto.textContent = 'Auto: OFF'; btnAuto.className = 'btn btn-danger'; }
@@ -389,7 +391,10 @@
         window.logEvent(APP, 'mode_change', { mode: 'auto', active: State.modoAuto });
         if (State.modoAuto) {
           State.palabrasContadas = 0; updateCounterDisplay(); requestWakeLock();
-        } else { releaseWakeLock(); }
+        } else {
+          window.logEvent(APP, 'auto_session_end', { words_played: State.palabrasContadas });
+          releaseWakeLock();
+        }
       });
     }
     if (btnDual) {
@@ -406,7 +411,6 @@
           requestWakeLock(); speakLoop();
         } else {
           const wordDe = $('p2')?.textContent || '';
-          window.logEvent(APP, 'word_repeated', { word_de: wordDe });
           if (State.modoDual) {
             await speakOnce(wordDe, 'de');
             await speakOnce($('p1')?.textContent || '', 'es');
@@ -1081,6 +1085,22 @@
 
   bindSelectionEvents();
   renderSelectionNext();
+
+  window.addEventListener('pagehide', () => {
+    if (!State.sessionStartedAt) return;
+    const duration_sec = Math.round((Date.now() - State.sessionStartedAt) / 1000);
+    window.logEvent(APP, 'session_end', {
+      duration_sec,
+      sets_active: [...State.activeSets],
+    });
+    if (State.quizTotal > 0) {
+      window.logEvent(APP, 'quiz_session_end', {
+        total: State.quizTotal,
+        correct: State.quizCorrect,
+        errors: State.quizTotal - State.quizCorrect,
+      });
+    }
+  });
 
   document.addEventListener('DOMContentLoaded', () => {
     loadSystemLists(APP)

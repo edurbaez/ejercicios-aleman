@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
-<head> 
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard — Admin</title>
@@ -10,138 +10,216 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f7; color: #222; margin: 0; min-height: 100vh; }
-    body.dark { background: #181824; color: #dde1ec; }
+    body.dark { background: #13141f; color: #dde1ec; }
 
     /* Loading overlay */
     #loading-overlay { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; font-size: 15px; color: #888; }
-    body.dark #loading-overlay { background: #181824; }
+    body.dark #loading-overlay { background: #13141f; }
 
-    /* Header */
-    .adm-header { background: #1565C0; color: #fff; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
-    .adm-header h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: .2px; }
-    .adm-header-actions { display: flex; gap: 10px; align-items: center; }
-    .adm-btn { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.35); color: #fff; padding: 6px 15px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: background .15s; }
-    .adm-btn:hover { background: rgba(255,255,255,.28); }
-    .adm-btn.danger { background: rgba(229,57,53,.5); border-color: rgba(229,57,53,.8); }
-    .adm-btn.danger:hover { background: rgba(229,57,53,.75); }
+    /* ── Header ── */
+    .adm-header { background: #1565C0; color: #fff; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.25); height: 52px; }
+    .adm-header-left { display: flex; align-items: center; gap: 14px; }
+    .adm-logo { font-size: 16px; font-weight: 700; letter-spacing: -.2px; white-space: nowrap; }
+    .adm-sep { width: 1px; height: 20px; background: rgba(255,255,255,.25); }
+    .adm-header-actions { display: flex; gap: 8px; align-items: center; }
+    .adm-btn { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; transition: background .15s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; white-space: nowrap; }
+    .adm-btn:hover { background: rgba(255,255,255,.24); }
+    .adm-btn.danger { background: rgba(229,57,53,.45); border-color: rgba(229,57,53,.7); }
+    .adm-btn.danger:hover { background: rgba(229,57,53,.65); }
+    .adm-btn svg { flex-shrink: 0; }
 
-    /* Main layout */
-    .adm-main { padding: 24px; max-width: 1120px; margin: 0 auto; }
+    /* ── Nav dropdown ── */
+    .nav-wrap { position: relative; }
+    #nav-dropdown { display: none; position: absolute; right: 0; top: calc(100% + 6px); background: #0d47a1; border: 1px solid rgba(255,255,255,.15); border-radius: 8px; min-width: 180px; box-shadow: 0 6px 20px rgba(0,0,0,.35); z-index: 200; overflow: hidden; }
+    #nav-dropdown a { display: block; padding: 9px 14px; color: rgba(255,255,255,.9); text-decoration: none; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,.08); transition: background .1s; }
+    #nav-dropdown a:last-child { border-bottom: none; }
+    #nav-dropdown a:hover { background: rgba(255,255,255,.1); }
 
-    /* Summary cards */
-    .cards-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-    .card { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 5px rgba(0,0,0,.07); flex: 1; min-width: 160px; }
-    body.dark .card { background: #23253a; box-shadow: 0 1px 5px rgba(0,0,0,.3); }
-    .card-label { font-size: 12px; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
-    .card-value { font-size: 38px; font-weight: 700; color: #1565C0; line-height: 1; }
-    body.dark .card-value { color: #64b5f6; }
+    /* ── Main layout ── */
+    .adm-main { padding: 20px 24px 32px; max-width: 1200px; margin: 0 auto; }
 
-    /* Sections */
-    .section { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 5px rgba(0,0,0,.07); margin-bottom: 24px; }
-    body.dark .section { background: #23253a; }
-    .section-title { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 16px; display: flex; align-items: center; gap: 10px; }
-    body.dark .section-title { color: #dde1ec; }
+    /* ── Summary cards ── */
+    .cards-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
+    @media (max-width: 900px) { .cards-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .cards-row { grid-template-columns: repeat(2, 1fr); } }
 
-    /* Bar chart */
-    .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .bar-label { width: 140px; font-size: 13px; color: #555; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    body.dark .bar-label { color: #aab; }
-    .bar-track { flex: 1; background: #eef0f5; border-radius: 5px; height: 22px; overflow: hidden; }
-    body.dark .bar-track { background: #2e3050; }
-    .bar-fill { height: 100%; background: linear-gradient(90deg, #1976D2, #42a5f5); border-radius: 5px; transition: width .5s ease; }
-    .bar-count { font-size: 13px; color: #777; width: 48px; text-align: right; flex-shrink: 0; }
+    .card { background: #fff; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 4px rgba(0,0,0,.06); border-left: 3px solid transparent; display: flex; flex-direction: column; gap: 10px; transition: box-shadow .15s; }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+    body.dark .card { background: #1e2035; box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+    .card-top { display: flex; align-items: center; justify-content: space-between; }
+    .card-label { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; }
+    body.dark .card-label { color: #6a7090; }
+    .card-icon { width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-value { font-size: 32px; font-weight: 700; line-height: 1; }
 
-    /* Users table */
-    .search-box { width: 100%; padding: 9px 12px; border: 1px solid #dde; border-radius: 7px; font-size: 14px; margin-bottom: 16px; outline: none; background: #f7f8fc; color: #222; }
-    .search-box:focus { border-color: #1976D2; background: #fff; box-shadow: 0 0 0 2px rgba(25,118,210,.15); }
-    body.dark .search-box { background: #1e2035; color: #dde1ec; border-color: #3a3d5c; }
-    body.dark .search-box:focus { background: #252742; border-color: #64b5f6; }
+    .card.c-blue  { border-left-color: #1565C0; } .card.c-blue .card-icon  { background: #e3f0ff; } .card.c-blue .card-value  { color: #1565C0; }
+    .card.c-teal  { border-left-color: #00796B; } .card.c-teal .card-icon  { background: #e0f2f1; } .card.c-teal .card-value  { color: #00796B; }
+    .card.c-green { border-left-color: #2e7d32; } .card.c-green .card-icon { background: #e8f5e9; } .card.c-green .card-value { color: #2e7d32; }
+    .card.c-purple{ border-left-color: #6A1B9A; } .card.c-purple .card-icon{ background: #f3e5f5; } .card.c-purple .card-value{ color: #6A1B9A; }
+    .card.c-orange{ border-left-color: #E65100; } .card.c-orange .card-icon{ background: #fff3e0; } .card.c-orange .card-value{ color: #E65100; }
+
+    body.dark .card.c-blue .card-icon  { background: #0d2a50; } body.dark .card.c-blue .card-value  { color: #64b5f6; } body.dark .card.c-blue  { border-left-color: #64b5f6; }
+    body.dark .card.c-teal .card-icon  { background: #00302b; } body.dark .card.c-teal .card-value  { color: #4db6ac; } body.dark .card.c-teal  { border-left-color: #4db6ac; }
+    body.dark .card.c-green .card-icon { background: #0a2a0c; } body.dark .card.c-green .card-value { color: #81c784; } body.dark .card.c-green { border-left-color: #81c784; }
+    body.dark .card.c-purple .card-icon{ background: #1e0a30; } body.dark .card.c-purple .card-value{ color: #ce93d8; } body.dark .card.c-purple{ border-left-color: #ce93d8; }
+    body.dark .card.c-orange .card-icon{ background: #2a1000; } body.dark .card.c-orange .card-value{ color: #ffb74d; } body.dark .card.c-orange{ border-left-color: #ffb74d; }
+
+    /* ── Sparkline section ── */
+    .sparkline-section { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 20px; }
+    body.dark .sparkline-section { background: #1e2035; }
+    .sparkline-title { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 12px; }
+    body.dark .sparkline-title { color: #6a7090; }
+    .sparkline-bars { display: flex; align-items: flex-end; gap: 6px; height: 52px; }
+    .spark-col { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+    .spark-bar { width: 100%; border-radius: 3px 3px 0 0; background: #1976D2; opacity: .75; min-height: 2px; transition: opacity .2s; }
+    .spark-bar:hover { opacity: 1; }
+    body.dark .spark-bar { background: #64b5f6; }
+    .spark-label { font-size: 10px; color: #aaa; white-space: nowrap; }
+    body.dark .spark-label { color: #555; }
+
+    /* ── Sections ── */
+    .section { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 18px; }
+    body.dark .section { background: #1e2035; }
+    .section-title { font-size: 13px; font-weight: 600; color: #444; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: .4px; }
+    body.dark .section-title { color: #9aa0c0; }
+    .section-title svg { opacity: .6; }
+
+    /* ── 2-column grid ── */
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 360px; gap: 18px; margin-bottom: 18px; }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    .dashboard-grid .section { margin-bottom: 0; }
+    .grid-left { display: flex; flex-direction: column; gap: 18px; }
+    .grid-right { display: flex; flex-direction: column; gap: 18px; }
+
+    /* ── Bar chart ── */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .bar-label { width: 130px; font-size: 12px; color: #555; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    body.dark .bar-label { color: #8a90aa; }
+    .bar-track { flex: 1; background: #eef0f5; border-radius: 4px; height: 18px; overflow: hidden; }
+    body.dark .bar-track { background: #2a2d45; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #1565C0, #42a5f5); border-radius: 4px; transition: width .5s ease; }
+    .bar-count { font-size: 12px; color: #888; width: 40px; text-align: right; flex-shrink: 0; font-weight: 600; }
+    body.dark .bar-count { color: #6a7090; }
+
+    /* ── Users table ── */
+    .search-box { width: 100%; padding: 8px 12px; border: 1px solid #e0e3ee; border-radius: 7px; font-size: 13px; margin-bottom: 14px; outline: none; background: #f7f8fc; color: #222; }
+    .search-box:focus { border-color: #1976D2; background: #fff; box-shadow: 0 0 0 2px rgba(25,118,210,.12); }
+    body.dark .search-box { background: #181a2e; color: #dde1ec; border-color: #2e3050; }
+    body.dark .search-box:focus { background: #1e2035; border-color: #64b5f6; }
+
     table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    thead th { text-align: left; padding: 8px 10px; color: #888; font-weight: 500; border-bottom: 2px solid #f0f0f5; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
-    body.dark thead th { color: #7a7e9a; border-bottom-color: #2e3050; }
-    tbody td { padding: 10px 10px; border-bottom: 1px solid #f5f6fa; color: #333; }
-    body.dark tbody td { border-bottom-color: #2a2d45; color: #ccd1e8; }
+    thead th { text-align: left; padding: 7px 10px; color: #888; font-weight: 600; border-bottom: 2px solid #eef0f5; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; cursor: pointer; user-select: none; white-space: nowrap; }
+    thead th:hover { color: #1565C0; }
+    body.dark thead th { color: #6a7090; border-bottom-color: #2a2d45; }
+    body.dark thead th:hover { color: #64b5f6; }
+    .sort-icon { display: inline-block; margin-left: 4px; opacity: .4; font-size: 10px; }
+    th.sort-asc .sort-icon::after  { content: ' ▲'; opacity: 1; }
+    th.sort-desc .sort-icon::after { content: ' ▼'; opacity: 1; }
+    th .sort-icon::after { content: ' ⬍'; }
+
+    tbody td { padding: 9px 10px; border-bottom: 1px solid #f5f6fa; color: #333; vertical-align: middle; }
+    body.dark tbody td { border-bottom-color: #252842; color: #ccd1e8; }
     tbody tr.user-row { cursor: pointer; }
     tbody tr.user-row:hover td { background: #f0f6ff; }
-    body.dark tbody tr.user-row:hover td { background: #272a45; }
+    body.dark tbody tr.user-row:hover td { background: #222540; }
+
+    /* Avatar */
+    .user-cell { display: flex; align-items: center; gap: 9px; }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0; }
+
+    /* Active dot */
+    .active-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
+    .active-dot.today { background: #43a047; }
+    .active-dot.week  { background: #ffa726; }
+
+    /* Badge */
     .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #e3f0ff; color: #1565C0; }
-    body.dark .badge { background: #1a2d50; color: #64b5f6; }
+    body.dark .badge { background: #0d2a50; color: #64b5f6; }
     .badge.admin { background: #fff3e0; color: #e65100; }
-    body.dark .badge.admin { background: #2a1e00; color: #ffb74d; }
+    body.dark .badge.admin { background: #2a1000; color: #ffb74d; }
 
-    /* Detail panel */
-    #detail-panel { display: none; background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 5px rgba(0,0,0,.07); margin-bottom: 24px; }
-    body.dark #detail-panel { background: #23253a; }
+    /* ── Detail panel ── */
+    #detail-panel { display: none; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 18px; border-top: 3px solid #1565C0; }
+    body.dark #detail-panel { background: #1e2035; border-top-color: #64b5f6; }
     .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
-    .detail-name { font-size: 16px; font-weight: 600; margin: 0 0 3px; }
-    .detail-email { font-size: 13px; color: #888; margin: 0 0 16px; }
-    .close-btn { background: none; border: 1px solid #ddd; color: #666; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-    body.dark .close-btn { border-color: #3a3d5c; color: #aab; }
-    .event-row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f5f6fa; flex-wrap: wrap; }
-    body.dark .event-row { border-bottom-color: #2a2d45; }
-    .ev-time { color: #aaa; font-size: 12px; width: 140px; flex-shrink: 0; }
+    .detail-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #fff; margin-right: 12px; flex-shrink: 0; }
+    .detail-meta { display: flex; align-items: center; }
+    .detail-name { font-size: 16px; font-weight: 600; margin: 0 0 2px; }
+    .detail-email { font-size: 12px; color: #888; margin: 0; }
+    .close-btn { background: none; border: 1px solid #e0e3ee; color: #666; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; white-space: nowrap; }
+    body.dark .close-btn { border-color: #2e3050; color: #8a90aa; }
+    .event-row { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f5f6fa; flex-wrap: wrap; align-items: center; }
+    body.dark .event-row { border-bottom-color: #252842; }
+    .ev-time { color: #aaa; font-size: 11px; width: 130px; flex-shrink: 0; }
     .ev-app { background: #e3f0ff; color: #1565C0; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-    body.dark .ev-app { background: #1a2d50; color: #64b5f6; }
-    .ev-type { font-weight: 500; font-size: 13px; color: #333; flex-shrink: 0; }
+    body.dark .ev-app { background: #0d2a50; color: #64b5f6; }
+    .ev-type { font-weight: 500; font-size: 12px; color: #333; flex-shrink: 0; }
     body.dark .ev-type { color: #ccd1e8; }
-    .ev-payload { font-size: 12px; color: #888; font-family: 'Menlo', 'Consolas', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+    .ev-payload { font-size: 11px; color: #aaa; font-family: 'Menlo', 'Consolas', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px; }
 
-    /* Invite form */
+    /* ── Invite form ── */
     .invite-row { display: flex; gap: 10px; }
-    .invite-input { flex: 1; padding: 9px 12px; border: 1px solid #dde; border-radius: 7px; font-size: 14px; outline: none; background: #f7f8fc; color: #222; }
-    .invite-input:focus { border-color: #1976D2; background: #fff; }
-    body.dark .invite-input { background: #1e2035; color: #dde1ec; border-color: #3a3d5c; }
-    .invite-submit { padding: 9px 20px; background: #1565C0; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .invite-input { flex: 1; padding: 8px 12px; border: 1px solid #e0e3ee; border-radius: 7px; font-size: 13px; outline: none; background: #f7f8fc; color: #222; }
+    .invite-input:focus { border-color: #1976D2; background: #fff; box-shadow: 0 0 0 2px rgba(25,118,210,.12); }
+    body.dark .invite-input { background: #181a2e; color: #dde1ec; border-color: #2e3050; }
+    .invite-submit { padding: 8px 18px; background: #1565C0; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 500; }
     .invite-submit:hover { background: #1976D2; }
     .invite-submit:disabled { opacity: .5; cursor: not-allowed; }
-    #invite-msg { margin-top: 10px; font-size: 13px; display: none; padding: 8px 12px; border-radius: 6px; }
-    #invite-msg.ok { background: #e8f5e9; color: #2e7d32; }
+    #invite-msg { margin-top: 10px; font-size: 12px; display: none; padding: 8px 12px; border-radius: 6px; }
+    #invite-msg.ok  { background: #e8f5e9; color: #2e7d32; }
     #invite-msg.err { background: #ffebee; color: #c62828; }
-    body.dark #invite-msg.ok { background: #1a3a1d; color: #81c784; }
-    body.dark #invite-msg.err { background: #3a1010; color: #ef9a9a; }
+    body.dark #invite-msg.ok  { background: #0a2a0c; color: #81c784; }
+    body.dark #invite-msg.err { background: #2a0a0a; color: #ef9a9a; }
 
-    /* Empty / loading states */
-    .empty { color: #aaa; font-size: 13px; padding: 16px 0; text-align: center; }
+    /* ── Skeleton ── */
+    .sk { border-radius: 5px; background: linear-gradient(90deg, #e8eaf0 25%, #f5f6fa 50%, #e8eaf0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+    body.dark .sk { background: linear-gradient(90deg, #252842 25%, #2e3255 50%, #252842 75%); background-size: 200% 100%; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .sk-line { height: 13px; margin: 6px 0; }
+    .sk-bar  { height: 18px; margin: 8px 0; border-radius: 4px; }
+    .sk-table-row { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f5f6fa; }
+    body.dark .sk-table-row { border-bottom-color: #252842; }
+    .sk-table-row .sk { height: 13px; }
 
-    /* Last-5-days per student */
-    .student-block { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #f0f0f5; }
-    body.dark .student-block { border-bottom-color: #2a2d45; }
+    /* ── Activity per student ── */
+    .student-block { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f5; }
+    body.dark .student-block { border-bottom-color: #252842; }
     .student-block:last-child { border-bottom: none; margin-bottom: 0; }
-    .student-email { font-size: 13px; font-weight: 600; color: #1565C0; margin-bottom: 6px; }
+    .student-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .student-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .student-email { font-size: 12px; font-weight: 600; color: #1565C0; }
     body.dark .student-email { color: #64b5f6; }
-    .student-day { font-size: 13px; color: #444; padding: 3px 0; display: flex; gap: 8px; align-items: center; }
+    .student-day { font-size: 12px; color: #444; padding: 3px 0; display: flex; gap: 8px; align-items: flex-start; }
     body.dark .student-day { color: #bcc3dc; }
-    .student-day-date { font-size: 11px; color: #aaa; width: 76px; flex-shrink: 0; }
-    body.dark .student-day-date { color: #6a7090; }
-    .student-day-stats { display: flex; gap: 16px; flex-wrap: wrap; }
-    .stat-pill { background: #f0f6ff; color: #1565C0; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-    body.dark .stat-pill { background: #1a2d50; color: #64b5f6; }
-    .stat-pill.voz { background: #fce4ec; color: #c62828; }
-    body.dark .stat-pill.voz { background: #3a1020; color: #ef9a9a; }
-    .stat-pill.dic { background: #e8f5e9; color: #2e7d32; }
-    body.dark .stat-pill.dic { background: #1a3a1d; color: #81c784; }
+    .student-day-date { font-size: 11px; color: #aaa; width: 72px; flex-shrink: 0; padding-top: 1px; }
+    body.dark .student-day-date { color: #555; }
+    .student-day-stats { display: flex; gap: 6px; flex-wrap: wrap; }
+    .stat-pill { background: #f0f6ff; color: #1565C0; padding: 1px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    body.dark .stat-pill { background: #0d2a50; color: #64b5f6; }
 
-    /* Exam level bars */
-    .exam-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-    .exam-bar-level { width: 36px; font-size: 13px; font-weight: 600; color: #E65100; flex-shrink: 0; }
-    .exam-bar-track { flex: 1; background: #eef0f5; border-radius: 5px; height: 22px; overflow: hidden; }
-    body.dark .exam-bar-track { background: #2e3050; }
-    .exam-bar-fill { height: 100%; background: linear-gradient(90deg, #E65100, #ff8a50); border-radius: 5px; transition: width .5s ease; }
-    .exam-bar-meta { font-size: 12px; color: #777; width: 100px; text-align: right; flex-shrink: 0; }
+    /* ── Exam bars ── */
+    .exam-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .exam-bar-level { width: 30px; font-size: 12px; font-weight: 700; color: #E65100; flex-shrink: 0; }
+    .exam-bar-track { flex: 1; background: #eef0f5; border-radius: 4px; height: 18px; overflow: hidden; }
+    body.dark .exam-bar-track { background: #2a2d45; }
+    .exam-bar-fill { height: 100%; background: linear-gradient(90deg, #E65100, #ff8a50); border-radius: 4px; transition: width .5s ease; }
+    .exam-bar-meta { font-size: 11px; color: #888; width: 110px; text-align: right; flex-shrink: 0; }
 
-    /* Exam table */
-    .exam-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .exam-table th { text-align: left; padding: 7px 10px; color: #888; font-weight: 500; border-bottom: 2px solid #f0f0f5; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
-    body.dark .exam-table th { color: #7a7e9a; border-bottom-color: #2e3050; }
-    .exam-table td { padding: 9px 10px; border-bottom: 1px solid #f5f6fa; }
-    body.dark .exam-table td { border-bottom-color: #2a2d45; color: #ccd1e8; }
-    .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 12px; }
+    /* ── Exam table ── */
+    .exam-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .exam-table th { text-align: left; padding: 6px 8px; color: #888; font-weight: 600; border-bottom: 2px solid #eef0f5; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+    body.dark .exam-table th { color: #6a7090; border-bottom-color: #2a2d45; }
+    .exam-table td { padding: 8px 8px; border-bottom: 1px solid #f5f6fa; }
+    body.dark .exam-table td { border-bottom-color: #252842; color: #ccd1e8; }
+    .score-badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-weight: 600; font-size: 11px; }
     .score-good { background: #e8f5e9; color: #2e7d32; }
     .score-mid  { background: #fff3e0; color: #e65100; }
     .score-bad  { background: #ffebee; color: #c62828; }
-    body.dark .score-good { background: #1a3a1d; color: #81c784; }
-    body.dark .score-mid  { background: #2a1e00; color: #ffb74d; }
-    body.dark .score-bad  { background: #3a1010; color: #ef9a9a; }
+    body.dark .score-good { background: #0a2a0c; color: #81c784; }
+    body.dark .score-mid  { background: #2a1000; color: #ffb74d; }
+    body.dark .score-bad  { background: #2a0a0a; color: #ef9a9a; }
+
+    .empty { color: #aaa; font-size: 12px; padding: 12px 0; text-align: center; }
   </style>
 </head>
 <body>
@@ -149,126 +227,202 @@
 <div id="loading-overlay">Verificando acceso…</div>
 
 <div id="admin-app" style="display:none">
+
+  <!-- Header -->
   <div class="adm-header">
-    <div style="display:flex;align-items:center;gap:16px">
-      <a href="/" class="adm-btn" style="text-decoration:none;display:flex;align-items:center;gap:6px">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Inicio
+    <div class="adm-header-left">
+      <a href="/" class="adm-btn" style="gap:4px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Inicio
       </a>
-      <h1 style="margin:0">Dashboard de Administración</h1>
+      <div class="adm-sep"></div>
+      <span class="adm-logo">Dashboard Admin</span>
     </div>
     <div class="adm-header-actions">
-      <div style="position:relative">
-        <button class="adm-btn" id="nav-menu-btn" onclick="toggleNavMenu()" style="display:flex;align-items:center;gap:5px">
+      <div class="nav-wrap">
+        <button class="adm-btn" id="nav-menu-btn" onclick="toggleNavMenu()">
           Apps
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
-        <div id="nav-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 6px);background:#1565C0;border:1px solid rgba(255,255,255,.2);border-radius:8px;min-width:170px;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:200;overflow:hidden">
-          <a href="/palabrasB2.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Vocabulario B2</a>
-          <a href="/B1.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Vocabulario B1</a>
-          <a href="/diccionario.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Diccionario</a>
-          <a href="/lectura veloz.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Lectura Veloz</a>
-          <a href="/chat-voz.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Chat de Voz</a>
-          <a href="/corrector.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Corrector</a>
-          <a href="/kasus.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Kasus Trainer</a>
-          <a href="/gramatica.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px;border-bottom:1px solid rgba(255,255,255,.1)">Gramática</a>
-          <a href="/chat-reformulaciones.html" style="display:block;padding:9px 14px;color:#fff;text-decoration:none;font-size:13px">Reformulaciones</a>
+        <div id="nav-dropdown">
+          <a href="/palabrasB2.html">Vocabulario B2</a>
+          <a href="/B1.html">Vocabulario B1</a>
+          <a href="/diccionario.html">Diccionario</a>
+          <a href="/lectura veloz.html">Lectura Veloz</a>
+          <a href="/chat-voz.html">Chat de Voz</a>
+          <a href="/corrector.html">Corrector</a>
+          <a href="/kasus.html">Kasus Trainer</a>
+          <a href="/gramatica.html">Gramática</a>
+          <a href="/chat-reformulaciones.html">Reformulaciones</a>
         </div>
       </div>
       <button class="adm-btn" id="refresh-btn" onclick="refreshData()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Actualizar
       </button>
-      <button class="adm-btn" onclick="toggleDark()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>Modo oscuro</button>
-      <button class="adm-btn danger" onclick="signOut()">Cerrar sesión</button>
+      <button class="adm-btn" onclick="toggleDark()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        Oscuro
+      </button>
+      <button class="adm-btn danger" onclick="signOut()">Salir</button>
     </div>
   </div>
 
   <div class="adm-main">
 
-    <!-- 1. Resumen general -->
+    <!-- 1. Summary cards -->
     <div class="cards-row">
-      <div class="card">
-        <div class="card-label">Usuarios registrados</div>
+      <div class="card c-blue">
+        <div class="card-top">
+          <span class="card-label">Usuarios</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1565C0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+        </div>
         <div class="card-value" id="stat-total">—</div>
       </div>
-      <div class="card">
-        <div class="card-label">Activos últimos 7 días</div>
+      <div class="card c-teal">
+        <div class="card-top">
+          <span class="card-label">Activos 7d</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00796B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+        </div>
         <div class="card-value" id="stat-active">—</div>
       </div>
-      <div class="card">
-        <div class="card-label">Total de eventos</div>
+      <div class="card c-green">
+        <div class="card-top">
+          <span class="card-label">Activos hoy</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="card-value" id="stat-today">—</div>
+      </div>
+      <div class="card c-purple">
+        <div class="card-top">
+          <span class="card-label">Eventos</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+        </div>
         <div class="card-value" id="stat-events">—</div>
       </div>
-      <div class="card">
-        <div class="card-label">Exámenes completados</div>
-        <div class="card-value" id="stat-exams" style="color:#E65100;">—</div>
+      <div class="card c-orange">
+        <div class="card-top">
+          <span class="card-label">Exámenes</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+        </div>
+        <div class="card-value" id="stat-exams">—</div>
       </div>
-      <div class="card">
-        <div class="card-label">Activos hoy</div>
-        <div class="card-value" id="stat-today" style="color:#2e7d32;">—</div>
+    </div>
+
+    <!-- 2. Sparkline -->
+    <div class="sparkline-section">
+      <div class="sparkline-title">Eventos — últimos 7 días</div>
+      <div class="sparkline-bars" id="sparkline-bars">
+        ${[...Array(7)].map(() => `<div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>`).join('')}
       </div>
     </div>
 
-    <!-- 2. Actividad por app -->
-    <div class="section">
-      <div class="section-title">Actividad por app</div>
-      <div id="app-bars"><p class="empty">Cargando…</p></div>
+    <!-- 3. 2-column grid -->
+    <div class="dashboard-grid">
+      <div class="grid-left">
+
+        <!-- Activity by app -->
+        <div class="section">
+          <div class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Actividad por app
+          </div>
+          <div id="app-bars"><div class="sk sk-bar" style="width:90%"></div><div class="sk sk-bar" style="width:70%"></div><div class="sk sk-bar" style="width:50%"></div></div>
+        </div>
+
+        <!-- Exams by level -->
+        <div class="section">
+          <div class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            Exámenes — promedio por nivel
+          </div>
+          <div id="exam-level-bars"><div class="sk sk-bar" style="width:85%"></div><div class="sk sk-bar" style="width:60%"></div></div>
+        </div>
+
+        <!-- Recent exams -->
+        <div class="section">
+          <div class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Últimos 20 exámenes
+          </div>
+          <div id="exam-recent">
+            ${[...Array(4)].map(() => `<div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>`).join('')}
+          </div>
+        </div>
+
+      </div>
+      <div class="grid-right">
+
+        <!-- Last 5 days per student -->
+        <div class="section" style="height:fit-content">
+          <div class="section-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Actividad últimos 5 días
+          </div>
+          <div id="last5-container">
+            ${[...Array(3)].map(() => `<div class="student-block"><div class="sk sk-line" style="width:160px"></div><div class="sk sk-line" style="width:120px;margin-top:8px"></div><div class="sk sk-line" style="width:100px"></div></div>`).join('')}
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <!-- 3. Exámenes por nivel -->
+    <!-- 4. Users table -->
     <div class="section">
-      <div class="section-title">Exámenes — promedio por nivel</div>
-      <div id="exam-level-bars"><p class="empty">Cargando…</p></div>
-    </div>
-
-    <!-- 3b. Últimos exámenes -->
-    <div class="section">
-      <div class="section-title">Últimos 20 exámenes</div>
-      <div id="exam-recent"><p class="empty">Cargando…</p></div>
-    </div>
-
-    <!-- 4. Últimos 5 días por alumno -->
-    <div class="section">
-      <div class="section-title">Actividad últimos 5 días por alumno</div>
-      <div id="last5-container"><p class="empty">Cargando…</p></div>
-    </div>
-
-    <!-- 5. Tabla de usuarios -->
-    <div class="section">
-      <div class="section-title">Usuarios</div>
+      <div class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Usuarios
+      </div>
       <input type="search" class="search-box" id="user-search" placeholder="Buscar por nombre o email…" oninput="filterUsers(this.value)">
       <table id="users-table">
         <thead>
           <tr>
-            <th>Nombre</th>
-            <th>Email</th>
+            <th onclick="sortUsers('display_name')">Nombre<span class="sort-icon"></span></th>
+            <th onclick="sortUsers('email')">Email<span class="sort-icon"></span></th>
             <th>Rol</th>
-            <th>Registro</th>
+            <th onclick="sortUsers('created_at')">Registro<span class="sort-icon"></span></th>
             <th>Última actividad</th>
-            <th>Eventos</th>
+            <th onclick="sortUsers('events')">Eventos<span class="sort-icon"></span></th>
           </tr>
         </thead>
         <tbody id="users-tbody">
-          <tr><td colspan="6" class="empty">Cargando…</td></tr>
+          ${[...Array(5)].map(() => `<tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>`).join('')}
         </tbody>
       </table>
     </div>
 
-    <!-- 6. Detalle del usuario -->
+    <!-- 5. User detail -->
     <div id="detail-panel">
       <div class="detail-header">
-        <div>
-          <p class="detail-name" id="det-name">—</p>
-          <p class="detail-email" id="det-email">—</p>
+        <div class="detail-meta">
+          <div class="detail-avatar" id="det-avatar"></div>
+          <div>
+            <p class="detail-name" id="det-name">—</p>
+            <p class="detail-email" id="det-email">—</p>
+          </div>
         </div>
         <button class="close-btn" onclick="closeDetail()">✕ Cerrar</button>
       </div>
       <div id="det-events"></div>
-      <div id="det-exams" style="margin-top:20px;"></div>
+      <div id="det-exams" style="margin-top:16px;"></div>
     </div>
 
-    <!-- 7. Invitar alumno -->
+    <!-- 6. Invite -->
     <div class="section">
-      <div class="section-title">Invitar alumno</div>
+      <div class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Invitar alumno
+      </div>
       <div class="invite-row">
         <input type="email" class="invite-input" id="invite-email" placeholder="correo@ejemplo.com">
         <button class="invite-submit" id="invite-btn" onclick="inviteUser()">Enviar invitación</button>
@@ -288,25 +442,31 @@
   const eventsByUser = {};
   const examsByUser  = {};
 
-  // ── Nav dropdown ───────────────────────────────────────
+  // Track today's active users globally
+  let activeTodayIds = new Set();
+
+  // Sort state
+  let sortCol = 'events';
+  let sortDir = 'desc';
+
+  // ── Nav dropdown ──────────────────────────────────────────
   function toggleNavMenu() {
     const dd = document.getElementById('nav-dropdown');
     dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
   }
   document.addEventListener('click', e => {
-    if (!document.getElementById('nav-menu-btn').contains(e.target)) {
+    if (!document.getElementById('nav-menu-btn').contains(e.target))
       document.getElementById('nav-dropdown').style.display = 'none';
-    }
   });
 
-  // ── Dark mode ──────────────────────────────────────────
+  // ── Dark mode ─────────────────────────────────────────────
   function toggleDark() {
     const dark = document.body.classList.toggle('dark');
     localStorage.setItem('darkMode_admin', dark ? '1' : '0');
   }
   if (localStorage.getItem('darkMode_admin') === '1') document.body.classList.add('dark');
 
-  // ── Auth ───────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────
   async function signOut() {
     await sb.auth.signOut();
     location.href = '/';
@@ -330,20 +490,19 @@
     await loadData();
   }
 
-  // ── Refresh ────────────────────────────────────────────
+  // ── Refresh ───────────────────────────────────────────────
   async function refreshData() {
     const btn = document.getElementById('refresh-btn');
     btn.disabled = true;
-    btn.textContent = 'Cargando…';
-    // Reset indexes to avoid duplicate accumulation on re-load
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Cargando…`;
     for (const k of Object.keys(eventsByUser)) delete eventsByUser[k];
     for (const k of Object.keys(examsByUser))  delete examsByUser[k];
     await loadData();
     btn.disabled = false;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar`;
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar`;
   }
 
-  // ── Data loading ───────────────────────────────────────
+  // ── Data loading ──────────────────────────────────────────
   async function loadData() {
     const [profRes, evRes, exRes] = await Promise.all([
       sb.from('profiles')
@@ -363,44 +522,69 @@
     allEvents   = evRes.data  || [];
     allExams    = exRes.data  || [];
 
-    // Index events by user
     for (const e of allEvents) {
       if (!eventsByUser[e.user_id]) eventsByUser[e.user_id] = [];
       eventsByUser[e.user_id].push(e);
     }
-
-    // Index exams by user
     for (const x of allExams) {
       if (!examsByUser[x.user_id]) examsByUser[x.user_id] = [];
       examsByUser[x.user_id].push(x);
     }
 
     renderSummary();
+    renderSparkline();
     renderAppBars();
     renderExamStats();
     renderLast5Days();
     renderUsersTable(allProfiles);
   }
 
-  // ── Card 1: Summary ────────────────────────────────────
+  // ── Summary cards ─────────────────────────────────────────
   function renderSummary() {
-    const now     = new Date();
+    const now      = new Date();
     const todayStr = now.toLocaleDateString('es-ES');
     const cutoff7  = new Date(now - 7 * 86400 * 1000).toISOString();
 
-    const activeIds7   = new Set(allEvents.filter(e => e.created_at >= cutoff7).map(e => e.user_id));
-    const activeTodayIds = new Set(
+    const activeIds7 = new Set(allEvents.filter(e => e.created_at >= cutoff7).map(e => e.user_id));
+    activeTodayIds = new Set(
       allEvents.filter(e => new Date(e.created_at).toLocaleDateString('es-ES') === todayStr).map(e => e.user_id)
     );
 
     document.getElementById('stat-total').textContent  = allProfiles.length;
     document.getElementById('stat-active').textContent = activeIds7.size;
+    document.getElementById('stat-today').textContent  = activeTodayIds.size;
     document.getElementById('stat-events').textContent = allEvents.length;
     document.getElementById('stat-exams').textContent  = allExams.length;
-    document.getElementById('stat-today').textContent  = activeTodayIds.size;
   }
 
-  // ── Card 2: Activity by app ────────────────────────────
+  // ── Sparkline ─────────────────────────────────────────────
+  function renderSparkline() {
+    const days = 7;
+    const counts = [];
+    const labels = [];
+    const now = new Date();
+
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const str = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const count = allEvents.filter(e => new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) === str).length;
+      counts.push(count);
+      labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }));
+    }
+
+    const max = Math.max(...counts, 1);
+    document.getElementById('sparkline-bars').innerHTML = counts.map((c, i) => {
+      const pct = Math.max(Math.round(c / max * 100), c > 0 ? 4 : 2);
+      const isToday = i === days - 1;
+      return `<div class="spark-col" title="${labels[i]}: ${c} eventos">
+        <div class="spark-bar" style="height:${pct}%;flex-shrink:0;${isToday ? 'opacity:1' : ''}"></div>
+        <span class="spark-label">${labels[i].split(' ')[0]}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Activity by app ───────────────────────────────────────
   const APP_NAMES = {
     'b2': 'Vocabulario B2',
     'b1': 'Vocabulario B1',
@@ -435,7 +619,7 @@
       </div>`).join('');
   }
 
-  // ── Exam stats ─────────────────────────────────────────
+  // ── Exam stats ────────────────────────────────────────────
   const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 
   function scoreClass(pct) {
@@ -443,7 +627,6 @@
   }
 
   function renderExamStats() {
-    // Bar chart: avg % per level
     const barsEl   = document.getElementById('exam-level-bars');
     const recentEl = document.getElementById('exam-recent');
 
@@ -453,7 +636,6 @@
       return;
     }
 
-    // Group by level
     const byLevel = {};
     for (const x of allExams) {
       if (!byLevel[x.level]) byLevel[x.level] = [];
@@ -461,28 +643,26 @@
     }
 
     barsEl.innerHTML = LEVELS.filter(l => byLevel[l]).map(l => {
-      const vals  = byLevel[l];
-      const avg   = Math.round(vals.reduce((s, v) => s + v, 0) / vals.length * 100);
-      const cls   = scoreClass(avg);
+      const vals = byLevel[l];
+      const avg  = Math.round(vals.reduce((s, v) => s + v, 0) / vals.length * 100);
       return `<div class="exam-bar-row">
         <span class="exam-bar-level">${esc(l)}</span>
         <div class="exam-bar-track">
           <div class="exam-bar-fill" style="width:${avg}%"></div>
         </div>
-        <span class="exam-bar-meta"><span class="score-badge ${cls}">${avg}%</span> · ${vals.length} examen${vals.length !== 1 ? 'es' : ''}</span>
+        <span class="exam-bar-meta"><span class="score-badge ${scoreClass(avg)}">${avg}%</span> · ${vals.length} ex.</span>
       </div>`;
     }).join('') || '<p class="empty">Sin datos.</p>';
 
-    // Recent exams table
     recentEl.innerHTML = `<table class="exam-table">
       <thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Puntuación</th></tr></thead>
       <tbody>
         ${allExams.slice(0, 20).map(x => {
-          const p    = allProfiles.find(pr => pr.id === x.user_id);
-          const pct  = Math.round(x.score / x.total * 100);
+          const p   = allProfiles.find(pr => pr.id === x.user_id);
+          const pct = Math.round(x.score / x.total * 100);
           return `<tr>
-            <td>${fmtDate(x.created_at)}</td>
-            <td style="color:#555;">${esc(p?.email || p?.display_name || x.user_id.slice(0,8))}</td>
+            <td style="color:#888">${fmtDate(x.created_at)}</td>
+            <td>${esc(p?.email || p?.display_name || x.user_id.slice(0, 8))}</td>
             <td><strong>${esc(x.level)}</strong></td>
             <td><span class="score-badge ${scoreClass(pct)}">${x.score}/${x.total} (${pct}%)</span></td>
           </tr>`;
@@ -491,39 +671,32 @@
     </table>`;
   }
 
-  // ── Last-5-days per student ────────────────────────────
+  // ── Last 5 days per student ───────────────────────────────
   function renderLast5Days() {
     const container = document.getElementById('last5-container');
-
-    // Only show non-admin users that have at least one event
-    const students = allProfiles.filter(p => p.role !== 'admin' && eventsByUser[p.id]?.length > 0);
+    const students  = allProfiles.filter(p => p.role !== 'admin' && eventsByUser[p.id]?.length > 0);
 
     if (students.length === 0) {
       container.innerHTML = '<p class="empty">Sin actividad registrada.</p>';
       return;
     }
 
-    const blocks = students.map(p => {
-      const evs = eventsByUser[p.id] || [];
-
-      // Group events by local date string
+    container.innerHTML = students.map(p => {
+      const evs   = eventsByUser[p.id] || [];
       const byDay = {};
       for (const e of evs) {
         const day = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
         if (!byDay[day]) byDay[day] = [];
         byDay[day].push(e);
       }
-
-      // Get last 5 days with activity, most-recent first
       const days = Object.keys(byDay).sort((a, b) => {
-        const parse = s => { const [d,m,y] = s.split('/'); return new Date(y,m-1,d); };
+        const parse = s => { const [d, m, y] = s.split('/'); return new Date(y, m - 1, d); };
         return parse(b) - parse(a);
       }).slice(0, 5);
 
       const dayRows = days.map(day => {
-        const dayEvs = byDay[day];
         const pills = Object.entries(
-          dayEvs.reduce((acc, e) => {
+          byDay[day].reduce((acc, e) => {
             const name = APP_NAMES[e.app] || e.app || '?';
             acc[name] = (acc[name] || 0) + 1;
             return acc;
@@ -537,37 +710,103 @@
         </div>`;
       }).join('');
 
+      const color = userColor(p.email || p.id);
+      const ini   = initials(p.display_name, p.email);
       return `<div class="student-block">
-        <div class="student-email">${esc(p.email || p.display_name || p.id)}</div>
+        <div class="student-header">
+          <div class="student-avatar" style="background:${color}">${esc(ini)}</div>
+          <span class="student-email">${esc(p.email || p.display_name || p.id)}</span>
+        </div>
         ${dayRows}
       </div>`;
     }).join('');
-
-    container.innerHTML = blocks;
   }
 
-  // ── Users table ────────────────────────────────────────
+  // ── Users table ───────────────────────────────────────────
   function renderUsersTable(profiles) {
-    const tbody = document.getElementById('users-tbody');
+    const tbody   = document.getElementById('users-tbody');
+    const todayStr = new Date().toLocaleDateString('es-ES');
+
     if (profiles.length === 0) {
       tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin usuarios.</td></tr>';
       return;
     }
-    tbody.innerHTML = profiles.map(p => {
-      const evs      = eventsByUser[p.id] || [];
-      const lastEv   = evs[0];
+
+    const sorted = [...profiles].sort((a, b) => {
+      let va, vb;
+      if (sortCol === 'events') {
+        va = (eventsByUser[a.id] || []).length;
+        vb = (eventsByUser[b.id] || []).length;
+      } else {
+        va = (a[sortCol] || '').toString().toLowerCase();
+        vb = (b[sortCol] || '').toString().toLowerCase();
+      }
+      if (va < vb) return sortDir === 'asc' ? -1 : 1;
+      if (va > vb) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    tbody.innerHTML = sorted.map(p => {
+      const evs    = eventsByUser[p.id] || [];
+      const lastEv = evs[0];
+      const color  = userColor(p.email || p.id);
+      const ini    = initials(p.display_name, p.email);
+
+      const isToday = activeTodayIds.has(p.id);
+      const isWeek  = !isToday && evs.some(e => {
+        const cutoff = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+        return e.created_at >= cutoff;
+      });
+      const dotClass = isToday ? 'today' : isWeek ? 'week' : '';
+      const dotTitle = isToday ? 'Activo hoy' : isWeek ? 'Activo esta semana' : 'Sin actividad reciente';
+
       const roleBadge = p.role === 'admin'
         ? `<span class="badge admin">admin</span>`
         : `<span class="badge">alumno</span>`;
+
       return `<tr class="user-row" onclick="showDetail('${esc(p.id)}')">
-        <td>${esc(p.display_name || '—')}</td>
-        <td>${esc(p.email || '—')}</td>
+        <td>
+          <div class="user-cell">
+            <div class="avatar" style="background:${color}">${esc(ini)}</div>
+            ${esc(p.display_name || '—')}
+          </div>
+        </td>
+        <td style="color:#777;font-size:12px">${esc(p.email || '—')}</td>
         <td>${roleBadge}</td>
-        <td>${fmtDate(p.created_at)}</td>
-        <td>${lastEv ? fmtDate(lastEv.created_at) : '—'}</td>
-        <td>${evs.length}</td>
+        <td style="color:#888;font-size:12px">${fmtDate(p.created_at)}</td>
+        <td style="font-size:12px">
+          <span class="active-dot ${dotClass}" title="${dotTitle}"></span>
+          ${lastEv ? fmtDate(lastEv.created_at) : '—'}
+        </td>
+        <td style="font-weight:600;color:#555">${evs.length}</td>
       </tr>`;
     }).join('');
+  }
+
+  function sortUsers(col) {
+    if (sortCol === col) {
+      sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      sortCol = col;
+      sortDir = col === 'events' ? 'desc' : 'asc';
+    }
+    // Update header classes
+    document.querySelectorAll('#users-table thead th').forEach(th => {
+      th.classList.remove('sort-asc', 'sort-desc');
+    });
+    const colMap = { display_name: 0, email: 1, created_at: 3, events: 5 };
+    const idx = colMap[col];
+    if (idx !== undefined) {
+      const ths = document.querySelectorAll('#users-table thead th');
+      ths[idx].classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+    }
+    const q = document.getElementById('user-search').value.toLowerCase();
+    const filtered = q
+      ? allProfiles.filter(p =>
+          (p.display_name || '').toLowerCase().includes(q) ||
+          (p.email || '').toLowerCase().includes(q))
+      : allProfiles;
+    renderUsersTable(filtered);
   }
 
   function filterUsers(q) {
@@ -580,12 +819,16 @@
     renderUsersTable(filtered);
   }
 
-  // ── Card 4: User detail ────────────────────────────────
+  // ── User detail ───────────────────────────────────────────
   function showDetail(userId) {
     const p    = allProfiles.find(x => x.id === userId);
     const evs  = (eventsByUser[userId] || []).slice(0, 300);
     const exms = examsByUser[userId] || [];
 
+    const color = userColor(p?.email || userId);
+    const ini   = initials(p?.display_name, p?.email);
+    document.getElementById('det-avatar').style.background = color;
+    document.getElementById('det-avatar').textContent = ini;
     document.getElementById('det-name').textContent  = p?.display_name || p?.email || userId;
     document.getElementById('det-email').textContent = p?.email || '';
 
@@ -605,8 +848,8 @@
     } else {
       const avgPct = Math.round(exms.reduce((s, x) => s + x.score / x.total, 0) / exms.length * 100);
       examsEl.innerHTML = `
-        <div style="font-size:13px;font-weight:600;color:#E65100;margin-bottom:8px;">
-          Exámenes de gramática — ${exms.length} total · promedio ${avgPct}%
+        <div style="font-size:12px;font-weight:600;color:#E65100;margin-bottom:8px;">
+          Exámenes — ${exms.length} total · promedio <span class="score-badge ${scoreClass(avgPct)}">${avgPct}%</span>
         </div>
         <table class="exam-table">
           <thead><tr><th>Fecha</th><th>Nivel</th><th>Puntuación</th></tr></thead>
@@ -614,7 +857,7 @@
             ${exms.map(x => {
               const pct = Math.round(x.score / x.total * 100);
               return `<tr>
-                <td>${fmtDate(x.created_at)}</td>
+                <td style="color:#888">${fmtDate(x.created_at)}</td>
                 <td><strong>${esc(x.level)}</strong></td>
                 <td><span class="score-badge ${scoreClass(pct)}">${x.score}/${x.total} (${pct}%)</span></td>
               </tr>`;
@@ -632,7 +875,7 @@
     document.getElementById('detail-panel').style.display = 'none';
   }
 
-  // ── Invite ─────────────────────────────────────────────
+  // ── Invite ────────────────────────────────────────────────
   async function inviteUser() {
     const emailInput = document.getElementById('invite-email');
     const btn        = document.getElementById('invite-btn');
@@ -640,7 +883,7 @@
     const email      = emailInput.value.trim();
     if (!email) return;
 
-    btn.disabled    = true;
+    btn.disabled = true;
     msg.style.display = 'none';
 
     try {
@@ -656,9 +899,9 @@
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Error al enviar invitación');
-      msg.textContent   = data.message || 'Invitación enviada.';
-      msg.className     = 'ok';
-      emailInput.value  = '';
+      msg.textContent  = data.message || 'Invitación enviada.';
+      msg.className    = 'ok';
+      emailInput.value = '';
     } catch (e) {
       msg.textContent = e.message;
       msg.className   = 'err';
@@ -668,7 +911,7 @@
     }
   }
 
-  // ── Helpers ────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────────────
   function fmtDate(iso) {
     if (!iso) return '—';
     return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -686,6 +929,21 @@
     return String(s)
       .replace(/&/g, '&amp;').replace(/</g, '&lt;')
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  const AVATAR_COLORS = ['#1565C0','#00796B','#E65100','#6A1B9A','#2e7d32','#C62828','#0277BD','#558B2F'];
+
+  function userColor(str) {
+    let h = 0;
+    for (const c of String(str)) h = (h * 31 + c.charCodeAt(0)) & 0x7fffffff;
+    return AVATAR_COLORS[h % AVATAR_COLORS.length];
+  }
+
+  function initials(name, email) {
+    const src = name || email || '?';
+    const parts = src.split(/[\s@._-]+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return src.slice(0, 2).toUpperCase();
   }
 
   init();

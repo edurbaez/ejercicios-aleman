@@ -26,7 +26,9 @@
       "PowerShell(Get-Command chrome, msedge, firefox -ErrorAction SilentlyContinue)",
       "Read(//c/Program Files/Google/Chrome/Application/**)",
       "Bash(node --check \"c:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\\\\gramatica.js\")",
-      "Skill(claude-in-chrome)"
+      "Skill(claude-in-chrome)",
+      "Skill(fewer-permission-prompts)",
+      "PowerShell(head *)"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

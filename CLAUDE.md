@@ -36,8 +36,13 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `api/vision.js` | Vercel serverless function — receives `{ image_base64, mime_type, type }`, calls GPT-4o with vision. Returns structured JSON: `{ puntuacion, resumen, errores[], observaciones_generales }`. Requires JWT auth. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`. |
 | `api/tts.js` | Vercel serverless function — receives `{ text, voice }`, calls OpenAI `tts-1`, returns audio/mpeg binary. Requires JWT auth. Rate limited to 30 req/min per user. Default voice: `onyx`. Used by `shared-game.js` to replace browser TTS for German words. |
 | `api/admin-invite.js` | Vercel serverless function — invites a user by email via Supabase auth admin API. Requires JWT from an admin user. Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
+| `api/approve-user.js` | Vercel serverless function — approves a pending user (sets `approved = true` in Supabase). Requires JWT + admin role. Uses `SUPABASE_JWT_SECRET` for HS256 verification and `SUPABASE_SERVICE_ROLE_KEY` to write. |
 | `api/push-subscribe.js` | Vercel serverless function — manages Web Push subscriptions. GET returns current settings; POST upserts subscription + preferences (interval_hours, window_start, window_end, utc_offset_minutes); DELETE removes subscription. Requires JWT auth. Writes to `push_subscriptions` table via `SUPABASE_SERVICE_ROLE_KEY`. |
 | `api/push-notify.js` | Vercel serverless function — sends push notifications to eligible subscribers. Called hourly by Vercel Cron (Pro) or cron-job.org (free). Requires `Authorization: Bearer <CRON_SECRET>`. Reads all `push_subscriptions`, converts UTC time to each user's local timezone, checks window and interval, sends via `web-push`. Removes stale subscriptions (HTTP 410/404). |
+| `api/deepseek-chat.js` | Vercel serverless function — proxies requests to DeepSeek (`deepseek-chat`). Same structure as `chat.js`. Requires `DEEPSEEK_API_KEY`. Rate limited to 20 req/min per user. |
+| `api/finanzas-price.js` | Vercel serverless function — fetches real-time prices for crypto (CoinGecko) and market indices (Yahoo Finance). In-memory cache (5 min TTL). Rate limited to 10 req/min per user. No external API key required. |
+| `api/finanzas-history.js` | Vercel serverless function — fetches historical price data for crypto/indices. In-memory cache (30 min TTL). Same auth pattern. No external API key required. |
+| `api/_lib.js` | Shared utilities for all serverless functions: `verifyJWT()` (ES256 via JWKS + HS256 via `SUPABASE_JWT_SECRET`) and `createRateLimiter()` (Vercel KV when available, in-memory Map fallback). Pre-warms JWKS cache at module load. |
 
 ### Data
 
@@ -257,3 +262,51 @@ RLS activo: usuarios solo acceden a su propia fila. El endpoint usa `SUPABASE_SE
 
 ### Cron
 Plan Hobby de Vercel no soporta crons horarios. Usar **cron-job.org** (gratuito): `POST https://ejercicios-aleman.vercel.app/api/push-notify` cada hora con header `Authorization: Bearer <CRON_SECRET>`.
+
+---
+
+## Environment Variables — Complete Reference
+
+| Variable | Used by | Required | Notes |
+|----------|---------|----------|-------|
+| `OPENAI_API_KEY` | `chat.js`, `whisper.js`, `vision.js`, `tts.js` | Yes | OpenAI secret key |
+| `DEEPSEEK_API_KEY` | `deepseek-chat.js` | Yes | DeepSeek secret key |
+| `SUPABASE_JWT_SECRET` | `_lib.js` (HS256), `approve-user.js` | Conditional | Required only for HS256 tokens; ES256 tokens (default Supabase) use JWKS and don't need this |
+| `SUPABASE_URL` | `admin-invite.js`, `approve-user.js` | Yes | `https://<project>.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | `admin-invite.js`, `approve-user.js`, `push-subscribe.js`, `push-notify.js` | Yes | Bypasses RLS — never expose to client |
+| `ALLOWED_ORIGIN` | `chat.js` | No | If set, rejects requests from other origins with 403 |
+| `KV_REST_API_URL` | `_lib.js` | No | Enables Vercel KV for persistent rate limiting across cold starts; falls back to in-memory Map if absent |
+| `KV_REST_API_TOKEN` | `_lib.js` | No | Required when `KV_REST_API_URL` is set |
+| `VAPID_PUBLIC_KEY` | `push-notify.js` | Yes | Must match `window.VAPID_PUBLIC_KEY` in `config.js` |
+| `VAPID_PRIVATE_KEY` | `push-notify.js` | Yes | Never sent to client |
+| `VAPID_SUBJECT` | `push-notify.js` | Yes | `mailto:ed.urbaez@gmail.com` |
+| `CRON_SECRET` | `push-notify.js` | Yes | Bearer token that cron-job.org sends |
+
+For local dev, define these in `.env.local` (not committed). `vercel dev` loads them automatically.
+
+---
+
+## Local Development
+
+```bash
+# Requires Vercel CLI: npm i -g vercel
+vercel dev
+```
+
+`vercel dev` runs all `api/*.js` serverless functions locally and serves static files. HTML apps that only use browser APIs (no serverless calls) can be opened directly in the browser without `vercel dev`.
+
+Auth note: Supabase JWT verification hits the real Supabase JWKS endpoint even in local dev — internet connection required.
+
+---
+
+## Gotchas
+
+- **Rate limiter resets on cold start** — `createRateLimiter()` in `_lib.js` defaults to an in-memory Map. A new Vercel function instance starts with a clean counter. This is intentional (no external dependency), but means limits are per-instance. Add `KV_REST_API_URL` + `KV_REST_API_TOKEN` to get persistent rate limiting via Vercel KV.
+
+- **`res.text()` → `JSON.parse()` instead of `res.json()`** — used in all frontend API calls (e.g. `diccionario.js`, `chat-voz.html`). If the server returns an empty body or an HTML error page, `res.json()` throws a silent parse error with no useful message. The manual pattern preserves the raw response for debugging.
+
+- **`DATA.json` is for the Service Worker, not the app** — `palabrasB2.html` embeds its vocabulary inline in a `DATA` object. `DATA.json` exists only so the SW cache manifest has a file to reference. Do not rely on `DATA.json` for runtime logic.
+
+- **JWT verification supports ES256 and HS256** — `_lib.js` tries ES256 first (JWKS from Supabase, no secret needed). Falls back to HS256 only if the token header specifies it, requiring `SUPABASE_JWT_SECRET`. Default Supabase tokens are ES256; HS256 is legacy.
+
+- **`approve-user.js` has its own local `verifyJWT`** — it doesn't import from `_lib.js` and only supports HS256. This is inconsistent with the rest of the API. Don't use it as a reference for new endpoints.

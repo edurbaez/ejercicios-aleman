@@ -29,6 +29,8 @@
     winnummer:        100,
     quizTotal:        0,
     quizCorrect:      0,
+    quizBatchTotal:   0,
+    quizBatchCorrect: 0,
     sessionStartedAt: null,
     currentIndex:     null,
     optionIdxs:       [],
@@ -229,7 +231,17 @@
     const correct = chosenWordIndex === State.currentIndex;
     const wordDe = State.de[State.currentIndex];
     State.quizTotal++;
-    if (correct) State.quizCorrect++;
+    State.quizBatchTotal++;
+    if (correct) { State.quizCorrect++; State.quizBatchCorrect++; }
+    if (State.quizBatchTotal >= 5) {
+      window.logEvent(APP, 'quiz_session_end', {
+        total:   State.quizBatchTotal,
+        correct: State.quizBatchCorrect,
+        errors:  State.quizBatchTotal - State.quizBatchCorrect,
+      });
+      State.quizBatchTotal = 0;
+      State.quizBatchCorrect = 0;
+    }
     updateSRSCard(wordDe, correct);
     if (correct) {
       markOptionsBackground('green');
@@ -1093,11 +1105,11 @@
       duration_sec,
       sets_active: [...State.activeSets],
     });
-    if (State.quizTotal > 0) {
+    if (State.quizBatchTotal > 0) {
       window.logEvent(APP, 'quiz_session_end', {
-        total: State.quizTotal,
-        correct: State.quizCorrect,
-        errors: State.quizTotal - State.quizCorrect,
+        total:   State.quizBatchTotal,
+        correct: State.quizBatchCorrect,
+        errors:  State.quizBatchTotal - State.quizBatchCorrect,
       });
     }
   });

@@ -46,6 +46,7 @@ export default async function handler(req, res) {
         const body = {
             model: 'deepseek-v4-flash',
             max_tokens: resolvedMaxTokens,
+            thinking: { type: 'disabled' },
             messages: system
                 ? [{ role: 'system', content: String(system) }, ...messages]
                 : messages,
@@ -66,8 +67,7 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        const msg = data.choices?.[0]?.message;
-        const reply = msg?.content || msg?.reasoning_content || '';
+        const reply = data.choices?.[0]?.message?.content || '';
         if (!reply) {
             return res.status(500).json({
                 error: 'DeepSeek devolvió respuesta vacía',

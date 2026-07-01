@@ -62,6 +62,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | File | Purpose |
 |------|---------|
 | `supabase/migrations/001_word_lists_srs.sql` | Creates `word_lists` (all vocabulary lists, system + user-created, with RLS) and `srs_progress` (SM-2 state per user/app/word, with RLS). Run manually in the Supabase SQL editor. |
+| `supabase/migrations/002_user_data.sql` | Creates `user_data` (persistent user preferences: `cv_user_profile`, `cv_level`, with RLS). Idempotent — safe to run on existing tables. |
 
 ### PWA & Deploy
 
@@ -277,6 +278,16 @@ RLS: system lists are publicly readable (no auth). User lists are readable/writa
 RLS: users can only read/write their own rows.
 
 Sync strategy in `shared-game.js`: IndexedDB is the local cache (instant reads); Supabase is the source of truth. On load, Supabase data is merged into IndexedDB (Supabase wins on `due` conflicts for SRS, or by `supabase_id` for lists). Writes go to IndexedDB first (optimistic), then async to Supabase.
+
+### Supabase table: `user_data`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | uuid | PK, FK → auth.users |
+| `cv_user_profile` | text | Persistent user self-description used in all `chat-voz` scenarios |
+| `cv_level` | text | Last selected CEFR level in `chat-voz` (A1–C2) |
+| `updated_at` | timestamptz | Auto-managed |
+
+RLS: each user reads/writes only their own row. Used by `chat-voz.html` via `loadPreferences()` / `persistPreferences()`.
 
 ### Supabase table: `push_subscriptions`
 | Column | Type | Description |

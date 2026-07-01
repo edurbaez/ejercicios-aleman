@@ -70,15 +70,15 @@
         <div class="cv-modal-overlay" id="contextModal" onclick="closeContextModal(event)">
             <div class="cv-modal">
                 <h3>Personalizar conversación</h3>
-                <p class="cv-modal-label">Escenario:</p>
-                <div class="cv-scenarios-grid" id="scenariosGrid"></div>
-                <p class="cv-modal-label" style="margin-top:12px">Rol de la IA:</p>
-                <textarea id="rolText" class="cv-modal-textarea" rows="3"
-                    placeholder="Ejemplos:&#10;• Eres un compañero de clase del curso de alemán&#10;• Eres un trabajador en una tienda de ropa&#10;• Eres un médico en un consultorio&#10;• Eres un mesero en un restaurante"></textarea>
-                <p class="cv-modal-label" style="margin-top:12px">Contexto sobre ti:</p>
-                <p class="cv-modal-desc">Cuéntale a la IA sobre ti o dile de qué quieres hablar.</p>
+                <p class="cv-modal-label">Tu perfil <span style="font-size:11px;color:#999;font-weight:400;">(se usa en todos los escenarios)</span>:</p>
+                <p class="cv-modal-desc">Cuéntale a la IA sobre ti: edad, trabajo, intereses, por qué aprendes alemán...</p>
                 <textarea id="contextText" class="cv-modal-textarea" rows="4"
-                    placeholder="Ejemplos:&#10;• Tengo 28 años y trabajo como ingeniero&#10;• Quiero practicar vocabulario de cocina&#10;• Me interesa hablar de viajes y cultura alemana&#10;• Soy estudiante universitario de medicina"></textarea>
+                    placeholder="Ejemplos:&#10;• Tengo 28 años, soy ingeniero y aprendo alemán para trabajar en Berlín&#10;• Soy estudiante de medicina, me interesan los viajes y la cultura alemana&#10;• Tengo 35 años, trabajo en marketing y quiero vivir en Múnich"></textarea>
+                <p class="cv-modal-label" style="margin-top:14px">Escenario:</p>
+                <div class="cv-scenarios-grid" id="scenariosGrid"></div>
+                <p class="cv-modal-label" style="margin-top:12px">Perfil de la IA: <span id="rolLoadingSpinner" style="display:none;font-size:11px;color:#1976D2;font-weight:400;">✨ generando...</span></p>
+                <textarea id="rolText" class="cv-modal-textarea" rows="4"
+                    placeholder="Selecciona un escenario para generar el perfil automáticamente, o escríbelo tú mismo."></textarea>
                 <div class="cv-modal-actions">
                     <button class="cv-modal-cancel" onclick="closeContextModal()">Cancelar</button>
                     <button class="cv-modal-save" onclick="saveContext()">Guardar</button>
@@ -178,8 +178,8 @@
         voices: [],
         selectedVoice: null,
         started: false,
-        contexto: '',
-        rol: 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.',
+        userProfile: '',
+        scenarioRol: DEFAULT_ROL,
         dailyUsedMs: 0,
         guidedMode: false,
         premiumTTS: localStorage.getItem('cv_tts_premium') === '1',
@@ -235,35 +235,44 @@
 
     // --- User preferences (Supabase + localStorage) ---
     async function loadPreferences() {
-        const savedRol = localStorage.getItem('cv_rol');
-        const savedContexto = localStorage.getItem('cv_contexto');
-        if (savedRol) State.rol = savedRol;
-        if (savedContexto !== null) State.contexto = savedContexto;
+        const savedProfile = localStorage.getItem('cv_user_profile');
+        const savedLevel   = localStorage.getItem('cv_level');
+        if (savedProfile !== null) State.userProfile = savedProfile;
+        if (savedLevel) {
+            State.level = savedLevel;
+            document.querySelectorAll('.cv-level-btn').forEach(b =>
+                b.classList.toggle('active', b.dataset.level === State.level));
+        }
 
         if (!window.currentUser || !window.sb) return;
         const { data } = await window.sb
             .from('user_data')
-            .select('cv_rol, cv_contexto')
+            .select('cv_user_profile, cv_level')
             .eq('user_id', window.currentUser.id)
             .maybeSingle();
         if (data) {
-            State.rol = data.cv_rol || DEFAULT_ROL;
-            State.contexto = data.cv_contexto || '';
-            localStorage.setItem('cv_rol', State.rol);
-            localStorage.setItem('cv_contexto', State.contexto);
+            if (data.cv_user_profile !== null) {
+                State.userProfile = data.cv_user_profile || '';
+                localStorage.setItem('cv_user_profile', State.userProfile);
+            }
+            if (data.cv_level) {
+                State.level = data.cv_level;
+                localStorage.setItem('cv_level', State.level);
+                document.querySelectorAll('.cv-level-btn').forEach(b =>
+                    b.classList.toggle('active', b.dataset.level === State.level));
+            }
         }
-        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
-        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', State.userProfile.length > 0);
     }
 
     async function persistPreferences() {
-        localStorage.setItem('cv_rol', State.rol);
-        localStorage.setItem('cv_contexto', State.contexto);
+        localStorage.setItem('cv_user_profile', State.userProfile);
+        localStorage.setItem('cv_level', State.level);
         if (!window.currentUser || !window.sb) return;
         await window.sb.from('user_data').upsert({
             user_id: window.currentUser.id,
-            cv_rol: State.rol,
-            cv_contexto: State.contexto,
+            cv_user_profile: State.userProfile,
+            cv_level: State.level,
             updated_at: new Date().toISOString(),
         });
     }
@@ -280,6 +289,7 @@
             document.querySelectorAll('.cv-level-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             State.level = btn.dataset.level;
+            persistPreferences();
         });
     });
 
@@ -326,15 +336,19 @@
             C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
             C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
         };
-        const contextLine = State.contexto
-            ? `\nKontext über den Benutzer: ${State.contexto}\n`
+        const scenarioObj = SCENARIOS.find(s => s.key === State.selectedScenario);
+        const scenarioContextLine = scenarioObj?.contexto
+            ? `\nSituación actual: ${scenarioObj.contexto}\n`
             : '';
-        const rolLine = State.rol || 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
+        const userProfileLine = State.userProfile
+            ? `\nInformación sobre el estudiante: ${State.userProfile}\n`
+            : '';
+        const rolLine = State.scenarioRol || DEFAULT_ROL;
         const misionLine = State.mision
             ? `\nZiel des Studenten in dieser Sitzung: ${State.mision}\n`
             : '';
         let base = `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
-${contextLine}${misionLine}
+${scenarioContextLine}${userProfileLine}${misionLine}
 ${guides[level]}
 
 Regeln:
@@ -361,7 +375,7 @@ Regeln:
         });
     }
 
-    function selectScenario(key) {
+    async function selectScenario(key) {
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
@@ -369,10 +383,50 @@ Regeln:
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
         });
+
         const rolEl = document.getElementById('rolText');
-        const ctxEl = document.getElementById('contextText');
-        if (rolEl) rolEl.value = scenario.rol;
-        if (ctxEl) ctxEl.value = scenario.contexto;
+        const spinner = document.getElementById('rolLoadingSpinner');
+
+        if (key === 'libre') {
+            State.scenarioRol = DEFAULT_ROL;
+            if (rolEl) rolEl.value = DEFAULT_ROL;
+            return;
+        }
+
+        // Generate rich AI persona via API
+        if (rolEl) { rolEl.value = ''; rolEl.disabled = true; }
+        if (spinner) spinner.style.display = 'inline';
+
+        try {
+            const token = await window.getAuthToken?.();
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    system: 'Eres un asistente que crea perfiles de personajes para conversaciones de práctica de alemán. Responde solo en español. Sé creativo y detallado pero conciso.',
+                    messages: [{
+                        role: 'user',
+                        content: `Crea un perfil detallado y realista en primera persona para este rol: "${scenario.name}" en el contexto: "${scenario.contexto}". Incluye: nombre alemán típico, edad, 2-3 rasgos de personalidad concretos y cómo habla o se comporta con los clientes/alumnos. Máximo 90 palabras. Empieza directamente con "Eres [nombre],..."`
+                    }],
+                }),
+            });
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('invalid response'); }
+            if (resp.ok && data.reply) {
+                State.scenarioRol = data.reply.trim();
+            } else {
+                throw new Error(data.error || 'no reply');
+            }
+        } catch {
+            State.scenarioRol = scenario.rol;
+        } finally {
+            if (rolEl) { rolEl.value = State.scenarioRol; rolEl.disabled = false; }
+            if (spinner) spinner.style.display = 'none';
+        }
     }
 
     function showMisionBanner() {
@@ -787,14 +841,13 @@ Regeln:
 
     // --- Context modal ---
     function openContextModal() {
-        document.getElementById('rolText').value = State.rol;
-        document.getElementById('contextText').value = State.contexto;
-        // Sync active scenario highlight
+        document.getElementById('contextText').value = State.userProfile;
+        document.getElementById('rolText').value = State.scenarioRol;
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === State.selectedScenario);
         });
         document.getElementById('contextModal').classList.add('cv-modal-open');
-        document.getElementById('rolText').focus();
+        document.getElementById('contextText').focus();
     }
 
     function closeContextModal(e) {
@@ -803,17 +856,9 @@ Regeln:
     }
 
     function saveContext() {
-        const newRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
-        const newCtx = document.getElementById('contextText').value.trim();
-        // If user edited manually and it no longer matches the selected scenario, deselect it
-        const active = SCENARIOS.find(s => s.key === State.selectedScenario);
-        if (active && (newRol !== active.rol || newCtx !== active.contexto)) {
-            State.selectedScenario = 'libre';
-        }
-        State.rol = newRol;
-        State.contexto = newCtx;
-        const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
-        document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+        State.userProfile = document.getElementById('contextText').value.trim();
+        State.scenarioRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
+        document.getElementById('contextBtn').classList.toggle('cv-context-active', State.userProfile.length > 0);
         document.getElementById('contextModal').classList.remove('cv-modal-open');
         persistPreferences();
     }

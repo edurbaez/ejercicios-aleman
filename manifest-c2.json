@@ -1,0 +1,18 @@
+{
+  "name": "Palabras C2",
+  "short_name": "C2",
+  "description": "Practica de vocabulario aleman nivel C2",
+  "start_url": "/C2.html",
+  "display": "standalone",
+  "background_color": "#37474F",
+  "theme_color": "#37474F",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-c2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

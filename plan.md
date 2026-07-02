@@ -1,282 +1,176 @@
-# Plan de Mejoras
+# Plan: Meta B1 en 30 días
 
-## regla obligatoria
-- Después de implementar cualquier cosa, actualiza el estado en este plan.
+## Reglas obligatorias (no negociables)
 
----
-
-## Archivo — Sección Gramática ✅
-
-> Completado: 2026-06-11  
-> Scope: `gramatica.js` + `gramatica.html` + `styles.css`
-
-| Bloque | Descripción | Estado |
-|--------|-------------|--------|
-| 1 | Explicaciones didácticas (regla_base, tabla, excepciones) | ✅ 2026-06-05 |
-| 2 | Ejercicios variados + feedback + mini-racha + gamificación | ✅ 2026-06-11 |
-| 3 | Examen mejorado (incremental, mixto, SRS, resumen por regla) | ✅ 2026-06-06 |
-| 4 | UX visual (flashcards, anillo de progreso, historial) | ✅ 2026-06-11 |
+1. **Revisar compatibilidad antes de tocar código.** Antes de modificar cualquier archivo, identificar qué otros archivos lo importan, qué funciones expone, y qué estructura de datos espera. Documentar el análisis brevemente aquí antes de proceder.
+2. **Actualizar este plan al terminar cada tarea.** Marcar con `[x]` y anotar cambios relevantes al diseño si los hubo.
+3. **Actualizar `CLAUDE.md`** cuando se agregue un archivo activo al proyecto.
 
 ---
 
-## Archivo — chat-reformulaciones.html v1 ✅
+## Etapa 1 — Listas de vocabulario por nivel
 
-> Completado: 2026-06-15  
-> Scope: `chat-reformulaciones.html` (standalone)
+**Objetivo:** un archivo `Data{NIVEL}.json` por nivel CEFR (A1, A2, B1, B2, C1, C2), sin repeticiones entre niveles, divididas didácticamente, con una sublista `esenciales` de las 50 más importantes.
 
-| Etapa | Descripción | Estado |
-|-------|-------------|--------|
-| 1 | Selector de reglas (chips, filtro por nivel, aleatorio) | ✅ 2026-06-15 |
-| 2 | Motor de sesión + system prompt | ✅ 2026-06-15 |
-| 3 | Interfaz de práctica (burbujas, feedback cards, score) | ✅ 2026-06-15 |
-| 4 | Entrada de voz (grabación + Whisper) | ✅ 2026-06-15 |
-| 5 | Resultados por sesión y por regla | ✅ 2026-06-15 |
-| 6 | Navbar, dark mode, auth, logEvent | ✅ 2026-06-15 |
+**Modelo a usar:** el más avanzado disponible (claude-opus-4-8 o GPT-4o). No Haiku ni mini.
 
----
-
----
-
-# Plan — chat-reformulaciones.html v2
-
-> Iniciado: 2026-06-17  
-> Scope: `chat-reformulaciones.html` + `styles.css`  
-> Base: diagnóstico del código actual (v1 completado)
-
----
-
-## Diagnóstico del estado actual
-
-### Lo que funciona
-- Selector de reglas con chips, filtro por nivel y aleatorio.
-- Motor de sesión con cola de reglas, system prompt estructurado.
-- Burbujas de chat + tarjetas de feedback verde/naranja/rojo.
-- Grabación → Whisper → respuesta IA con evaluación `---NUEVA---`.
-- Score por sesión (✅/⚠️/❌) y resumen por regla al finalizar.
-- Dark mode, auth, logEvent.
-
-### Problemas identificados
-
-#### Rendimiento y costo de API
-- El array `State.messages` crece sin límite: en una sesión larga con muchas reglas se envían decenas de turnos al modelo. Costo y latencia crecen linealmente.
-- No hay indicación al usuario de cuántos tokens aproximados se están enviando.
-
-#### Calidad de TTS
-- Usa `SpeechSynthesisUtterance` (browser TTS). En Windows/Chrome la voz alemana es robótica y a veces no está disponible. `shared-game.js` ya resuelve esto con `/api/tts` (OpenAI `tts-1`) con fallback al TTS del browser.
-
-#### Continuidad entre sesiones
-- Las reglas seleccionadas se pierden al cerrar o recargar la página.
-- No hay historial de sesiones anteriores: el usuario no sabe qué reglas practicó ayer ni cuántos intentos lleva acumulados.
-- No hay integración con el SRS de `gramatica.html`: si fallas mucho en una regla, no se programa para repaso automático.
-
-#### UX dentro de la sesión
-- "Siguiente regla →" no requiere ningún mínimo de turnos: el usuario puede saltar sin haber respondido nada.
-- No hay barra de progreso visual de la cola (solo texto "Regla N de M").
-- El hint panel muestra `regla_base` + `tip` pero no los ejemplos: el usuario no tiene referencias concretas sin salir de la app.
-- No hay atajo de teclado para iniciar/detener la grabación (la app es de voz, el mouse interrumpe el flujo).
-- El botón "Finalizar" no pide confirmación: es fácil terminarlo sin querer.
-
-#### Calidad del selector de reglas
-- Con 60 reglas, el grid es difícil de navegar. No hay búsqueda por texto.
-- No se recuerdan las reglas seleccionadas de la sesión anterior.
-- No hay integración con los favoritos de `gramatica.html` (no se pueden filtrar por favoritos).
-
----
-
-## Mejoras planificadas
-
----
-
-### BLOQUE A — Robustez de la sesión
-
-#### A.1 Límite de contexto en el historial enviado a la API
-
-Actualmente se envía `State.messages` completo. Limitar a los últimos 8 mensajes (4 turnos) para mantener el contexto suficiente sin crecer indefinidamente.
-
-```js
-const msgs = userText
-    ? State.messages.slice(-8)
-    : [{ role: 'user', content: 'Beginne mit der ersten Aufgabe.' }];
+**Estructura esperada** (compatible con `shared-game.js` que lee `de[]` + `es[]`):
+```json
+{
+  "esenciales":  { "de": ["...x50"], "es": ["...x50"] },
+  "verbos":      { "de": [...],      "es": [...] },
+  "sustantivos": { "de": [...],      "es": [...] },
+  "adjetivos":   { "de": [...],      "es": [...] },
+  "expresiones": { "de": [...],      "es": [...] }
+}
 ```
+Total por nivel: ~500 palabras. La suma de todas las sublistas (sin `esenciales`, que es subconjunto) debe ser ≥ 500.
 
-El array completo sigue en `State.messages` (para referencia interna), solo se recorta al enviar.
+**Revisión de compatibilidad requerida antes de generar:**
+- Verificar que `shared-game.js` acepta cualquier clave de categoría (no hardcodea nombres como `verbos1`).
+- Si no, adaptar la estructura o `shared-game.js` primero.
 
-**Esfuerzo:** Muy bajo. Una línea de cambio.  
-**Estado:** ⬜ Pendiente
+### Tareas
+- [x] Analizar `shared-game.js`: usa `Object.keys(DATA)` — cualquier nombre de categoría es válido. Estructura requerida: `{ clave: { de:[], es:[] } }`.
+- [x] Confirmar que vocab B2 estaba en `DATA.json` (no inline en HTML como decía CLAUDE.md).
+- [x] Crear `scripts/generate-vocab.js` — llama GPT-4o por categoría (5 calls/nivel) para evitar truncamiento de JSON.
+- [x] Generar `DataA1.json` ✓ (516 palabras + 50 esenciales).
+- [x] Generar `DataA2.json` ✓ (456 palabras + 50 esenciales).
+- [x] Generar `DataB1.json` ✓ (440 palabras + 50 esenciales, reemplaza el de 327).
+- [x] Generar `DataB2.json` ✓ (456 palabras + 50 esenciales).
+- [x] Generar `DataC1.json` ✓ (471 palabras + 50 esenciales).
+- [x] Generar `DataC2.json` ✓ (481 palabras + 50 esenciales).
+- [x] Crear `A1.html`, `A2.html`, `C1.html`, `C2.html` — mismo patrón de `B1.html` + `APP_CONFIG`.
+- [x] Crear manifests: `manifest-a1.json`, `manifest-a2.json`, `manifest-c1.json`, `manifest-c2.json`.
+- [x] Crear iconos SVG: `icon-a1.svg`, `icon-a2.svg`, `icon-c1.svg`, `icon-c2.svg`.
+- [x] Crear Service Workers: `sw-a1.js`, `sw-a2.js`, `sw-c1.js`, `sw-c2.js`.
+- [x] Actualizar navbar en **todos** los HTML existentes (10 archivos) con A1/A2/C1/C2.
+- [x] Actualizar `palabrasB2.html`: `dataFile: 'DATA.json'` → `dataFile: 'DataB2.json'`.
+- [x] Actualizar `sw.js`: cache `DATA.json` → `DataB2.json`, versión bumped a v4.
+- [x] Actualizar `index.html`: tarjetas para A1, A2, C1, C2, B2 en sección Vocabulario.
+- [x] Actualizar `scripts/seed-word-lists.js`: siembra los 6 niveles en orden.
+- [x] Actualizar `CLAUDE.md` con los nuevos archivos activos.
+
+### Nota de implementación
+El script `generate-vocab.js` genera cada categoría en una llamada separada a GPT-4o (`max_tokens: 8192`) para evitar truncamiento. Ajustes realizados durante la ejecución:
+- `expresiones` reducido de 130 a 100 entradas por confiabilidad.
+- Mismatch de arrays se auto-corrige truncando al mínimo.
+- Validación de `esenciales` relajada: acepta 40–60 (no exactamente 50).
 
 ---
 
-#### A.2 Mínimo de turnos antes de permitir "Siguiente regla"
+## Etapa 2 — Comprensión lectora en Lectura Veloz
 
-Deshabilitar el botón "Siguiente regla →" hasta que el usuario haya respondido al menos **2 veces** a la regla actual. Pasados los 2 turnos, el botón se habilita.
+**Objetivo:** agregar una sección "Comprensión" a `lectura veloz.html` con dos modos:
+- **Modo A:** el usuario pega un texto → botón "Generar preguntas" → `/api/chat` devuelve 4 preguntas de selección múltiple.
+- **Modo B:** el usuario elige nivel CEFR → la IA genera texto + 4 preguntas. Si ya vio todos los textos guardados para ese nivel, genera uno nuevo y lo guarda.
 
-**Implementación:** Agregar `State.currentRuleTurns` (contador de respuestas del usuario en la regla actual). Incrementar en `recordScore()`. `loadRule()` lo resetea a 0. El botón `cr-skip-btn` tiene `disabled` hasta que `currentRuleTurns >= 2`.
+Los textos se almacenan en Supabase para reutilizarlos entre usuarios.
 
-**Esfuerzo:** Bajo.  
-**Estado:** ⬜ Pendiente
+### Nueva tabla Supabase: `reading_texts`
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| `id` | uuid PK | Auto-generado |
+| `level` | text | A1, A2, B1, B2, C1, C2 |
+| `title` | text | Título del texto |
+| `content` | text | Texto completo |
+| `questions` | jsonb | Array de `{ question, options[4], answer_index }` |
+| `created_at` | timestamptz | Auto |
+
+### Nueva tabla Supabase: `user_reading_seen`
+| Columna | Tipo | Descripción |
+|---------|------|-------------|
+| `user_id` | uuid FK | auth.users |
+| `text_id` | uuid FK | reading_texts |
+| `seen_at` | timestamptz | Cuándo lo vio |
+PK compuesta: (user_id, text_id). RLS: cada usuario solo ve/escribe sus filas.
+
+### Revisión de compatibilidad requerida:
+- `lectura veloz.html` carga pdf.js y mammoth.js desde CDN — no hay conflicto con nueva sección.
+- La sección nueva usará `window.getAuthToken()` de `auth.js` para llamar `/api/chat`.
+- Verificar que el layout no rompa la sección RSVP existente (tabs o panel colapsable).
+
+### Tareas
+- [ ] Escribir migración SQL `003_reading_texts.sql`.
+- [ ] Diseñar UI: tab "Comprensión" dentro de `lectura veloz.html` (no página separada).
+- [ ] Implementar Modo A (texto del usuario → preguntas vía `/api/chat`).
+- [ ] Implementar Modo B (nivel → buscar texto no visto en DB → si no hay, generar y guardar).
+- [ ] Lógica de scoring: mostrar resultado al terminar (X/4 correctas).
+- [ ] Actualizar `CLAUDE.md` con la nueva tabla.
 
 ---
 
-#### A.3 Confirmación antes de Finalizar
+## Etapa 3 — Plan diario (plan.html)
 
-Reemplazar `onclick="endSession()"` por una función que muestre un `confirm()` nativo o un mini-modal inline si hay al menos 1 turno completado.
+**Objetivo:** nueva página `plan.html` con planes de 30 días independientes por nivel CEFR (A1→C2). El usuario puede llevar varios niveles en paralelo con progreso separado para cada uno.
 
-**Esfuerzo:** Muy bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-### BLOQUE B — TTS con OpenAI
-
-#### B.1 Reemplazar browser TTS por `/api/tts`
-
-Adaptar el patrón de `shared-game.js`: llamar `POST /api/tts` con `{ text, voice: 'onyx' }`, reproducir el audio/mpeg devuelto. Fallback a `SpeechSynthesisUtterance` si la llamada falla o el usuario no está autenticado.
-
-```js
-async function speak(text) {
-    try {
-        const token = await window.getAuthToken?.();
-        if (!token) throw new Error('no auth');
-        const resp = await fetch('/api/tts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ text, voice: 'onyx' }),
-        });
-        if (!resp.ok) throw new Error('tts error');
-        const blob = await resp.blob();
-        const url = URL.createObjectURL(blob);
-        State.currentAudio = new Audio(url);
-        State.currentAudio.onended = () => { State.isSpeaking = false; URL.revokeObjectURL(url); };
-        State.currentAudio.play();
-        State.isSpeaking = true;
-    } catch {
-        speakBrowser(text); // fallback
-    }
+### Estructura de un día
+```json
+{
+  "day": 1,
+  "week": 1,
+  "focus": "Vocabulario esencial + Nominativ",
+  "tasks": [
+    { "app": "B1.html", "list": "esenciales", "minutes": 15, "label": "Vocabulario" },
+    { "app": "kasus.html", "case": "Nominativ", "minutes": 10, "label": "Casos" },
+    { "app": "lectura veloz.html#comprension", "level": "B1", "minutes": 10, "label": "Lectura" }
+  ]
 }
 ```
 
-**Esfuerzo:** Bajo.  
-**Estado:** ⬜ Pendiente
+Los 6 planes (A1→C2) viven en `plan.js` como `PLANS = { a1: [...30], a2: [...30], b1: [...30], ... }`. Cada nivel tiene vocabulario, gramática y habilidades apropiadas para ese nivel.
+
+### Persistencia
+- `localStorage` key `plan_progress_{nivel}` por cada nivel (ej. `plan_progress_b1`).
+- Valor: array de booleans de 30 posiciones — `true` = día completado.
+- Progreso de cada nivel es completamente independiente.
+
+### UI
+- Selector de nivel en la parte superior (pills A1/A2/B1/B2/C1/C2) — cambia el plan visible sin reiniciar otros.
+- Calendario mensual: 30 celdas, icono de habilidad, verde si completado.
+- Panel lateral: detalle del día seleccionado con tareas y enlaces directos.
+- Barra de progreso por nivel: `días completados / 30`.
+- Botón "Marcar día como completado" (solo disponible para el día actual o días anteriores).
+
+### Distribución temática por nivel (resumen)
+| Nivel | Semana 1 | Semana 2 | Semana 3 | Semana 4 |
+|-------|----------|----------|----------|----------|
+| A1 | Saludos + artículos | Números + colores | Verbos ser/tener | Repaso |
+| A2 | Nominativ + Akkusativ | Verbos irregulares | Preposiciones básicas | Repaso |
+| B1 | Dativ + Genitiv | Konjunktiv II | Passiv | Simulacro |
+| B2 | Subjuntivo + relativas | Texto argumentativo | Registro formal | Simulacro |
+| C1 | Expresiones idiomáticas | Textos académicos | Debate oral | Simulacro |
+| C2 | Matices léxicos | Textos literarios | Producción libre | Evaluación |
+
+### Revisión de compatibilidad requerida:
+- `plan.html` es página nueva — no rompe nada existente.
+- Necesita `config.js` + `auth.js` para navbar y sesión (misma carga que otras páginas).
+- Links a apps deben usar rutas relativas consistentes con el deploy en Vercel.
+- Los links a `lectura veloz.html#comprension` solo funcionan después de completar Etapa 2.
+
+### Tareas
+- [ ] Definir los 30 días × 6 niveles en `plan.js` (180 entradas totales).
+- [ ] Crear `plan.html` + `plan.js`.
+- [ ] Implementar selector de nivel + calendar view + detalle del día.
+- [ ] Implementar persistencia independiente por nivel en localStorage.
+- [ ] Agregar enlace a `plan.html` en navbar de todas las páginas.
+- [ ] Actualizar `CLAUDE.md` e `index.html`.
 
 ---
 
-### BLOQUE C — Persistencia y continuidad
+## Orden de ejecución
 
-#### C.1 Guardar reglas seleccionadas en localStorage
-
-Al hacer `startSession()`, guardar el array de IDs seleccionados como `cr_last_rules` en localStorage. Al cargar la página, restaurar esa selección automáticamente.
-
-**Esfuerzo:** Muy bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-#### C.2 Historial de sesiones (localStorage)
-
-Al `endSession()`, guardar un registro en `cr_history` (array en localStorage, max 20 entradas):
-
-```js
-{ date: ISO, rules: [id...], correct, partial, incorrect, total }
 ```
-
-En la pantalla de resultados, mostrar al final un acordeón "Últimas sesiones" con las 5 más recientes: fecha, reglas, porcentaje de acierto.
-
-**Esfuerzo:** Bajo-Medio.  
-**Estado:** ⬜ Pendiente
+Etapa 1 → Etapa 2 → Etapa 3
+```
+Etapa 1 no depende de las demás. Etapa 2 requiere la migración SQL antes del código. Etapa 3 puede empezar en paralelo con Etapa 2, pero los links del plan a la sección de comprensión requieren que Etapa 2 esté terminada.
 
 ---
 
-#### C.3 Integración con SRS de gramática
+## Estado general
 
-Después de mostrar resultados: para cada regla con más `incorrect` que `correct`, llamar `updateSRSEntry(ruleId, 1)` del módulo SRS de `gramatica.js` si está disponible en el mismo contexto. Si no (páginas separadas), guardar los IDs en `cr_srs_pending` en localStorage; `gramatica.html` los consumiría al cargar.
-
-Mostrar en resultados: "📌 N reglas marcadas para repaso en Gramática."
-
-**Esfuerzo:** Medio (requiere coordinar con el módulo SRS de gramatica.js).  
-**Estado:** ⬜ Pendiente
-
----
-
-### BLOQUE D — UX del selector
-
-#### D.1 Búsqueda por texto en el grid de reglas
-
-Agregar un `<input type="search">` encima del grid. Al escribir, filtrar `State.filteredRules` por coincidencia en `titulo` o `regla_base` (case-insensitive). Se combina con el filtro de nivel activo.
-
-**Esfuerzo:** Bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-#### D.2 Filtrar por favoritos de gramática
-
-Si `localStorage.getItem('gram_favorites')` existe (array de IDs guardado por `gramatica.html`), mostrar un pill extra "⭐ Favoritos" en el filtro de nivel. Al activarlo, `filteredRules` solo muestra reglas en ese array.
-
-**Esfuerzo:** Bajo (los favoritos ya están en localStorage con la misma clave).  
-**Estado:** ⬜ Pendiente
-
----
-
-### BLOQUE E — UX dentro de la sesión
-
-#### E.1 Atajo de teclado para grabar (Espacio)
-
-Mientras la práctica está activa y el `textInput` no tiene foco:
-- `Espacio` → iniciar grabación (si no está grabando y el botón no está disabled).
-- `Espacio` de nuevo → detener.
-
-Esto permite flujo continuo: escuchar → Espacio → hablar → Espacio → escuchar respuesta, sin tocar el mouse.
-
-**Implementación:** Listener `keydown` en `document`; activo solo cuando `crPractice` es visible y `document.activeElement` no es el textarea.
-
-**Esfuerzo:** Bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-#### E.2 Barra de progreso visual de la cola
-
-Reemplazar el texto "Regla N de M" por una barra de progreso fina (similar a `gram-quiz-progress-track` en gramática) debajo del `cr-rule-header`. Cada segmento representa una regla: completado (verde), actual (naranja), pendiente (gris).
-
-**Esfuerzo:** Bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-#### E.3 Ejemplos en el panel de pista
-
-El panel "💡 Ver regla" actualmente muestra solo `regla_base` + `tip`. Agregar los primeros 2 ejemplos de `rule.ejemplos` como referencias concretas, con botón de TTS por ejemplo.
-
-**Esfuerzo:** Muy bajo.  
-**Estado:** ⬜ Pendiente
-
----
-
-## Orden de implementación sugerido
-
-| Prioridad | Bloque | Tarea | Esfuerzo |
-|-----------|--------|-------|---------|
-| 🔴 Alta | A | A.1 Límite de contexto (slice -8) | Muy bajo |
-| 🔴 Alta | B | B.1 TTS con OpenAI + fallback | Bajo |
-| 🔴 Alta | A | A.2 Mínimo 2 turnos antes de saltar regla | Bajo |
-| 🟡 Media | C | C.1 Guardar reglas seleccionadas en localStorage | Muy bajo |
-| 🟡 Media | D | D.1 Búsqueda por texto en el selector | Bajo |
-| 🟡 Media | E | E.1 Atajo Espacio para grabar | Bajo |
-| 🟡 Media | E | E.2 Barra de progreso visual de la cola | Bajo |
-| 🟡 Media | C | C.2 Historial de sesiones | Bajo-Medio |
-| 🟡 Media | E | E.3 Ejemplos en el panel de pista | Muy bajo |
-| 🟡 Media | A | A.3 Confirmación antes de Finalizar | Muy bajo |
-| 🟢 Baja | D | D.2 Filtrar por favoritos de gramática | Bajo |
-| 🟢 Baja | C | C.3 Integración con SRS de gramática | Medio |
-
----
-
-## Estado
-
-| Bloque | Descripción | Estado |
-|--------|-------------|--------|
-| A — Robustez de sesión | Límite de contexto, mínimo de turnos, confirmación | ⬜ Pendiente |
-| B — TTS con OpenAI | Reemplazar browser TTS | ⬜ Pendiente |
-| C — Persistencia | localStorage de selección, historial, SRS | ⬜ Pendiente |
-| D — Selector UX | Búsqueda por texto, filtro favoritos | ⬜ Pendiente |
-| E — UX en sesión | Atajo teclado, barra progreso, ejemplos en hint | ⬜ Pendiente |
+| Etapa | Estado |
+|-------|--------|
+| 1 — Vocabulario por nivel | **Completa** |
+| 2 — Comprensión lectora | Pendiente |
+| 3 — Plan diario | Pendiente |

@@ -1,0 +1,18 @@
+{
+  "name": "Palabras C1",
+  "short_name": "C1",
+  "description": "Practica de vocabulario aleman nivel C1",
+  "start_url": "/C1.html",
+  "display": "standalone",
+  "background_color": "#00838F",
+  "theme_color": "#00838F",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-c1.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

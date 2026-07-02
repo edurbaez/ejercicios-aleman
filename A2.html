@@ -1,26 +1,26 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palabras B1</title>
-    <link rel="manifest" href="manifest-b1.json">
-    <meta name="theme-color" content="#388E3C">
-    <link rel="apple-touch-icon" href="icon-b1.svg">
+    <title>Palabras A2</title>
+    <link rel="manifest" href="manifest-a2.json">
+    <meta name="theme-color" content="#E64A19">
+    <link rel="apple-touch-icon" href="icon-a2.svg">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
 </head>
-<body id="page-b1">
+<body id="page-a2">
     <nav id="navbar">
         <a href="/">Inicio</a>
         <div class="nav-dropdown" id="navDropdown">
             <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
             <div class="nav-dropdown-menu">
                 <a href="A1.html">Vocabulario A1</a>
-                <a href="A2.html">Vocabulario A2</a>
-                <a href="B1.html" class="active">Vocabulario B1</a>
+                <a href="A2.html" class="active">Vocabulario A2</a>
+                <a href="B1.html">Vocabulario B1</a>
                 <a href="palabrasB2.html">Vocabulario B2</a>
                 <a href="C1.html">Vocabulario C1</a>
                 <a href="C2.html">Vocabulario C2</a>
@@ -41,38 +41,25 @@
 
     <div class="app">
 
-            <!-- ========================= -->
-            <!--      SELECCIÓN MÚLTIPLE   -->
-            <!-- ========================= -->
-
             <section class="game-section" id="seleccion-multiple">
-
                 <div class="header">
                     <h1 class="title">Juego de Palabras</h1>
                 </div>
-
-                <!-- Panel de estadísticas -->
                 <div class="panel">
                     <div class="card">
                         <div>Errores</div>
                         <div id="errores">0</div>
                     </div>
-
                     <div class="card">
                         <div>Aciertos</div>
                         <div id="aciertos">0</div>
                     </div>
-
                     <div class="card">
                         <div>Tiempo</div>
                         <div id="tiempo">3</div>
                     </div>
                 </div>
-
-                <!-- Palabra principal -->
                 <div class="word-display" id="palabra"></div>
-
-                <!-- Opciones -->
                 <div class="options-grid">
                     <div class="option" id="op1"></div>
                     <div class="option" id="op2"></div>
@@ -83,50 +70,33 @@
                     <button class="btn btn-secondary" id="btn-inverso" onclick="toggleModoInverso()">ES → DE</button>
                     <button class="btn btn-secondary" onclick="copiarErrores()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M17 4h2a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg>Copiar errores</button>
                 </div>
-
             </section>
 
-            <!-- ========================= -->
-            <!--     REPETICIÓN PALABRAS   -->
-            <!-- ========================= -->
-
             <section class="game-section" id="repeticion-palabras" style="margin-top:40px;">
-
                 <div class="header" style="display:flex;align-items:center;gap:12px;">
                     <h1 class="title">Repetición de Palabras</h1>
                     <span id="palabra-counter"
                           title="Palabras dichas en alemán. Doble clic para cambiar el límite."
-                          style="font-family:monospace;font-size:1rem;letter-spacing:2px;cursor:pointer;user-select:none;background:#388E3C;color:#fff;padding:4px 10px;border-radius:12px;display:inline-block;">
+                          style="font-family:monospace;font-size:1rem;letter-spacing:2px;cursor:pointer;user-select:none;background:#E64A19;color:#fff;padding:4px 10px;border-radius:12px;display:inline-block;">
                         000/100
                     </span>
                 </div>
-
-                <!-- Palabras -->
                 <div class="panel" style="gap:20px;">
                     <div class="card word-display" id="p1"></div>
                     <div class="card word-display" id="p2"></div>
                 </div>
-
-                <!-- Controles inferiores -->
                 <div class="footer-controls">
                     <button class="btn btn-secondary" id="auto">Auto: ON</button>
                     <button class="btn btn-danger" id="dual">DE</button>
                     <button class="btn" id="leer">Leer</button>
                 </div>
-
             </section>
-
-            <!-- ========================= -->
-            <!--            LISTA          -->
-            <!-- ========================= -->
 
             <section class="table-container">
                 <div class="header">
                     <h1 class="title">Lista de Palabras</h1>
                 </div>
-
                 <input id="filter-lista" type="text" placeholder="Buscar palabra..." style="width:100%;padding:7px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;box-sizing:border-box;font-size:14px;">
-
                 <table id="lista">
                     <thead>
                         <tr>
@@ -134,24 +104,21 @@
                             <th>Alemán</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- contenido dinámico -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
-
             </section>
 
         </div>
 
     <script>
         window.APP_CONFIG = {
-            appId:    'b1',
-            dataFile: 'DataB1.json',
-            limitKey: 'b1_palabras_limite',
-            darkKey:  'darkMode_b1',
-            swFile:   '/sw-b1.js',
-            syncId:   'recordatorio-aleman-b1',
-            accent:   '#388E3C'
+            appId:    'a2',
+            dataFile: 'DataA2.json',
+            limitKey: 'a2_palabras_limite',
+            darkKey:  'darkMode_a2',
+            swFile:   '/sw-a2.js',
+            syncId:   'recordatorio-aleman-a2',
+            accent:   '#E64A19'
         };
     </script>
     <script src="shared-game.js"></script>

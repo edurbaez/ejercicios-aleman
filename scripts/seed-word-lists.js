@@ -66,9 +66,19 @@ async function seedFile(filePath, appId) {
 
 (async () => {
   const root = path.join(__dirname, '..');
-  console.log('Seeding B2 lists...');
-  await seedFile(path.join(root, 'DATA.json'), 'b2');
-  console.log('Seeding B1 lists...');
-  await seedFile(path.join(root, 'DataB1.json'), 'b1');
+  const levels = [
+    { file: 'DataA1.json', appId: 'a1', label: 'A1' },
+    { file: 'DataA2.json', appId: 'a2', label: 'A2' },
+    { file: 'DataB1.json', appId: 'b1', label: 'B1' },
+    { file: 'DataB2.json', appId: 'b2', label: 'B2' },
+    { file: 'DataC1.json', appId: 'c1', label: 'C1' },
+    { file: 'DataC2.json', appId: 'c2', label: 'C2' },
+  ];
+  for (const { file, appId, label } of levels) {
+    const filepath = path.join(root, file);
+    if (!fs.existsSync(filepath)) { console.warn(`Skipping ${label}: ${file} not found`); continue; }
+    console.log(`Seeding ${label}...`);
+    await seedFile(filepath, appId);
+  }
   console.log('Done.');
 })().catch(err => { console.error(err.message); process.exit(1); });

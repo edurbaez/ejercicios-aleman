@@ -1,0 +1,18 @@
+{
+  "name": "Palabras A2",
+  "short_name": "A2",
+  "description": "Practica de vocabulario aleman nivel A2",
+  "start_url": "/A2.html",
+  "display": "standalone",
+  "background_color": "#E64A19",
+  "theme_color": "#E64A19",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-a2.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

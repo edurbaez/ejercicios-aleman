@@ -1,10 +1,10 @@
-const CACHE = "palabrasb2-v3";
+const CACHE = "palabrasb2-v4";
 const ASSETS = [
   "/palabrasB2.html",
   "/styles.css",
   "/manifest.json",
   "/icon.svg",
-  "/DATA.json"
+  "/DataB2.json"
 ];
 
 // Instalación: guarda todos los recursos en caché

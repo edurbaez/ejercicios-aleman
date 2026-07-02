@@ -7,6 +7,14 @@
     --color-b2-dark:      #1565C0;
     --color-b1:           #388E3C;
     --color-b1-dark:      #2E7D32;
+    --color-a1:           #B71C1C;
+    --color-a1-dark:      #7F0000;
+    --color-a2:           #E64A19;
+    --color-a2-dark:      #BF360C;
+    --color-c1:           #00838F;
+    --color-c1-dark:      #006064;
+    --color-c2:           #37474F;
+    --color-c2-dark:      #263238;
     --color-danger:       #D32F2F;
     --color-danger-dark:  #B71C1C;
     --radius:             8px;
@@ -433,6 +441,286 @@ th, td {
 
 @media (max-width: 600px) {
     #page-b1 .btn { padding: 10px 8px; font-size: 0.9rem; }
+}
+
+/* ========================
+   PALABRAS A1
+   ======================== */
+
+#page-a1 {
+    --bg: #1d1c1c20;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --option-hover: #f2f2f2;
+    --table-border: grey;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-a1.dark {
+    --bg: #1a0808;
+    --card-bg: #2a1010;
+    --text: #e0e0e0;
+    --border: #553333;
+    --navbar-bg: #3a0808;
+    --option-hover: #3a1a1a;
+    --table-border: #555;
+}
+
+#page-a1.dark .lista-info {
+    background: #3a1a1a;
+    border-color: #7a2a2a;
+    color: #e6a0a0;
+}
+
+#page-a1 #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-a1 #navbar a:hover,
+#page-a1 #navbar a.active,
+#page-a1 #navbar .nav-menu-btn:hover,
+#page-a1 #navbar .nav-menu-btn.active {
+    background-color: var(--color-a1);
+    color: white;
+}
+
+#page-a1 #darkModeBtn {
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+#page-a1 .btn {
+    padding: 12px;
+    border: 3px solid var(--color-a1-dark);
+    background-color: var(--color-a1);
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+#page-a1 .btn:hover {
+    background-color: var(--color-a1-dark);
+}
+
+@media (max-width: 600px) {
+    #page-a1 .btn { padding: 10px 8px; font-size: 0.9rem; }
+}
+
+/* ========================
+   PALABRAS A2
+   ======================== */
+
+#page-a2 {
+    --bg: #1d1c1c20;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --option-hover: #f2f2f2;
+    --table-border: grey;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-a2.dark {
+    --bg: #1a0d08;
+    --card-bg: #2a1a10;
+    --text: #e0e0e0;
+    --border: #553a33;
+    --navbar-bg: #3a1a08;
+    --option-hover: #3a2010;
+    --table-border: #555;
+}
+
+#page-a2.dark .lista-info {
+    background: #3a2010;
+    border-color: #7a4a2a;
+    color: #e6c0a0;
+}
+
+#page-a2 #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-a2 #navbar a:hover,
+#page-a2 #navbar a.active,
+#page-a2 #navbar .nav-menu-btn:hover,
+#page-a2 #navbar .nav-menu-btn.active {
+    background-color: var(--color-a2);
+    color: white;
+}
+
+#page-a2 #darkModeBtn {
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+#page-a2 .btn {
+    padding: 12px;
+    border: 3px solid var(--color-a2-dark);
+    background-color: var(--color-a2);
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+#page-a2 .btn:hover {
+    background-color: var(--color-a2-dark);
+}
+
+@media (max-width: 600px) {
+    #page-a2 .btn { padding: 10px 8px; font-size: 0.9rem; }
+}
+
+/* ========================
+   PALABRAS C1
+   ======================== */
+
+#page-c1 {
+    --bg: #1d1c1c20;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --option-hover: #f2f2f2;
+    --table-border: grey;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-c1.dark {
+    --bg: #081a1a;
+    --card-bg: #102a2a;
+    --text: #e0e0e0;
+    --border: #335555;
+    --navbar-bg: #083a3a;
+    --option-hover: #103a3a;
+    --table-border: #555;
+}
+
+#page-c1.dark .lista-info {
+    background: #103a3a;
+    border-color: #2a7a7a;
+    color: #a0e6e6;
+}
+
+#page-c1 #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-c1 #navbar a:hover,
+#page-c1 #navbar a.active,
+#page-c1 #navbar .nav-menu-btn:hover,
+#page-c1 #navbar .nav-menu-btn.active {
+    background-color: var(--color-c1);
+    color: white;
+}
+
+#page-c1 #darkModeBtn {
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+#page-c1 .btn {
+    padding: 12px;
+    border: 3px solid var(--color-c1-dark);
+    background-color: var(--color-c1);
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+#page-c1 .btn:hover {
+    background-color: var(--color-c1-dark);
+}
+
+@media (max-width: 600px) {
+    #page-c1 .btn { padding: 10px 8px; font-size: 0.9rem; }
+}
+
+/* ========================
+   PALABRAS C2
+   ======================== */
+
+#page-c2 {
+    --bg: #1d1c1c20;
+    --card-bg: #ffffff;
+    --text: #333333;
+    --border: #cccccc;
+    --navbar-bg: #ffffff;
+    --option-hover: #f2f2f2;
+    --table-border: grey;
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    min-height: 100vh;
+}
+
+#page-c2.dark {
+    --bg: #0d1117;
+    --card-bg: #161b22;
+    --text: #e0e0e0;
+    --border: #30363d;
+    --navbar-bg: #21262d;
+    --option-hover: #2d333b;
+    --table-border: #444c56;
+}
+
+#page-c2.dark .lista-info {
+    background: #2d333b;
+    border-color: #4a5568;
+    color: #a0aec0;
+}
+
+#page-c2 #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+
+#page-c2 #navbar a:hover,
+#page-c2 #navbar a.active,
+#page-c2 #navbar .nav-menu-btn:hover,
+#page-c2 #navbar .nav-menu-btn.active {
+    background-color: var(--color-c2);
+    color: white;
+}
+
+#page-c2 #darkModeBtn {
+    padding: 6px 8px;
+    border-radius: 8px;
+}
+
+#page-c2 .btn {
+    padding: 12px;
+    border: 3px solid var(--color-c2-dark);
+    background-color: var(--color-c2);
+    color: white;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+#page-c2 .btn:hover {
+    background-color: var(--color-c2-dark);
+}
+
+@media (max-width: 600px) {
+    #page-c2 .btn { padding: 10px 8px; font-size: 0.9rem; }
 }
 
 /* ========================

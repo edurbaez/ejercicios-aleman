@@ -282,6 +282,8 @@
   function _removeDashboardLink() {
     const existing = document.getElementById('nav-dashboard-link');
     if (existing) existing.remove();
+    const mkt = document.getElementById('nav-marketing-link');
+    if (mkt) mkt.remove();
   }
 
   function _addDashboardLink() {
@@ -294,6 +296,12 @@
     a.textContent = 'Dashboard →';
     a.style.cssText = 'font-weight:600;color:#1976D2;';
     menu.appendChild(a);
+    const b = document.createElement('a');
+    b.id = 'nav-marketing-link';
+    b.href = '/marketing/';
+    b.textContent = 'Marketing →';
+    b.style.cssText = 'font-weight:600;color:#6A1B9A;';
+    menu.appendChild(b);
   }
 
   window.updateAuthUI = async function () {

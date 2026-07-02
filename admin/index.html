@@ -182,6 +182,7 @@
     .sk-table-row .sk { height: 13px; }
 
     /* ── Activity per student ── */
+    #last5-container { max-height: 480px; overflow-y: auto; }
     .student-block { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #f0f0f5; }
     body.dark .student-block { border-bottom-color: #252842; }
     .student-block:last-child { border-bottom: none; margin-bottom: 0; }
@@ -254,6 +255,7 @@
           <a href="/kasus.html">Kasus Trainer</a>
           <a href="/gramatica.html">Gramática</a>
           <a href="/chat-reformulaciones.html">Reformulaciones</a>
+          <a href="/marketing/" style="font-weight:600;color:#ce93d8;border-top:1px solid rgba(255,255,255,.15);margin-top:2px;padding-top:10px">Marketing →</a>
         </div>
       </div>
       <button class="adm-btn" id="refresh-btn" onclick="refreshData()">
@@ -301,7 +303,7 @@
       </div>
       <div class="card c-purple">
         <div class="card-top">
-          <span class="card-label">Eventos</span>
+          <span class="card-label">Actividad</span>
           <div class="card-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6A1B9A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
@@ -323,7 +325,13 @@
     <div class="sparkline-section">
       <div class="sparkline-title">Eventos — últimos 7 días</div>
       <div class="sparkline-bars" id="sparkline-bars">
-        ${[...Array(7)].map(() => `<div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>`).join('')}
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
+        <div class="spark-col"><div class="sk" style="width:100%;height:30px;border-radius:3px"></div><div class="sk sk-line" style="width:30px;height:10px;margin-top:4px"></div></div>
       </div>
     </div>
 
@@ -356,7 +364,10 @@
             Últimos 20 exámenes
           </div>
           <div id="exam-recent">
-            ${[...Array(4)].map(() => `<div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>`).join('')}
+            <div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>
+            <div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>
+            <div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>
+            <div class="sk-table-row"><div class="sk" style="width:80px"></div><div class="sk" style="width:140px"></div><div class="sk" style="width:30px"></div><div class="sk" style="width:90px"></div></div>
           </div>
         </div>
 
@@ -370,7 +381,9 @@
             Actividad últimos 5 días
           </div>
           <div id="last5-container">
-            ${[...Array(3)].map(() => `<div class="student-block"><div class="sk sk-line" style="width:160px"></div><div class="sk sk-line" style="width:120px;margin-top:8px"></div><div class="sk sk-line" style="width:100px"></div></div>`).join('')}
+            <div class="student-block"><div class="sk sk-line" style="width:160px"></div><div class="sk sk-line" style="width:120px;margin-top:8px"></div><div class="sk sk-line" style="width:100px"></div></div>
+            <div class="student-block"><div class="sk sk-line" style="width:160px"></div><div class="sk sk-line" style="width:120px;margin-top:8px"></div><div class="sk sk-line" style="width:100px"></div></div>
+            <div class="student-block"><div class="sk sk-line" style="width:160px"></div><div class="sk sk-line" style="width:120px;margin-top:8px"></div><div class="sk sk-line" style="width:100px"></div></div>
           </div>
         </div>
 
@@ -396,7 +409,11 @@
           </tr>
         </thead>
         <tbody id="users-tbody">
-          ${[...Array(5)].map(() => `<tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>`).join('')}
+          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
         </tbody>
       </table>
     </div>
@@ -441,6 +458,9 @@
   let allExams    = [];
   const eventsByUser = {};
   const examsByUser  = {};
+
+  let profileMap          = new Map();
+  let totalActivityWeight = 0;
 
   // Track today's active users globally
   let activeTodayIds = new Set();
@@ -492,14 +512,15 @@
 
   // ── Refresh ───────────────────────────────────────────────
   async function refreshData() {
-    const btn = document.getElementById('refresh-btn');
-    btn.disabled = true;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Cargando…`;
+    const btn  = document.getElementById('refresh-btn');
+    const orig = btn.innerHTML;
+    btn.disabled  = true;
+    btn.textContent = 'Cargando…';
     for (const k of Object.keys(eventsByUser)) delete eventsByUser[k];
     for (const k of Object.keys(examsByUser))  delete examsByUser[k];
     await loadData();
-    btn.disabled = false;
-    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Actualizar`;
+    btn.innerHTML = orig;
+    btn.disabled  = false;
   }
 
   // ── Data loading ──────────────────────────────────────────
@@ -522,7 +543,12 @@
     allEvents   = evRes.data  || [];
     allExams    = exRes.data  || [];
 
+    profileMap = new Map(allProfiles.map(p => [p.id, p]));
+
+    totalActivityWeight = 0;
     for (const e of allEvents) {
+      e._w = activityWeight(e);
+      totalActivityWeight += e._w;
       if (!eventsByUser[e.user_id]) eventsByUser[e.user_id] = [];
       eventsByUser[e.user_id].push(e);
     }
@@ -553,33 +579,38 @@
     document.getElementById('stat-total').textContent  = allProfiles.length;
     document.getElementById('stat-active').textContent = activeIds7.size;
     document.getElementById('stat-today').textContent  = activeTodayIds.size;
-    document.getElementById('stat-events').textContent = allEvents.length;
+    document.getElementById('stat-events').textContent = totalActivityWeight;
     document.getElementById('stat-exams').textContent  = allExams.length;
   }
 
   // ── Sparkline ─────────────────────────────────────────────
   function renderSparkline() {
     const days = 7;
-    const counts = [];
-    const labels = [];
     const now = new Date();
+    const counts = new Array(days).fill(0);
+    const labels = [];
+    const dayMap = new Map();
 
-    for (let i = days - 1; i >= 0; i--) {
+    for (let i = 0; i < days; i++) {
       const d = new Date(now);
-      d.setDate(d.getDate() - i);
+      d.setDate(d.getDate() - (days - 1 - i));
       const str = d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const count = allEvents
-        .filter(e => new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }) === str)
-        .reduce((s, e) => s + activityWeight(e), 0);
-      counts.push(count);
+      dayMap.set(str, i);
       labels.push(d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' }));
+    }
+
+    for (const e of allEvents) {
+      if (e._w === 0) continue;
+      const str = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const idx = dayMap.get(str);
+      if (idx !== undefined) counts[idx] += e._w;
     }
 
     const max = Math.max(...counts, 1);
     document.getElementById('sparkline-bars').innerHTML = counts.map((c, i) => {
       const pct = Math.max(Math.round(c / max * 100), c > 0 ? 4 : 2);
       const isToday = i === days - 1;
-      return `<div class="spark-col" title="${labels[i]}: ${c} eventos">
+      return `<div class="spark-col" title="${labels[i]}: ${c}">
         <div class="spark-bar" style="height:${pct}%;flex-shrink:0;${isToday ? 'opacity:1' : ''}"></div>
         <span class="spark-label">${labels[i].split(' ')[0]}</span>
       </div>`;
@@ -610,10 +641,9 @@
   function renderAppBars() {
     const counts = {};
     for (const e of allEvents) {
-      const w = activityWeight(e);
-      if (w === 0) continue;
+      if (e._w === 0) continue;
       const k = e.app || '(sin app)';
-      counts[k] = (counts[k] || 0) + w;
+      counts[k] = (counts[k] || 0) + e._w;
     }
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
     if (sorted.length === 0) {
@@ -670,7 +700,7 @@
       <thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Puntuación</th></tr></thead>
       <tbody>
         ${allExams.slice(0, 20).map(x => {
-          const p   = allProfiles.find(pr => pr.id === x.user_id);
+          const p   = profileMap.get(x.user_id);
           const pct = Math.round(x.score / x.total * 100);
           return `<tr>
             <td style="color:#888">${fmtDate(x.created_at)}</td>
@@ -709,10 +739,9 @@
       const dayRows = days.map(day => {
         const pills = Object.entries(
           byDay[day].reduce((acc, e) => {
-            const w = activityWeight(e);
-            if (w === 0) return acc;
+            if (e._w === 0) return acc;
             const name = APP_NAMES[e.app] || e.app || '?';
-            acc[name] = (acc[name] || 0) + w;
+            acc[name] = (acc[name] || 0) + e._w;
             return acc;
           }, {})
         ).sort((a, b) => b[1] - a[1]);
@@ -814,23 +843,19 @@
       const ths = document.querySelectorAll('#users-table thead th');
       ths[idx].classList.add(sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
     }
-    const q = document.getElementById('user-search').value.toLowerCase();
-    const filtered = q
-      ? allProfiles.filter(p =>
-          (p.display_name || '').toLowerCase().includes(q) ||
-          (p.email || '').toLowerCase().includes(q))
-      : allProfiles;
-    renderUsersTable(filtered);
+    renderUsersTable(getFilteredProfiles(document.getElementById('user-search').value));
+  }
+
+  function getFilteredProfiles(q) {
+    if (!q) return allProfiles;
+    const ql = q.toLowerCase();
+    return allProfiles.filter(p =>
+      (p.display_name || '').toLowerCase().includes(ql) ||
+      (p.email || '').toLowerCase().includes(ql));
   }
 
   function filterUsers(q) {
-    q = q.toLowerCase();
-    const filtered = q
-      ? allProfiles.filter(p =>
-          (p.display_name || '').toLowerCase().includes(q) ||
-          (p.email || '').toLowerCase().includes(q))
-      : allProfiles;
-    renderUsersTable(filtered);
+    renderUsersTable(getFilteredProfiles(q));
   }
 
   // ── User detail ───────────────────────────────────────────
@@ -853,7 +878,7 @@
             <span class="ev-time">${fmtDateFull(e.created_at)}</span>
             <span class="ev-app">${esc(e.app || '?')}</span>
             <span class="ev-type">${esc(e.event_type || '?')}</span>
-            <span class="ev-payload">${esc(JSON.stringify(e.payload || {}))}</span>
+            <span class="ev-payload">${esc(fmtPayload(e))}</span>
           </div>`).join('');
 
     const examsEl = document.getElementById('det-exams');
@@ -929,6 +954,14 @@
   function fmtDate(iso) {
     if (!iso) return '—';
     return new Date(iso).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function fmtPayload(e) {
+    const p = e.payload || {};
+    if (e.event_type === 'quiz_session_end') return `${p.score ?? '?'}/${p.total ?? '?'} correctas`;
+    const keys = Object.keys(p);
+    if (keys.length === 0) return '';
+    return keys.map(k => `${k}: ${p[k]}`).join(' · ');
   }
 
   function fmtDateFull(iso) {

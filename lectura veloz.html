@@ -30,6 +30,7 @@
                 <a href="kasus.html">Kasus-Trainer</a>
                 <a href="gramatica.html">Gramática</a>
                 <a href="chat-reformulaciones.html">Reformulaciones</a>
+                <a href="plan.html">Plan 30 días</a>
             </div>
         </div>
         <div class="spacer"></div>
@@ -84,6 +85,7 @@
             <button class="btn secondary" id="backButton" onclick="goBack()">« 5</button>
             <button class="btn" onclick="guardarTexto()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar</button>
             <button class="btn secondary" onclick="document.getElementById('fileInput').click()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir archivo</button>
+            <button class="btn secondary" id="btn-comprension" onclick="toggleComprensionPanel()">📖 Comprensión</button>
             <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx" style="display:none" onchange="handleFile(this)">
         </div>
     </div>
@@ -100,6 +102,46 @@
     <div id="saved-section">
         <h3>Textos guardados</h3>
         <div id="textosguardados"></div>
+    </div>
+
+    <div id="comprension-panel" style="display:none">
+        <div id="comp-mode-tabs">
+            <button class="comp-tab active" data-mode="A" onclick="compSwitchMode('A')">Mi texto</button>
+            <button class="comp-tab" data-mode="B" onclick="compSwitchMode('B')">Por nivel</button>
+        </div>
+
+        <div id="comp-mode-A" class="comp-mode-section">
+            <textarea id="comp-texto-input" placeholder="Pega aquí un texto en alemán..."></textarea>
+            <button class="btn comp-action-btn" id="comp-generar-btn">Generar preguntas</button>
+        </div>
+
+        <div id="comp-mode-B" class="comp-mode-section" style="display:none">
+            <div id="comp-level-pills">
+                <button class="comp-level-pill active" data-level="A1">A1</button>
+                <button class="comp-level-pill" data-level="A2">A2</button>
+                <button class="comp-level-pill" data-level="B1">B1</button>
+                <button class="comp-level-pill" data-level="B2">B2</button>
+                <button class="comp-level-pill" data-level="C1">C1</button>
+                <button class="comp-level-pill" data-level="C2">C2</button>
+            </div>
+            <button class="btn comp-action-btn" id="comp-nivel-btn">Obtener texto</button>
+        </div>
+
+        <div id="comp-loading" style="display:none">
+            <span class="comp-loading-dot"></span> Generando...
+        </div>
+
+        <div id="comp-texto-display" style="display:none">
+            <h3 id="comp-texto-titulo"></h3>
+            <div id="comp-texto-contenido"></div>
+        </div>
+
+        <div id="comp-preguntas" style="display:none"></div>
+
+        <div id="comp-resultado" style="display:none">
+            <div id="comp-resultado-texto"></div>
+            <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
+        </div>
     </div>
 
     <script>
@@ -702,6 +744,203 @@
         document.getElementById('pauseButton').addEventListener('click', pauseReading);
         document.getElementById('stopButton').addEventListener('click', stopReading);
 
+        /* ========================= COMPRENSIÓN ========================= */
+        let _compActiveMode = 'A'; // 'A' o 'B' — controla qué hace el botón "Intentar otro"
+
+        function toggleComprensionPanel() {
+            const panel = document.getElementById('comprension-panel');
+            const btn = document.getElementById('btn-comprension');
+            const isHidden = panel.style.display === 'none';
+            panel.style.display = isHidden ? 'block' : 'none';
+            btn.classList.toggle('active', isHidden);
+        }
+
+        function compSwitchMode(mode) {
+            _compActiveMode = mode;
+            document.querySelectorAll('.comp-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+            document.getElementById('comp-mode-A').style.display = mode === 'A' ? 'block' : 'none';
+            document.getElementById('comp-mode-B').style.display = mode === 'B' ? 'block' : 'none';
+            document.getElementById('comp-texto-display').style.display = 'none';
+            document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-resultado').style.display = 'none';
+        }
+
+        document.querySelectorAll('.comp-level-pill').forEach(pill => {
+            pill.addEventListener('click', function() {
+                document.querySelectorAll('.comp-level-pill').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        /* ---- Modo A: Mi texto ---- */
+        let compRespuestas = [];
+        let compPreguntas = [];
+
+        function compShowError(msg) {
+            const loading = document.getElementById('comp-loading');
+            loading.style.display = 'none';
+            const errDiv = document.getElementById('comp-error');
+            if (errDiv) { errDiv.textContent = msg; errDiv.style.display = 'block'; }
+            else {
+                const d = document.createElement('div');
+                d.id = 'comp-error';
+                d.style.cssText = 'color:#e63946;padding:10px 0;font-size:14px;';
+                d.textContent = msg;
+                document.getElementById('comp-mode-A').appendChild(d);
+            }
+        }
+
+        function compClearError() {
+            const errDiv = document.getElementById('comp-error');
+            if (errDiv) errDiv.style.display = 'none';
+        }
+
+        async function compGenerarPreguntas() {
+            const texto = document.getElementById('comp-texto-input').value.trim();
+            if (!texto) { showToast('Pega un texto primero'); return; }
+
+            compClearError();
+
+            const loading   = document.getElementById('comp-loading');
+            const display   = document.getElementById('comp-texto-display');
+            const preguntas = document.getElementById('comp-preguntas');
+            const resultado = document.getElementById('comp-resultado');
+            const genBtn    = document.getElementById('comp-generar-btn');
+
+            loading.style.display   = 'block';
+            display.style.display   = 'none';
+            preguntas.style.display = 'none';
+            resultado.style.display = 'none';
+            genBtn.disabled = true;
+
+            try {
+                const token = window.getAuthToken ? await window.getAuthToken() : null;
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0}]}'
+                            },
+                            { role: 'user', content: texto }
+                        ]
+                    })
+                });
+
+                const raw = await res.text();
+                if (!res.ok) {
+                    compShowError('Error del servidor (' + res.status + '): ' + raw.slice(0, 120));
+                    return;
+                }
+
+                let data;
+                try { data = JSON.parse(raw); } catch { compShowError('Respuesta inválida del servidor: ' + raw.slice(0, 120)); return; }
+
+                const content = data?.choices?.[0]?.message?.content || '';
+                let parsed;
+                try {
+                    const jsonStr = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/, '').trim();
+                    parsed = JSON.parse(jsonStr);
+                } catch { compShowError('No se pudo parsear las preguntas. Respuesta: ' + content.slice(0, 200)); return; }
+
+                if (!Array.isArray(parsed?.preguntas) || parsed.preguntas.length === 0) {
+                    compShowError('El modelo no devolvió preguntas válidas.');
+                    return;
+                }
+
+                compPreguntas = parsed.preguntas;
+                compRespuestas = new Array(compPreguntas.length).fill(null);
+
+                loading.style.display = 'none';
+
+                document.getElementById('comp-texto-titulo').textContent = 'Texto';
+                document.getElementById('comp-texto-contenido').textContent = texto;
+                display.style.display = 'block';
+
+                compRenderPreguntas();
+                preguntas.style.display = 'block';
+
+            } catch (err) {
+                compShowError('Error de red: ' + err.message);
+            } finally {
+                genBtn.disabled = false;
+                document.getElementById('comp-loading').style.display = 'none';
+            }
+        }
+
+        function compRenderPreguntas() {
+            const container = document.getElementById('comp-preguntas');
+            container.innerHTML = compPreguntas.map((q, i) => `
+                <div class="comp-pregunta" id="comp-q-${i}">
+                    <p class="comp-pregunta-texto">${escHtml(q.pregunta)}</p>
+                    <div class="comp-opciones">
+                        ${q.opciones.map((op, j) => `
+                            <button class="comp-opcion" data-pregunta="${i}" data-index="${j}" onclick="compResponder(${i}, ${j})">
+                                ${escHtml(op)}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function compResponder(pregIdx, opIdx) {
+            if (compRespuestas[pregIdx] !== null) return;
+            compRespuestas[pregIdx] = opIdx;
+
+            const correcta = compPreguntas[pregIdx].correcta;
+            const bloque = document.getElementById('comp-q-' + pregIdx);
+            bloque.querySelectorAll('.comp-opcion').forEach(btn => {
+                btn.disabled = true;
+                const j = parseInt(btn.dataset.index);
+                if (j === correcta) btn.classList.add('correcta');
+                else if (j === opIdx) btn.classList.add('incorrecta');
+            });
+
+            const respondidas = compRespuestas.filter(r => r !== null).length;
+            if (respondidas === compPreguntas.length) {
+                setTimeout(compMostrarResultado, 400);
+            }
+        }
+
+        function compMostrarResultado() {
+            const correctas = compRespuestas.filter((r, i) => r === compPreguntas[i].correcta).length;
+            const total = compPreguntas.length;
+            const resultado = document.getElementById('comp-resultado');
+            const textoEl = document.getElementById('comp-resultado-texto');
+            textoEl.textContent = correctas + ' / ' + total + ' correctas';
+            textoEl.className = '';
+            if (correctas >= 3) textoEl.classList.add('verde');
+            else if (correctas === 2) textoEl.classList.add('naranja');
+            else textoEl.classList.add('rojo');
+            resultado.style.display = 'block';
+            resultado.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function compReintentar() {
+            compPreguntas = [];
+            compRespuestas = [];
+            compClearError();
+            document.getElementById('comp-texto-input').value = '';
+            document.getElementById('comp-texto-display').style.display = 'none';
+            document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-resultado').style.display = 'none';
+            document.getElementById('comp-mode-A').style.display = 'block';
+        }
+
+        document.getElementById('comp-generar-btn').addEventListener('click', compGenerarPreguntas);
+
+        // comp-reintentar-btn es compartido: Modo A llama compReintentar(), Modo B llama modoB_reset().
+        document.getElementById('comp-reintentar-btn').addEventListener('click', function() {
+            if (_compActiveMode === 'B') { modoB_reset(); }
+            else { compReintentar(); }
+        });
+
         // Init
         if (localStorage.getItem('darkMode') === 'true') {
             document.body.classList.add('dark');
@@ -758,6 +997,184 @@
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id' });
         }
+
+        /* ========================= MODO B — Por nivel ========================= */
+        let modoBRespuestas = {};
+
+        function modoB_getSelectedLevel() {
+            const active = document.querySelector('#comp-level-pills .comp-level-pill.active');
+            return active ? active.dataset.level : null;
+        }
+
+        function modoB_showError(msg) {
+            document.getElementById('comp-loading').style.display = 'none';
+            const el = document.getElementById('comp-resultado');
+            const txt = document.getElementById('comp-resultado-texto');
+            txt.textContent = msg;
+            txt.className = 'naranja';
+            el.style.display = 'block';
+        }
+
+        function modoB_reset() {
+            modoBRespuestas = {};
+            document.getElementById('comp-texto-display').style.display = 'none';
+            document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-resultado').style.display = 'none';
+            document.getElementById('comp-loading').style.display = 'none';
+        }
+
+        async function modoB_generarTextoIA(level) {
+            const token = await window.getAuthToken();
+            const prompt = `Genera un texto en alemán de nivel ${level} sobre un tema cotidiano (100-150 palabras) con título. Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+            });
+            const raw = await res.text();
+            if (!res.ok) throw new Error('API error ' + res.status + ': ' + raw.slice(0, 120));
+            let parsed;
+            try { parsed = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor: ' + raw.slice(0, 100)); }
+            const content = parsed.choices?.[0]?.message?.content || parsed.content || parsed;
+            let data;
+            if (typeof content === 'string') {
+                const jsonMatch = content.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error('No se encontró JSON en la respuesta de la IA');
+                data = JSON.parse(jsonMatch[0]);
+            } else {
+                data = content;
+            }
+            return data;
+        }
+
+        async function modoB_obtenerTexto() {
+            const level = modoB_getSelectedLevel();
+            if (!level) { modoB_showError('Selecciona un nivel primero.'); return; }
+
+            if (!window.currentUser) {
+                modoB_showError('Inicia sesión para usar este modo.');
+                return;
+            }
+
+            _compActiveMode = 'B';
+            modoBRespuestas = {};
+            document.getElementById('comp-texto-display').style.display = 'none';
+            document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-resultado').style.display = 'none';
+            document.getElementById('comp-loading').style.display = 'block';
+
+            try {
+                const { data: allTexts, error: textsErr } = await window.sb
+                    .from('reading_texts')
+                    .select('id, title, content, questions')
+                    .eq('level', level);
+                if (textsErr) throw new Error('Error al cargar textos: ' + textsErr.message);
+
+                const { data: seen, error: seenErr } = await window.sb
+                    .from('user_reading_seen')
+                    .select('text_id')
+                    .eq('user_id', window.currentUser.id);
+                if (seenErr) throw new Error('Error al cargar historial: ' + seenErr.message);
+
+                const seenIds = new Set((seen || []).map(r => r.text_id));
+                const unseen = (allTexts || []).filter(t => !seenIds.has(t.id));
+
+                let chosenText;
+
+                if (unseen.length > 0) {
+                    chosenText = unseen[Math.floor(Math.random() * unseen.length)];
+                } else {
+                    const generated = await modoB_generarTextoIA(level);
+                    const newId = crypto.randomUUID();
+                    const { data: inserted, error: insertErr } = await window.sb
+                        .from('reading_texts')
+                        .insert({
+                            id: newId,
+                            level,
+                            title: generated.titulo,
+                            content: generated.contenido,
+                            questions: generated.preguntas
+                        })
+                        .select('id, title, content, questions')
+                        .single();
+                    if (insertErr) throw new Error('Error al guardar texto generado: ' + insertErr.message);
+                    chosenText = inserted;
+                }
+
+                await window.sb.from('user_reading_seen').upsert(
+                    { user_id: window.currentUser.id, text_id: chosenText.id, seen_at: new Date().toISOString() },
+                    { onConflict: 'user_id,text_id' }
+                );
+
+                document.getElementById('comp-loading').style.display = 'none';
+                document.getElementById('comp-texto-titulo').textContent = chosenText.title;
+                document.getElementById('comp-texto-contenido').textContent = chosenText.content;
+                document.getElementById('comp-texto-display').style.display = 'block';
+
+                const preguntas = typeof chosenText.questions === 'string'
+                    ? JSON.parse(chosenText.questions)
+                    : chosenText.questions;
+
+                modoB_renderPreguntas(preguntas);
+
+            } catch (err) {
+                console.error('[ModoB]', err);
+                modoB_showError('Error: ' + err.message);
+            }
+        }
+
+        function modoB_renderPreguntas(preguntas) {
+            modoBRespuestas = {};
+            const container = document.getElementById('comp-preguntas');
+            container.innerHTML = preguntas.map((p, i) => `
+                <div class="comp-pregunta" data-respondida="false">
+                    <div class="comp-pregunta-enunciado">${escHtml(p.pregunta)}</div>
+                    <div class="comp-opciones">
+                        ${p.opciones.map((op, j) => `
+                            <button class="comp-opcion" data-pregunta="${i}" data-index="${j}"
+                                onclick="modoB_responder(this, ${i}, ${j}, ${p.correcta}, ${preguntas.length})">
+                                ${escHtml(op)}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            container.style.display = 'block';
+        }
+
+        function modoB_responder(btn, pregunta, opcion, correcta, total) {
+            const pregContainer = btn.closest('.comp-pregunta');
+            if (pregContainer.dataset.respondida === 'true') return;
+            pregContainer.dataset.respondida = 'true';
+
+            const esCorrecto = opcion === correcta;
+            modoBRespuestas[pregunta] = esCorrecto;
+
+            pregContainer.querySelectorAll('.comp-opcion').forEach((b, j) => {
+                b.disabled = true;
+                if (j === correcta) b.classList.add('correcta');
+                else if (j === opcion && !esCorrecto) b.classList.add('incorrecta');
+            });
+
+            if (Object.keys(modoBRespuestas).length === total) {
+                const correctas = Object.values(modoBRespuestas).filter(Boolean).length;
+                setTimeout(() => modoB_mostrarResultado(correctas, total), 400);
+            }
+        }
+
+        function modoB_mostrarResultado(correctas, total) {
+            const el = document.getElementById('comp-resultado');
+            const txt = document.getElementById('comp-resultado-texto');
+            txt.textContent = `${correctas} / ${total} correctas`;
+            txt.className = correctas >= 3 ? 'verde' : correctas >= 2 ? 'naranja' : 'rojo';
+            el.style.display = 'block';
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.getElementById('comp-nivel-btn').addEventListener('click', modoB_obtenerTexto);
     </script>
 </body>
 </html>

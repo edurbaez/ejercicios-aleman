@@ -22,7 +22,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `B1.html` | Vocabulary quiz app targeting B1-level German words. Same engine as B2 via `shared-game.js`. PWA with offline support. |
 | `C1.html` | Vocabulary quiz app targeting C1-level German words. Same engine as B1/B2 via `shared-game.js`. PWA with offline support. |
 | `C2.html` | Vocabulary quiz app targeting C2-level German words. Same engine as B1/B2 via `shared-game.js`. PWA with offline support. |
-| `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. |
+| `lectura veloz.html` | Speed-reading (RSVP) app: flashes words one at a time at a configurable WPM. Includes a "Comprensión" panel with two modes: Modo A (user pastes a German text → GPT-4o-mini generates 4 MCQs) and Modo B (select CEFR level → fetches an unseen text from `reading_texts` Supabase table or generates one via IA if none available). |
 | `diccionario.html` | German dictionary: searches a word via the serverless API (GPT-4o-mini) and caches results in Supabase + IndexedDB. |
 | `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. |
 | `corrector.html` | Grammar correction app: upload or photograph a German text (tarea, carta, frases sueltas), sends it to GPT-4o Vision via `/api/vision`, and renders a structured list of errors with corrections and explanations. |
@@ -30,6 +30,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `admin/index.html` | Admin-only dashboard at `/admin/`. Verifies admin role on load (redirects to `/` if not admin). Shows: summary stats (total users, active last 7 days, total events), activity by app (bar chart), users table with search, per-user event detail, and invite form (calls `/api/admin-invite`). No navbar from main apps. |
 | `gramatica.html` | Grammar rules reference SPA. Displays 10 key grammar rules per CEFR level (A1–C2) as an accordion. Level selection via pill buttons; hash-based routing (#a1…#c2). All content embedded in `gramatica.js`. Orange theme (`#E65100`). |
 | `chat-reformulaciones.html` | Voice/text reformulation practice app. User selects grammar rules from `GRAMMAR_DATA` (or random), the AI presents a German sentence to reformulate, evaluates with ✅/⚠️/❌ and separates next task with `---NUEVA---`. Uses `/api/chat` + `/api/whisper`. Purple theme (`#6A1B9A`). |
+| `plan.html` | 30-day study plan SPA. Level selector (A1–C2), calendar grid of 30 days, progress bar, and day detail panel with task links. Progress persisted in `localStorage` per level (`plan_progress_{level}`). Uses `plan.js` for data. Blue accent (`#1565C0`). |
 
 ### API
 
@@ -73,6 +74,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 |------|---------|
 | `supabase/migrations/001_word_lists_srs.sql` | Creates `word_lists` (all vocabulary lists, system + user-created, with RLS) and `srs_progress` (SM-2 state per user/app/word, with RLS). Run manually in the Supabase SQL editor. |
 | `supabase/migrations/002_user_data.sql` | Creates `user_data` (persistent user preferences: `cv_user_profile`, `cv_level`, with RLS). Idempotent — safe to run on existing tables. |
+| `supabase/migrations/003_reading_texts.sql` | Crea `reading_texts` (textos en alemán por nivel CEFR con preguntas de comprensión) y `user_reading_seen` (textos vistos por usuario). RLS habilitado. |
 
 ### PWA & Deploy
 
@@ -111,6 +113,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `diccionario.js` | All JS logic for `diccionario.html`: uses `window.sb` from `auth.js` (no Supabase client propio), IndexedDB cache, autocomplete suggestions, API fetch (robust `text()` → `JSON.parse` pattern), and result rendering. |
 | `corrector.js` | All JS logic for `corrector.html`: file/camera input handling, base64 conversion, drag-and-drop upload, `/api/vision` call, and result rendering (score, error cards with category badges, observaciones). |
 | `gramatica.js` | All data and SPA logic for `gramatica.html`. Contains `GRAMMAR_DATA` object (60 rules, 10 per CEFR level A1–C2), level tab rendering, accordion toggle, and hash-based routing. No external API calls. |
+| `plan.js` | Data file for `plan.html`. Exports `window.PLANS` — an object with 6 keys (a1–c2), each containing 30 day objects `{ day, week, focus, tasks[] }`. Tasks have `{ app, label, minutes }`. |
 
 ### Shared styles
 
@@ -323,6 +326,27 @@ RLS: each user reads/writes only their own row. Used by `chat-voz.html` via `loa
 | `last_notified_at` | timestamptz | Última notificación enviada |
 
 RLS activo: usuarios solo acceden a su propia fila. El endpoint usa `SUPABASE_SERVICE_ROLE_KEY` para bypass de RLS.
+
+### Supabase table: `reading_texts`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | PK, auto-generated |
+| `level` | text | CEFR level: A1–C2 |
+| `title` | text | Título del texto en alemán |
+| `content` | text | Texto completo en alemán |
+| `questions` | jsonb | Array de `{ question, options[4], answer_index }` |
+| `created_at` | timestamptz | Auto |
+
+RLS: SELECT público (anon). INSERT/UPDATE/DELETE solo via service role.
+
+### Supabase table: `user_reading_seen`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | uuid | FK → auth.users |
+| `text_id` | uuid | FK → reading_texts |
+| `seen_at` | timestamptz | Cuándo lo vio el usuario |
+
+PK compuesta: `(user_id, text_id)`. RLS: cada usuario solo lee y escribe sus propias filas. Usado por Modo B de `lectura veloz.html` para evitar repetir textos ya vistos.
 
 ### Vercel env vars requeridas
 | Variable | Descripción |

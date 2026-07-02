@@ -85,18 +85,24 @@ Los textos se almacenan en Supabase para reutilizarlos entre usuarios.
 | `seen_at` | timestamptz | Cuándo lo vio |
 PK compuesta: (user_id, text_id). RLS: cada usuario solo ve/escribe sus filas.
 
-### Revisión de compatibilidad requerida:
-- `lectura veloz.html` carga pdf.js y mammoth.js desde CDN — no hay conflicto con nueva sección.
-- La sección nueva usará `window.getAuthToken()` de `auth.js` para llamar `/api/chat`.
-- Verificar que el layout no rompa la sección RSVP existente (tabs o panel colapsable).
+### Sub-etapas (ejecutar por sub-agentes)
+
+| Sub-etapa | Descripción | Depende de | Archivos |
+|-----------|-------------|-----------|---------|
+| **2A** | Migración SQL `003_reading_texts.sql` + aplicar a Supabase | — | `supabase/migrations/003_reading_texts.sql` |
+| **2B** | Tab "Comprensión" en `lectura veloz.html` (HTML/CSS, sin lógica) | — | `lectura veloz.html`, `styles.css` |
+| **2C** | Modo A: texto del usuario → preguntas vía `/api/chat` | 2B | `lectura veloz.html` |
+| **2D** | Modo B: nivel → texto no visto en DB → generar si no hay | 2A + 2B | `lectura veloz.html` |
+| **2E** | Scoring (X/4) + actualizar `CLAUDE.md` | 2C + 2D | `lectura veloz.html`, `CLAUDE.md` |
+
+**2A y 2B son paralelas. 2C y 2D son paralelas entre sí (tras 2A+2B). 2E es la última.**
 
 ### Tareas
-- [ ] Escribir migración SQL `003_reading_texts.sql`.
-- [ ] Diseñar UI: tab "Comprensión" dentro de `lectura veloz.html` (no página separada).
-- [ ] Implementar Modo A (texto del usuario → preguntas vía `/api/chat`).
-- [ ] Implementar Modo B (nivel → buscar texto no visto en DB → si no hay, generar y guardar).
-- [ ] Lógica de scoring: mostrar resultado al terminar (X/4 correctas).
-- [ ] Actualizar `CLAUDE.md` con la nueva tabla.
+- [ ] **2A** Migración SQL `003_reading_texts.sql` + aplicar a Supabase.
+- [ ] **2B** Tab "Comprensión" en `lectura veloz.html` (HTML/CSS, sin lógica JS).
+- [ ] **2C** Modo A: texto del usuario → preguntas vía `/api/chat`.
+- [ ] **2D** Modo B: nivel → buscar texto no visto en DB → generar y guardar si no hay.
+- [ ] **2E** Scoring (X/4 correctas) + actualizar `CLAUDE.md` con la nueva tabla.
 
 ---
 
@@ -111,28 +117,27 @@ PK compuesta: (user_id, text_id). RLS: cada usuario solo ve/escribe sus filas.
   "week": 1,
   "focus": "Vocabulario esencial + Nominativ",
   "tasks": [
-    { "app": "B1.html", "list": "esenciales", "minutes": 15, "label": "Vocabulario" },
-    { "app": "kasus.html", "case": "Nominativ", "minutes": 10, "label": "Casos" },
-    { "app": "lectura veloz.html#comprension", "level": "B1", "minutes": 10, "label": "Lectura" }
+    { "app": "B1.html", "label": "Vocabulario esencial", "minutes": 15 },
+    { "app": "kasus.html", "label": "Casos: Nominativ", "minutes": 10 },
+    { "app": "chat-voz.html", "label": "Conversación B1", "minutes": 10 }
   ]
 }
 ```
 
-Los 6 planes (A1→C2) viven en `plan.js` como `PLANS = { a1: [...30], a2: [...30], b1: [...30], ... }`. Cada nivel tiene vocabulario, gramática y habilidades apropiadas para ese nivel.
+Los 6 planes (A1→C2) viven en `plan.js` como `window.PLANS = { a1: [...30], a2: [...30], b1: [...30], ... }`.
 
 ### Persistencia
-- `localStorage` key `plan_progress_{nivel}` por cada nivel (ej. `plan_progress_b1`).
+- `localStorage` key `plan_progress_{nivel}` por cada nivel.
 - Valor: array de booleans de 30 posiciones — `true` = día completado.
-- Progreso de cada nivel es completamente independiente.
 
 ### UI
-- Selector de nivel en la parte superior (pills A1/A2/B1/B2/C1/C2) — cambia el plan visible sin reiniciar otros.
-- Calendario mensual: 30 celdas, icono de habilidad, verde si completado.
+- Selector de nivel en la parte superior (pills A1/A2/B1/B2/C1/C2).
+- Calendario mensual: 30 celdas, verde si completado.
 - Panel lateral: detalle del día seleccionado con tareas y enlaces directos.
 - Barra de progreso por nivel: `días completados / 30`.
-- Botón "Marcar día como completado" (solo disponible para el día actual o días anteriores).
+- Botón "Marcar día como completado".
 
-### Distribución temática por nivel (resumen)
+### Distribución temática por nivel
 | Nivel | Semana 1 | Semana 2 | Semana 3 | Semana 4 |
 |-------|----------|----------|----------|----------|
 | A1 | Saludos + artículos | Números + colores | Verbos ser/tener | Repaso |
@@ -142,28 +147,35 @@ Los 6 planes (A1→C2) viven en `plan.js` como `PLANS = { a1: [...30], a2: [...3
 | C1 | Expresiones idiomáticas | Textos académicos | Debate oral | Simulacro |
 | C2 | Matices léxicos | Textos literarios | Producción libre | Evaluación |
 
-### Revisión de compatibilidad requerida:
-- `plan.html` es página nueva — no rompe nada existente.
-- Necesita `config.js` + `auth.js` para navbar y sesión (misma carga que otras páginas).
-- Links a apps deben usar rutas relativas consistentes con el deploy en Vercel.
-- Los links a `lectura veloz.html#comprension` solo funcionan después de completar Etapa 2.
+### Sub-etapas (ejecutar por sub-agentes)
+
+| Sub-etapa | Descripción | Depende de | Archivos |
+|-----------|-------------|-----------|---------|
+| **3A** | Generar `plan.js` con 30 días × 6 niveles | — | `plan.js` (nuevo) |
+| **3B** | Crear `plan.html` (shell + nivel selector + barra progreso) | 3A | `plan.html` (nuevo) |
+| **3C** | Calendar view + panel detalle del día | 3B | `plan.html` |
+| **3D** | Persistencia localStorage + botón marcar día | 3B | `plan.html` |
+| **3E** | Navbar en todas las páginas + `index.html` + `CLAUDE.md` | 3B | todos los HTML, `index.html`, `CLAUDE.md` |
+
+**3A es independiente. 3C y 3D son paralelas tras 3B. 3E puede ir tras 3B.**
 
 ### Tareas
-- [ ] Definir los 30 días × 6 niveles en `plan.js` (180 entradas totales).
-- [ ] Crear `plan.html` + `plan.js`.
-- [ ] Implementar selector de nivel + calendar view + detalle del día.
-- [ ] Implementar persistencia independiente por nivel en localStorage.
-- [ ] Agregar enlace a `plan.html` en navbar de todas las páginas.
-- [ ] Actualizar `CLAUDE.md` e `index.html`.
+- [ ] **3A** Generar `plan.js` con 30 días × 6 niveles (180 entradas).
+- [ ] **3B** Crear `plan.html`: shell, selector de nivel, barra de progreso.
+- [ ] **3C** Calendar view + panel lateral con detalle del día.
+- [ ] **3D** Persistencia independiente por nivel en localStorage + botón marcar.
+- [ ] **3E** Navbar en todas las páginas + tarjeta en `index.html` + actualizar `CLAUDE.md`.
 
 ---
 
 ## Orden de ejecución
 
 ```
-Etapa 1 → Etapa 2 → Etapa 3
+Batch 1 (paralelo): 2A + 2B + 3A
+Batch 2 (paralelo): 2C + 2D + 3B     ← tras completar sus deps del batch 1
+Batch 3 (paralelo): 2E + 3C + 3D     ← tras batch 2
+Batch 4 (final):    3E                ← actualiza navbar/index de todo
 ```
-Etapa 1 no depende de las demás. Etapa 2 requiere la migración SQL antes del código. Etapa 3 puede empezar en paralelo con Etapa 2, pero los links del plan a la sección de comprensión requieren que Etapa 2 esté terminada.
 
 ---
 

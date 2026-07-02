@@ -958,6 +958,208 @@ th, td {
     z-index: 300;
 }
 
+/* ========================
+   COMPRENSIÓN (Lectura Veloz)
+   ======================== */
+#comprension-panel {
+    max-width: 720px;
+    margin: 24px auto;
+    background: var(--card);
+    border-radius: var(--radius, 8px);
+    box-shadow: 0 2px 10px var(--shadow, rgba(0,0,0,0.1));
+    padding: 24px;
+    color: var(--text);
+}
+
+#comp-mode-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.comp-tab {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--btn, #1976D2);
+    border-radius: var(--radius, 8px);
+    background: transparent;
+    color: var(--btn, #1976D2);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.comp-tab.active {
+    background: var(--btn, #1976D2);
+    color: #fff;
+}
+
+.comp-mode-section { }
+
+#comp-texto-input {
+    width: 100%;
+    min-height: 140px;
+    padding: 12px;
+    border: 1px solid var(--border, #ccc);
+    border-radius: var(--radius, 8px);
+    font-size: 14px;
+    background: var(--bg, #f4f4f9);
+    color: var(--text, #222);
+    resize: vertical;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
+
+.comp-action-btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+#comp-level-pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.comp-level-pill {
+    padding: 7px 18px;
+    border: 2px solid var(--btn, #1976D2);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--btn, #1976D2);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.comp-level-pill.active {
+    background: var(--btn, #1976D2);
+    color: #fff;
+}
+
+#comp-loading {
+    text-align: center;
+    padding: 20px 0;
+    font-size: 15px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.comp-loading-dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--btn, #1976D2);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: _spin 0.8s linear infinite;
+}
+
+#comp-texto-display {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--bg, #f4f4f9);
+    border-radius: var(--radius, 8px);
+    border-left: 4px solid var(--btn, #1976D2);
+}
+
+#comp-texto-titulo {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--btn, #1976D2);
+}
+
+#comp-texto-contenido {
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+
+#comp-preguntas {
+    margin-top: 20px;
+}
+
+.comp-pregunta {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg, #f4f4f9);
+    border-radius: var(--radius, 8px);
+}
+
+.comp-pregunta-texto {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.comp-opciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.comp-opcion {
+    padding: 10px 14px;
+    border: 2px solid var(--border, #ccc);
+    border-radius: var(--radius, 8px);
+    background: var(--card, #fff);
+    color: var(--text, #222);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.comp-opcion:hover {
+    border-color: var(--btn, #1976D2);
+    background: rgba(25, 118, 210, 0.06);
+}
+
+.comp-opcion.correcta {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.12);
+}
+
+.comp-opcion.incorrecta {
+    border-color: #dc3545;
+    background: rgba(220, 53, 69, 0.1);
+}
+
+#comp-resultado {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: var(--radius, 8px);
+    text-align: center;
+    background: var(--bg, #f4f4f9);
+}
+
+#comp-resultado-texto {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+#comp-resultado-texto.verde  { color: #28a745; }
+#comp-resultado-texto.naranja { color: #fd7e14; }
+#comp-resultado-texto.rojo   { color: #dc3545; }
+
+@media (max-width: 600px) {
+    .comp-opciones { grid-template-columns: 1fr; }
+    #comprension-panel { padding: 16px; margin: 16px 12px; }
+}
+
 
 /* ========================
    CHAT DE VOZ
@@ -4286,4 +4488,287 @@ body.dark .cr-results-title { color: #ce93d8; }
     .cr-setup-footer { flex-direction: column; align-items: flex-start; }
     .cr-btn-row { gap: 6px; }
     .cr-end-btn { margin-left: 0; }
+}
+
+/* ========================
+   Plan diario
+   ======================== */
+
+#page-plan {
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --text: #222222;
+    --border: #d0d7e4;
+    --navbar-bg: #ffffff;
+    --plan-accent: #1565C0;
+    --plan-accent-dark: #0d47a1;
+    --plan-green: #2e7d32;
+    --plan-green-bg: #e8f5e9;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+#page-plan.dark {
+    --bg: #121824;
+    --card-bg: #1a2236;
+    --text: #dde1ec;
+    --border: #2e3a50;
+    --navbar-bg: #0d1a2e;
+    --plan-green-bg: #1b3a1e;
+}
+
+#page-plan #navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+#page-plan #navbar a,
+#page-plan #navbar .nav-menu-btn {
+    color: var(--text);
+}
+
+#page-plan #navbar a:hover,
+#page-plan #navbar a.active,
+#page-plan #navbar .nav-menu-btn:hover {
+    background-color: var(--plan-accent);
+    color: #fff;
+}
+
+#page-plan .nav-dropdown-menu {
+    background-color: var(--navbar-bg);
+    border-color: var(--border);
+}
+
+#page-plan .nav-dropdown-menu a {
+    color: var(--text);
+}
+
+#page-plan .nav-dropdown-menu a:hover,
+#page-plan .nav-dropdown-menu a.active {
+    background-color: var(--plan-accent);
+    color: #fff;
+}
+
+#plan-main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 28px 16px 48px;
+}
+
+#plan-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--plan-accent);
+    margin-bottom: 20px;
+}
+
+/* Selector de nivel */
+#plan-level-selector {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.plan-level-btn {
+    padding: 7px 18px;
+    border: 2px solid var(--plan-accent);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--plan-accent);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+}
+
+.plan-level-btn:hover {
+    background: var(--plan-accent);
+    color: #fff;
+}
+
+.plan-level-btn.active {
+    background: var(--plan-accent);
+    color: #fff;
+}
+
+/* Barra de progreso */
+#plan-progress-bar-container {
+    margin-bottom: 24px;
+}
+
+#plan-progress-label {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 6px;
+    opacity: 0.75;
+}
+
+#plan-progress-bar {
+    height: 10px;
+    background: var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#plan-progress-fill {
+    height: 100%;
+    background: var(--plan-accent);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+    width: 0%;
+}
+
+/* Layout: calendario + detalle */
+#plan-content {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Calendario */
+#plan-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.plan-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    user-select: none;
+}
+
+.plan-day:hover {
+    border-color: var(--plan-accent);
+    transform: scale(1.05);
+}
+
+.plan-day-num {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.plan-day.completado {
+    background: var(--plan-green-bg);
+    border-color: var(--plan-green);
+}
+
+.plan-day.completado .plan-day-num {
+    color: var(--plan-green);
+}
+
+.plan-day.actual {
+    border: 2px dashed var(--plan-accent);
+}
+
+.plan-day.seleccionado {
+    border: 2px solid var(--plan-accent);
+    box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.2);
+}
+
+/* Panel detalle */
+#plan-detail {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: sticky;
+    top: 66px;
+}
+
+#plan-detail-day {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--plan-accent);
+    margin-bottom: 8px;
+}
+
+#plan-detail-focus {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.5;
+    font-style: italic;
+    opacity: 0.85;
+}
+
+#plan-detail-tasks {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#plan-detail-tasks li {
+    font-size: 13px;
+    color: var(--text);
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    line-height: 1.4;
+}
+
+#plan-detail-tasks a {
+    color: var(--plan-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+#plan-detail-tasks a:hover {
+    text-decoration: underline;
+}
+
+#plan-complete-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--plan-accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s;
+}
+
+#plan-complete-btn:hover:not(:disabled) {
+    background: var(--plan-accent-dark);
+}
+
+#plan-complete-btn.disabled,
+#plan-complete-btn:disabled {
+    background: var(--border);
+    color: var(--text);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+    #plan-content {
+        grid-template-columns: 1fr;
+    }
+
+    #plan-calendar {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    #plan-detail {
+        position: static;
+    }
 }

@@ -54,6 +54,13 @@
             <button class="kas-case-btn" data-caso="Wechsel">Wechselpräp.</button>
         </div>
 
+        <!-- Selector de tipo de hueco -->
+        <div class="kas-case-selector">
+            <span class="kas-fill-label">Rellenar:</span>
+            <button class="kas-case-btn active" data-relleno="articulo">Artículo</button>
+            <button class="kas-case-btn" data-relleno="adjetivo">Adjetivo</button>
+        </div>
+
         <!-- Marcador -->
         <div class="kas-score-row">
             <div class="kas-score-card">
@@ -131,12 +138,16 @@
     // ── Estado ────────────────────────────────────────
     const KasState = {
         caso:      'Todos',
+        relleno:   'articulo',
         aciertos:  0,
         errores:   0,
         racha:     0,
         cargando:  false,
         ejercicio: null,
+        prefetch:  null, // { sig, promise } — siguiente ejercicio generado en background
     };
+
+    function configSig() { return KasState.caso + '|' + KasState.relleno; }
 
     // ── Dark mode ─────────────────────────────────────
     const _moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
@@ -156,12 +167,20 @@
         localStorage.setItem('darkMode_kas', isDark);
     }
 
-    // ── Selector de caso ─────────────────────────────
-    document.querySelectorAll('.kas-case-btn').forEach(btn => {
+    // ── Selectores de caso y tipo de hueco ───────────
+    document.querySelectorAll('.kas-case-btn[data-caso]').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.kas-case-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.kas-case-btn[data-caso]').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             KasState.caso = btn.dataset.caso;
+        });
+    });
+
+    document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            KasState.relleno = btn.dataset.relleno;
         });
     });
 
@@ -211,8 +230,140 @@
         return s.slice(start, end + 1);
     }
 
-    // ── Generar ejercicio vía API ─────────────────────
-    async function generarEjercicio(intento = 0) {
+    // ── Construcción de prompts ───────────────────────
+    const TEMAS = [
+        'comida y restaurantes', 'viajes y transporte', 'familia y relaciones',
+        'trabajo y oficina', 'ciudad y lugares', 'naturaleza y medio ambiente',
+        'tiempo libre y hobbies', 'compras y tiendas', 'escuela y universidad',
+        'salud y medicina', 'tecnología y redes sociales', 'deportes',
+        'música y cultura', 'clima y estaciones', 'mascotas y animales',
+    ];
+
+    function buildPrompt(casoObjetivo, esWechsel, esAdjetivo) {
+        const tema = TEMAS[Math.floor(Math.random() * TEMAS.length)];
+        const casosSpec = esWechsel ? 'Akkusativ|Dativ' : 'Nominativ|Akkusativ|Dativ|Genitiv';
+        const jsonSpec = `Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"${casosSpec}","explicacion":"explicación breve en español"}. Todas las opciones distintas entre sí. La respuesta debe estar entre las opciones.`;
+
+        if (esWechsel) {
+            const preps = ['in', 'an', 'auf', 'über', 'unter', 'vor', 'hinter', 'neben', 'zwischen'];
+            const prep = preps[Math.floor(Math.random() * preps.length)];
+            const contexto = `La frase debe dejar claro por el verbo y el contexto si expresa dirección/movimiento (wohin? → Akkusativ) o posición estática (wo? → Dativ). En este ejercicio el caso correcto debe ser ${casoObjetivo}.`;
+            if (esAdjetivo) {
+                return {
+                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre declinación de adjetivos tras la Wechselpräposition "${prep}". ${contexto} La preposición y el artículo declinado deben ser visibles en la frase; el hueco (___) es únicamente el adjetivo. Las 4 opciones son el mismo adjetivo con distintas terminaciones plausibles. Usa vocabulario del tema "${tema}" y varía los sustantivos. ${jsonSpec} La explicación debe indicar si la frase responde a wohin (→ Akkusativ) o wo (→ Dativ), el género del sustantivo y el tipo de declinación del adjetivo.`,
+                    userMsg: `Genera un ejercicio de adjetivo tras "${prep}" en ${casoObjetivo}. Tema: ${tema}.`,
+                };
+            }
+            return {
+                system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre Wechselpräpositionen con la preposición "${prep}". ${contexto} El hueco (___) sustituye la preposición y el artículo juntos (p. ej. "ins", "im", "in den", "in der", "am", "an die"). Las 4 opciones usan todas la preposición "${prep}" con distintas declinaciones: deben incluir la forma en Akkusativ y la forma en Dativ del género correcto del sustantivo, y dos formas plausibles de otros géneros o números. Usa vocabulario del tema "${tema}" y varía los sustantivos. ${jsonSpec} La explicación debe indicar si la frase responde a wohin (movimiento → Akkusativ) o wo (posición → Dativ), y el género del sustantivo.`,
+                userMsg: `Genera un ejercicio de Wechselpräpositionen con "${prep}" en ${casoObjetivo}. Tema: ${tema}.`,
+            };
+        }
+
+        const estructuras = [
+            'una oración simple y directa',
+            'una oración con un complemento TEKAMOLO (primero temporal, luego causal, luego modal, luego local)',
+            'una oración de relativo (Relativsatz) donde el hueco está en la cláusula principal',
+            'una oración de relativo (Relativsatz) donde el hueco está dentro de la cláusula relativa',
+            'una oración con preposición que rija ' + casoObjetivo,
+            'una oración con verbo modal (können, müssen, wollen, dürfen, sollen)',
+            'una oración en Perfekt',
+            'una oración con dos cláusulas unidas por una conjunción subordinante (weil, obwohl, wenn, dass)',
+            'una oración con el orden de palabras invertido (Verb-Second con adverbio inicial)',
+        ];
+        const estructura = estructuras[Math.floor(Math.random() * estructuras.length)];
+
+        if (esAdjetivo) {
+            const tipos = [
+                'débil: el adjetivo va tras un artículo definido (der/die/das/den/dem/des)',
+                'mixta: el adjetivo va tras ein, kein o un posesivo (mein, dein, sein…)',
+                'fuerte: el adjetivo no lleva ningún artículo delante',
+            ];
+            const tipo = tipos[Math.floor(Math.random() * tipos.length)];
+            return {
+                system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre declinación de adjetivos en ${casoObjetivo}. Usa declinación ${tipo}. El hueco (___) es únicamente el adjetivo declinado; el artículo (o su ausencia) debe ser visible en la frase. Las 4 opciones son el mismo adjetivo con distintas terminaciones plausibles. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. ${jsonSpec} La explicación debe nombrar el tipo de declinación (débil/mixta/fuerte), el caso y el género del sustantivo.`,
+                userMsg: `Genera un ejercicio de adjetivo en ${casoObjetivo} con declinación ${tipo.split(':')[0]}. Tema: ${tema}. Estructura: ${estructura}.`,
+            };
+        }
+
+        return {
+            system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoObjetivo}. El hueco debe ser un artículo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. ${jsonSpec} Los distractores deben ser la misma palabra declinada en otros casos o géneros (mismo tipo morfológico). La explicación debe citar la regla concreta (verbo o preposición que rige el caso, o función sintáctica) y el género del sustantivo.`,
+            userMsg: `Genera un ejercicio de ${casoObjetivo}. Tema: ${tema}. Estructura: ${estructura}.`,
+        };
+    }
+
+    // ── Llamadas a la API ─────────────────────────────
+    async function apiChat(token, system, userMsg) {
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }] }),
+        });
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+        if (!resp.ok) throw new Error(data.error || 'Error de API');
+        return data.reply;
+    }
+
+    // Verificación por resolución independiente: el modelo resuelve el
+    // ejercicio sin conocer la respuesta declarada; si no coinciden, se descarta.
+    async function verificarEjercicio(token, ej) {
+        try {
+            const reply = await apiChat(token,
+                'Eres un profesor de alemán de nivel nativo. Recibes una frase con un hueco (___) y 4 opciones. Elige la única opción gramaticalmente correcta. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences: {"respuesta":"la opción elegida, copiada literalmente"}',
+                `Frase: ${ej.frase}\nOpciones: ${ej.opciones.join(' | ')}`);
+            const v = JSON.parse(stripFences(reply));
+            return typeof v.respuesta === 'string' && v.respuesta.trim() === ej.respuesta.trim();
+        } catch {
+            return true; // si el verificador falla (red, parse), no bloquea el ejercicio
+        }
+    }
+
+    async function fetchEjercicio() {
+        const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+        if (!token) throw new Error('AUTH');
+
+        const esWechsel  = KasState.caso === 'Wechsel';
+        const esAdjetivo = KasState.relleno === 'adjetivo';
+
+        for (let intento = 0; intento < 2; intento++) {
+            const casoObjetivo = esWechsel
+                ? ['Akkusativ', 'Dativ'][Math.floor(Math.random() * 2)]
+                : KasState.caso === 'Todos'
+                    ? ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'][Math.floor(Math.random() * 4)]
+                    : KasState.caso;
+
+            const { system, userMsg } = buildPrompt(casoObjetivo, esWechsel, esAdjetivo);
+            const reply = await apiChat(token, system, userMsg);
+
+            let ej;
+            try { ej = JSON.parse(stripFences(reply)); } catch { continue; }
+
+            const invalido =
+                !ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta ||
+                !ej.frase.includes('___') ||
+                new Set(ej.opciones).size !== 4 ||
+                !ej.opciones.includes(ej.respuesta) ||
+                ej.caso !== casoObjetivo;
+            if (invalido) continue;
+
+            if (!(await verificarEjercicio(token, ej))) continue;
+
+            shuffleArray(ej.opciones);
+            return ej;
+        }
+        throw new Error('El modelo devolvió un ejercicio inválido');
+    }
+
+    // ── Prefetch del siguiente ejercicio ──────────────
+    function startPrefetch() {
+        const sig = configSig();
+        KasState.prefetch = { sig, promise: fetchEjercicio().catch(() => null) };
+    }
+
+    // ── Generar / mostrar ejercicio ───────────────────
+    async function generarEjercicio() {
         if (KasState.cargando) return;
         KasState.cargando = true;
         document.getElementById('kas-feedback').style.display = 'none';
@@ -222,92 +373,24 @@
         area.innerHTML = `<div class="kas-loading">Generando ejercicio…</div>`;
 
         try {
-            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
-            if (!token) {
-                area.innerHTML = `<div class="kas-error">Inicia sesión para usar el Kasus-Trainer.</div>`;
-                KasState.cargando = false;
-                return;
+            let ej = null;
+            const pf = KasState.prefetch;
+            KasState.prefetch = null;
+            if (pf && pf.sig === configSig()) {
+                ej = await pf.promise; // null si el prefetch falló
             }
+            if (!ej) ej = await fetchEjercicio();
 
-            const esWechsel = KasState.caso === 'Wechsel';
-            const casoObjetivo = esWechsel
-                ? ['Akkusativ', 'Dativ'][Math.floor(Math.random() * 2)]
-                : KasState.caso === 'Todos'
-                    ? ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'][Math.floor(Math.random() * 4)]
-                    : KasState.caso;
-            const casoPrompt = casoObjetivo;
-
-            const temas = [
-                'comida y restaurantes', 'viajes y transporte', 'familia y relaciones',
-                'trabajo y oficina', 'ciudad y lugares', 'naturaleza y medio ambiente',
-                'tiempo libre y hobbies', 'compras y tiendas', 'escuela y universidad',
-                'salud y medicina', 'tecnología y redes sociales', 'deportes',
-                'música y cultura', 'clima y estaciones', 'mascotas y animales',
-            ];
-            const estructuras = [
-                'una oración simple y directa',
-                'una oración con un complemento TEKAMOLO (primero temporal, luego causal, luego modal, luego local)',
-                'una oración de relativo (Relativsatz) donde el hueco está en la cláusula principal',
-                'una oración de relativo (Relativsatz) donde el hueco está dentro de la cláusula relativa',
-                'una oración con preposición que rija ' + casoObjetivo,
-                'una oración con verbo modal (können, müssen, wollen, dürfen, sollen)',
-                'una oración en Perfekt',
-                'una oración con dos cláusulas unidas por una conjunción subordinante (weil, obwohl, wenn, dass)',
-                'una oración con el orden de palabras invertido (Verb-Second con adverbio inicial)',
-            ];
-
-            const tema      = temas[Math.floor(Math.random() * temas.length)];
-            const estructura = estructuras[Math.floor(Math.random() * estructuras.length)];
-
-            let system, userMsg;
-            if (esWechsel) {
-                const preps = ['in', 'an', 'auf', 'über', 'unter', 'vor', 'hinter', 'neben', 'zwischen'];
-                const prep = preps[Math.floor(Math.random() * preps.length)];
-                system = `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre Wechselpräpositionen con la preposición "${prep}". La frase debe dejar claro por el verbo y el contexto si expresa dirección/movimiento (wohin? → Akkusativ) o posición estática (wo? → Dativ). En este ejercicio el caso correcto debe ser ${casoObjetivo}. El hueco (___) sustituye la preposición y el artículo juntos (p. ej. "ins", "im", "in den", "in der", "am", "an die"). Las 4 opciones usan todas la preposición "${prep}" con distintas declinaciones: deben incluir la forma en Akkusativ y la forma en Dativ del género correcto del sustantivo, y dos formas plausibles de otros géneros o números, todas distintas entre sí. Usa vocabulario del tema "${tema}" y varía los sustantivos. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Akkusativ|Dativ","explicacion":"explicación breve en español: indica si la frase responde a wohin (movimiento → Akkusativ) o wo (posición → Dativ), y el género del sustantivo"}. La respuesta debe estar entre las opciones.`;
-                userMsg = `Genera un ejercicio de Wechselpräpositionen con "${prep}" en ${casoObjetivo}. Tema: ${tema}.`;
-            } else {
-                system = `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco debe ser un artículo o adjetivo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical aplicada"}. Los distractores deben ser la misma palabra declinada en otros casos o géneros (mismo tipo morfológico), todas las opciones distintas entre sí. La respuesta debe estar entre las opciones. La explicación debe citar la regla concreta (verbo o preposición que rige el caso, o función sintáctica) y el género del sustantivo.`;
-                userMsg = `Genera un ejercicio de ${casoPrompt}. Tema: ${tema}. Estructura: ${estructura}.`;
-            }
-
-            const resp = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({
-                    system,
-                    messages: [{ role: 'user', content: userMsg }],
-                }),
-            });
-
-            const raw = await resp.text();
-            let data;
-            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
-            if (!resp.ok) throw new Error(data.error || 'Error de API');
-
-            let ej;
-            try { ej = JSON.parse(stripFences(data.reply)); } catch { throw new Error('El modelo devolvió JSON inválido'); }
-
-            const invalido =
-                !ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta ||
-                !ej.frase.includes('___') ||
-                new Set(ej.opciones).size !== 4 ||
-                !ej.opciones.includes(ej.respuesta) ||
-                ej.caso !== casoObjetivo;
-
-            if (invalido) {
-                if (intento < 1) {
-                    setTimeout(() => generarEjercicio(intento + 1), 0);
-                    return;
-                }
-                throw new Error('El modelo devolvió un ejercicio inválido');
-            }
-
-            shuffleArray(ej.opciones);
             KasState.ejercicio = ej;
             renderEjercicio(ej);
+            startPrefetch();
 
         } catch (err) {
-            area.innerHTML = `<div class="kas-error">Error: ${escHtml(err.message)}. <button class="kas-gen-btn" onclick="generarEjercicio()" style="margin-top:12px;">Reintentar</button></div>`;
+            if (err.message === 'AUTH') {
+                area.innerHTML = `<div class="kas-error">Inicia sesión para usar el Kasus-Trainer.</div>`;
+            } else {
+                area.innerHTML = `<div class="kas-error">Error: ${escHtml(err.message)}. <button class="kas-gen-btn" onclick="generarEjercicio()" style="margin-top:12px;">Reintentar</button></div>`;
+            }
         } finally {
             KasState.cargando = false;
         }
@@ -396,17 +479,24 @@
         }
 
         if (typeof window.logEvent === 'function') {
-            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto, modo: KasState.caso === 'Wechsel' ? 'wechsel' : 'kasus' });
+            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto, modo: KasState.caso === 'Wechsel' ? 'wechsel' : 'kasus', relleno: KasState.relleno });
         }
     }
 
-    // Deep-link support: kasus.html?caso=Akkusativ
+    // Deep-link support: kasus.html?caso=Akkusativ&relleno=adjetivo
     (function () {
         const params = new URLSearchParams(location.search);
         const initCaso = params.get('caso');
+        const initRelleno = params.get('relleno');
+        if (initRelleno && ['articulo', 'adjetivo'].includes(initRelleno)) {
+            KasState.relleno = initRelleno;
+            document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(b => {
+                b.classList.toggle('active', b.dataset.relleno === initRelleno);
+            });
+        }
         if (initCaso && ['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv', 'Wechsel'].includes(initCaso)) {
             KasState.caso = initCaso;
-            document.querySelectorAll('.kas-case-btn').forEach(b => {
+            document.querySelectorAll('.kas-case-btn[data-caso]').forEach(b => {
                 b.classList.toggle('active', b.dataset.caso === initCaso);
             });
             generarEjercicio();

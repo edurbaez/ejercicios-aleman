@@ -2329,6 +2329,13 @@ body.dark .cv-repetir-counter     { color: #6b7a8d; }
     transition: 0.15s;
 }
 
+.kas-fill-label {
+    align-self: center;
+    font-size: 13px;
+    font-weight: bold;
+    opacity: 0.6;
+}
+
 .kas-case-btn.active {
     background: var(--accent);
     border-color: var(--accent);

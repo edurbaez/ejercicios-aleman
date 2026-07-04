@@ -45,6 +45,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `api/approve-user.js` | Vercel serverless function — approves a pending user (sets `approved = true` in Supabase). Requires JWT + admin role. Uses `SUPABASE_JWT_SECRET` for HS256 verification and `SUPABASE_SERVICE_ROLE_KEY` to write. |
 | `api/push-subscribe.js` | Vercel serverless function — manages Web Push subscriptions. GET returns current settings; POST upserts subscription + preferences (interval_hours, window_start, window_end, utc_offset_minutes); DELETE removes subscription. Requires JWT auth. Writes to `push_subscriptions` table via `SUPABASE_SERVICE_ROLE_KEY`. |
 | `api/push-notify.js` | Vercel serverless function — sends push notifications to eligible subscribers. Called hourly by Vercel Cron (Pro) or cron-job.org (free). Requires `Authorization: Bearer <CRON_SECRET>`. Reads all `push_subscriptions`, converts UTC time to each user's local timezone, checks window and interval, sends via `web-push`. Removes stale subscriptions (HTTP 410/404). |
+| `api/vocab-refresh.js` | Vercel serverless function — cron endpoint (`Authorization: Bearer <CRON_SECRET>`) that generates ~15 current German expressions per CEFR level via GPT-4o-mini and appends them to a system `word_lists` row named `nuevas` (app_id = level, newest first, capped at 150). Level via body/query `level`, or daily rotation a1→c2 (full cycle every 6 days). Quiz apps pick the list up automatically because `loadSystemLists()` reads Supabase before the static JSON. |
 | `api/deepseek-chat.js` | Vercel serverless function — proxies requests to DeepSeek (`deepseek-chat`). Same structure as `chat.js`. Requires `DEEPSEEK_API_KEY`. Rate limited to 20 req/min per user. |
 | `api/finanzas-price.js` | Vercel serverless function — fetches real-time prices for crypto (CoinGecko) and market indices (Yahoo Finance). In-memory cache (5 min TTL). Rate limited to 10 req/min per user. No external API key required. |
 | `api/finanzas-history.js` | Vercel serverless function — fetches historical price data for crypto/indices. In-memory cache (30 min TTL). Same auth pattern. No external API key required. |
@@ -115,6 +116,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `corrector.js` | All JS logic for `corrector.html`: file/camera input handling, base64 conversion, drag-and-drop upload, `/api/vision` call, and result rendering (score, error cards with category badges, observaciones). |
 | `gramatica.js` | All data and SPA logic for `gramatica.html`. Contains `GRAMMAR_DATA` object (60 rules, 10 per CEFR level A1–C2), level tab rendering, accordion toggle, and hash-based routing. No external API calls. |
 | `plan.js` | Data file for `plan.html`. Exports `window.PLANS` — an object with 6 keys (a1–c2), each containing 30 day objects `{ day, week, focus, tasks[] }`. Tasks have `{ app, label, minutes }`. |
+| `onboarding.js` | Guided tour for first-time visitors, loaded by `index.html`. Spotlight overlay with 6 steps: welcome + CEFR level picker (persisted as `onboarding_level`), vocab card of the chosen level, plan 30 días, Menú dropdown, auth button, final CTA ("Ir a mi nivel"). Runs once (`onboarding_done_v1` in localStorage); relaunchable via fixed "?" button (bottom-left) or `window.startOnboarding()`. |
 
 ### Shared styles
 
@@ -367,18 +369,18 @@ Plan Hobby de Vercel no soporta crons horarios. Usar **cron-job.org** (gratuito)
 
 | Variable | Used by | Required | Notes |
 |----------|---------|----------|-------|
-| `OPENAI_API_KEY` | `chat.js`, `whisper.js`, `vision.js`, `tts.js` | Yes | OpenAI secret key |
+| `OPENAI_API_KEY` | `chat.js`, `whisper.js`, `vision.js`, `tts.js`, `vocab-refresh.js` | Yes | OpenAI secret key |
 | `DEEPSEEK_API_KEY` | `deepseek-chat.js` | Yes | DeepSeek secret key |
 | `SUPABASE_JWT_SECRET` | `_lib.js` (HS256), `approve-user.js` | Conditional | Required only for HS256 tokens; ES256 tokens (default Supabase) use JWKS and don't need this |
 | `SUPABASE_URL` | `admin-invite.js`, `approve-user.js` | Yes | `https://<project>.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | `admin-invite.js`, `approve-user.js`, `push-subscribe.js`, `push-notify.js` | Yes | Bypasses RLS — never expose to client |
+| `SUPABASE_SERVICE_ROLE_KEY` | `admin-invite.js`, `approve-user.js`, `push-subscribe.js`, `push-notify.js`, `vocab-refresh.js` | Yes | Bypasses RLS — never expose to client |
 | `ALLOWED_ORIGIN` | `chat.js` | No | If set, rejects requests from other origins with 403 |
 | `KV_REST_API_URL` | `_lib.js` | No | Enables Vercel KV for persistent rate limiting across cold starts; falls back to in-memory Map if absent |
 | `KV_REST_API_TOKEN` | `_lib.js` | No | Required when `KV_REST_API_URL` is set |
 | `VAPID_PUBLIC_KEY` | `push-notify.js` | Yes | Must match `window.VAPID_PUBLIC_KEY` in `config.js` |
 | `VAPID_PRIVATE_KEY` | `push-notify.js` | Yes | Never sent to client |
 | `VAPID_SUBJECT` | `push-notify.js` | Yes | `mailto:ed.urbaez@gmail.com` |
-| `CRON_SECRET` | `push-notify.js` | Yes | Bearer token that cron-job.org sends |
+| `CRON_SECRET` | `push-notify.js`, `vocab-refresh.js` | Yes | Bearer token that cron-job.org sends |
 
 For local dev, define these in `.env.local` (not committed). `vercel dev` loads them automatically.
 

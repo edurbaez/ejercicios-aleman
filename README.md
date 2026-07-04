@@ -116,10 +116,20 @@ Vercel serverless function that receives multipart audio and forwards it to Open
 
 Vercel serverless function that receives `{ image_base64, mime_type, type }`, forwards the image to GPT-4o with a type-specific review prompt, and returns structured JSON: `{ puntuacion, resumen, errores[], observaciones_generales }`. Used by `corrector.html`. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`.
 
+### `/api/vocab-refresh` ([api/vocab-refresh.js](api/vocab-refresh.js))
+
+Cron endpoint (requires `Authorization: Bearer <CRON_SECRET>`) that keeps vocabulary content fresh: generates ~15 current German expressions (colloquial, media, tech, modern idioms) via GPT-4o-mini for one CEFR level per call and appends them to a system `word_lists` row named **nuevas** in Supabase (newest first, capped at 150 entries). Level via `level` in body/query, or daily rotation a1→c2. The quiz apps show the "nuevas" list automatically — no redeploy needed. Schedule it daily on cron-job.org, same pattern as `/api/push-notify`.
+
 **Security measures (`/api/chat`):**
 - Rate limiting: 20 req/min per IP (in-memory sliding window) → `429` if exceeded
 - Origin check: if `ALLOWED_ORIGIN` env var is set, blocks other origins → `403`
 - System prompt capped at 2 000 characters to prevent inflated requests
+
+---
+
+## Onboarding
+
+First-time visitors on `index.html` get a guided tour ([onboarding.js](onboarding.js)): a welcome step asks for their CEFR level, then a spotlight overlay walks them through the vocabulary app of their level, the 30-day plan, the Menú dropdown, and account creation. Shown once (`onboarding_done_v1` in localStorage); relaunchable anytime with the fixed **?** button (bottom-left) or `window.startOnboarding()`.
 
 ---
 

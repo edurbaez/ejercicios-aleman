@@ -20,11 +20,38 @@ const SYSTEM_JSON = `Responde ÚNICAMENTE con un objeto JSON válido con esta es
       "categoria": "<ortografía|declinación|conjugación|orden de palabras|registro|puntuación|vocabulario>"
     }
   ],
+  "texto_corregido": "<el texto completo corregido en alemán>",
   "observaciones_generales": "<observaciones finales en español>"
 }
 Si no hay errores, usa "errores": []. No incluyas texto ni markdown fuera del JSON.`;
 
 const VALID_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+
+const cap = (s, n) => String(s || '').slice(0, n);
+
+// Evaluation prompt for escritura.html: grades a handwritten text against a
+// generated writing task; response schema mirrors the app's typed-text flow.
+function buildEscrituraPrompt(task) {
+    const puntos = (Array.isArray(task.puntos) ? task.puntos : []).slice(0, 6).map(p => cap(p, 200));
+    return `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${cap(task.level, 2)}. La imagen contiene el texto MANUSCRITO del alumno: transcríbelo primero con fidelidad (si algo es ilegible, márcalo como [ilegible]) y evalúalo después contra esta tarea con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
+
+TAREA (registro ${cap(task.registro, 20)}, ${Number(task.min_palabras) || 0}-${Number(task.max_palabras) || 0} palabras):
+${cap(task.titulo, 200)}
+${cap(task.situacion, 600)}
+Puntos guía: ${puntos.join(' | ')}
+
+Responde ÚNICAMENTE con un objeto JSON válido con esta estructura exacta:
+{
+  "texto_transcrito": "<transcripción fiel del texto manuscrito>",
+  "puntuacion": <número entero 0-100>,
+  "puntos_cubiertos": [<true|false por cada punto guía, en el mismo orden>],
+  "registro_adecuado": <true|false>,
+  "errores": [{"original":"<fragmento con error>","correccion":"<fragmento corregido>","explicacion":"<explicación breve en español>","categoria":"<gramática|vocabulario|ortografía|registro|estructura>"}],
+  "version_mejorada": "<el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido>",
+  "comentario": "<valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar>"
+}
+Si el texto no tiene errores, usa "errores": []. No incluyas texto ni markdown fuera del JSON.`;
+}
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -48,7 +75,7 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Máximo 5 revisiones por minuto.' });
     }
 
-    const { image_base64, mime_type, type } = req.body;
+    const { image_base64, mime_type, type, task } = req.body;
 
     if (!image_base64 || typeof image_base64 !== 'string') {
         return res.status(400).json({ error: 'image_base64 requerido' });
@@ -57,7 +84,16 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: 'mime_type inválido. Usa jpeg, png, webp o gif.' });
     }
 
-    const reviewType = ['tarea', 'carta', 'frases'].includes(type) ? type : 'tarea';
+    let systemPrompt;
+    if (type === 'escritura') {
+        if (!task || typeof task !== 'object') {
+            return res.status(400).json({ error: 'task requerido para type escritura' });
+        }
+        systemPrompt = buildEscrituraPrompt(task);
+    } else {
+        const reviewType = ['tarea', 'carta', 'frases'].includes(type) ? type : 'tarea';
+        systemPrompt = `${PROMPTS[reviewType]}\n\n${SYSTEM_JSON}`;
+    }
 
     if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: 'OPENAI_API_KEY no configurada' });
@@ -66,9 +102,10 @@ export default async function handler(req, res) {
     try {
         const body = {
             model: 'gpt-4o',
-            max_tokens: 1500,
+            max_tokens: 2500,
+            response_format: { type: 'json_object' },
             messages: [
-                { role: 'system', content: `${PROMPTS[reviewType]}\n\n${SYSTEM_JSON}` },
+                { role: 'system', content: systemPrompt },
                 {
                     role: 'user',
                     content: [

@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escritura</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body id="page-esc">
+    <nav id="navbar">
+        <a href="/">Inicio</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <a href="A1.html">Vocabulario A1</a>
+                <a href="A2.html">Vocabulario A2</a>
+                <a href="B1.html">Vocabulario B1</a>
+                <a href="palabrasB2.html">Vocabulario B2</a>
+                <a href="C1.html">Vocabulario C1</a>
+                <a href="C2.html">Vocabulario C2</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="lectura veloz.html">Lectura Veloz</a>
+                <a href="chat-voz.html">Chat de Voz</a>
+                <a href="corrector.html">Corrector</a>
+                <a href="escritura.html" class="active">Escritura</a>
+                <a href="kasus.html">Kasus-Trainer</a>
+                <a href="gramatica.html">Gramática</a>
+                <a href="chat-reformulaciones.html">Reformulaciones</a>
+                <a href="plan.html">Plan 30 días</a>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión" aria-label="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <button id="darkModeBtn" onclick="toggleEscDark()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
+
+    <div class="esc-container">
+
+        <div class="esc-header">
+            <h1>✍️ Escritura</h1>
+            <p>Practica la expresión escrita con tareas al estilo de los exámenes Goethe/telc: la IA genera una consigna según tu nivel, tú escribes y recibes una corrección detallada.</p>
+        </div>
+
+        <!-- Selector de nivel -->
+        <div class="esc-selector" id="esc-level-btns">
+            <button class="esc-pill" data-level="A1">A1</button>
+            <button class="esc-pill" data-level="A2">A2</button>
+            <button class="esc-pill active" data-level="B1">B1</button>
+            <button class="esc-pill" data-level="B2">B2</button>
+            <button class="esc-pill" data-level="C1">C1</button>
+            <button class="esc-pill" data-level="C2">C2</button>
+        </div>
+
+        <!-- Selector de tipo de tarea (se llena según nivel) -->
+        <div class="esc-selector" id="esc-type-btns"></div>
+
+        <!-- Área de tarea -->
+        <div class="esc-card" id="esc-task-area">
+            <div class="esc-idle">
+                <div class="esc-idle-icon">📝</div>
+                <p>Elige tu nivel y un tipo de tarea, y pulsa <strong>Generar tarea</strong>.</p>
+                <button class="esc-gen-btn" id="esc-gen-btn" onclick="generarTarea()">Generar tarea</button>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div class="esc-card" id="esc-editor" style="display:none;">
+            <div class="esc-input-tabs">
+                <button class="esc-input-tab active" data-modo="texto" onclick="setInputMode('texto')">⌨️ Escribir aquí</button>
+                <button class="esc-input-tab" data-modo="foto" onclick="setInputMode('foto')">📷 Foto de tu texto a mano</button>
+            </div>
+            <div id="esc-panel-texto">
+                <textarea id="esc-text" placeholder="Schreib hier deinen Text…" rows="10" spellcheck="false"></textarea>
+                <div class="esc-editor-footer">
+                    <span class="esc-word-count" id="esc-word-count">0 palabras</span>
+                    <button class="esc-gen-btn" id="esc-eval-btn" onclick="evaluarTexto()">Corregir mi texto</button>
+                </div>
+            </div>
+            <div id="esc-panel-foto" style="display:none;">
+                <p class="esc-foto-hint">Escribe la tarea a mano en papel, hazle una foto (buena luz, texto recto) y envíala a revisión.</p>
+                <div class="esc-foto-drop" id="esc-foto-drop">
+                    <div id="esc-foto-placeholder">
+                        <span class="esc-foto-icon">🖼️</span>
+                        <div class="esc-foto-btns">
+                            <button class="esc-pill esc-pill-sm" onclick="document.getElementById('esc-file-input').click()">Elegir imagen</button>
+                            <button class="esc-pill esc-pill-sm" onclick="document.getElementById('esc-camera-input').click()">Usar cámara</button>
+                        </div>
+                    </div>
+                    <div id="esc-foto-preview-wrap" style="display:none;">
+                        <img id="esc-foto-preview" alt="Vista previa del texto manuscrito">
+                        <button class="esc-foto-clear" onclick="clearFoto()" title="Quitar imagen">✕</button>
+                    </div>
+                </div>
+                <input type="file" id="esc-file-input" accept="image/*" hidden>
+                <input type="file" id="esc-camera-input" accept="image/*" capture="environment" hidden>
+                <div class="esc-editor-footer">
+                    <span class="esc-word-count" id="esc-foto-status"></span>
+                    <button class="esc-gen-btn" id="esc-foto-btn" onclick="evaluarFoto()" disabled>Corregir mi foto</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resultado -->
+        <div id="esc-result" style="display:none;"></div>
+
+        <button class="esc-next-btn" id="esc-next-btn" style="display:none;" onclick="generarTarea()">Nueva tarea →</button>
+
+        <!-- Guía por nivel -->
+        <details class="esc-theory">
+            <summary>📖 ¿Qué se pide en cada nivel?</summary>
+            <div class="esc-theory-body">
+                <p><strong>A1</strong> — Mensajes muy breves (~30 palabras): SMS, postales o e-mails sencillos con 3 puntos guía. Frases simples en presente, saludo y despedida.</p>
+                <p><strong>A2</strong> — E-mails y notas breves (~40 palabras) sobre situaciones cotidianas: responder a una invitación, avisar de algo, contar el fin de semana.</p>
+                <p><strong>B1</strong> — E-mail informal (~80 palabras), aportación de opinión en un foro y e-mail semi-formal breve. Conectores (weil, deshalb, trotzdem) y estructura clara.</p>
+                <p><strong>B2</strong> — Comentario de opinión en foro (~150 palabras) sobre temas sociales y carta/e-mail formal de reclamación. Argumentar pros y contras, registro formal.</p>
+                <p><strong>C1</strong> — Stellungnahme argumentativa (~230 palabras) a partir de puntos guía o datos, y correspondencia formal compleja. Estructura retórica, léxico preciso.</p>
+                <p><strong>C2</strong> — Ensayo o artículo de opinión (~350 palabras), reseñas y cartas al director. Dominio estilístico, ironía, registro culto.</p>
+            </div>
+        </details>
+
+    </div>
+
+    <script>
+    // ── Estado ────────────────────────────────────────
+    const EscState = {
+        level:    'B1',
+        tipo:     'aleatorio',
+        tarea:    null,
+        cargando: false,
+        evaluando: false,
+        fotoBase64: null,
+    };
+
+    // ── Especificación por nivel (formatos Goethe/telc) ──
+    const LEVEL_SPECS = {
+        A1: {
+            palabras: [25, 40],
+            tipos: [
+                { id: 'sms',      nombre: '💬 Mensaje corto',  desc: 'SMS o WhatsApp a un amigo', registro: 'informal' },
+                { id: 'postal',   nombre: '🏖️ Postal',         desc: 'postal breve desde un viaje o lugar', registro: 'informal' },
+                { id: 'email',    nombre: '📧 E-Mail sencillo', desc: 'e-mail muy breve a un amigo o conocido', registro: 'informal' },
+            ],
+            guia: 'Nivel A1 (Goethe Start Deutsch 1): texto muy breve con 3 puntos guía. Solo presente y Perfekt básico, frases de máximo 8 palabras, vocabulario de los primeros 500 términos. Debe incluir saludo y despedida adecuados.',
+            puntosEn: 'español',
+        },
+        A2: {
+            palabras: [35, 60],
+            tipos: [
+                { id: 'email',      nombre: '📧 E-Mail breve',   desc: 'e-mail informal sobre la vida cotidiana', registro: 'informal' },
+                { id: 'nota',       nombre: '📌 Nota / aviso',   desc: 'nota breve para un vecino, compañero o familiar', registro: 'informal' },
+                { id: 'invitacion', nombre: '🎉 Responder invitación', desc: 'aceptar o rechazar una invitación explicando por qué', registro: 'informal' },
+            ],
+            guia: 'Nivel A2 (Goethe A2 / telc A2): texto breve que responde a 3 preguntas o puntos guía. Presente, Perfekt, verbos modales, oraciones con weil/dass sencillas. Saludo y despedida adecuados.',
+            puntosEn: 'español',
+        },
+        B1: {
+            palabras: [70, 100],
+            tipos: [
+                { id: 'email-informal', nombre: '📧 E-Mail informal',    desc: 'e-mail a un amigo contando y proponiendo algo', registro: 'informal' },
+                { id: 'foro',           nombre: '💬 Opinión en foro',    desc: 'aportación de opinión sobre un tema de actualidad', registro: 'neutral' },
+                { id: 'email-formal',   nombre: '🏢 E-Mail semi-formal', desc: 'disculparse, pedir información o cancelar una cita', registro: 'formal' },
+            ],
+            guia: 'Nivel B1 (Goethe B1 Schreiben): texto de ~80 palabras que cubre 3 puntos guía (Leitpunkte). Conectores variados (weil, deshalb, trotzdem, obwohl), Konjunktiv II de cortesía en registro formal, estructura con introducción y cierre.',
+            puntosEn: 'alemán',
+        },
+        B2: {
+            palabras: [130, 180],
+            tipos: [
+                { id: 'foro',        nombre: '💬 Forumsbeitrag',     desc: 'comentario argumentativo en un foro sobre un tema social', registro: 'neutral' },
+                { id: 'reclamacion', nombre: '📩 Reclamación formal', desc: 'carta o e-mail formal de queja con propuesta de solución', registro: 'formal' },
+                { id: 'email-trabajo', nombre: '🏢 E-Mail laboral',   desc: 'e-mail formal en contexto de trabajo o estudios', registro: 'formal' },
+            ],
+            guia: 'Nivel B2 (Goethe B2 Schreiben): texto argumentativo de ~150 palabras con opinión fundamentada, ventajas y desventajas, ejemplos propios. Pasiva, oraciones de relativo, conectores dobles (einerseits…andererseits, je…desto). En cartas formales: estructura completa (Anrede, Einleitung, Hauptteil, Schluss, Grußformel).',
+            puntosEn: 'alemán',
+        },
+        C1: {
+            palabras: [200, 260],
+            tipos: [
+                { id: 'stellungnahme', nombre: '📄 Stellungnahme',    desc: 'texto argumentativo a partir de puntos guía', registro: 'formal' },
+                { id: 'informe',       nombre: '📊 Texto con datos',  desc: 'interpretar y comentar datos o resultados de una encuesta', registro: 'formal' },
+                { id: 'carta-formal',  nombre: '📩 Carta formal',     desc: 'correspondencia formal compleja (solicitud, propuesta)', registro: 'formal' },
+            ],
+            guia: 'Nivel C1 (Goethe C1 / telc C1 Hochschule): texto estructurado de ~230 palabras con tesis, argumentación desarrollada y conclusión. Nominalizaciones, Konjunktiv I para discurso indirecto, léxico académico preciso, variedad sintáctica. Si el tipo es "informe", la consigna debe incluir 3-4 datos numéricos inventados pero verosímiles que el usuario debe comentar.',
+            puntosEn: 'alemán',
+        },
+        C2: {
+            palabras: [300, 400],
+            tipos: [
+                { id: 'ensayo',  nombre: '📃 Ensayo / artículo',  desc: 'artículo de opinión con estructura retórica elaborada', registro: 'formal' },
+                { id: 'resena',  nombre: '🎭 Reseña crítica',     desc: 'reseña de un libro, película o exposición (real o ficticia)', registro: 'formal' },
+                { id: 'leserbrief', nombre: '📰 Carta al director', desc: 'Leserbrief reaccionando a un artículo de prensa', registro: 'formal' },
+            ],
+            guia: 'Nivel C2 (Goethe C2 GDS): texto de ~350 palabras con dominio estilístico pleno: registro culto, ironía o matices cuando proceda, léxico idiomático y literario, cohesión impecable, estructura retórica (Aufhänger, Entfaltung, Pointe).',
+            puntosEn: 'alemán',
+        },
+    };
+
+    // ── Temas por nivel (misma lógica que gramatica.js: contenidos graduados por nivel) ──
+    const TEMAS = {
+        A1: ['la familia', 'la comida y las bebidas', 'la rutina diaria', 'el tiempo libre', 'la casa y la vivienda', 'las compras', 'una cita (médico, amigo)', 'un cumpleaños o una fiesta'],
+        A2: ['las vacaciones', 'el trabajo diario', 'una invitación', 'la salud y el médico', 'el transporte y la ciudad', 'una mudanza', 'el fin de semana', 'el clima y las estaciones'],
+        B1: ['el medio ambiente y el reciclaje', 'la vida en la ciudad vs. el campo', 'el deporte y la salud', 'aprender idiomas', 'las redes sociales', 'el trabajo y la formación profesional', 'los viajes y el turismo', 'la alimentación sana'],
+        B2: ['el teletrabajo', 'el consumo y la publicidad', 'la educación digital', 'la migración y la integración', 'la movilidad y el transporte del futuro', 'la inteligencia artificial en la vida diaria', 'el turismo de masas', 'el sistema de salud'],
+        C1: ['la globalización y sus efectos', 'la ética en la ciencia', 'el mercado laboral moderno', 'la protección de datos', 'el cambio climático y la política', 'la cultura y la identidad', 'la desigualdad social', 'el papel de los medios de comunicación'],
+        C2: ['la bioética', 'la libertad de expresión y sus límites', 'el arte contemporáneo y su valor', 'la tecnología y la condición humana', 'la política internacional', 'la literatura y la sociedad', 'la memoria histórica', 'el futuro de la democracia'],
+    };
+
+    // ── Dark mode ─────────────────────────────────────
+    const _moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+    const _sunSVG  = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+
+    (function () {
+        if (localStorage.getItem('darkMode_esc') === 'true') {
+            document.body.classList.add('dark');
+            document.getElementById('darkModeBtn').innerHTML = _sunSVG;
+        }
+    })();
+
+    function toggleEscDark() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
+        localStorage.setItem('darkMode_esc', isDark);
+    }
+
+    // ── Helpers ───────────────────────────────────────
+    function escHtml(s) {
+        return String(s)
+            .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+            .replaceAll('"','&quot;');
+    }
+
+    function stripFences(s) {
+        const start = s.indexOf('{');
+        const end = s.lastIndexOf('}');
+        if (start === -1 || end === -1 || end < start) return s;
+        return s.slice(start, end + 1);
+    }
+
+    function countWords(text) {
+        const m = text.trim().match(/\S+/g);
+        return m ? m.length : 0;
+    }
+
+    // ── Selectores ────────────────────────────────────
+    function renderTypeButtons() {
+        const wrap = document.getElementById('esc-type-btns');
+        const tipos = LEVEL_SPECS[EscState.level].tipos;
+        if (!tipos.some(t => t.id === EscState.tipo)) EscState.tipo = 'aleatorio';
+        wrap.innerHTML = [
+            `<button class="esc-pill esc-pill-sm ${EscState.tipo === 'aleatorio' ? 'active' : ''}" data-tipo="aleatorio">🎲 Aleatorio</button>`,
+            ...tipos.map(t => `<button class="esc-pill esc-pill-sm ${EscState.tipo === t.id ? 'active' : ''}" data-tipo="${t.id}" title="${escHtml(t.desc)}">${t.nombre}</button>`),
+        ].join('');
+        wrap.querySelectorAll('[data-tipo]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                wrap.querySelectorAll('[data-tipo]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                EscState.tipo = btn.dataset.tipo;
+            });
+        });
+    }
+
+    (function initLevel() {
+        const saved = localStorage.getItem('esc_level') || localStorage.getItem('onboarding_level');
+        if (saved && LEVEL_SPECS[saved.toUpperCase()]) EscState.level = saved.toUpperCase();
+        document.querySelectorAll('#esc-level-btns .esc-pill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === EscState.level);
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#esc-level-btns .esc-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                EscState.level = btn.dataset.level;
+                localStorage.setItem('esc_level', EscState.level);
+                renderTypeButtons();
+            });
+        });
+        renderTypeButtons();
+    })();
+
+    // ── API ───────────────────────────────────────────
+    async function apiChat(token, system, userMsg) {
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }] }),
+        });
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+        if (!resp.ok) throw new Error(data.error || 'Error de API');
+        return data.reply;
+    }
+
+    // ── Generar tarea ─────────────────────────────────
+    function buildTaskPrompt() {
+        const spec = LEVEL_SPECS[EscState.level];
+        const tipos = spec.tipos;
+        const tipo = EscState.tipo === 'aleatorio'
+            ? tipos[Math.floor(Math.random() * tipos.length)]
+            : tipos.find(t => t.id === EscState.tipo);
+        const tema = TEMAS[EscState.level][Math.floor(Math.random() * TEMAS[EscState.level].length)];
+        const [minP, maxP] = spec.palabras;
+
+        const system = `Eres un profesor de alemán y diseñas tareas de expresión escrita al estilo de los exámenes oficiales (Goethe-Zertifikat, telc). ${spec.guia}
+Genera UNA tarea de escritura del tipo "${tipo.desc}" (registro ${tipo.registro}) sobre el tema "${tema}".
+La situación se describe en español para que el alumno la entienda; los puntos guía (Leitpunkte) van en ${spec.puntosEn}. Los puntos guía deben ser concretos y accionables (3 puntos, 4 si el nivel es C1 o C2).
+Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
+{"titulo":"título breve de la tarea en alemán","situacion":"descripción de la situación y del destinatario en español (2-3 frases)","puntos":["punto guía 1","punto guía 2","punto guía 3"],"registro":"${tipo.registro}","min_palabras":${minP},"max_palabras":${maxP}}`;
+
+        const userMsg = `Genera una tarea de escritura nivel ${EscState.level}, tipo "${tipo.nombre}", tema "${tema}".`;
+        return { system, userMsg, tipo };
+    }
+
+    async function generarTarea() {
+        if (EscState.cargando) return;
+        EscState.cargando = true;
+        document.getElementById('esc-result').style.display = 'none';
+        document.getElementById('esc-next-btn').style.display = 'none';
+        document.getElementById('esc-editor').style.display = 'none';
+
+        const area = document.getElementById('esc-task-area');
+        area.innerHTML = `<div class="esc-loading">Generando tarea de nivel ${escHtml(EscState.level)}…</div>`;
+
+        try {
+            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+            if (!token) throw new Error('AUTH');
+
+            let tarea = null, tipo = null;
+            for (let intento = 0; intento < 2 && !tarea; intento++) {
+                const p = buildTaskPrompt();
+                tipo = p.tipo;
+                const reply = await apiChat(token, p.system, p.userMsg);
+                try {
+                    const t = JSON.parse(stripFences(reply));
+                    if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 3) tarea = t;
+                } catch {}
+            }
+            if (!tarea) throw new Error('El modelo devolvió una tarea inválida');
+
+            tarea.tipoNombre = tipo.nombre;
+            tarea.tipoId = tipo.id;
+            EscState.tarea = tarea;
+            renderTarea(tarea);
+
+            document.getElementById('esc-text').value = '';
+            document.getElementById('esc-editor').style.display = 'block';
+            clearFoto();
+            updateWordCount();
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('escritura', 'task_generated', { level: EscState.level, tipo: tipo.id });
+            }
+        } catch (err) {
+            if (err.message === 'AUTH') {
+                area.innerHTML = `<div class="esc-error">Inicia sesión para practicar escritura.</div>`;
+            } else {
+                area.innerHTML = `<div class="esc-error">Error: ${escHtml(err.message)}. <button class="esc-gen-btn" onclick="generarTarea()" style="margin-top:12px;">Reintentar</button></div>`;
+            }
+        } finally {
+            EscState.cargando = false;
+        }
+    }
+
+    function renderTarea(t) {
+        const area = document.getElementById('esc-task-area');
+        area.innerHTML = `
+            <div class="esc-task">
+                <div class="esc-task-meta">
+                    <span class="esc-badge">${escHtml(EscState.level)}</span>
+                    <span class="esc-badge esc-badge-tipo">${escHtml(t.tipoNombre)}</span>
+                    <span class="esc-badge esc-badge-reg">${t.registro === 'formal' ? 'Formal (Sie)' : t.registro === 'informal' ? 'Informal (du)' : 'Registro neutral'}</span>
+                    <span class="esc-badge esc-badge-len">${t.min_palabras}–${t.max_palabras} palabras</span>
+                </div>
+                <h2 class="esc-task-title">${escHtml(t.titulo)}</h2>
+                <p class="esc-task-situacion">${escHtml(t.situacion)}</p>
+                <ul class="esc-task-puntos">
+                    ${t.puntos.map(p => `<li>${escHtml(p)}</li>`).join('')}
+                </ul>
+            </div>`;
+    }
+
+    // ── Modo de entrada (texto / foto) ────────────────
+    function setInputMode(modo) {
+        document.querySelectorAll('.esc-input-tab').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+        document.getElementById('esc-panel-texto').style.display = modo === 'texto' ? 'block' : 'none';
+        document.getElementById('esc-panel-foto').style.display  = modo === 'foto'  ? 'block' : 'none';
+    }
+
+    // ── Foto de texto manuscrito ──────────────────────
+    // Reduce y re-codifica como JPEG (mismo criterio que corrector.js) para
+    // que el base64 quede muy por debajo del límite de body de Vercel.
+    const ESC_MAX_DIMENSION = 1600;
+    async function compressImage(file) {
+        const url = URL.createObjectURL(file);
+        try {
+            const img = await new Promise((resolve, reject) => {
+                const im = new Image();
+                im.onload = () => resolve(im);
+                im.onerror = () => reject(new Error('decode failed'));
+                im.src = url;
+            });
+            const scale = Math.min(1, ESC_MAX_DIMENSION / Math.max(img.naturalWidth, img.naturalHeight));
+            const w = Math.max(1, Math.round(img.naturalWidth * scale));
+            const h = Math.max(1, Math.round(img.naturalHeight * scale));
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            return { dataUrl, base64: dataUrl.split(',')[1] };
+        } finally {
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    async function handleFotoFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        const status = document.getElementById('esc-foto-status');
+        status.textContent = 'Procesando imagen…';
+        try {
+            const { dataUrl, base64 } = await compressImage(file);
+            EscState.fotoBase64 = base64;
+            document.getElementById('esc-foto-preview').src = dataUrl;
+            document.getElementById('esc-foto-placeholder').style.display = 'none';
+            document.getElementById('esc-foto-preview-wrap').style.display = 'block';
+            document.getElementById('esc-foto-btn').disabled = false;
+            status.textContent = 'Imagen lista';
+        } catch {
+            EscState.fotoBase64 = null;
+            status.textContent = 'No se pudo procesar la imagen. Usa JPG, PNG o WebP.';
+        }
+    }
+
+    function clearFoto() {
+        EscState.fotoBase64 = null;
+        document.getElementById('esc-foto-preview').src = '';
+        document.getElementById('esc-foto-placeholder').style.display = 'flex';
+        document.getElementById('esc-foto-preview-wrap').style.display = 'none';
+        document.getElementById('esc-foto-btn').disabled = true;
+        document.getElementById('esc-foto-status').textContent = '';
+        document.getElementById('esc-file-input').value = '';
+        document.getElementById('esc-camera-input').value = '';
+    }
+
+    document.getElementById('esc-file-input').addEventListener('change', e => handleFotoFile(e.target.files[0]));
+    document.getElementById('esc-camera-input').addEventListener('change', e => handleFotoFile(e.target.files[0]));
+
+    (function initFotoDrop() {
+        const drop = document.getElementById('esc-foto-drop');
+        drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('drag'); });
+        drop.addEventListener('dragleave', () => drop.classList.remove('drag'));
+        drop.addEventListener('drop', e => {
+            e.preventDefault();
+            drop.classList.remove('drag');
+            handleFotoFile(e.dataTransfer.files[0]);
+        });
+    })();
+
+    async function evaluarFoto() {
+        const t = EscState.tarea;
+        if (!t || !EscState.fotoBase64 || EscState.evaluando) return;
+
+        EscState.evaluando = true;
+        const btn = document.getElementById('esc-foto-btn');
+        btn.disabled = true;
+        btn.textContent = 'Corrigiendo…';
+        const result = document.getElementById('esc-result');
+        result.style.display = 'block';
+        result.innerHTML = `<div class="esc-card"><div class="esc-loading">Leyendo y evaluando tu texto manuscrito…</div></div>`;
+
+        try {
+            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+            if (!token) throw new Error('Inicia sesión para corregir tu texto');
+
+            const resp = await fetch('/api/vision', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    image_base64: EscState.fotoBase64,
+                    mime_type: 'image/jpeg',
+                    type: 'escritura',
+                    task: {
+                        level: EscState.level,
+                        titulo: t.titulo,
+                        situacion: t.situacion,
+                        puntos: t.puntos,
+                        registro: t.registro,
+                        min_palabras: t.min_palabras,
+                        max_palabras: t.max_palabras,
+                    },
+                }),
+            });
+            const raw = await resp.text();
+            let ev;
+            try { ev = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+            if (!resp.ok) throw new Error(ev.error || 'Error de API');
+            if (typeof ev.puntuacion !== 'number' || !Array.isArray(ev.errores)) throw new Error('La corrección llegó incompleta. Inténtalo de nuevo.');
+
+            renderEvaluacion(ev, t);
+            document.getElementById('esc-next-btn').style.display = 'block';
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('escritura', 'photo_evaluated', { level: EscState.level, tipo: t.tipoId, score: ev.puntuacion });
+            }
+        } catch (err) {
+            result.innerHTML = `<div class="esc-card"><div class="esc-error">Error: ${escHtml(err.message)}</div></div>`;
+        } finally {
+            EscState.evaluando = false;
+            btn.disabled = !EscState.fotoBase64;
+            btn.textContent = 'Corregir mi foto';
+        }
+    }
+
+    // ── Contador de palabras ──────────────────────────
+    function updateWordCount() {
+        const n = countWords(document.getElementById('esc-text').value);
+        const el = document.getElementById('esc-word-count');
+        el.textContent = `${n} palabras`;
+        const t = EscState.tarea;
+        el.classList.toggle('ok', !!t && n >= t.min_palabras && n <= t.max_palabras * 1.5);
+    }
+    document.getElementById('esc-text').addEventListener('input', updateWordCount);
+
+    // ── Evaluar texto ─────────────────────────────────
+    async function evaluarTexto() {
+        const t = EscState.tarea;
+        if (!t || EscState.evaluando) return;
+        const texto = document.getElementById('esc-text').value.trim();
+        const n = countWords(texto);
+        if (n < 5) { alert('Escribe tu texto antes de corregir.'); return; }
+        if (n < t.min_palabras * 0.6 && !confirm(`Tu texto tiene ${n} palabras y la tarea pide al menos ${t.min_palabras}. ¿Corregir de todos modos?`)) return;
+
+        EscState.evaluando = true;
+        const btn = document.getElementById('esc-eval-btn');
+        btn.disabled = true;
+        btn.textContent = 'Corrigiendo…';
+        const result = document.getElementById('esc-result');
+        result.style.display = 'block';
+        result.innerHTML = `<div class="esc-card"><div class="esc-loading">Evaluando tu texto…</div></div>`;
+
+        try {
+            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+            if (!token) throw new Error('Inicia sesión para corregir tu texto');
+
+            const system = `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${EscState.level}. Evalúa con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
+Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
+{"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, en el mismo orden], "registro_adecuado": true|false, "errores": [{"original":"fragmento con error","correccion":"fragmento corregido","explicacion":"explicación breve en español","categoria":"gramática|vocabulario|ortografía|registro|estructura"}], "version_mejorada":"el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido", "comentario":"valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar"}
+Si el texto no tiene errores, devuelve "errores": [].`;
+
+            const userMsg = `TAREA (nivel ${EscState.level}, registro ${t.registro}, ${t.min_palabras}-${t.max_palabras} palabras):
+${t.titulo}
+${t.situacion}
+Puntos guía: ${t.puntos.join(' | ')}
+
+TEXTO DEL ALUMNO (${n} palabras):
+${texto}`;
+
+            const reply = await apiChat(token, system, userMsg);
+            let ev;
+            try { ev = JSON.parse(stripFences(reply)); } catch { throw new Error('La corrección llegó en un formato inválido. Inténtalo de nuevo.'); }
+            if (typeof ev.puntuacion !== 'number' || !Array.isArray(ev.errores)) throw new Error('La corrección llegó incompleta. Inténtalo de nuevo.');
+
+            renderEvaluacion(ev, t);
+            document.getElementById('esc-next-btn').style.display = 'block';
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('escritura', 'text_evaluated', { level: EscState.level, tipo: t.tipoId, words: n, score: ev.puntuacion });
+            }
+        } catch (err) {
+            result.innerHTML = `<div class="esc-card"><div class="esc-error">Error: ${escHtml(err.message)}</div></div>`;
+        } finally {
+            EscState.evaluando = false;
+            btn.disabled = false;
+            btn.textContent = 'Corregir mi texto';
+        }
+    }
+
+    function renderEvaluacion(ev, t) {
+        const score = Math.max(0, Math.min(100, Math.round(ev.puntuacion)));
+        const scoreClass = score >= 75 ? 'esc-score-good' : score >= 50 ? 'esc-score-mid' : 'esc-score-low';
+        const cubiertos = Array.isArray(ev.puntos_cubiertos) ? ev.puntos_cubiertos : [];
+
+        const checklist = t.puntos.map((p, i) => {
+            const ok = cubiertos[i] === true;
+            return `<li class="${ok ? 'ok' : 'miss'}">${ok ? '✅' : '❌'} ${escHtml(p)}</li>`;
+        }).join('');
+
+        const errores = ev.errores.length === 0
+            ? `<p class="esc-no-errors">🎉 Sin errores detectados.</p>`
+            : ev.errores.map(e => `
+                <div class="esc-error-card">
+                    <span class="esc-error-cat">${escHtml(e.categoria || 'gramática')}</span>
+                    <p class="esc-error-line"><del>${escHtml(e.original || '')}</del> → <strong>${escHtml(e.correccion || '')}</strong></p>
+                    <p class="esc-error-exp">${escHtml(e.explicacion || '')}</p>
+                </div>`).join('');
+
+        document.getElementById('esc-result').innerHTML = `
+            <div class="esc-card">
+                <div class="esc-eval-head">
+                    <div class="esc-score ${scoreClass}">${score}</div>
+                    <div class="esc-eval-summary">
+                        <p class="esc-comment">${escHtml(ev.comentario || '')}</p>
+                        ${ev.registro_adecuado === false ? '<p class="esc-reg-warn">⚠️ El registro (du/Sie) no es el adecuado para esta tarea.</p>' : ''}
+                    </div>
+                </div>
+                ${ev.texto_transcrito ? `
+                <details class="esc-improved">
+                    <summary>📷 Ver transcripción de tu texto</summary>
+                    <p>${escHtml(ev.texto_transcrito)}</p>
+                </details>` : ''}
+                <h3 class="esc-section-title">Puntos guía</h3>
+                <ul class="esc-checklist">${checklist}</ul>
+                <h3 class="esc-section-title">Errores (${ev.errores.length})</h3>
+                ${errores}
+                ${ev.version_mejorada ? `
+                <details class="esc-improved">
+                    <summary>✨ Ver versión mejorada</summary>
+                    <p>${escHtml(ev.version_mejorada)}</p>
+                </details>` : ''}
+            </div>`;
+        document.getElementById('esc-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    </script>
+</body>
+</html>

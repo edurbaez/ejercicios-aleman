@@ -281,11 +281,11 @@
     })();
 
     // ── API ───────────────────────────────────────────
-    async function apiChat(token, system, userMsg) {
+    async function apiChat(token, system, userMsg, opts = {}) {
         const resp = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }] }),
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }], ...opts }),
         });
         const raw = await resp.text();
         let data;
@@ -332,7 +332,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             for (let intento = 0; intento < 2 && !tarea; intento++) {
                 const p = buildTaskPrompt();
                 tipo = p.tipo;
-                const reply = await apiChat(token, p.system, p.userMsg);
+                const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 800 });
                 try {
                     const t = JSON.parse(stripFences(reply));
                     if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 3) tarea = t;
@@ -556,10 +556,15 @@ Puntos guía: ${t.puntos.join(' | ')}
 TEXTO DEL ALUMNO (${n} palabras):
 ${texto}`;
 
-            const reply = await apiChat(token, system, userMsg);
-            let ev;
-            try { ev = JSON.parse(stripFences(reply)); } catch { throw new Error('La corrección llegó en un formato inválido. Inténtalo de nuevo.'); }
-            if (typeof ev.puntuacion !== 'number' || !Array.isArray(ev.errores)) throw new Error('La corrección llegó incompleta. Inténtalo de nuevo.');
+            let ev = null;
+            for (let intento = 0; intento < 2 && !ev; intento++) {
+                const reply = await apiChat(token, system, userMsg, { json: true, max_tokens: 4000 });
+                try {
+                    const parsed = JSON.parse(stripFences(reply));
+                    if (typeof parsed.puntuacion === 'number' && Array.isArray(parsed.errores)) ev = parsed;
+                } catch {}
+            }
+            if (!ev) throw new Error('La corrección llegó en un formato inválido. Inténtalo de nuevo.');
 
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';

@@ -41,7 +41,7 @@
 
         <div class="kas-header">
             <h1>Kasus-Trainer</h1>
-            <p>Practica los artículos y declinaciones del alemán: Nominativ, Akkusativ, Dativ y Genitiv.</p>
+            <p>Practica los artículos y declinaciones del alemán: Nominativ, Akkusativ, Dativ, Genitiv y Wechselpräpositionen.</p>
         </div>
 
         <!-- Selector de caso -->
@@ -51,6 +51,7 @@
             <button class="kas-case-btn" data-caso="Akkusativ">Akkusativ</button>
             <button class="kas-case-btn" data-caso="Dativ">Dativ</button>
             <button class="kas-case-btn" data-caso="Genitiv">Genitiv</button>
+            <button class="kas-case-btn" data-caso="Wechsel">Wechselpräp.</button>
         </div>
 
         <!-- Marcador -->
@@ -83,6 +84,46 @@
 
         <!-- Botón siguiente (aparece tras responder) -->
         <button class="kas-next-btn" id="kas-next-btn" style="display:none;" onclick="generarEjercicio()">Siguiente →</button>
+
+        <!-- Teoría: cómo identificar el caso -->
+        <details class="kas-theory">
+            <summary>📖 ¿Cómo identificar el caso?</summary>
+            <div class="kas-theory-body">
+
+                <p class="kas-theory-intro">Método rápido: localiza el verbo conjugado y pregunta. Quien hace la acción → Nominativ. <em>Wen/Was?</em> → Akkusativ. <em>Wem?</em> → Dativ. <em>Wessen?</em> → Genitiv. Ojo: si hay preposición, ella manda sobre el caso.</p>
+
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title"><span class="kas-caso-badge kas-badge-nom">Nominativ</span> El sujeto</div>
+                    <p>Quien realiza la acción del verbo (y concuerda con él). También el predicado tras <em>sein, werden, bleiben</em>. Pregunta: <strong>Wer? / Was?</strong></p>
+                    <p class="kas-theory-ex"><span class="kas-hl kas-hl-nom">Der Hund</span> schläft im Garten.<br><span class="kas-theory-tr">El perro duerme en el jardín — «el perro» realiza la acción.</span></p>
+                </div>
+
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title"><span class="kas-caso-badge kas-badge-akk">Akkusativ</span> El objeto directo</div>
+                    <p>Recibe directamente la acción del verbo. Pregunta: <strong>Wen? / Was?</strong> Señales: la mayoría de verbos transitivos (<em>sehen, kaufen, brauchen, haben, es gibt</em>) y las preposiciones <em>für, ohne, gegen, durch, um</em>. Solo el masculino cambia (der → den).</p>
+                    <p class="kas-theory-ex">Ich sehe <span class="kas-hl kas-hl-akk">den Hund</span>.<br><span class="kas-theory-tr">Veo al perro — «el perro» recibe la acción de ver.</span></p>
+                </div>
+
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title"><span class="kas-caso-badge kas-badge-dat">Dativ</span> El objeto indirecto</div>
+                    <p>El destinatario o beneficiario de la acción. Pregunta: <strong>Wem?</strong> (¿a quién le…?) Señales: verbos como <em>helfen, danken, gefallen, gehören, antworten</em> y las preposiciones <em>mit, nach, bei, seit, von, zu, aus, gegenüber</em>.</p>
+                    <p class="kas-theory-ex">Ich gebe <span class="kas-hl kas-hl-dat">dem Hund</span> einen Ball.<br><span class="kas-theory-tr">Le doy una pelota al perro — el perro es el destinatario; «einen Ball» es el objeto directo (Akkusativ).</span></p>
+                </div>
+
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title"><span class="kas-caso-badge kas-badge-gen">Genitiv</span> La posesión</div>
+                    <p>Indica pertenencia o relación — equivale al «de» español. Pregunta: <strong>Wessen?</strong> (¿de quién?) Señales: las preposiciones <em>wegen, trotz, während, statt</em>.</p>
+                    <p class="kas-theory-ex">Das ist das Haus <span class="kas-hl kas-hl-gen">des Lehrers</span>.<br><span class="kas-theory-tr">Esa es la casa del profesor.</span></p>
+                </div>
+
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title"><span class="kas-caso-badge kas-badge-akk">Akk</span><span class="kas-caso-badge kas-badge-dat">Dat</span> Wechselpräpositionen</div>
+                    <p><em>in, an, auf, über, unter, vor, hinter, neben, zwischen</em> — cambian de caso según el sentido: movimiento o dirección (<strong>wohin?</strong>) → Akkusativ; posición estática (<strong>wo?</strong>) → Dativ.</p>
+                    <p class="kas-theory-ex">Ich gehe <span class="kas-hl kas-hl-akk">in die</span> Schule. → wohin? (voy hacia allí)<br>Ich bin <span class="kas-hl kas-hl-dat">in der</span> Schule. → wo? (ya estoy allí)</p>
+                </div>
+
+            </div>
+        </details>
 
     </div>
 
@@ -155,8 +196,23 @@
         }
     }
 
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function stripFences(s) {
+        const start = s.indexOf('{');
+        const end = s.lastIndexOf('}');
+        if (start === -1 || end === -1 || end < start) return s;
+        return s.slice(start, end + 1);
+    }
+
     // ── Generar ejercicio vía API ─────────────────────
-    async function generarEjercicio() {
+    async function generarEjercicio(intento = 0) {
         if (KasState.cargando) return;
         KasState.cargando = true;
         document.getElementById('kas-feedback').style.display = 'none';
@@ -173,9 +229,13 @@
                 return;
             }
 
-            const casoPrompt = KasState.caso === 'Todos'
-                ? 'cualquier caso gramatical (Nominativ, Akkusativ, Dativ o Genitiv)'
-                : KasState.caso;
+            const esWechsel = KasState.caso === 'Wechsel';
+            const casoObjetivo = esWechsel
+                ? ['Akkusativ', 'Dativ'][Math.floor(Math.random() * 2)]
+                : KasState.caso === 'Todos'
+                    ? ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'][Math.floor(Math.random() * 4)]
+                    : KasState.caso;
+            const casoPrompt = casoObjetivo;
 
             const temas = [
                 'comida y restaurantes', 'viajes y transporte', 'familia y relaciones',
@@ -189,7 +249,7 @@
                 'una oración con un complemento TEKAMOLO (primero temporal, luego causal, luego modal, luego local)',
                 'una oración de relativo (Relativsatz) donde el hueco está en la cláusula principal',
                 'una oración de relativo (Relativsatz) donde el hueco está dentro de la cláusula relativa',
-                'una oración con preposición que rija ' + (KasState.caso === 'Todos' ? 'el caso practicado' : KasState.caso),
+                'una oración con preposición que rija ' + casoObjetivo,
                 'una oración con verbo modal (können, müssen, wollen, dürfen, sollen)',
                 'una oración en Perfekt',
                 'una oración con dos cláusulas unidas por una conjunción subordinante (weil, obwohl, wenn, dass)',
@@ -199,12 +259,23 @@
             const tema      = temas[Math.floor(Math.random() * temas.length)];
             const estructura = estructuras[Math.floor(Math.random() * estructuras.length)];
 
+            let system, userMsg;
+            if (esWechsel) {
+                const preps = ['in', 'an', 'auf', 'über', 'unter', 'vor', 'hinter', 'neben', 'zwischen'];
+                const prep = preps[Math.floor(Math.random() * preps.length)];
+                system = `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre Wechselpräpositionen con la preposición "${prep}". La frase debe dejar claro por el verbo y el contexto si expresa dirección/movimiento (wohin? → Akkusativ) o posición estática (wo? → Dativ). En este ejercicio el caso correcto debe ser ${casoObjetivo}. El hueco (___) sustituye la preposición y el artículo juntos (p. ej. "ins", "im", "in den", "in der", "am", "an die"). Las 4 opciones usan todas la preposición "${prep}" con distintas declinaciones: deben incluir la forma en Akkusativ y la forma en Dativ del género correcto del sustantivo, y dos formas plausibles de otros géneros o números, todas distintas entre sí. Usa vocabulario del tema "${tema}" y varía los sustantivos. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Akkusativ|Dativ","explicacion":"explicación breve en español: indica si la frase responde a wohin (movimiento → Akkusativ) o wo (posición → Dativ), y el género del sustantivo"}. La respuesta debe estar entre las opciones.`;
+                userMsg = `Genera un ejercicio de Wechselpräpositionen con "${prep}" en ${casoObjetivo}. Tema: ${tema}.`;
+            } else {
+                system = `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco debe ser un artículo o adjetivo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical aplicada"}. Los distractores deben ser la misma palabra declinada en otros casos o géneros (mismo tipo morfológico), todas las opciones distintas entre sí. La respuesta debe estar entre las opciones. La explicación debe citar la regla concreta (verbo o preposición que rige el caso, o función sintáctica) y el género del sustantivo.`;
+                userMsg = `Genera un ejercicio de ${casoPrompt}. Tema: ${tema}. Estructura: ${estructura}.`;
+            }
+
             const resp = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
-                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoPrompt}. El hueco debe ser un artículo o adjetivo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. Devuelve SOLO JSON sin texto adicional con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"Nominativ|Akkusativ|Dativ|Genitiv","explicacion":"explicación breve en español de la regla gramatical aplicada"}. Las opciones deben ser plausibles y del mismo tipo morfológico. La respuesta debe estar entre las opciones.`,
-                    messages: [{ role: 'user', content: `Genera un ejercicio de ${casoPrompt}. Tema: ${tema}. Estructura: ${estructura}.` }],
+                    system,
+                    messages: [{ role: 'user', content: userMsg }],
                 }),
             });
 
@@ -214,11 +285,24 @@
             if (!resp.ok) throw new Error(data.error || 'Error de API');
 
             let ej;
-            try { ej = JSON.parse(data.reply); } catch { throw new Error('El modelo devolvió JSON inválido'); }
-            if (!ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta) {
-                throw new Error('Estructura de ejercicio incompleta');
+            try { ej = JSON.parse(stripFences(data.reply)); } catch { throw new Error('El modelo devolvió JSON inválido'); }
+
+            const invalido =
+                !ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta ||
+                !ej.frase.includes('___') ||
+                new Set(ej.opciones).size !== 4 ||
+                !ej.opciones.includes(ej.respuesta) ||
+                ej.caso !== casoObjetivo;
+
+            if (invalido) {
+                if (intento < 1) {
+                    setTimeout(() => generarEjercicio(intento + 1), 0);
+                    return;
+                }
+                throw new Error('El modelo devolvió un ejercicio inválido');
             }
 
+            shuffleArray(ej.opciones);
             KasState.ejercicio = ej;
             renderEjercicio(ej);
 
@@ -246,7 +330,7 @@
 
         area.innerHTML = `
             <div class="kas-frase-wrap">
-                <span class="kas-caso-badge ${casoBadgeClass}">${escHtml(ej.caso)}</span>
+                <span class="kas-caso-badge ${casoBadgeClass}" id="kas-caso-badge" style="visibility:hidden;">${escHtml(ej.caso)}</span>
                 <p class="kas-frase">${fraseHtml}</p>
             </div>
             <div class="kas-options-grid" id="kas-options-grid">
@@ -257,6 +341,9 @@
             </div>`;
 
         // Atajos de teclado 1-4
+        if (window._kasKeyHandler) {
+            document.removeEventListener('keydown', window._kasKeyHandler);
+        }
         window._kasKeyHandler = function(e) {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
             const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
@@ -280,6 +367,9 @@
         const elegida  = btn.dataset.opcion;
         const correcto = elegida === KasState.ejercicio.respuesta;
 
+        const badge = document.getElementById('kas-caso-badge');
+        if (badge) badge.style.visibility = 'visible';
+
         // Colorear opciones
         document.querySelectorAll('.kas-option-btn').forEach(b => {
             if (b.dataset.opcion === KasState.ejercicio.respuesta) {
@@ -298,10 +388,15 @@
         }
         updateScore();
         showFeedback(correcto, elegida, KasState.ejercicio);
-        document.getElementById('kas-next-btn').style.display = 'block';
+
+        if (correcto) {
+            setTimeout(() => generarEjercicio(), 500);
+        } else {
+            document.getElementById('kas-next-btn').style.display = 'block';
+        }
 
         if (typeof window.logEvent === 'function') {
-            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto });
+            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto, modo: KasState.caso === 'Wechsel' ? 'wechsel' : 'kasus' });
         }
     }
 
@@ -309,7 +404,7 @@
     (function () {
         const params = new URLSearchParams(location.search);
         const initCaso = params.get('caso');
-        if (initCaso && ['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'].includes(initCaso)) {
+        if (initCaso && ['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv', 'Wechsel'].includes(initCaso)) {
             KasState.caso = initCaso;
             document.querySelectorAll('.kas-case-btn').forEach(b => {
                 b.classList.toggle('active', b.dataset.caso === initCaso);

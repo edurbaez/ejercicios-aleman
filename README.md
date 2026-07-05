@@ -155,7 +155,7 @@ Vercel serverless function that receives `{ image_base64, mime_type, type }`, fo
 
 ### `/api/image` ([api/image.js](api/image.js))
 
-Vercel serverless function that receives `{ prompt, size, quality }` and generates an image via OpenAI `gpt-image-1-mini` (always returns base64; DALL·E was retired from the API in May 2026). Used by `marketing/contenido.html` for AI slide backgrounds. Requires JWT auth. Rate limited to 3 req/min per user. `maxDuration: 60` override in `vercel.json`.
+Vercel serverless function that receives `{ prompt, size, quality }` and generates an image via OpenAI `gpt-image-1-mini` (always returns base64; DALL·E was retired from the API in May 2026). Used by `marketing/contenido.html` for AI slide backgrounds. Requires JWT auth. Rate limited to 3 req/min per user.
 
 ### `/api/vocab-refresh` ([api/vocab-refresh.js](api/vocab-refresh.js))
 

@@ -928,13 +928,13 @@
     try {
       const { data: { session } } = await sb.auth.getSession();
       const token = session?.access_token;
-      const res = await fetch('/api/admin-invite', {
+      const res = await fetch('/api/admin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ action: 'invite', email }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Error al enviar invitación');

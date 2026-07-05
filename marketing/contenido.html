@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de contenido — Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="/config.js"></script>
+  <script src="/grammar-data.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #1565C0; --blue-d: #0D47A1; --blue-l: #e3f0ff;
+      --green: #2e7d32; --green-l: #e8f5e9;
+      --red: #c62828; --red-l: #ffebee;
+      --purple: #6A1B9A; --purple-l: #f3e5f5;
+      --bg: #f0f2f7; --surface: #fff; --text: #1a1a2e; --muted: #64748b;
+      --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header { background: var(--blue); color: #fff; padding: 0 28px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; }
+    .btn-sm { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; }
+    .btn-sm:hover { background: rgba(255,255,255,.24); }
+
+    #loading { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 12px; font-size: 14px; color: var(--muted); }
+    .spin { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    .panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 22px; }
+    .panel h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .field-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 18px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+
+    .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { border: 1.5px solid #d5dae6; background: #fff; color: var(--text); border-radius: 20px; padding: 6px 15px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .12s; }
+    .pill:hover { border-color: var(--blue); }
+    .pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    select, input[type=text], input[type=number] { border: 1.5px solid #d5dae6; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); min-width: 200px; }
+    select:focus, input:focus { outline: none; border-color: var(--blue); }
+    #tema-libre { min-width: 320px; }
+
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .hint b { color: var(--text); }
+
+    .btn-primary { background: var(--blue); color: #fff; border: none; border-radius: 9px; padding: 12px 26px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary:hover { background: var(--blue-d); }
+    .btn-primary:disabled { opacity: .55; cursor: default; }
+    .btn-secondary { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 9px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-secondary:hover { background: var(--blue-l); }
+    .btn-secondary:disabled { opacity: .55; cursor: default; }
+
+    #status { font-size: 13px; color: var(--muted); margin-top: 12px; min-height: 18px; }
+    #status.err { color: var(--red); font-weight: 600; }
+
+    /* Preview */
+    #result { display: none; }
+    .slides-strip { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; }
+    .slide-wrap { flex-shrink: 0; width: 270px; height: 337.5px; overflow: hidden; border-radius: 10px; box-shadow: 0 3px 14px rgba(0,0,0,.18); position: relative; }
+    .slide-wrap .ig-slide { transform: scale(0.25); transform-origin: top left; }
+    .slide-dl { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.55); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
+    .slide-dl:hover { background: rgba(0,0,0,.8); }
+
+    /* Full-size IG slide (1080x1350) */
+    .ig-slide { width: 1080px; height: 1350px; display: flex; flex-direction: column; justify-content: space-between; padding: 90px 80px; position: relative; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #fff; }
+    .ig-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+    .ig-overlay { position: absolute; inset: 0; }
+    .ig-content { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; }
+    .ig-counter { font-size: 30px; font-weight: 700; opacity: .8; letter-spacing: 2px; margin-bottom: 40px; }
+    .ig-title { font-size: 82px; font-weight: 800; line-height: 1.12; margin-bottom: 44px; }
+    .ig-slide.cover .ig-title { font-size: 100px; margin-top: 120px; }
+    .ig-body { font-size: 44px; line-height: 1.45; font-weight: 500; opacity: .96; white-space: pre-wrap; }
+    .ig-example { margin-top: 52px; background: rgba(255,255,255,.14); border-left: 10px solid rgba(255,255,255,.85); border-radius: 14px; padding: 36px 42px; font-size: 42px; line-height: 1.4; font-style: italic; }
+    .ig-footer { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; font-size: 28px; font-weight: 700; opacity: .85; letter-spacing: 1px; }
+    .ig-swipe { font-size: 30px; font-weight: 800; }
+
+    .caption-box { background: var(--bg); border-radius: 10px; padding: 16px 18px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 12px; }
+    .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+    #export-stage { position: fixed; left: -3000px; top: 0; }
+
+    /* Ideas */
+    .ideas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-top: 14px; }
+    .idea-card { background: var(--blue-l); border: 1.5px solid transparent; border-radius: 10px; padding: 13px 15px; cursor: pointer; transition: all .12s; }
+    .idea-card:hover { border-color: var(--blue); }
+    .idea-card h4 { font-size: 13px; font-weight: 700; color: var(--blue-d); margin-bottom: 4px; }
+    .idea-card p { font-size: 12px; color: #444; line-height: 1.45; }
+    .idea-card .idea-use { font-size: 11px; font-weight: 700; color: var(--blue); margin-top: 8px; }
+
+    /* Chat */
+    #chat-log { max-height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; margin-top: 14px; }
+    .msg { max-width: 82%; padding: 9px 13px; border-radius: 12px; font-size: 13px; line-height: 1.5; white-space: pre-wrap; }
+    .msg.user { align-self: flex-end; background: var(--blue); color: #fff; border-bottom-right-radius: 3px; }
+    .msg.ai { align-self: flex-start; background: var(--bg); border-bottom-left-radius: 3px; }
+    .msg.thinking { opacity: .6; font-style: italic; }
+    .chat-input-row { display: flex; gap: 8px; margin-top: 10px; }
+    .chat-input-row input { flex: 1; min-width: 0; }
+
+    @media (max-width: 700px) { .field-row { flex-direction: column; gap: 14px; } #tema-libre { min-width: 0; } }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spin"></div>
+  <span>Verificando acceso…</span>
+</div>
+
+<div id="app" style="display:none">
+
+  <header class="header">
+    <div class="header-left">
+      <span class="header-title">Ejercicios Alemán</span>
+      <span class="header-badge">ADMIN · GENERADOR DE CONTENIDO</span>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="/marketing/" class="btn-sm">← Estrategia</a>
+      <a href="/admin/" class="btn-sm">Dashboard</a>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <div class="panel">
+      <h2>💡 Ideas y asistente</h2>
+      <div class="hint" style="margin-bottom:12px">Pide sugerencias de temas o conversa con la IA para pulir un concepto. Al elegir una idea (o pulsar «Usar esta idea»), se carga como <b>tema libre</b> en el generador de abajo.</div>
+      <div class="actions-row" style="margin-top:0">
+        <button class="btn-secondary" id="btn-ideas">💡 Sugerir 6 ideas</button>
+      </div>
+      <div class="ideas-grid" id="ideas-grid" style="display:none"></div>
+
+      <div id="chat-log"></div>
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="p. ej. quiero un carrusel sobre errores con los verbos separables…">
+        <button class="btn-primary" id="btn-chat-send">Enviar</button>
+        <button class="btn-secondary" id="btn-chat-use" style="display:none">✅ Usar esta idea</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>🎠 Carrusel para Instagram</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Fuente del contenido</label>
+          <div class="pills" id="fuente-pills">
+            <button class="pill active" data-fuente="gramatica">📖 Regla gramatical</button>
+            <button class="pill" data-fuente="vocabulario">🗂️ Vocabulario</button>
+            <button class="pill" data-fuente="libre">✏️ Tema libre</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nivel</label>
+          <div class="pills" id="nivel-pills">
+            <button class="pill" data-nivel="A1">A1</button>
+            <button class="pill" data-nivel="A2">A2</button>
+            <button class="pill active" data-nivel="B1">B1</button>
+            <button class="pill" data-nivel="B2">B2</button>
+            <button class="pill" data-nivel="C1">C1</button>
+            <button class="pill" data-nivel="C2">C2</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="field-regla">
+          <label>Regla</label>
+          <select id="regla-select"></select>
+        </div>
+        <div class="field" id="field-tema" style="display:none">
+          <label>Tema</label>
+          <input type="text" id="tema-libre" placeholder="p. ej. 5 errores típicos de hispanohablantes en alemán">
+        </div>
+        <div class="field" id="field-vocab-hint" style="display:none">
+          <label>Vocabulario</label>
+          <div class="hint">Se eligen <b>5 palabras al azar</b> del nivel seleccionado<br>(Data del nivel, mezcla de todas las categorías).</div>
+        </div>
+        <div class="field">
+          <label>Slides</label>
+          <input type="number" id="num-slides" min="4" max="8" value="6" style="min-width:80px;width:80px">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Fondo de las slides</label>
+          <div class="pills" id="modo-pills">
+            <button class="pill active" data-modo="plantilla">🎨 Plantilla (gratis)</button>
+            <button class="pill" data-modo="ia">🖼️ Imagen IA (gpt-image-1-mini, ~$0.01)</button>
+          </div>
+        </div>
+        <div class="field" id="field-color">
+          <label>Color</label>
+          <div class="pills" id="color-pills">
+            <button class="pill active" data-color="#1565C0">Azul</button>
+            <button class="pill" data-color="#2e7d32">Verde</button>
+            <button class="pill" data-color="#6A1B9A">Morado</button>
+            <button class="pill" data-color="#E65100">Naranja</button>
+            <button class="pill" data-color="#00796B">Teal</button>
+            <button class="pill" data-color="#1a1a2e">Oscuro</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btn-generar">⚡ Generar carrusel</button>
+      <div id="status"></div>
+    </div>
+
+    <div class="panel" id="result">
+      <h2>Vista previa</h2>
+      <div class="slides-strip" id="slides-strip"></div>
+
+      <h2 style="margin-top:10px">Caption</h2>
+      <div class="caption-box" id="caption-box"></div>
+
+      <div class="actions-row">
+        <button class="btn-primary" id="btn-dl-all">⬇️ Descargar todas (PNG)</button>
+        <button class="btn-secondary" id="btn-copy-caption">📋 Copiar caption</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div id="export-stage"></div>
+
+<script>
+let sb, authToken;
+let currentCarousel = null;   // { slides:[{titulo,texto,ejemplo}], caption, hashtags[] }
+let bgImageDataUrl = null;    // data URL when IA mode
+
+const $ = id => document.getElementById(id);
+const getPill = (containerId, attr) => $(containerId).querySelector('.pill.active').dataset[attr];
+
+function setupPills(containerId, onChange) {
+  $(containerId).addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    $(containerId).querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    if (onChange) onChange(btn);
+  });
+}
+
+function fillReglas() {
+  const nivel = getPill('nivel-pills', 'nivel');
+  const rules = (typeof GRAMMAR_DATA !== 'undefined' && GRAMMAR_DATA[nivel]) || [];
+  $('regla-select').innerHTML = rules
+    .map(r => `<option value="${r.id}">${r.titulo} — ${r.subtitulo}</option>`)
+    .join('');
+}
+
+function updateFuenteUI() {
+  const fuente = getPill('fuente-pills', 'fuente');
+  $('field-regla').style.display = fuente === 'gramatica' ? '' : 'none';
+  $('field-tema').style.display = fuente === 'libre' ? '' : 'none';
+  $('field-vocab-hint').style.display = fuente === 'vocabulario' ? '' : 'none';
+}
+
+function updateModoUI() {
+  $('field-color').style.display = getPill('modo-pills', 'modo') === 'plantilla' ? '' : 'none';
+}
+
+async function pickRandomVocab(nivel, count) {
+  const res = await fetch(`/Data${nivel}.json`);
+  if (!res.ok) throw new Error(`No se pudo cargar Data${nivel}.json`);
+  const data = await res.json();
+  const pairs = [];
+  for (const cat of Object.values(data)) {
+    if (cat && Array.isArray(cat.de) && Array.isArray(cat.es)) {
+      for (let i = 0; i < cat.de.length; i++) pairs.push({ de: cat.de[i], es: cat.es[i] });
+    }
+  }
+  const picked = [];
+  while (picked.length < count && pairs.length) {
+    picked.push(pairs.splice(Math.floor(Math.random() * pairs.length), 1)[0]);
+  }
+  return picked;
+}
+
+function buildSourceText(fuente, nivel, vocab) {
+  if (fuente === 'gramatica') {
+    const id = $('regla-select').value;
+    const rule = (GRAMMAR_DATA[nivel] || []).find(r => r.id === id);
+    if (!rule) throw new Error('Regla no encontrada');
+    return `Regla gramatical (nivel ${nivel}): ${rule.titulo} (${rule.subtitulo}). ${rule.regla_base}` +
+      (rule.excepciones ? ` Excepciones/notas: ${rule.excepciones}` : '');
+  }
+  if (fuente === 'vocabulario') {
+    return `Vocabulario alemán nivel ${nivel}: ` + vocab.map(p => `${p.de} = ${p.es}`).join('; ');
+  }
+  const tema = $('tema-libre').value.trim();
+  if (!tema) throw new Error('Escribe un tema');
+  return `Tema libre (nivel ${nivel}): ${tema}`;
+}
+
+function parseJsonReply(reply) {
+  const clean = reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+  const start = clean.indexOf('{');
+  const end = clean.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('La IA no devolvió JSON');
+  return JSON.parse(clean.slice(start, end + 1));
+}
+
+async function generateCopy(sourceText, numSlides, nivel) {
+  const system =
+    'Eres un creador de contenido educativo para Instagram de una academia de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+    'Generas carruseles didácticos, claros y con gancho. Los ejemplos en alemán llevan siempre traducción al español entre paréntesis. ' +
+    'El vocabulario y la complejidad se adaptan al nivel CEFR indicado. ' +
+    'Respondes SOLO con JSON válido, sin markdown, con este esquema exacto: ' +
+    '{"slides":[{"titulo":"...","texto":"...","ejemplo":"..."}],"caption":"...","hashtags":["#..."]}. ' +
+    'Reglas: la slide 1 es la portada (titulo = gancho potente y corto, texto = subtítulo de 1 línea, ejemplo = ""). ' +
+    'La última slide es CTA (seguir la cuenta / guardar el post / practicar en la app). ' +
+    'Slides intermedias: titulo corto (máx 6 palabras), texto de 2-4 líneas, ejemplo = 1 frase en alemán con traducción (o "" si no aplica). ' +
+    'Caption: 3-5 líneas con gancho + valor + CTA. Hashtags: 10-15, mezcla de alemán/español, incluye #AprenderAleman #Deutsch.';
+
+  const res = await fetch('/api/deepseek-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({
+      system,
+      max_tokens: 3000,
+      messages: [{
+        role: 'user',
+        content: `Genera un carrusel de exactamente ${numSlides} slides (nivel ${nivel}) sobre:\n${sourceText}`,
+      }],
+    }),
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida del servidor: ' + raw.slice(0, 200)); }
+  if (!res.ok) throw new Error(data.error || 'Error generando el texto');
+  const parsed = parseJsonReply(data.reply);
+  if (!Array.isArray(parsed.slides) || !parsed.slides.length) throw new Error('JSON sin slides');
+  return parsed;
+}
+
+async function generateBackground(sourceText) {
+  const prompt =
+    'Vertical background image for an educational Instagram carousel about learning German. ' +
+    'Abstract, modern, minimalist design with soft gradients and subtle geometric shapes. ' +
+    'Dark enough that white text placed on top is clearly readable. Absolutely no text, no letters, no words in the image. ' +
+    `Visual mood inspired by the topic: ${sourceText.slice(0, 300)}`;
+
+  const res = await fetch('/api/image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ prompt, size: '1024x1536', quality: 'medium' }),
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida de /api/image: ' + raw.slice(0, 200)); }
+  if (!res.ok) throw new Error(data.error || 'Error generando la imagen');
+  return 'data:image/png;base64,' + data.image_base64;
+}
+
+function shadeColor(hex, pct) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = c => Math.max(0, Math.min(255, Math.round(c * (1 + pct))));
+  const r = f(n >> 16), g = f((n >> 8) & 255), b = f(n & 255);
+  return `rgb(${r},${g},${b})`;
+}
+
+function buildSlideNode(slide, index, total) {
+  const modo = getPill('modo-pills', 'modo');
+  const el = document.createElement('div');
+  el.className = 'ig-slide' + (index === 0 ? ' cover' : '');
+
+  const bg = document.createElement('div');
+  bg.className = 'ig-bg';
+  const overlay = document.createElement('div');
+  overlay.className = 'ig-overlay';
+
+  if (modo === 'ia' && bgImageDataUrl) {
+    bg.style.backgroundImage = `url(${bgImageDataUrl})`;
+    overlay.style.background = 'linear-gradient(180deg, rgba(10,10,25,.55) 0%, rgba(10,10,25,.75) 100%)';
+  } else {
+    const color = getPill('color-pills', 'color');
+    bg.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
+  }
+
+  const content = document.createElement('div');
+  content.className = 'ig-content';
+  content.innerHTML =
+    `<div class="ig-counter">${index + 1} / ${total}</div>` +
+    `<div class="ig-title"></div>` +
+    `<div class="ig-body"></div>` +
+    (slide.ejemplo ? `<div class="ig-example"></div>` : '');
+  content.querySelector('.ig-title').textContent = slide.titulo || '';
+  content.querySelector('.ig-body').textContent = slide.texto || '';
+  if (slide.ejemplo) content.querySelector('.ig-example').textContent = slide.ejemplo;
+
+  const footer = document.createElement('div');
+  footer.className = 'ig-footer';
+  footer.innerHTML =
+    `<span>EJERCICIOS ALEMÁN</span>` +
+    (index < total - 1 ? `<span class="ig-swipe">Desliza →</span>` : `<span class="ig-swipe">🇩🇪</span>`);
+
+  el.append(bg, overlay, content, footer);
+  return el;
+}
+
+function renderPreview() {
+  const strip = $('slides-strip');
+  strip.innerHTML = '';
+  const total = currentCarousel.slides.length;
+  currentCarousel.slides.forEach((slide, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'slide-wrap';
+    wrap.appendChild(buildSlideNode(slide, i, total));
+    const dl = document.createElement('button');
+    dl.className = 'slide-dl';
+    dl.textContent = `PNG ${i + 1}`;
+    dl.onclick = () => downloadSlide(i);
+    wrap.appendChild(dl);
+    strip.appendChild(wrap);
+  });
+
+  const tags = (currentCarousel.hashtags || []).join(' ');
+  $('caption-box').textContent = (currentCarousel.caption || '') + (tags ? '\n\n' + tags : '');
+  $('result').style.display = '';
+  $('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function slideToDataUrl(index) {
+  const total = currentCarousel.slides.length;
+  const node = buildSlideNode(currentCarousel.slides[index], index, total);
+  $('export-stage').appendChild(node);
+  try {
+    const canvas = await html2canvas(node, { width: 1080, height: 1350, scale: 1, useCORS: true, backgroundColor: null });
+    return canvas.toDataURL('image/png');
+  } finally {
+    node.remove();
+  }
+}
+
+function triggerDownload(dataUrl, name) {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = name;
+  a.click();
+}
+
+async function downloadSlide(index) {
+  setStatus(`Exportando slide ${index + 1}…`);
+  triggerDownload(await slideToDataUrl(index), `carrusel-slide-${index + 1}.png`);
+  setStatus('');
+}
+
+async function downloadAll() {
+  const btn = $('btn-dl-all');
+  btn.disabled = true;
+  try {
+    for (let i = 0; i < currentCarousel.slides.length; i++) {
+      setStatus(`Exportando slide ${i + 1} de ${currentCarousel.slides.length}…`);
+      triggerDownload(await slideToDataUrl(i), `carrusel-slide-${i + 1}.png`);
+      await new Promise(r => setTimeout(r, 400));
+    }
+    setStatus('✅ Slides descargadas');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ─── Ideas & chat assistant ───
+let chatMessages = [];
+
+async function deepseek(system, messages, maxTokens) {
+  const res = await fetch('/api/deepseek-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ system, max_tokens: maxTokens, messages }),
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida del servidor: ' + raw.slice(0, 200)); }
+  if (!res.ok) throw new Error(data.error || 'Error del asistente');
+  return data.reply;
+}
+
+function useIdea(text) {
+  $('tema-libre').value = text;
+  document.querySelectorAll('#fuente-pills .pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.fuente === 'libre'));
+  updateFuenteUI();
+  $('tema-libre').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setStatus('💡 Idea cargada como tema libre — pulsa «Generar carrusel»');
+}
+
+async function sugerirIdeas() {
+  const btn = $('btn-ideas');
+  btn.disabled = true;
+  const grid = $('ideas-grid');
+  grid.style.display = '';
+  grid.innerHTML = '<div class="hint">Generando ideas…</div>';
+  try {
+    const nivel = getPill('nivel-pills', 'nivel');
+    const reply = await deepseek(
+      'Eres estratega de contenido de una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+      'Respondes SOLO con JSON válido, sin markdown: {"ideas":[{"titulo":"...","descripcion":"..."}]}. ' +
+      'Cada idea es un concepto de carrusel educativo con gancho (errores típicos, comparaciones DE/ES, mini-lecciones, curiosidades, vocabulario temático). ' +
+      'Titulo: máx 8 palabras. Descripcion: 1-2 frases con el ángulo concreto.',
+      [{ role: 'user', content: `Dame exactamente 6 ideas de carruseles para nivel ${nivel}. Varía los formatos.` }],
+      1500
+    );
+    const parsed = parseJsonReply(reply);
+    if (!Array.isArray(parsed.ideas) || !parsed.ideas.length) throw new Error('JSON sin ideas');
+    grid.innerHTML = '';
+    parsed.ideas.forEach(idea => {
+      const card = document.createElement('div');
+      card.className = 'idea-card';
+      const h = document.createElement('h4'); h.textContent = idea.titulo || '';
+      const p = document.createElement('p'); p.textContent = idea.descripcion || '';
+      const u = document.createElement('div'); u.className = 'idea-use'; u.textContent = 'Usar esta idea →';
+      card.append(h, p, u);
+      card.onclick = () => useIdea(`${idea.titulo}. ${idea.descripcion}`);
+      grid.appendChild(card);
+    });
+  } catch (e) {
+    grid.innerHTML = `<div class="hint" style="color:var(--red)">❌ ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function addChatBubble(role, text, thinking) {
+  const log = $('chat-log');
+  const div = document.createElement('div');
+  div.className = `msg ${role}` + (thinking ? ' thinking' : '');
+  div.textContent = text;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  return div;
+}
+
+const CHAT_SYSTEM =
+  'Eres asesor creativo de contenido para una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+  'Ayudas a pulir ideas de carruseles educativos: propones ángulos, ganchos, estructura de slides y ejemplos en alemán (con traducción). ' +
+  'Responde en español, conciso (máx 120 palabras), con preguntas o propuestas concretas para avanzar. No generes el carrusel completo: eso lo hace otra herramienta.';
+
+async function chatSend() {
+  const input = $('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  addChatBubble('user', text);
+  chatMessages.push({ role: 'user', content: text });
+  if (chatMessages.length > 30) chatMessages = chatMessages.slice(-30);
+
+  const btn = $('btn-chat-send');
+  btn.disabled = true;
+  const bubble = addChatBubble('ai', '…', true);
+  try {
+    const reply = await deepseek(CHAT_SYSTEM, chatMessages, 600);
+    bubble.textContent = reply;
+    bubble.classList.remove('thinking');
+    chatMessages.push({ role: 'assistant', content: reply });
+    $('btn-chat-use').style.display = '';
+  } catch (e) {
+    bubble.textContent = '❌ ' + e.message;
+    bubble.classList.remove('thinking');
+  } finally {
+    btn.disabled = false;
+    input.focus();
+  }
+}
+
+async function usarIdeaChat() {
+  const btn = $('btn-chat-use');
+  btn.disabled = true;
+  const bubble = addChatBubble('ai', 'Resumiendo la idea…', true);
+  try {
+    const reply = await deepseek(
+      CHAT_SYSTEM,
+      [...chatMessages, {
+        role: 'user',
+        content: 'Resume la idea de carrusel que acordamos en un solo párrafo (máx 60 palabras), listo para usarse como brief de generación. Solo el párrafo, sin introducción.',
+      }],
+      300
+    );
+    bubble.remove();
+    useIdea(reply.trim());
+  } catch (e) {
+    bubble.textContent = '❌ ' + e.message;
+    bubble.classList.remove('thinking');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function setStatus(msg, isErr) {
+  const el = $('status');
+  el.textContent = msg;
+  el.className = isErr ? 'err' : '';
+}
+
+async function generar() {
+  const btn = $('btn-generar');
+  btn.disabled = true;
+  try {
+    const fuente = getPill('fuente-pills', 'fuente');
+    const nivel = getPill('nivel-pills', 'nivel');
+    const modo = getPill('modo-pills', 'modo');
+    const numSlides = Math.max(4, Math.min(8, parseInt($('num-slides').value) || 6));
+
+    let vocab = [];
+    if (fuente === 'vocabulario') {
+      setStatus('Eligiendo vocabulario…');
+      vocab = await pickRandomVocab(nivel, 5);
+    }
+    const sourceText = buildSourceText(fuente, nivel, vocab);
+
+    setStatus('✍️ Generando textos con DeepSeek…');
+    const copyPromise = generateCopy(sourceText, numSlides, nivel);
+
+    bgImageDataUrl = null;
+    if (modo === 'ia') {
+      setStatus('✍️ Generando textos + 🖼️ imagen de fondo (puede tardar ~30 s)…');
+      const [copy, bg] = await Promise.all([copyPromise, generateBackground(sourceText)]);
+      currentCarousel = copy;
+      bgImageDataUrl = bg;
+    } else {
+      currentCarousel = await copyPromise;
+    }
+
+    renderPreview();
+    setStatus('✅ Carrusel generado');
+  } catch (e) {
+    setStatus('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ─── Init ───
+(async () => {
+  sb = window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = '/'; return; }
+
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+  if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
+  authToken = session.access_token;
+
+  setupPills('fuente-pills', updateFuenteUI);
+  setupPills('nivel-pills', fillReglas);
+  setupPills('modo-pills', updateModoUI);
+  setupPills('color-pills', () => { if (currentCarousel) renderPreview(); });
+  fillReglas();
+  updateFuenteUI();
+  updateModoUI();
+
+  $('btn-generar').onclick = generar;
+  $('btn-ideas').onclick = sugerirIdeas;
+  $('btn-chat-send').onclick = chatSend;
+  $('btn-chat-use').onclick = usarIdeaChat;
+  $('chat-input').addEventListener('keydown', e => { if (e.key === 'Enter') chatSend(); });
+  $('btn-dl-all').onclick = downloadAll;
+  $('btn-copy-caption').onclick = async () => {
+    await navigator.clipboard.writeText($('caption-box').textContent);
+    setStatus('📋 Caption copiado');
+  };
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = '';
+})();
+</script>
+
+</body>
+</html>

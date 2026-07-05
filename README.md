@@ -133,6 +133,10 @@ Sentence-transformation (Umformung) practice app tied to the grammar rules in `g
 - Session results: global score, % correct, per-rule breakdown with links to `gramatica.html`
 - Purple theme (`#6A1B9A`); dark mode persisted as `darkMode_cr`
 
+### Generador de contenido ([marketing/contenido.html](marketing/contenido.html))
+
+Admin-only Instagram carousel generator (linked from `/marketing/`). Includes an ideas & chat assistant (DeepSeek): suggest 6 carousel ideas as clickable cards, or chat to refine a concept and load it as the free topic. Picks a content source (grammar rule from `grammar-data.js`, 5 random vocab words from `Data{LEVEL}.json`, or free topic), generates slide copy + caption + hashtags via `/api/deepseek-chat`, and renders 1080×1350 slides exported as PNG with html2canvas. Two background modes: **Plantilla** (CSS gradient, free, 6 color themes) or **Imagen IA** (one `gpt-image-1-mini` background per carousel via `/api/image`).
+
 ---
 
 ## API
@@ -148,6 +152,10 @@ Vercel serverless function that receives multipart audio and forwards it to Open
 ### `/api/vision` ([api/vision.js](api/vision.js))
 
 Vercel serverless function that receives `{ image_base64, mime_type, type }`, forwards the image to GPT-4o with a type-specific review prompt, and returns structured JSON: `{ puntuacion, resumen, errores[], texto_corregido, observaciones_generales }`. Used by `corrector.html` and `escritura.html`. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`, plus `escritura` (requires a `task` object with the writing task; grades a handwritten text against it and returns `texto_transcrito`, `puntuacion` 0–100, `puntos_cubiertos[]`, `registro_adecuado`, `errores[]`, `version_mejorada`, `comentario`).
+
+### `/api/image` ([api/image.js](api/image.js))
+
+Vercel serverless function that receives `{ prompt, size, quality }` and generates an image via OpenAI `gpt-image-1-mini` (always returns base64; DALL·E was retired from the API in May 2026). Used by `marketing/contenido.html` for AI slide backgrounds. Requires JWT auth. Rate limited to 3 req/min per user. `maxDuration: 60` override in `vercel.json`.
 
 ### `/api/vocab-refresh` ([api/vocab-refresh.js](api/vocab-refresh.js))
 

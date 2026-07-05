@@ -87,6 +87,22 @@
     .ig-footer { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; font-size: 28px; font-weight: 700; opacity: .85; letter-spacing: 1px; }
     .ig-swipe { font-size: 30px; font-weight: 800; }
 
+    /* Transparent (no-background) mode */
+    .ig-slide.transparent .ig-title, .ig-slide.transparent .ig-body, .ig-slide.transparent .ig-counter,
+    .ig-slide.transparent .ig-footer, .ig-slide.transparent .ig-example { text-shadow: 0 2px 12px rgba(0,0,0,.45); }
+    .ig-slide.transparent.dark-text { color: #1a1a2e; }
+    .ig-slide.transparent.dark-text .ig-title, .ig-slide.transparent.dark-text .ig-body, .ig-slide.transparent.dark-text .ig-counter,
+    .ig-slide.transparent.dark-text .ig-footer, .ig-slide.transparent.dark-text .ig-example { text-shadow: 0 2px 12px rgba(255,255,255,.5); }
+    .ig-slide.transparent.dark-text .ig-example { background: rgba(0,0,0,.07); border-left-color: rgba(0,0,0,.7); }
+    /* Checkerboard so transparency is visible in the preview */
+    .slide-wrap.checker { background: repeating-conic-gradient(#d7dbe4 0% 25%, #f4f5f8 0% 50%) 0 0 / 28px 28px; }
+    .slide-col { flex-shrink: 0; width: 270px; }
+    .slide-col .slide-wrap { width: 270px; }
+    .img-suggestion { font-size: 11px; color: var(--muted); line-height: 1.4; padding: 6px 4px 0; }
+
+    #review-badge { font-size: 12px; font-weight: 700; color: var(--green); background: var(--green-l); border-radius: 20px; padding: 3px 12px; margin-left: 10px; vertical-align: middle; }
+    #review-badge.warn { color: #b26a00; background: #fff3e0; }
+
     .caption-box { background: var(--bg); border-radius: 10px; padding: 16px 18px; font-size: 13px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 12px; }
     .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 
@@ -158,6 +174,13 @@
 
       <div class="field-row">
         <div class="field">
+          <label>Nicho</label>
+          <div class="pills" id="nicho-pills"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" id="field-fuente">
           <label>Fuente del contenido</label>
           <div class="pills" id="fuente-pills">
             <button class="pill active" data-fuente="gramatica">📖 Regla gramatical</button>
@@ -165,7 +188,7 @@
             <button class="pill" data-fuente="libre">✏️ Tema libre</button>
           </div>
         </div>
-        <div class="field">
+        <div class="field" id="field-nivel">
           <label>Nivel</label>
           <div class="pills" id="nivel-pills">
             <button class="pill" data-nivel="A1">A1</button>
@@ -203,6 +226,14 @@
           <div class="pills" id="modo-pills">
             <button class="pill active" data-modo="plantilla">🎨 Plantilla (gratis)</button>
             <button class="pill" data-modo="ia">🖼️ Imagen IA (gpt-image-1-mini, ~$0.01)</button>
+            <button class="pill" data-modo="transparente">🚫 Sin fondo (transparente)</button>
+          </div>
+        </div>
+        <div class="field" id="field-texto" style="display:none">
+          <label>Color del texto</label>
+          <div class="pills" id="texto-pills">
+            <button class="pill active" data-texto="claro">⚪ Claro</button>
+            <button class="pill" data-texto="oscuro">⚫ Oscuro</button>
           </div>
         </div>
         <div class="field" id="field-color">
@@ -223,7 +254,7 @@
     </div>
 
     <div class="panel" id="result">
-      <h2>Vista previa</h2>
+      <h2>Vista previa<span id="review-badge" style="display:none"></span></h2>
       <div class="slides-strip" id="slides-strip"></div>
 
       <h2 style="margin-top:10px">Caption</h2>
@@ -242,8 +273,91 @@
 
 <script>
 let sb, authToken;
-let currentCarousel = null;   // { slides:[{titulo,texto,ejemplo}], caption, hashtags[] }
+let currentCarousel = null;   // { slides:[{titulo,texto,ejemplo,imagen_sugerida?}], caption, hashtags[] }
 let bgImageDataUrl = null;    // data URL when IA mode
+let currentNiche = 'aleman';
+let lastReview = null;        // { nota_idioma, nota_marketing, aprobado, problemas[] }
+
+const MARKETING_RULES =
+  'TÉCNICAS DE RETENCIÓN OBLIGATORIAS: ' +
+  '1) Portada: gancho con curiosity gap o número concreto ("5 errores que...", "Lo que nadie te cuenta de..."). ' +
+  '2) Una sola idea por slide, sin relleno. ' +
+  '3) A mitad del carrusel, un pattern interrupt: pregunta directa al lector, dato sorprendente o giro. ' +
+  '4) La PENÚLTIMA slide pide explícitamente guardar el post ("Guarda este post para..."). ' +
+  '5) La última slide es CTA clara: seguir la cuenta y/o comentar. ' +
+  '6) Caption: la PRIMERA línea es un gancho independiente (se corta en el feed), luego valor, luego CTA.';
+
+const NICHES = {
+  aleman: {
+    label: '🇩🇪 Alemán',
+    isGerman: true,
+    brand: 'EJERCICIOS ALEMÁN',
+    finalEmoji: '🇩🇪',
+    exampleHint: '1 frase en alemán con traducción al español entre paréntesis (o "" si no aplica)',
+    identity:
+      'Eres un creador de contenido educativo para Instagram de una academia de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+      'Generas carruseles didácticos, claros y con gancho. Los ejemplos en alemán llevan siempre traducción al español entre paréntesis. ' +
+      'El vocabulario y la complejidad se adaptan al nivel CEFR indicado.',
+    hashtagsHint: '10-15, mezcla de alemán/español, incluye #AprenderAleman #Deutsch',
+    ideasSystem:
+      'Eres estratega de contenido de una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+      'Respondes SOLO con JSON válido, sin markdown: {"ideas":[{"titulo":"...","descripcion":"..."}]}. ' +
+      'Cada idea es un concepto de carrusel educativo con gancho (errores típicos, comparaciones DE/ES, mini-lecciones, curiosidades, vocabulario temático). ' +
+      'Titulo: máx 8 palabras. Descripcion: 1-2 frases con el ángulo concreto.',
+    chatSystem:
+      'Eres asesor creativo de contenido para una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
+      'Ayudas a pulir ideas de carruseles educativos: propones ángulos, ganchos, estructura de slides y ejemplos en alemán (con traducción). ' +
+      'Responde en español, conciso (máx 120 palabras), con preguntas o propuestas concretas para avanzar. No generes el carrusel completo: eso lo hace otra herramienta.',
+    reviewExtra:
+      'Verifica con rigor la corrección gramatical del ALEMÁN en títulos, textos y ejemplos (declinaciones, orden de palabras, género, ortografía) ' +
+      'y que toda frase alemana tenga traducción al español.',
+  },
+  motivacion: {
+    label: '🔥 Motivación',
+    isGerman: false,
+    brand: 'EJERCICIOS ALEMÁN',
+    finalEmoji: '🔥',
+    exampleHint: 'una cita inspiradora o frase destacada relacionada con la slide (o "" si no aplica)',
+    identity:
+      'Eres un creador de contenido de motivación y desarrollo personal para Instagram en español. ' +
+      'Tono cercano y directo, sin clichés vacíos: consejos accionables, reencuadres mentales concretos y ejemplos reales.',
+    hashtagsHint: '10-15 en español, incluye #Motivacion #DesarrolloPersonal #Mentalidad',
+    ideasSystem:
+      'Eres estratega de contenido de una cuenta de Instagram de motivación y desarrollo personal en español. ' +
+      'Respondes SOLO con JSON válido, sin markdown: {"ideas":[{"titulo":"...","descripcion":"..."}]}. ' +
+      'Cada idea es un concepto de carrusel con gancho (hábitos, mentalidad, disciplina, reencuadres, errores comunes). ' +
+      'Titulo: máx 8 palabras. Descripcion: 1-2 frases con el ángulo concreto.',
+    chatSystem:
+      'Eres asesor creativo de contenido para una cuenta de Instagram de motivación y desarrollo personal en español. ' +
+      'Ayudas a pulir ideas de carruseles: propones ángulos, ganchos, estructura de slides y citas o ejemplos concretos. ' +
+      'Responde en español, conciso (máx 120 palabras), con preguntas o propuestas concretas para avanzar. No generes el carrusel completo: eso lo hace otra herramienta.',
+    reviewExtra:
+      'Verifica que el mensaje sea accionable y no genérico; penaliza frases cliché sin sustancia.',
+  },
+  curiosidades: {
+    label: '🧠 Datos curiosos',
+    isGerman: false,
+    brand: 'EJERCICIOS ALEMÁN',
+    finalEmoji: '🧠',
+    exampleHint: 'el dato o cifra destacada de la slide en una línea impactante (o "" si no aplica)',
+    identity:
+      'Eres un creador de contenido de datos curiosos y divulgación para Instagram en español. ' +
+      'Datos verificables y sorprendentes, explicados de forma simple y visual.',
+    hashtagsHint: '10-15 en español, incluye #DatosCuriosos #SabiasQue #Curiosidades',
+    ideasSystem:
+      'Eres estratega de contenido de una cuenta de Instagram de datos curiosos y divulgación en español. ' +
+      'Respondes SOLO con JSON válido, sin markdown: {"ideas":[{"titulo":"...","descripcion":"..."}]}. ' +
+      'Cada idea es un concepto de carrusel con gancho (ciencia, historia, cuerpo humano, tecnología, récords, mitos desmentidos). ' +
+      'Titulo: máx 8 palabras. Descripcion: 1-2 frases con el ángulo concreto.',
+    chatSystem:
+      'Eres asesor creativo de contenido para una cuenta de Instagram de datos curiosos y divulgación en español. ' +
+      'Ayudas a pulir ideas de carruseles: propones ángulos, ganchos, estructura de slides y datos concretos. ' +
+      'Responde en español, conciso (máx 120 palabras), con preguntas o propuestas concretas para avanzar. No generes el carrusel completo: eso lo hace otra herramienta.',
+    reviewExtra:
+      'Verifica la plausibilidad de los datos; penaliza afirmaciones dudosas, exageradas o sin matiz.',
+  },
+};
+const MAX_REVIEW_ROUNDS = 1;
 
 const $ = id => document.getElementById(id);
 const getPill = (containerId, attr) => $(containerId).querySelector('.pill.active').dataset[attr];
@@ -274,7 +388,28 @@ function updateFuenteUI() {
 }
 
 function updateModoUI() {
-  $('field-color').style.display = getPill('modo-pills', 'modo') === 'plantilla' ? '' : 'none';
+  const modo = getPill('modo-pills', 'modo');
+  $('field-color').style.display = modo === 'plantilla' ? '' : 'none';
+  $('field-texto').style.display = modo === 'transparente' ? '' : 'none';
+}
+
+function updateNichoUI() {
+  currentNiche = getPill('nicho-pills', 'nicho');
+  const n = NICHES[currentNiche];
+  $('field-fuente').style.display = n.isGerman ? '' : 'none';
+  $('field-nivel').style.display = n.isGerman ? '' : 'none';
+  if (!n.isGerman) {
+    document.querySelectorAll('#fuente-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.fuente === 'libre'));
+  }
+  updateFuenteUI();
+  // Reset ideas/chat so contexts from different niches don't mix
+  chatMessages = [];
+  $('chat-log').innerHTML = '';
+  $('btn-chat-use').style.display = 'none';
+  const grid = $('ideas-grid');
+  grid.innerHTML = '';
+  grid.style.display = 'none';
 }
 
 async function pickRandomVocab(nivel, count) {
@@ -295,6 +430,11 @@ async function pickRandomVocab(nivel, count) {
 }
 
 function buildSourceText(fuente, nivel, vocab) {
+  if (!NICHES[currentNiche].isGerman) {
+    const tema = $('tema-libre').value.trim();
+    if (!tema) throw new Error('Escribe un tema');
+    return `Tema (${NICHES[currentNiche].label}): ${tema}`;
+  }
   if (fuente === 'gramatica') {
     const id = $('regla-select').value;
     const rule = (GRAMMAR_DATA[nivel] || []).find(r => r.id === id);
@@ -318,37 +458,62 @@ function parseJsonReply(reply) {
   return JSON.parse(clean.slice(start, end + 1));
 }
 
-async function generateCopy(sourceText, numSlides, nivel) {
-  const system =
-    'Eres un creador de contenido educativo para Instagram de una academia de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
-    'Generas carruseles didácticos, claros y con gancho. Los ejemplos en alemán llevan siempre traducción al español entre paréntesis. ' +
-    'El vocabulario y la complejidad se adaptan al nivel CEFR indicado. ' +
+function buildCopySystem(niche, wantImageSuggestions) {
+  const n = NICHES[niche];
+  const imgField = wantImageSuggestions ? ',"imagen_sugerida":"..."' : '';
+  return n.identity + ' ' +
     'Respondes SOLO con JSON válido, sin markdown, con este esquema exacto: ' +
-    '{"slides":[{"titulo":"...","texto":"...","ejemplo":"..."}],"caption":"...","hashtags":["#..."]}. ' +
+    `{"slides":[{"titulo":"...","texto":"...","ejemplo":"..."${imgField}}],"caption":"...","hashtags":["#..."]}. ` +
     'Reglas: la slide 1 es la portada (titulo = gancho potente y corto, texto = subtítulo de 1 línea, ejemplo = ""). ' +
-    'La última slide es CTA (seguir la cuenta / guardar el post / practicar en la app). ' +
-    'Slides intermedias: titulo corto (máx 6 palabras), texto de 2-4 líneas, ejemplo = 1 frase en alemán con traducción (o "" si no aplica). ' +
-    'Caption: 3-5 líneas con gancho + valor + CTA. Hashtags: 10-15, mezcla de alemán/español, incluye #AprenderAleman #Deutsch.';
+    `Slides intermedias: titulo corto (máx 6 palabras), texto de 2-4 líneas, ejemplo = ${n.exampleHint}. ` +
+    `Caption: 3-5 líneas. Hashtags: ${n.hashtagsHint}. ` +
+    MARKETING_RULES +
+    (wantImageSuggestions
+      ? ' Además, cada slide incluye "imagen_sugerida": descripción breve en español (máx 15 palabras) de la foto o fondo ideal para esa slide (el usuario la buscará en un banco de imágenes).'
+      : '');
+}
 
-  const res = await fetch('/api/deepseek-chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
-    body: JSON.stringify({
-      system,
-      max_tokens: 3000,
-      messages: [{
-        role: 'user',
-        content: `Genera un carrusel de exactamente ${numSlides} slides (nivel ${nivel}) sobre:\n${sourceText}`,
-      }],
-    }),
-  });
-  const raw = await res.text();
-  let data;
-  try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida del servidor: ' + raw.slice(0, 200)); }
-  if (!res.ok) throw new Error(data.error || 'Error generando el texto');
-  const parsed = parseJsonReply(data.reply);
+async function generateCopy(sourceText, numSlides, nivel, niche, wantImageSuggestions) {
+  const levelPart = NICHES[niche].isGerman ? ` (nivel ${nivel})` : '';
+  const reply = await deepseek(
+    buildCopySystem(niche, wantImageSuggestions),
+    [{ role: 'user', content: `Genera un carrusel de exactamente ${numSlides} slides${levelPart} sobre:\n${sourceText}` }],
+    3000
+  );
+  const parsed = parseJsonReply(reply);
   if (!Array.isArray(parsed.slides) || !parsed.slides.length) throw new Error('JSON sin slides');
   return parsed;
+}
+
+async function reviewCopy(copy, niche, wantImageSuggestions) {
+  const n = NICHES[niche];
+  const reviewSystem =
+    'Eres un revisor experto de contenido para Instagram con dos roles: corrector lingüístico y estratega de marketing. ' +
+    n.reviewExtra + ' ' +
+    'Criterios de marketing: ' + MARKETING_RULES + ' ' +
+    'Evalúa el carrusel JSON que te dan y responde SOLO con JSON válido, sin markdown: ' +
+    '{"nota_idioma":0-10,"nota_marketing":0-10,"aprobado":true|false,' +
+    '"problemas":[{"slide":<número de slide, 0 si es la caption>,"tipo":"idioma|marketing","detalle":"...","correccion":"..."}]}. ' +
+    '"aprobado" es true solo si ambas notas son >= 8 y no hay errores de idioma. Sé estricto pero no inventes problemas.';
+
+  let current = copy, review = null;
+  for (let round = 0; round <= MAX_REVIEW_ROUNDS; round++) {
+    const reply = await deepseek(reviewSystem,
+      [{ role: 'user', content: 'Revisa este carrusel:\n' + JSON.stringify(current) }], 1500);
+    review = parseJsonReply(reply);
+    if (review.aprobado || round === MAX_REVIEW_ROUNDS) break;
+    setStatus(`🔧 Aplicando ${(review.problemas || []).length} correcciones del revisor…`);
+    const fixReply = await deepseek(
+      buildCopySystem(niche, wantImageSuggestions),
+      [{ role: 'user', content:
+        'Corrige este carrusel aplicando EXACTAMENTE estas correcciones y devuelve el JSON completo con el mismo esquema y el mismo número de slides:\n' +
+        'CARRUSEL:\n' + JSON.stringify(current) + '\nPROBLEMAS:\n' + JSON.stringify(review.problemas || []) }],
+      3000
+    );
+    const fixed = parseJsonReply(fixReply);
+    if (Array.isArray(fixed.slides) && fixed.slides.length) current = fixed;
+  }
+  return { copy: current, review };
 }
 
 async function generateBackground(sourceText) {
@@ -390,6 +555,9 @@ function buildSlideNode(slide, index, total) {
   if (modo === 'ia' && bgImageDataUrl) {
     bg.style.backgroundImage = `url(${bgImageDataUrl})`;
     overlay.style.background = 'linear-gradient(180deg, rgba(10,10,25,.55) 0%, rgba(10,10,25,.75) 100%)';
+  } else if (modo === 'transparente') {
+    el.classList.add('transparent');
+    if (getPill('texto-pills', 'texto') === 'oscuro') el.classList.add('dark-text');
   } else {
     const color = getPill('color-pills', 'color');
     bg.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
@@ -409,8 +577,8 @@ function buildSlideNode(slide, index, total) {
   const footer = document.createElement('div');
   footer.className = 'ig-footer';
   footer.innerHTML =
-    `<span>EJERCICIOS ALEMÁN</span>` +
-    (index < total - 1 ? `<span class="ig-swipe">Desliza →</span>` : `<span class="ig-swipe">🇩🇪</span>`);
+    `<span>${NICHES[currentNiche].brand}</span>` +
+    (index < total - 1 ? `<span class="ig-swipe">Desliza →</span>` : `<span class="ig-swipe">${NICHES[currentNiche].finalEmoji}</span>`);
 
   el.append(bg, overlay, content, footer);
   return el;
@@ -420,17 +588,37 @@ function renderPreview() {
   const strip = $('slides-strip');
   strip.innerHTML = '';
   const total = currentCarousel.slides.length;
+  const transparent = getPill('modo-pills', 'modo') === 'transparente';
   currentCarousel.slides.forEach((slide, i) => {
+    const col = document.createElement('div');
+    col.className = 'slide-col';
     const wrap = document.createElement('div');
-    wrap.className = 'slide-wrap';
+    wrap.className = 'slide-wrap' + (transparent ? ' checker' : '');
     wrap.appendChild(buildSlideNode(slide, i, total));
     const dl = document.createElement('button');
     dl.className = 'slide-dl';
     dl.textContent = `PNG ${i + 1}`;
     dl.onclick = () => downloadSlide(i);
     wrap.appendChild(dl);
-    strip.appendChild(wrap);
+    col.appendChild(wrap);
+    if (slide.imagen_sugerida) {
+      const sug = document.createElement('div');
+      sug.className = 'img-suggestion';
+      sug.textContent = `📷 Sugerencia: ${slide.imagen_sugerida}`;
+      col.appendChild(sug);
+    }
+    strip.appendChild(col);
   });
+
+  const badge = $('review-badge');
+  if (lastReview && typeof lastReview.nota_idioma === 'number' && typeof lastReview.nota_marketing === 'number') {
+    const li = lastReview.nota_idioma, lm = lastReview.nota_marketing;
+    badge.textContent = `Revisado ✓ · Idioma ${li}/10 · Marketing ${lm}/10`;
+    badge.classList.toggle('warn', li < 8 || lm < 8);
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
 
   const tags = (currentCarousel.hashtags || []).join(' ');
   $('caption-box').textContent = (currentCarousel.caption || '') + (tags ? '\n\n' + tags : '');
@@ -510,15 +698,11 @@ async function sugerirIdeas() {
   grid.style.display = '';
   grid.innerHTML = '<div class="hint">Generando ideas…</div>';
   try {
-    const nivel = getPill('nivel-pills', 'nivel');
-    const reply = await deepseek(
-      'Eres estratega de contenido de una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
-      'Respondes SOLO con JSON válido, sin markdown: {"ideas":[{"titulo":"...","descripcion":"..."}]}. ' +
-      'Cada idea es un concepto de carrusel educativo con gancho (errores típicos, comparaciones DE/ES, mini-lecciones, curiosidades, vocabulario temático). ' +
-      'Titulo: máx 8 palabras. Descripcion: 1-2 frases con el ángulo concreto.',
-      [{ role: 'user', content: `Dame exactamente 6 ideas de carruseles para nivel ${nivel}. Varía los formatos.` }],
-      1500
-    );
+    const n = NICHES[currentNiche];
+    const userMsg = n.isGerman
+      ? `Dame exactamente 6 ideas de carruseles para nivel ${getPill('nivel-pills', 'nivel')}. Varía los formatos.`
+      : `Dame exactamente 6 ideas de carruseles de ${n.label}. Varía los formatos.`;
+    const reply = await deepseek(n.ideasSystem, [{ role: 'user', content: userMsg }], 1500);
     const parsed = parseJsonReply(reply);
     if (!Array.isArray(parsed.ideas) || !parsed.ideas.length) throw new Error('JSON sin ideas');
     grid.innerHTML = '';
@@ -549,10 +733,6 @@ function addChatBubble(role, text, thinking) {
   return div;
 }
 
-const CHAT_SYSTEM =
-  'Eres asesor creativo de contenido para una cuenta de Instagram de aprendizaje de alemán para hispanohablantes ("Ejercicios Alemán"). ' +
-  'Ayudas a pulir ideas de carruseles educativos: propones ángulos, ganchos, estructura de slides y ejemplos en alemán (con traducción). ' +
-  'Responde en español, conciso (máx 120 palabras), con preguntas o propuestas concretas para avanzar. No generes el carrusel completo: eso lo hace otra herramienta.';
 
 async function chatSend() {
   const input = $('chat-input');
@@ -567,7 +747,7 @@ async function chatSend() {
   btn.disabled = true;
   const bubble = addChatBubble('ai', '…', true);
   try {
-    const reply = await deepseek(CHAT_SYSTEM, chatMessages, 600);
+    const reply = await deepseek(NICHES[currentNiche].chatSystem, chatMessages, 600);
     bubble.textContent = reply;
     bubble.classList.remove('thinking');
     chatMessages.push({ role: 'assistant', content: reply });
@@ -587,7 +767,7 @@ async function usarIdeaChat() {
   const bubble = addChatBubble('ai', 'Resumiendo la idea…', true);
   try {
     const reply = await deepseek(
-      CHAT_SYSTEM,
+      NICHES[currentNiche].chatSystem,
       [...chatMessages, {
         role: 'user',
         content: 'Resume la idea de carrusel que acordamos en un solo párrafo (máx 60 palabras), listo para usarse como brief de generación. Solo el párrafo, sin introducción.',
@@ -614,10 +794,12 @@ async function generar() {
   const btn = $('btn-generar');
   btn.disabled = true;
   try {
-    const fuente = getPill('fuente-pills', 'fuente');
-    const nivel = getPill('nivel-pills', 'nivel');
+    const n = NICHES[currentNiche];
+    const fuente = n.isGerman ? getPill('fuente-pills', 'fuente') : 'libre';
+    const nivel = n.isGerman ? getPill('nivel-pills', 'nivel') : null;
     const modo = getPill('modo-pills', 'modo');
     const numSlides = Math.max(4, Math.min(8, parseInt($('num-slides').value) || 6));
+    const wantImg = modo === 'transparente';
 
     let vocab = [];
     if (fuente === 'vocabulario') {
@@ -627,7 +809,7 @@ async function generar() {
     const sourceText = buildSourceText(fuente, nivel, vocab);
 
     setStatus('✍️ Generando textos con DeepSeek…');
-    const copyPromise = generateCopy(sourceText, numSlides, nivel);
+    const copyPromise = generateCopy(sourceText, numSlides, nivel, currentNiche, wantImg);
 
     bgImageDataUrl = null;
     if (modo === 'ia') {
@@ -639,8 +821,16 @@ async function generar() {
       currentCarousel = await copyPromise;
     }
 
+    lastReview = null;
+    setStatus('🔍 Revisando gramática y marketing con IA…');
+    try {
+      const { copy, review } = await reviewCopy(currentCarousel, currentNiche, wantImg);
+      currentCarousel = copy;
+      lastReview = review;
+    } catch (e) { /* review must never break generation */ }
+
     renderPreview();
-    setStatus('✅ Carrusel generado');
+    setStatus(lastReview ? '✅ Carrusel generado y revisado' : '✅ Carrusel generado (revisión no disponible)');
   } catch (e) {
     setStatus('❌ ' + e.message, true);
   } finally {
@@ -658,12 +848,17 @@ async function generar() {
   if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
   authToken = session.access_token;
 
+  $('nicho-pills').innerHTML = Object.entries(NICHES)
+    .map(([key, n], i) => `<button class="pill${i === 0 ? ' active' : ''}" data-nicho="${key}">${n.label}</button>`)
+    .join('');
+  setupPills('nicho-pills', updateNichoUI);
   setupPills('fuente-pills', updateFuenteUI);
   setupPills('nivel-pills', fillReglas);
-  setupPills('modo-pills', updateModoUI);
+  setupPills('modo-pills', () => { updateModoUI(); if (currentCarousel) renderPreview(); });
   setupPills('color-pills', () => { if (currentCarousel) renderPreview(); });
+  setupPills('texto-pills', () => { if (currentCarousel) renderPreview(); });
   fillReglas();
-  updateFuenteUI();
+  updateNichoUI();
   updateModoUI();
 
   $('btn-generar').onclick = generar;

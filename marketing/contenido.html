@@ -87,15 +87,9 @@
     .ig-footer { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; font-size: 28px; font-weight: 700; opacity: .85; letter-spacing: 1px; }
     .ig-swipe { font-size: 30px; font-weight: 800; }
 
-    /* Transparent (no-background) mode */
-    .ig-slide.transparent .ig-title, .ig-slide.transparent .ig-body, .ig-slide.transparent .ig-counter,
-    .ig-slide.transparent .ig-footer, .ig-slide.transparent .ig-example { text-shadow: 0 2px 12px rgba(0,0,0,.45); }
-    .ig-slide.transparent.dark-text { color: #1a1a2e; }
-    .ig-slide.transparent.dark-text .ig-title, .ig-slide.transparent.dark-text .ig-body, .ig-slide.transparent.dark-text .ig-counter,
-    .ig-slide.transparent.dark-text .ig-footer, .ig-slide.transparent.dark-text .ig-example { text-shadow: 0 2px 12px rgba(255,255,255,.5); }
-    .ig-slide.transparent.dark-text .ig-example { background: rgba(0,0,0,.07); border-left-color: rgba(0,0,0,.7); }
-    /* Checkerboard so transparency is visible in the preview */
-    .slide-wrap.checker { background: repeating-conic-gradient(#d7dbe4 0% 25%, #f4f5f8 0% 50%) 0 0 / 28px 28px; }
+    /* Uploaded-image mode: reinforce text readability over photos */
+    .ig-slide.uploaded .ig-title, .ig-slide.uploaded .ig-body, .ig-slide.uploaded .ig-counter,
+    .ig-slide.uploaded .ig-footer, .ig-slide.uploaded .ig-example { text-shadow: 0 2px 12px rgba(0,0,0,.45); }
     .slide-col { flex-shrink: 0; width: 270px; }
     .slide-col .slide-wrap { width: 270px; }
     .img-suggestion { font-size: 11px; color: var(--muted); line-height: 1.4; padding: 6px 4px 0; }
@@ -226,15 +220,12 @@
           <div class="pills" id="modo-pills">
             <button class="pill active" data-modo="plantilla">🎨 Plantilla (gratis)</button>
             <button class="pill" data-modo="ia">🖼️ Imagen IA (gpt-image-1-mini, ~$0.01)</button>
-            <button class="pill" data-modo="transparente">🚫 Sin fondo (transparente)</button>
+            <button class="pill" data-modo="subir">📤 Subir imagen</button>
           </div>
         </div>
-        <div class="field" id="field-texto" style="display:none">
-          <label>Color del texto</label>
-          <div class="pills" id="texto-pills">
-            <button class="pill active" data-texto="claro">⚪ Claro</button>
-            <button class="pill" data-texto="oscuro">⚫ Oscuro</button>
-          </div>
+        <div class="field" id="field-upload" style="display:none">
+          <label>Imagen de fondo</label>
+          <input type="file" id="bg-upload" accept="image/*">
         </div>
         <div class="field" id="field-color">
           <label>Color</label>
@@ -275,6 +266,7 @@
 let sb, authToken;
 let currentCarousel = null;   // { slides:[{titulo,texto,ejemplo,imagen_sugerida?}], caption, hashtags[] }
 let bgImageDataUrl = null;    // data URL when IA mode
+let uploadedBgDataUrl = null; // data URL when user uploads a background image
 let currentNiche = 'aleman';
 let lastReview = null;        // { nota_idioma, nota_marketing, aprobado, problemas[] }
 
@@ -390,7 +382,7 @@ function updateFuenteUI() {
 function updateModoUI() {
   const modo = getPill('modo-pills', 'modo');
   $('field-color').style.display = modo === 'plantilla' ? '' : 'none';
-  $('field-texto').style.display = modo === 'transparente' ? '' : 'none';
+  $('field-upload').style.display = modo === 'subir' ? '' : 'none';
 }
 
 function updateNichoUI() {
@@ -555,9 +547,10 @@ function buildSlideNode(slide, index, total) {
   if (modo === 'ia' && bgImageDataUrl) {
     bg.style.backgroundImage = `url(${bgImageDataUrl})`;
     overlay.style.background = 'linear-gradient(180deg, rgba(10,10,25,.55) 0%, rgba(10,10,25,.75) 100%)';
-  } else if (modo === 'transparente') {
-    el.classList.add('transparent');
-    if (getPill('texto-pills', 'texto') === 'oscuro') el.classList.add('dark-text');
+  } else if (modo === 'subir' && uploadedBgDataUrl) {
+    el.classList.add('uploaded');
+    bg.style.backgroundImage = `url(${uploadedBgDataUrl})`;
+    overlay.style.background = 'linear-gradient(180deg, rgba(10,10,25,.55) 0%, rgba(10,10,25,.75) 100%)';
   } else {
     const color = getPill('color-pills', 'color');
     bg.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
@@ -588,12 +581,11 @@ function renderPreview() {
   const strip = $('slides-strip');
   strip.innerHTML = '';
   const total = currentCarousel.slides.length;
-  const transparent = getPill('modo-pills', 'modo') === 'transparente';
   currentCarousel.slides.forEach((slide, i) => {
     const col = document.createElement('div');
     col.className = 'slide-col';
     const wrap = document.createElement('div');
-    wrap.className = 'slide-wrap' + (transparent ? ' checker' : '');
+    wrap.className = 'slide-wrap';
     wrap.appendChild(buildSlideNode(slide, i, total));
     const dl = document.createElement('button');
     dl.className = 'slide-dl';
@@ -645,9 +637,13 @@ function triggerDownload(dataUrl, name) {
   a.click();
 }
 
+function slideFileName(index) {
+  return `carrusel-slide-${String(index + 1).padStart(2, '0')}.png`;
+}
+
 async function downloadSlide(index) {
   setStatus(`Exportando slide ${index + 1}…`);
-  triggerDownload(await slideToDataUrl(index), `carrusel-slide-${index + 1}.png`);
+  triggerDownload(await slideToDataUrl(index), slideFileName(index));
   setStatus('');
 }
 
@@ -657,10 +653,10 @@ async function downloadAll() {
   try {
     for (let i = 0; i < currentCarousel.slides.length; i++) {
       setStatus(`Exportando slide ${i + 1} de ${currentCarousel.slides.length}…`);
-      triggerDownload(await slideToDataUrl(i), `carrusel-slide-${i + 1}.png`);
-      await new Promise(r => setTimeout(r, 400));
+      triggerDownload(await slideToDataUrl(i), slideFileName(i));
+      await new Promise(r => setTimeout(r, 700));
     }
-    setStatus('✅ Slides descargadas');
+    setStatus('✅ Slides descargadas en orden (01, 02, …)');
   } finally {
     btn.disabled = false;
   }
@@ -799,7 +795,8 @@ async function generar() {
     const nivel = n.isGerman ? getPill('nivel-pills', 'nivel') : null;
     const modo = getPill('modo-pills', 'modo');
     const numSlides = Math.max(4, Math.min(8, parseInt($('num-slides').value) || 6));
-    const wantImg = modo === 'transparente';
+    const wantImg = modo === 'subir';
+    if (modo === 'subir' && !uploadedBgDataUrl) throw new Error('Sube una imagen de fondo primero');
 
     let vocab = [];
     if (fuente === 'vocabulario') {
@@ -856,7 +853,17 @@ async function generar() {
   setupPills('nivel-pills', fillReglas);
   setupPills('modo-pills', () => { updateModoUI(); if (currentCarousel) renderPreview(); });
   setupPills('color-pills', () => { if (currentCarousel) renderPreview(); });
-  setupPills('texto-pills', () => { if (currentCarousel) renderPreview(); });
+  $('bg-upload').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      uploadedBgDataUrl = reader.result;
+      setStatus('📤 Imagen de fondo cargada');
+      if (currentCarousel) renderPreview();
+    };
+    reader.readAsDataURL(file);
+  });
   fillReglas();
   updateNichoUI();
   updateModoUI();

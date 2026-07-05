@@ -26,6 +26,11 @@
     .header-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; }
     .btn-sm { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; }
     .btn-sm:hover { background: rgba(255,255,255,.24); }
+    .nav-tabs { display: flex; gap: 4px; margin-left: 10px; }
+    .nav-tab { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 7px; transition: all .12s; }
+    .nav-tab:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-tab.active { background: rgba(255,255,255,.2); color: #fff; }
+    @media (max-width: 700px) { .nav-tab { padding: 6px 9px; font-size: 12px; } }
 
     #loading { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 12px; font-size: 14px; color: var(--muted); }
     .spin { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
@@ -119,11 +124,14 @@
   <header class="header">
     <div class="header-left">
       <span class="header-title">Ejercicios Alemán</span>
-      <span class="header-badge">ADMIN · GENERADOR DE CONTENIDO</span>
+      <span class="header-badge">ADMIN · MARKETING</span>
+      <nav class="nav-tabs">
+        <a href="/marketing/" class="nav-tab">📊 Estrategia</a>
+        <a href="/marketing/contenido.html" class="nav-tab active">🎠 Generador</a>
+      </nav>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <a href="/marketing/" class="btn-sm">← Estrategia</a>
-      <a href="/admin/" class="btn-sm">Dashboard</a>
+      <a href="/admin/" class="btn-sm">← Dashboard</a>
     </div>
   </header>
 

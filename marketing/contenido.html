@@ -434,7 +434,7 @@ function renderPreview() {
 
   const tags = (currentCarousel.hashtags || []).join(' ');
   $('caption-box').textContent = (currentCarousel.caption || '') + (tags ? '\n\n' + tags : '');
-  $('result').style.display = '';
+  $('result').style.display = 'block';
   $('result').scrollIntoView({ behavior: 'smooth' });
 }
 

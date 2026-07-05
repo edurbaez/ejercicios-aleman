@@ -7970,5 +7970,1789 @@
       ],
       "explanation": "Se usa 'darüber' para conectar el aprendizaje con la conferencia."
     }
+  ],
+  "c1-10": [
+    {
+      "source": "Als er ankam, begann das Konzert.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum war er angekommen, als das Konzert begann."
+      ],
+      "explanation": "Se usa 'Kaum...als' para enfatizar la simultaneidad de las acciones, con ambos verbos en Präteritum."
+    },
+    {
+      "source": "Als sie das Buch las, verstand sie alles.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte sie das Buch gelesen, als sie alles verstand."
+      ],
+      "explanation": "La estructura 'Kaum...als' indica que la comprensión ocurrió inmediatamente después de la lectura, ambos en Präteritum."
+    },
+    {
+      "source": "Wenn du die Arbeit beendet hast, kannst du gehen.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du die Arbeit beendet hast, kannst du gehen."
+      ],
+      "explanation": "La frase se transforma para enfatizar que solo al terminar el trabajo se puede ir, usando 'Erst wenn'."
+    },
+    {
+      "source": "Er dachte nie, dass er gewinnen könnte.",
+      "instruction": "Transforma usando 'Nie' al inicio.",
+      "solutions": [
+        "Nie hätte er gedacht, dass er gewinnen könnte."
+      ],
+      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
+    },
+    {
+      "source": "Als der Sturm begann, suchten sie Schutz.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte der Sturm begonnen, als sie Schutz suchten."
+      ],
+      "explanation": "La estructura 'Kaum...als' se usa para mostrar que buscaron refugio inmediatamente después de que comenzara la tormenta."
+    },
+    {
+      "source": "Wenn du das Problem löst, wirst du belohnt.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du das Problem löst, wirst du belohnt."
+      ],
+      "explanation": "La transformación enfatiza que la recompensa solo llegará después de resolver el problema, usando 'Erst wenn'."
+    },
+    {
+      "source": "Als sie die Nachricht hörte, war sie überrascht.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte sie die Nachricht gehört, als sie überrascht war."
+      ],
+      "explanation": "La estructura 'Kaum...als' indica que la sorpresa ocurrió inmediatamente después de escuchar la noticia."
+    },
+    {
+      "source": "Er dachte selten daran, wie glücklich er war.",
+      "instruction": "Transforma usando 'Selten' al inicio.",
+      "solutions": [
+        "Selten dachte er daran, wie glücklich er war."
+      ],
+      "explanation": "Iniciar con 'Selten' crea un énfasis retórico y requiere la inversión del verbo y el sujeto."
+    },
+    {
+      "source": "Als das Telefon klingelte, sprang sie auf.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte das Telefon geklingelt, als sie aufsprang."
+      ],
+      "explanation": "La estructura 'Kaum...als' muestra que ella reaccionó inmediatamente al sonido del teléfono."
+    },
+    {
+      "source": "Wenn du die Aufgabe erledigst, bekommst du eine Pause.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du die Aufgabe erledigst, bekommst du eine Pause."
+      ],
+      "explanation": "La transformación enfatiza que la pausa solo se permite después de completar la tarea, usando 'Erst wenn'."
+    },
+    {
+      "source": "Als das Licht ausging, wurde es dunkel.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum war das Licht ausgegangen, als es dunkel wurde."
+      ],
+      "explanation": "La estructura 'Kaum...als' se usa para mostrar que la oscuridad siguió inmediatamente al apagado de la luz."
+    },
+    {
+      "source": "Er dachte nie, dass er so weit kommen würde.",
+      "instruction": "Transforma usando 'Nie' al inicio.",
+      "solutions": [
+        "Nie hätte er gedacht, dass er so weit kommen würde."
+      ],
+      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
+    },
+    {
+      "source": "Wenn du die Prüfung bestehst, feiern wir.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du die Prüfung bestehst, feiern wir."
+      ],
+      "explanation": "La transformación enfatiza que la celebración solo ocurrirá después de pasar el examen, usando 'Erst wenn'."
+    },
+    {
+      "source": "Als der Regen aufhörte, gingen sie spazieren.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte der Regen aufgehört, als sie spazieren gingen."
+      ],
+      "explanation": "La estructura 'Kaum...als' indica que el paseo comenzó inmediatamente después de que cesó la lluvia."
+    },
+    {
+      "source": "Er dachte selten über seine Zukunft nach.",
+      "instruction": "Transforma usando 'Selten' al inicio.",
+      "solutions": [
+        "Selten dachte er über seine Zukunft nach."
+      ],
+      "explanation": "Iniciar con 'Selten' crea un énfasis retórico y requiere la inversión del verbo y el sujeto."
+    },
+    {
+      "source": "Als das Konzert endete, klatschten alle.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum hatte das Konzert geendet, als alle klatschten."
+      ],
+      "explanation": "La estructura 'Kaum...als' se usa para mostrar que los aplausos siguieron inmediatamente al final del concierto."
+    },
+    {
+      "source": "Wenn du die Tür schließt, wird es ruhig.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du die Tür schließt, wird es ruhig."
+      ],
+      "explanation": "La transformación enfatiza que la tranquilidad solo llega después de cerrar la puerta, usando 'Erst wenn'."
+    },
+    {
+      "source": "Als der Zug abfuhr, winkte sie zum Abschied.",
+      "instruction": "Transforma usando 'Kaum...als'.",
+      "solutions": [
+        "Kaum war der Zug abgefahren, als sie zum Abschied winkte."
+      ],
+      "explanation": "La estructura 'Kaum...als' muestra que su despedida ocurrió inmediatamente después de la partida del tren."
+    },
+    {
+      "source": "Er dachte nie, dass er so erfolgreich sein würde.",
+      "instruction": "Transforma usando 'Nie' al inicio.",
+      "solutions": [
+        "Nie hätte er gedacht, dass er so erfolgreich sein würde."
+      ],
+      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
+    },
+    {
+      "source": "Wenn du das Fenster öffnest, kommt frische Luft herein.",
+      "instruction": "Transforma usando 'Erst wenn'.",
+      "solutions": [
+        "Erst wenn du das Fenster öffnest, kommt frische Luft herein."
+      ],
+      "explanation": "La transformación enfatiza que el aire fresco solo entra después de abrir la ventana, usando 'Erst wenn'."
+    }
+  ],
+  "c2-01": [
+    {
+      "source": "Die Ergebnisse der Studie sind überraschend.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Die Resultate der Untersuchung erweisen sich als unerwartet."
+      ],
+      "explanation": "El registro científico requiere un léxico más técnico y preciso."
+    },
+    {
+      "source": "Wir haben den Vertrag unterschrieben.",
+      "instruction": "Exprésalo en un registro burocrático.",
+      "solutions": [
+        "Der Vertrag wurde unterzeichnet."
+      ],
+      "explanation": "El registro burocrático utiliza una estructura más impersonal y formal."
+    },
+    {
+      "source": "Das Wetter war gestern wirklich schlecht.",
+      "instruction": "Exprésalo en un registro coloquial.",
+      "solutions": [
+        "Gestern war das Wetter echt mies."
+      ],
+      "explanation": "El registro coloquial es más informal y directo, usando expresiones cotidianas."
+    },
+    {
+      "source": "Der Antrag wurde genehmigt.",
+      "instruction": "Exprésalo en un registro coloquial.",
+      "solutions": [
+        "Der Antrag ist durchgegangen."
+      ],
+      "explanation": "El registro coloquial simplifica y usa expresiones más comunes."
+    },
+    {
+      "source": "Es wurde festgestellt, dass die Daten korrekt sind.",
+      "instruction": "Exprésalo en un registro formal.",
+      "solutions": [
+        "Es ist festgestellt worden, dass die Daten korrekt sind."
+      ],
+      "explanation": "El registro formal mantiene la estructura pasiva pero con un estilo más cuidado."
+    },
+    {
+      "source": "Wir müssen die Kosten reduzieren.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Es ist notwendig, die Ausgaben zu minimieren."
+      ],
+      "explanation": "El registro científico utiliza un lenguaje más técnico y preciso."
+    },
+    {
+      "source": "Das ist nicht mein Problem.",
+      "instruction": "Exprésalo en un registro formal.",
+      "solutions": [
+        "Das ist nicht mein Anliegen."
+      ],
+      "explanation": "El registro formal utiliza un léxico más educado y distante."
+    },
+    {
+      "source": "Die Maschine funktioniert nicht.",
+      "instruction": "Exprésalo en un registro burocrático.",
+      "solutions": [
+        "Die Maschine ist außer Betrieb."
+      ],
+      "explanation": "El registro burocrático emplea términos más técnicos y formales."
+    },
+    {
+      "source": "Ich habe keine Ahnung, was passiert ist.",
+      "instruction": "Exprésalo en un registro coloquial.",
+      "solutions": [
+        "Ich hab' keinen Plan, was los ist."
+      ],
+      "explanation": "El registro coloquial es más relajado y usa expresiones del habla cotidiana."
+    },
+    {
+      "source": "Die Daten wurden analysiert.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Die Datenanalyse wurde durchgeführt."
+      ],
+      "explanation": "El registro científico usa un lenguaje técnico y preciso."
+    },
+    {
+      "source": "Der Bericht ist fertiggestellt.",
+      "instruction": "Exprésalo en un registro coloquial.",
+      "solutions": [
+        "Der Bericht ist fertig."
+      ],
+      "explanation": "El registro coloquial simplifica y usa expresiones más directas."
+    },
+    {
+      "source": "Die Sitzung wurde verschoben.",
+      "instruction": "Exprésalo en un registro burocrático.",
+      "solutions": [
+        "Die Sitzung ist vertagt worden."
+      ],
+      "explanation": "El registro burocrático utiliza un lenguaje más formal y técnico."
+    },
+    {
+      "source": "Es ist wichtig, die Regeln zu beachten.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Die Beachtung der Regeln ist von Bedeutung."
+      ],
+      "explanation": "El registro científico requiere un lenguaje más técnico y preciso."
+    },
+    {
+      "source": "Das ist eine gute Idee.",
+      "instruction": "Exprésalo en un registro formal.",
+      "solutions": [
+        "Das ist ein konstruktiver Vorschlag."
+      ],
+      "explanation": "El registro formal utiliza un léxico más sofisticado y educado."
+    },
+    {
+      "source": "Die Präsentation war erfolgreich.",
+      "instruction": "Exprésalo en un registro burocrático.",
+      "solutions": [
+        "Die Präsentation war von Erfolg gekrönt."
+      ],
+      "explanation": "El registro burocrático emplea un lenguaje más formal y estructurado."
+    },
+    {
+      "source": "Wir haben das Problem gelöst.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Das Problem wurde erfolgreich behoben."
+      ],
+      "explanation": "El registro científico utiliza un léxico más técnico y preciso."
+    },
+    {
+      "source": "Ich bin total müde.",
+      "instruction": "Exprésalo en un registro formal.",
+      "solutions": [
+        "Ich fühle mich äußerst erschöpft."
+      ],
+      "explanation": "El registro formal utiliza un lenguaje más sofisticado y educado."
+    },
+    {
+      "source": "Die Ergebnisse sind eindeutig.",
+      "instruction": "Exprésalo en un registro científico.",
+      "solutions": [
+        "Die Resultate sind klar und unmissverständlich."
+      ],
+      "explanation": "El registro científico requiere un lenguaje más técnico y preciso."
+    },
+    {
+      "source": "Das ist mir egal.",
+      "instruction": "Exprésalo en un registro formal.",
+      "solutions": [
+        "Das ist für mich ohne Belang."
+      ],
+      "explanation": "El registro formal utiliza un léxico más sofisticado y educado."
+    },
+    {
+      "source": "Es war ein langer Tag.",
+      "instruction": "Exprésalo en un registro coloquial.",
+      "solutions": [
+        "Der Tag war echt lang."
+      ],
+      "explanation": "El registro coloquial es más relajado y usa expresiones del habla cotidiana."
+    }
+  ],
+  "c2-02": [
+    {
+      "source": "Ich verstehe nicht, warum er sich so verhält.",
+      "instruction": "Reescribe la frase usando la expresión 'Tomaten auf den Augen haben'.",
+      "solutions": [
+        "Er muss Tomaten auf den Augen haben, weil er sich so verhält."
+      ],
+      "explanation": "La expresión 'Tomaten auf den Augen haben' se usa para indicar que alguien no ve lo obvio."
+    },
+    {
+      "source": "Er hat den Vertrag unterschrieben, ohne die Details zu prüfen.",
+      "instruction": "Reescribe la frase usando la expresión 'die Katze im Sack kaufen'.",
+      "solutions": [
+        "Er hat die Katze im Sack gekauft, als er den Vertrag unterschrieb."
+      ],
+      "explanation": "La expresión 'die Katze im Sack kaufen' significa comprar algo sin saber lo que realmente es."
+    },
+    {
+      "source": "Er versucht herauszufinden, was sie wirklich denkt.",
+      "instruction": "Reescribe la frase usando la expresión 'jemandem auf den Zahn fühlen'.",
+      "solutions": [
+        "Er versucht, ihr auf den Zahn zu fühlen, um zu wissen, was sie denkt."
+      ],
+      "explanation": "La expresión 'jemandem auf den Zahn fühlen' se utiliza para sonsacar información de alguien."
+    },
+    {
+      "source": "Das ist nicht meine Angelegenheit.",
+      "instruction": "Reescribe la frase usando la expresión 'Das ist nicht mein Bier'.",
+      "solutions": [
+        "Das ist nicht mein Bier."
+      ],
+      "explanation": "La expresión 'Das ist nicht mein Bier' se usa para indicar que algo no es asunto de uno."
+    },
+    {
+      "source": "Er hat sich in eine schwierige Lage gebracht.",
+      "instruction": "Reescribe la frase usando la expresión 'in die Bredouille geraten'.",
+      "solutions": [
+        "Er ist in die Bredouille geraten."
+      ],
+      "explanation": "La expresión 'in die Bredouille geraten' significa meterse en una situación difícil."
+    },
+    {
+      "source": "Sie ist sehr nervös wegen der Prüfung.",
+      "instruction": "Reescribe la frase usando la expresión 'kalte Füße bekommen'.",
+      "solutions": [
+        "Sie hat kalte Füße wegen der Prüfung bekommen."
+      ],
+      "explanation": "La expresión 'kalte Füße bekommen' se usa para describir a alguien que se pone nervioso o duda."
+    },
+    {
+      "source": "Er hat die Situation nicht unter Kontrolle.",
+      "instruction": "Reescribe la frase usando la expresión 'den Faden verlieren'.",
+      "solutions": [
+        "Er hat den Faden verloren in der Situation."
+      ],
+      "explanation": "La expresión 'den Faden verlieren' se refiere a perder el control o la concentración."
+    },
+    {
+      "source": "Sie hat ihm die Wahrheit gesagt.",
+      "instruction": "Reescribe la frase usando la expresión 'reinen Tisch machen'.",
+      "solutions": [
+        "Sie hat reinen Tisch gemacht, indem sie ihm die Wahrheit sagte."
+      ],
+      "explanation": "La expresión 'reinen Tisch machen' significa aclarar las cosas o ser honesto."
+    },
+    {
+      "source": "Er ist sehr optimistisch über die Zukunft.",
+      "instruction": "Reescribe la frase usando la expresión 'alles durch die rosarote Brille sehen'.",
+      "solutions": [
+        "Er sieht alles durch die rosarote Brille, wenn es um die Zukunft geht."
+      ],
+      "explanation": "La expresión 'alles durch die rosarote Brille sehen' se usa para describir un optimismo excesivo."
+    },
+    {
+      "source": "Sie hat die Kontrolle über das Projekt verloren.",
+      "instruction": "Reescribe la frase usando la expresión 'die Zügel aus der Hand geben'.",
+      "solutions": [
+        "Sie hat die Zügel aus der Hand gegeben beim Projekt."
+      ],
+      "explanation": "La expresión 'die Zügel aus der Hand geben' significa perder el control sobre algo."
+    },
+    {
+      "source": "Er hat sich sehr stark verändert.",
+      "instruction": "Reescribe la frase usando la expresión 'eine 180-Grad-Wende machen'.",
+      "solutions": [
+        "Er hat eine 180-Grad-Wende gemacht."
+      ],
+      "explanation": "La expresión 'eine 180-Grad-Wende machen' se refiere a un cambio completo o radical."
+    },
+    {
+      "source": "Sie hat ihm die Wahrheit nicht gesagt.",
+      "instruction": "Reescribe la frase usando la expresión 'jemandem einen Bären aufbinden'.",
+      "solutions": [
+        "Sie hat ihm einen Bären aufgebunden."
+      ],
+      "explanation": "La expresión 'jemandem einen Bären aufbinden' significa engañar a alguien o contarle una mentira."
+    },
+    {
+      "source": "Er hat die Situation falsch eingeschätzt.",
+      "instruction": "Reescribe la frase usando la expresión 'auf dem Holzweg sein'.",
+      "solutions": [
+        "Er ist auf dem Holzweg mit seiner Einschätzung der Situation."
+      ],
+      "explanation": "La expresión 'auf dem Holzweg sein' se usa para indicar que alguien está equivocado."
+    },
+    {
+      "source": "Sie hat die ganze Nacht gearbeitet.",
+      "instruction": "Reescribe la frase usando la expresión 'die Nacht zum Tag machen'.",
+      "solutions": [
+        "Sie hat die Nacht zum Tag gemacht, indem sie die ganze Nacht arbeitete."
+      ],
+      "explanation": "La expresión 'die Nacht zum Tag machen' significa trabajar o estar activo durante la noche."
+    },
+    {
+      "source": "Er hat sich nicht um die Details gekümmert.",
+      "instruction": "Reescribe la frase usando la expresión 'über die Stränge schlagen'.",
+      "solutions": [
+        "Er hat über die Stränge geschlagen, indem er sich nicht um die Details kümmerte."
+      ],
+      "explanation": "La expresión 'über die Stränge schlagen' se refiere a comportarse de manera irresponsable."
+    },
+    {
+      "source": "Sie hat ihm die ganze Wahrheit gesagt.",
+      "instruction": "Reescribe la frase usando la expresión 'mit offenen Karten spielen'.",
+      "solutions": [
+        "Sie hat mit offenen Karten gespielt, indem sie ihm die ganze Wahrheit sagte."
+      ],
+      "explanation": "La expresión 'mit offenen Karten spielen' significa ser honesto y transparente."
+    },
+    {
+      "source": "Er hat die Situation nicht richtig eingeschätzt.",
+      "instruction": "Reescribe la frase usando la expresión 'auf dem falschen Dampfer sein'.",
+      "solutions": [
+        "Er ist auf dem falschen Dampfer mit seiner Einschätzung der Situation."
+      ],
+      "explanation": "La expresión 'auf dem falschen Dampfer sein' se usa para indicar que alguien está equivocado."
+    },
+    {
+      "source": "Sie hat ihm einen großen Gefallen getan.",
+      "instruction": "Reescribe la frase usando la expresión 'jemandem einen Bärendienst erweisen'.",
+      "solutions": [
+        "Sie hat ihm einen Bärendienst erwiesen."
+      ],
+      "explanation": "La expresión 'jemandem einen Bärendienst erweisen' significa hacer algo que, aunque bien intencionado, resulta perjudicial."
+    },
+    {
+      "source": "Er hat das Problem nicht gelöst.",
+      "instruction": "Reescribe la frase usando la expresión 'den Kopf in den Sand stecken'.",
+      "solutions": [
+        "Er hat den Kopf in den Sand gesteckt, anstatt das Problem zu lösen."
+      ],
+      "explanation": "La expresión 'den Kopf in den Sand stecken' significa ignorar un problema en lugar de enfrentarlo."
+    },
+    {
+      "source": "Sie hat die Situation nicht richtig eingeschätzt.",
+      "instruction": "Reescribe la frase usando la expresión 'auf dem Holzweg sein'.",
+      "solutions": [
+        "Sie ist auf dem Holzweg mit ihrer Einschätzung der Situation."
+      ],
+      "explanation": "La expresión 'auf dem Holzweg sein' se usa para indicar que alguien está equivocado."
+    }
+  ],
+  "c2-03": [
+    {
+      "source": "Er hat das Projekt nicht erfolgreich abgeschlossen.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Er hat das Projekt ja wieder mit Bravour abgeschlossen!"
+      ],
+      "explanation": "La ironía se utiliza para expresar lo contrario de lo que realmente se quiere decir, en este caso, que el proyecto no fue exitoso."
+    },
+    {
+      "source": "Er ist arbeitslos geworden.",
+      "instruction": "Reescribe la frase usando un eufemismo.",
+      "solutions": [
+        "Er ist beruflich freigestellt worden."
+      ],
+      "explanation": "El eufemismo suaviza la expresión de una situación negativa, como perder el empleo."
+    },
+    {
+      "source": "Das Buch ist interessant.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Das Buch ist nicht uninteressant."
+      ],
+      "explanation": "La lítotes niega lo contrario para afirmar, en este caso, que el libro es interesante."
+    },
+    {
+      "source": "Er hat sehr laut gesprochen.",
+      "instruction": "Reescribe la frase usando una hipérbole.",
+      "solutions": [
+        "Er hat so laut gesprochen, dass die Wände wackelten!"
+      ],
+      "explanation": "La hipérbole exagera deliberadamente para enfatizar la intensidad de la acción."
+    },
+    {
+      "source": "Er hat viele Male angerufen.",
+      "instruction": "Reescribe la frase usando una hipérbole.",
+      "solutions": [
+        "Er hat tausendmal angerufen!"
+      ],
+      "explanation": "La hipérbole se utiliza para exagerar la frecuencia de las llamadas."
+    },
+    {
+      "source": "Das war ein kleiner Fehler.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Das war ja ein riesiger Fehler!"
+      ],
+      "explanation": "La ironía expresa lo contrario de lo que se quiere decir, sugiriendo que fue un error significativo."
+    },
+    {
+      "source": "Er hat nicht viel Geld verloren.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat nicht wenig Geld verloren."
+      ],
+      "explanation": "La lítotes niega lo contrario para afirmar que en realidad perdió una cantidad considerable de dinero."
+    },
+    {
+      "source": "Er hat das Thema nicht ignoriert.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat das Thema nicht unbeachtet gelassen."
+      ],
+      "explanation": "La lítotes se utiliza para afirmar que el tema fue considerado, negando que fue ignorado."
+    },
+    {
+      "source": "Er ist sehr alt geworden.",
+      "instruction": "Reescribe la frase usando un eufemismo.",
+      "solutions": [
+        "Er ist in die Jahre gekommen."
+      ],
+      "explanation": "El eufemismo suaviza la expresión de la vejez, haciéndola más amable."
+    },
+    {
+      "source": "Sie hat das Problem gelöst.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Sie hat das Problem ja wunderbar gelöst!"
+      ],
+      "explanation": "La ironía se utiliza para expresar que el problema no fue resuelto de manera efectiva."
+    },
+    {
+      "source": "Das war ein großer Erfolg.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Das war ja ein totaler Misserfolg!"
+      ],
+      "explanation": "La ironía se emplea para expresar lo contrario, sugiriendo que no fue un éxito."
+    },
+    {
+      "source": "Er hat nicht wenig gearbeitet.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat nicht wenig gearbeitet."
+      ],
+      "explanation": "La lítotes aquí ya está aplicada, afirmando que trabajó mucho mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er hat nicht wenig Zeit investiert.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat nicht wenig Zeit investiert."
+      ],
+      "explanation": "La lítotes ya está presente, indicando que invirtió mucho tiempo mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er hat das nicht schlecht gemacht.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat das nicht schlecht gemacht."
+      ],
+      "explanation": "La lítotes ya está presente, afirmando que lo hizo bien mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er hat das Projekt abgeschlossen.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Er hat das Projekt ja wunderbar abgeschlossen!"
+      ],
+      "explanation": "La ironía se utiliza para expresar que el proyecto no fue completado de manera satisfactoria."
+    },
+    {
+      "source": "Das war ein kleiner Verlust.",
+      "instruction": "Reescribe la frase usando ironía.",
+      "solutions": [
+        "Das war ja ein riesiger Verlust!"
+      ],
+      "explanation": "La ironía expresa lo contrario, sugiriendo que fue una pérdida significativa."
+    },
+    {
+      "source": "Er hat nicht wenig Geld investiert.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat nicht wenig Geld investiert."
+      ],
+      "explanation": "La lítotes ya está presente, afirmando que invirtió mucho dinero mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er hat das Thema nicht ignoriert.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat das Thema nicht ignoriert."
+      ],
+      "explanation": "La lítotes ya está aplicada, afirmando que el tema fue considerado mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er ist nicht dumm.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er ist nicht dumm."
+      ],
+      "explanation": "La lítotes ya está presente, afirmando que es inteligente mediante la negación de lo contrario."
+    },
+    {
+      "source": "Er hat nicht wenig gearbeitet.",
+      "instruction": "Reescribe la frase usando una lítotes.",
+      "solutions": [
+        "Er hat nicht wenig gearbeitet."
+      ],
+      "explanation": "La lítotes ya está aplicada, afirmando que trabajó mucho mediante la negación de lo contrario."
+    }
+  ],
+  "c2-04": [
+    {
+      "source": "Er sagte, dass er keine Zeit habe.",
+      "instruction": "Introduce una implicatura que sugiera que realmente no quiere kommen.",
+      "solutions": [
+        "Er sagte, dass er keine Zeit habe, aber..."
+      ],
+      "explanation": "La implicatura 'aber...' sugiere que la razón real es otra, como la falta de ganas."
+    },
+    {
+      "source": "Sie hat das Geschenk angenommen.",
+      "instruction": "Reescribe la frase con una implicatura que sugiera desagrado.",
+      "solutions": [
+        "Sie hat das Geschenk angenommen, aber..."
+      ],
+      "explanation": "El uso de 'aber...' implica que no le gustó el regalo."
+    },
+    {
+      "source": "Er hat das Buch gelesen.",
+      "instruction": "Introduce una presuposición sobre la calidad del libro.",
+      "solutions": [
+        "Er hat das Buch gelesen, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' sugiere que el libro no era bueno."
+    },
+    {
+      "source": "Sie ist nach Hause gegangen.",
+      "instruction": "Introduce una implicatura que sugiera que algo no fue bien.",
+      "solutions": [
+        "Sie ist nach Hause gegangen, nachdem..."
+      ],
+      "explanation": "La implicatura 'nachdem...' sugiere que algo negativo ocurrió antes de irse."
+    },
+    {
+      "source": "Er hat das Fenster geöffnet.",
+      "instruction": "Reescribe la frase usando una implicatura de molestia.",
+      "solutions": [
+        "Er hat das Fenster geöffnet, obwohl..."
+      ],
+      "explanation": "El uso de 'obwohl...' implica que abrir la ventana fue molesto para él."
+    },
+    {
+      "source": "Sie hat den Kuchen gegessen.",
+      "instruction": "Introduce una implicatura que sugiera que no le gustó.",
+      "solutions": [
+        "Sie hat den Kuchen gegessen, aber..."
+      ],
+      "explanation": "El 'aber...' implica que el pastel no era de su agrado."
+    },
+    {
+      "source": "Er hat den Film gesehen.",
+      "instruction": "Introduce una presuposición sobre su reacción al film.",
+      "solutions": [
+        "Er hat den Film gesehen, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' sugiere que no le gustó la película."
+    },
+    {
+      "source": "Sie hat das Bild gekauft.",
+      "instruction": "Introduce una implicatura que sugiera duda sobre la compra.",
+      "solutions": [
+        "Sie hat das Bild gekauft, obwohl..."
+      ],
+      "explanation": "El uso de 'obwohl...' insinúa que no estaba segura de la compra."
+    },
+    {
+      "source": "Er hat das Problem gelöst.",
+      "instruction": "Introduce una implicatura que sugiera que no fue fácil.",
+      "solutions": [
+        "Er hat das Problem gelöst, aber..."
+      ],
+      "explanation": "El 'aber...' implica que la solución fue complicada."
+    },
+    {
+      "source": "Sie hat das Konzert besucht.",
+      "instruction": "Introduce una implicatura que sugiera decepción.",
+      "solutions": [
+        "Sie hat das Konzert besucht, aber..."
+      ],
+      "explanation": "El 'aber...' sugiere que el concierto no fue satisfactorio."
+    },
+    {
+      "source": "Er hat die Prüfung bestanden.",
+      "instruction": "Introduce una implicatura que sugiera sorpresa.",
+      "solutions": [
+        "Er hat die Prüfung bestanden, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' implica que no se esperaba que pasara."
+    },
+    {
+      "source": "Sie hat das Auto gekauft.",
+      "instruction": "Introduce una implicatura que sugiera arrepentimiento.",
+      "solutions": [
+        "Sie hat das Auto gekauft, aber..."
+      ],
+      "explanation": "El 'aber...' insinúa que lamenta haberlo comprado."
+    },
+    {
+      "source": "Er hat das Buch geschrieben.",
+      "instruction": "Introduce una implicatura que sugiera que no fue fácil.",
+      "solutions": [
+        "Er hat das Buch geschrieben, aber..."
+      ],
+      "explanation": "El 'aber...' implica que el proceso de escritura fue difícil."
+    },
+    {
+      "source": "Sie hat die Wahrheit gesagt.",
+      "instruction": "Introduce una implicatura que sugiera que fue difícil.",
+      "solutions": [
+        "Sie hat die Wahrheit gesagt, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' indica que decir la verdad fue complicado."
+    },
+    {
+      "source": "Er hat das Angebot angenommen.",
+      "instruction": "Introduce una implicatura que sugiera duda.",
+      "solutions": [
+        "Er hat das Angebot angenommen, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' sugiere que tenía dudas sobre aceptar."
+    },
+    {
+      "source": "Sie hat die Musik gehört.",
+      "instruction": "Introduce una implicatura que sugiera que no le gustó.",
+      "solutions": [
+        "Sie hat die Musik gehört, aber..."
+      ],
+      "explanation": "El 'aber...' implica que la música no fue de su agrado."
+    },
+    {
+      "source": "Er hat den Vortrag gehalten.",
+      "instruction": "Introduce una implicatura que sugiera que no fue bueno.",
+      "solutions": [
+        "Er hat den Vortrag gehalten, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' sugiere que el discurso no fue exitoso."
+    },
+    {
+      "source": "Sie hat das Kleid gekauft.",
+      "instruction": "Introduce una implicatura que sugiera arrepentimiento.",
+      "solutions": [
+        "Sie hat das Kleid gekauft, aber..."
+      ],
+      "explanation": "El 'aber...' insinúa que lamenta haber comprado el vestido."
+    },
+    {
+      "source": "Er hat die Aufgabe erledigt.",
+      "instruction": "Introduce una implicatura que sugiera que no fue fácil.",
+      "solutions": [
+        "Er hat die Aufgabe erledigt, aber..."
+      ],
+      "explanation": "El 'aber...' implica que completar la tarea fue difícil."
+    },
+    {
+      "source": "Sie hat den Vertrag unterschrieben.",
+      "instruction": "Introduce una implicatura que sugiera duda.",
+      "solutions": [
+        "Sie hat den Vertrag unterschrieben, obwohl..."
+      ],
+      "explanation": "La presuposición 'obwohl...' sugiere que tenía dudas al firmar."
+    }
+  ],
+  "c2-05": [
+    {
+      "source": "Die Forscher haben die Hypothese bestätigt.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurde die Hypothese bestätigt."
+      ],
+      "explanation": "Se utiliza la pasiva impersonal para enfatizar el resultado en lugar de quién realizó la acción."
+    },
+    {
+      "source": "Man vermutet, dass die Ergebnisse korrekt sind.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Vermutung besteht, dass die Ergebnisse korrekt sind."
+      ],
+      "explanation": "La nominalización transforma una acción o estado en un sustantivo, lo que densifica el texto."
+    },
+    {
+      "source": "Ich habe festgestellt, dass die Daten unvollständig sind.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde festgestellt, dass die Daten unvollständig sind."
+      ],
+      "explanation": "El hedging mitiga la afirmación, haciéndola sonar más objetiva y científica."
+    },
+    {
+      "source": "Die Wissenschaftler analysieren die Proben.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es werden die Proben analysiert."
+      ],
+      "explanation": "La pasiva impersonal se usa para centrar la atención en la acción más que en los agentes."
+    },
+    {
+      "source": "Man glaubt, dass die Theorie korrekt ist.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Der Glaube besteht, dass die Theorie korrekt ist."
+      ],
+      "explanation": "La nominalización convierte la acción en un sustantivo, aportando formalidad al texto."
+    },
+    {
+      "source": "Ich habe die Ergebnisse überprüft.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurden die Ergebnisse überprüft."
+      ],
+      "explanation": "La pasiva impersonal se usa para presentar los resultados de manera neutral y objetiva."
+    },
+    {
+      "source": "Man kann annehmen, dass die Hypothese richtig ist.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Annahme besteht, dass die Hypothese richtig ist."
+      ],
+      "explanation": "La nominalización densifica la información y aporta un tono académico al texto."
+    },
+    {
+      "source": "Ich habe beobachtet, dass die Reaktion langsam ist.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde beobachtet, dass die Reaktion langsam ist."
+      ],
+      "explanation": "El hedging mitiga la afirmación, presentándola como una observación objetiva."
+    },
+    {
+      "source": "Die Experten haben die Studie veröffentlicht.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurde die Studie veröffentlicht."
+      ],
+      "explanation": "La pasiva impersonal se utiliza para dar prioridad al hecho de la publicación sobre los autores."
+    },
+    {
+      "source": "Man nimmt an, dass die Methode effektiv ist.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Annahme besteht, dass die Methode effektiv ist."
+      ],
+      "explanation": "La nominalización convierte la suposición en un sustantivo, aportando formalidad al texto."
+    },
+    {
+      "source": "Ich habe herausgefunden, dass die Daten fehlerhaft sind.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde herausgefunden, dass die Daten fehlerhaft sind."
+      ],
+      "explanation": "El hedging suaviza la afirmación, haciéndola parecer más objetiva y menos personal."
+    },
+    {
+      "source": "Die Forscher haben die Resultate interpretiert.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurden die Resultate interpretiert."
+      ],
+      "explanation": "La pasiva impersonal se emplea para centrar la atención en la acción en lugar de los agentes."
+    },
+    {
+      "source": "Man geht davon aus, dass die Theorie gültig ist.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Annahme besteht, dass die Theorie gültig ist."
+      ],
+      "explanation": "La nominalización transforma una acción en un sustantivo, aportando densidad al texto."
+    },
+    {
+      "source": "Ich habe erkannt, dass der Prozess ineffizient ist.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde erkannt, dass der Prozess ineffizient ist."
+      ],
+      "explanation": "El hedging mitiga la afirmación, presentándola de manera más neutral y científica."
+    },
+    {
+      "source": "Die Wissenschaftler haben die Hypothese abgelehnt.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurde die Hypothese abgelehnt."
+      ],
+      "explanation": "La pasiva impersonal se usa para priorizar el hecho de la acción sobre los agentes."
+    },
+    {
+      "source": "Man nimmt an, dass die Daten korrekt sind.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Annahme besteht, dass die Daten korrekt sind."
+      ],
+      "explanation": "La nominalización convierte la acción en un sustantivo, lo que densifica el texto académico."
+    },
+    {
+      "source": "Ich habe festgestellt, dass die Methode unzureichend ist.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde festgestellt, dass die Methode unzureichend ist."
+      ],
+      "explanation": "El hedging suaviza la afirmación, haciéndola parecer más objetiva y menos personal."
+    },
+    {
+      "source": "Die Experten haben die Analyse durchgeführt.",
+      "instruction": "Reescribe la frase usando pasiva impersonal.",
+      "solutions": [
+        "Es wurde die Analyse durchgeführt."
+      ],
+      "explanation": "La pasiva impersonal se utiliza para centrar la atención en la acción más que en los agentes."
+    },
+    {
+      "source": "Man vermutet, dass die Ergebnisse zuverlässig sind.",
+      "instruction": "Reescribe la frase usando nominalización.",
+      "solutions": [
+        "Die Vermutung besteht, dass die Ergebnisse zuverlässig sind."
+      ],
+      "explanation": "La nominalización transforma una acción en un sustantivo, aportando formalidad al texto."
+    },
+    {
+      "source": "Ich habe herausgefunden, dass die Theorie falsch ist.",
+      "instruction": "Reescribe la frase usando hedging.",
+      "solutions": [
+        "Es wurde herausgefunden, dass die Theorie falsch ist."
+      ],
+      "explanation": "El hedging mitiga la afirmación, presentándola como una observación objetiva."
+    }
+  ],
+  "c2-06": [
+    {
+      "source": "Es wurde Licht.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Es ward Licht."
+      ],
+      "explanation": "La forma arcaica 'ward' se usa en lugar de 'wurde' en textos clásicos."
+    },
+    {
+      "source": "Er soll gesegnet werden.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Er sei gesegnet."
+      ],
+      "explanation": "El Konjunktiv I desiderativo 'sei' se usa para expresar un deseo o bendición."
+    },
+    {
+      "source": "Er möge in Frieden ruhen.",
+      "instruction": "Reescribe la frase usando el optativo arcaico.",
+      "solutions": [
+        "Möge er in Frieden ruhen."
+      ],
+      "explanation": "La forma 'möge' se usa para expresar un deseo en un registro literario."
+    },
+    {
+      "source": "Es wurde Frieden.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Es ward Frieden."
+      ],
+      "explanation": "La forma arcaica 'ward' reemplaza 'wurde' en textos antiguos."
+    },
+    {
+      "source": "Er soll in Frieden ruhen.",
+      "instruction": "Reescribe la frase usando el optativo arcaico.",
+      "solutions": [
+        "Möge er in Frieden ruhen."
+      ],
+      "explanation": "El optativo 'möge' se utiliza para expresar deseos en un estilo elevado."
+    },
+    {
+      "source": "Sein Wille soll geschehen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Sein Wille geschehe."
+      ],
+      "explanation": "El Konjunktiv I desiderativo se usa para expresar un deseo o mandato."
+    },
+    {
+      "source": "Er wurde König.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward König."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico usado en literatura clásica."
+    },
+    {
+      "source": "Das Licht soll kommen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Das Licht komme."
+      ],
+      "explanation": "El uso del Konjunktiv I desiderativo expresa un deseo o mandato."
+    },
+    {
+      "source": "Er wurde befreit.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward befreit."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico que se encuentra en textos antiguos."
+    },
+    {
+      "source": "Die Wahrheit soll ans Licht kommen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Die Wahrheit komme ans Licht."
+      ],
+      "explanation": "El Konjunktiv I desiderativo se utiliza para expresar un deseo en un registro literario."
+    },
+    {
+      "source": "Es wurde Nacht.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Es ward Nacht."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico usado para narrar en textos clásicos."
+    },
+    {
+      "source": "Er soll die Prüfung bestehen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Er bestehe die Prüfung."
+      ],
+      "explanation": "El Konjunktiv I desiderativo expresa un deseo o mandato en un registro elevado."
+    },
+    {
+      "source": "Der Frieden soll herrschen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Der Frieden herrsche."
+      ],
+      "explanation": "El uso del Konjunktiv I desiderativo en esta frase expresa un deseo."
+    },
+    {
+      "source": "Er wurde ein Held.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward ein Held."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico que se usa en un contexto literario."
+    },
+    {
+      "source": "Das Königreich soll bestehen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Das Königreich bestehe."
+      ],
+      "explanation": "El Konjunktiv I desiderativo se emplea para expresar un deseo o mandato."
+    },
+    {
+      "source": "Er wurde ein Meister.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward ein Meister."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico utilizado en textos clásicos."
+    },
+    {
+      "source": "Die Gerechtigkeit soll siegen.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Die Gerechtigkeit siege."
+      ],
+      "explanation": "El Konjunktiv I desiderativo se usa para expresar un deseo o mandato en un registro literario."
+    },
+    {
+      "source": "Er wurde ein Weiser.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward ein Weiser."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico que se encuentra en literatura clásica."
+    },
+    {
+      "source": "Die Hoffnung soll niemals enden.",
+      "instruction": "Reescribe la frase usando el Konjunktiv I desiderativo.",
+      "solutions": [
+        "Die Hoffnung ende niemals."
+      ],
+      "explanation": "El uso del Konjunktiv I desiderativo expresa un deseo en un estilo elevado."
+    },
+    {
+      "source": "Er wurde ein König.",
+      "instruction": "Reescribe la frase usando el pretérito arcaico de 'werden'.",
+      "solutions": [
+        "Er ward ein König."
+      ],
+      "explanation": "La forma 'ward' es un pretérito arcaico usado en textos clásicos para narrar eventos."
+    }
+  ],
+  "c2-07": [
+    {
+      "source": "Guten Tag, wie kann ich Ihnen helfen?",
+      "instruction": "Reescribe el saludo usando un saludo bávaro.",
+      "solutions": [
+        "Grüß Gott, wie kann ich Ihnen helfen?",
+        "Servus, wie kann ich Ihnen helfen?"
+      ],
+      "explanation": "En Baviera y Austria se utilizan saludos como 'Grüß Gott' o 'Servus' en lugar de 'Guten Tag'."
+    },
+    {
+      "source": "Im Januar beginnt das neue Semester an der Universität.",
+      "instruction": "Reescribe el mes usando el término austriaco.",
+      "solutions": [
+        "Im Jänner beginnt das neue Semester an der Universität."
+      ],
+      "explanation": "En Austria, 'Jänner' se usa en lugar de 'Januar'."
+    },
+    {
+      "source": "Ich esse gerade mein Mittagessen.",
+      "instruction": "Reescribe la frase usando la forma suiza de 'estar comiendo'.",
+      "solutions": [
+        "Ich bin am Essen mein Mittagessen."
+      ],
+      "explanation": "En Suiza, se usa la forma 'am Essen sein' para indicar una acción en progreso."
+    },
+    {
+      "source": "Das ist das Buch, das ich gestern gekauft habe.",
+      "instruction": "Reescribe la frase usando 'dat' en lugar de 'das' como en Plattdeutsch.",
+      "solutions": [
+        "Dat ist dat Buch, dat ich gestern gekauft habe."
+      ],
+      "explanation": "En Plattdeutsch, 'dat' se usa en lugar de 'das'."
+    },
+    {
+      "source": "Hallo, wie geht es dir?",
+      "instruction": "Reescribe el saludo usando un saludo suizo.",
+      "solutions": [
+        "Grüezi, wie geht es dir?"
+      ],
+      "explanation": "En Suiza, 'Grüezi' es un saludo común en lugar de 'Hallo'."
+    },
+    {
+      "source": "Im Supermarkt kaufe ich Tomaten und Gurken.",
+      "instruction": "Reescribe 'Tomaten' usando el término austriaco.",
+      "solutions": [
+        "Im Supermarkt kaufe ich Paradeiser und Gurken."
+      ],
+      "explanation": "En Austria, 'Paradeiser' se usa en lugar de 'Tomaten'."
+    },
+    {
+      "source": "Guten Morgen, wie war Ihr Wochenende?",
+      "instruction": "Reescribe el saludo usando un saludo del norte de Alemania.",
+      "solutions": [
+        "Moin, wie war Ihr Wochenende?"
+      ],
+      "explanation": "En el norte de Alemania, 'Moin' se usa como saludo en lugar de 'Guten Morgen'."
+    },
+    {
+      "source": "Ich habe im Januar Geburtstag.",
+      "instruction": "Reescribe el mes usando el término austriaco.",
+      "solutions": [
+        "Ich habe im Jänner Geburtstag."
+      ],
+      "explanation": "En Austria, 'Jänner' se usa en lugar de 'Januar'."
+    },
+    {
+      "source": "Ich bin gerade dabei, meine Hausaufgaben zu machen.",
+      "instruction": "Reescribe la frase usando la forma suiza de 'estar haciendo'.",
+      "solutions": [
+        "Ich bin am Machen meiner Hausaufgaben."
+      ],
+      "explanation": "En Suiza, se usa la forma 'am Machen sein' para indicar una acción en progreso."
+    },
+    {
+      "source": "Das ist das Auto, das ich kaufen möchte.",
+      "instruction": "Reescribe la frase usando 'dat' en lugar de 'das' como en Plattdeutsch.",
+      "solutions": [
+        "Dat ist dat Auto, dat ich kaufen möchte."
+      ],
+      "explanation": "En Plattdeutsch, 'dat' se usa en lugar de 'das'."
+    },
+    {
+      "source": "Guten Abend, wie war Ihr Tag?",
+      "instruction": "Reescribe el saludo usando un saludo bávaro.",
+      "solutions": [
+        "Grüß Gott, wie war Ihr Tag?",
+        "Servus, wie war Ihr Tag?"
+      ],
+      "explanation": "En Baviera y Austria se utilizan saludos como 'Grüß Gott' o 'Servus' en lugar de 'Guten Abend'."
+    },
+    {
+      "source": "Im Februar fahren wir in den Urlaub.",
+      "instruction": "Reescribe el mes usando el término austriaco.",
+      "solutions": [
+        "Im Feber fahren wir in den Urlaub."
+      ],
+      "explanation": "En Austria, 'Feber' se usa en lugar de 'Februar'."
+    },
+    {
+      "source": "Ich lese gerade ein spannendes Buch.",
+      "instruction": "Reescribe la frase usando la forma suiza de 'estar leyendo'.",
+      "solutions": [
+        "Ich bin am Lesen ein spannendes Buch."
+      ],
+      "explanation": "En Suiza, se usa la forma 'am Lesen sein' para indicar una acción en progreso."
+    },
+    {
+      "source": "Das ist das Haus, das wir renovieren werden.",
+      "instruction": "Reescribe la frase usando 'dat' en lugar de 'das' como en Plattdeutsch.",
+      "solutions": [
+        "Dat ist dat Haus, dat wir renovieren werden."
+      ],
+      "explanation": "En Plattdeutsch, 'dat' se usa en lugar de 'das'."
+    },
+    {
+      "source": "Hallo, wie war dein Wochenende?",
+      "instruction": "Reescribe el saludo usando un saludo suizo.",
+      "solutions": [
+        "Grüezi, wie war dein Wochenende?"
+      ],
+      "explanation": "En Suiza, 'Grüezi' es un saludo común en lugar de 'Hallo'."
+    },
+    {
+      "source": "Im Supermarkt kaufe ich Äpfel und Tomaten.",
+      "instruction": "Reescribe 'Tomaten' usando el término austriaco.",
+      "solutions": [
+        "Im Supermarkt kaufe ich Äpfel und Paradeiser."
+      ],
+      "explanation": "En Austria, 'Paradeiser' se usa en lugar de 'Tomaten'."
+    },
+    {
+      "source": "Guten Abend, wie war Ihr Tag?",
+      "instruction": "Reescribe el saludo usando un saludo del norte de Alemania.",
+      "solutions": [
+        "Moin, wie war Ihr Tag?"
+      ],
+      "explanation": "En el norte de Alemania, 'Moin' se usa como saludo en lugar de 'Guten Abend'."
+    },
+    {
+      "source": "Ich habe im März Geburtstag.",
+      "instruction": "Reescribe el mes usando el término austriaco.",
+      "solutions": [
+        "Ich habe im März Geburtstag."
+      ],
+      "explanation": "En Austria, 'März' se mantiene igual que en el estándar, no hay cambio."
+    },
+    {
+      "source": "Ich bin gerade dabei, einen Artikel zu schreiben.",
+      "instruction": "Reescribe la frase usando la forma suiza de 'estar escribiendo'.",
+      "solutions": [
+        "Ich bin am Schreiben einen Artikel."
+      ],
+      "explanation": "En Suiza, se usa la forma 'am Schreiben sein' para indicar una acción en progreso."
+    },
+    {
+      "source": "Das ist das Projekt, das wir besprechen müssen.",
+      "instruction": "Reescribe la frase usando 'dat' en lugar de 'das' como en Plattdeutsch.",
+      "solutions": [
+        "Dat ist dat Projekt, dat wir besprechen müssen."
+      ],
+      "explanation": "En Plattdeutsch, 'dat' se usa en lugar de 'das'."
+    }
+  ],
+  "c2-08": [
+    {
+      "source": "Ich bin sicher, dass er kommt.",
+      "instruction": "Reescribe la frase usando 'Soweit ich weiß'.",
+      "solutions": [
+        "Soweit ich weiß, kommt er."
+      ],
+      "explanation": "Se utiliza 'Soweit ich weiß' para relativizar la certeza de la afirmación."
+    },
+    {
+      "source": "Er hat das Buch gelesen, obwohl er es nicht mochte.",
+      "instruction": "Reescribe la frase usando 'Es scheint, als ob'.",
+      "solutions": [
+        "Es scheint, als ob er das Buch gelesen hat, obwohl er es nicht mochte."
+      ],
+      "explanation": "Se usa 'Es scheint, als ob' para distanciarse de la afirmación directa."
+    },
+    {
+      "source": "Die Ergebnisse sind nicht zufriedenstellend.",
+      "instruction": "Reescribe la frase usando 'Mit anderen Worten'.",
+      "solutions": [
+        "Mit anderen Worten: Die Ergebnisse sind nicht zufriedenstellend."
+      ],
+      "explanation": "Se emplea 'Mit anderen Worten' para reformular y clarificar la afirmación."
+    },
+    {
+      "source": "Das bedeutet, dass wir mehr Zeit brauchen.",
+      "instruction": "Reescribe la frase usando 'Das heißt'.",
+      "solutions": [
+        "Das heißt, dass wir mehr Zeit brauchen."
+      ],
+      "explanation": "Se utiliza 'Das heißt' para introducir una explicación o clarificación."
+    },
+    {
+      "source": "Man kann sagen, dass das Experiment erfolgreich war.",
+      "instruction": "Reescribe la frase usando 'Abschließend lässt sich sagen'.",
+      "solutions": [
+        "Abschließend lässt sich sagen, dass das Experiment erfolgreich war."
+      ],
+      "explanation": "Se usa 'Abschließend lässt sich sagen' para concluir una argumentación."
+    },
+    {
+      "source": "Es gibt Leute, die anderer Meinung sind.",
+      "instruction": "Reescribe la frase usando 'Man könnte einwenden'.",
+      "solutions": [
+        "Man könnte einwenden, dass es Leute gibt, die anderer Meinung sind."
+      ],
+      "explanation": "Se emplea 'Man könnte einwenden' para presentar una posible objeción."
+    },
+    {
+      "source": "Ich glaube, dass er Recht hat.",
+      "instruction": "Reescribe la frase usando 'Soweit ich weiß'.",
+      "solutions": [
+        "Soweit ich weiß, hat er Recht."
+      ],
+      "explanation": "Se utiliza 'Soweit ich weiß' para expresar una creencia con cierta reserva."
+    },
+    {
+      "source": "Er hat gesagt, dass er keine Zeit hat.",
+      "instruction": "Reescribe la frase usando 'Es scheint, als ob'.",
+      "solutions": [
+        "Es scheint, als ob er keine Zeit hat."
+      ],
+      "explanation": "Se usa 'Es scheint, als ob' para expresar la información de forma indirecta."
+    },
+    {
+      "source": "Das Projekt ist komplex und erfordert viel Planung.",
+      "instruction": "Reescribe la frase usando 'Mit anderen Worten'.",
+      "solutions": [
+        "Mit anderen Worten: Das Projekt ist komplex und erfordert viel Planung."
+      ],
+      "explanation": "Se emplea 'Mit anderen Worten' para resumir o clarificar el contenido."
+    },
+    {
+      "source": "Das ist der Grund, warum wir die Strategie ändern müssen.",
+      "instruction": "Reescribe la frase usando 'Das heißt'.",
+      "solutions": [
+        "Das heißt, dass wir die Strategie ändern müssen."
+      ],
+      "explanation": "Se utiliza 'Das heißt' para simplificar y clarificar el motivo presentado."
+    },
+    {
+      "source": "Man kann abschließend sagen, dass die Diskussion fruchtbar war.",
+      "instruction": "Reescribe la frase usando 'Abschließend lässt sich sagen'.",
+      "solutions": [
+        "Abschließend lässt sich sagen, dass die Diskussion fruchtbar war."
+      ],
+      "explanation": "Se usa 'Abschließend lässt sich sagen' para concluir una discusión."
+    },
+    {
+      "source": "Es gibt Argumente, die gegen diese Theorie sprechen.",
+      "instruction": "Reescribe la frase usando 'Man könnte einwenden'.",
+      "solutions": [
+        "Man könnte einwenden, dass es Argumente gibt, die gegen diese Theorie sprechen."
+      ],
+      "explanation": "Se emplea 'Man könnte einwenden' para introducir una posible objeción."
+    },
+    {
+      "source": "Ich bin überzeugt, dass er die Wahrheit sagt.",
+      "instruction": "Reescribe la frase usando 'Soweit ich weiß'.",
+      "solutions": [
+        "Soweit ich weiß, sagt er die Wahrheit."
+      ],
+      "explanation": "Se utiliza 'Soweit ich weiß' para expresar una opinión con cierta reserva."
+    },
+    {
+      "source": "Er hat behauptet, dass er die Antwort kennt.",
+      "instruction": "Reescribe la frase usando 'Es scheint, als ob'.",
+      "solutions": [
+        "Es scheint, als ob er die Antwort kennt."
+      ],
+      "explanation": "Se usa 'Es scheint, als ob' para expresar la información de forma indirecta."
+    },
+    {
+      "source": "Das Konzept ist schwer zu verstehen.",
+      "instruction": "Reescribe la frase usando 'Mit anderen Worten'.",
+      "solutions": [
+        "Mit anderen Worten: Das Konzept ist schwer zu verstehen."
+      ],
+      "explanation": "Se emplea 'Mit anderen Worten' para resumir o clarificar el contenido."
+    },
+    {
+      "source": "Das bedeutet, dass wir mehr Ressourcen benötigen.",
+      "instruction": "Reescribe la frase usando 'Das heißt'.",
+      "solutions": [
+        "Das heißt, dass wir mehr Ressourcen benötigen."
+      ],
+      "explanation": "Se utiliza 'Das heißt' para simplificar y clarificar el motivo presentado."
+    },
+    {
+      "source": "Man kann abschließend sagen, dass die Ergebnisse positiv sind.",
+      "instruction": "Reescribe la frase usando 'Abschließend lässt sich sagen'.",
+      "solutions": [
+        "Abschließend lässt sich sagen, dass die Ergebnisse positiv sind."
+      ],
+      "explanation": "Se usa 'Abschließend lässt sich sagen' para concluir una discusión."
+    },
+    {
+      "source": "Es gibt Stimmen, die Zweifel an der Methode äußern.",
+      "instruction": "Reescribe la frase usando 'Man könnte einwenden'.",
+      "solutions": [
+        "Man könnte einwenden, dass es Stimmen gibt, die Zweifel an der Methode äußern."
+      ],
+      "explanation": "Se emplea 'Man könnte einwenden' para introducir una posible objeción."
+    },
+    {
+      "source": "Ich denke, dass er die richtige Entscheidung getroffen hat.",
+      "instruction": "Reescribe la frase usando 'Soweit ich weiß'.",
+      "solutions": [
+        "Soweit ich weiß, hat er die richtige Entscheidung getroffen."
+      ],
+      "explanation": "Se utiliza 'Soweit ich weiß' para expresar una opinión con cierta reserva."
+    },
+    {
+      "source": "Er sagte, dass er die Lösung gefunden hat.",
+      "instruction": "Reescribe la frase usando 'Es scheint, als ob'.",
+      "solutions": [
+        "Es scheint, als ob er die Lösung gefunden hat."
+      ],
+      "explanation": "Se usa 'Es scheint, als ob' para expresar la información de forma indirecta."
+    }
+  ],
+  "c2-09": [
+    {
+      "source": "Das sollte eigentlich funktionieren.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Das müsste eigentlich funktionieren."
+      ],
+      "explanation": "Se usa 'müsste eigentlich' para expresar que algo debería funcionar en principio, pero no es seguro."
+    },
+    {
+      "source": "Es ist wahrscheinlich, dass er das weiß.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Er dürfte wohl das wissen."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con cierta reserva sobre el conocimiento de alguien."
+    },
+    {
+      "source": "Er hätte das vielleicht vermeiden können.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Er hätte das vermeiden können."
+      ],
+      "explanation": "El uso de 'hätte können' ya implica una posibilidad pasada, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Das ist wahrscheinlich nicht korrekt.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Das dürfte wohl nicht korrekt sein."
+      ],
+      "explanation": "Se usa 'dürfte wohl' para expresar una estimación con reserva sobre la corrección de algo."
+    },
+    {
+      "source": "Er sollte das wissen.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Er müsste eigentlich das wissen."
+      ],
+      "explanation": "Con 'müsste eigentlich' se expresa que, en principio, se espera que alguien sepa algo."
+    },
+    {
+      "source": "Das könnte vielleicht klappen.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Das könnte klappen."
+      ],
+      "explanation": "El uso de 'könnte' ya implica una posibilidad, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Es ist möglich, dass sie das tun kann.",
+      "instruction": "Reescribe la frase usando 'hätte können'.",
+      "solutions": [
+        "Sie hätte das tun können."
+      ],
+      "explanation": "Se usa 'hätte können' para expresar una posibilidad pasada que no se realizó."
+    },
+    {
+      "source": "Das ist wahrscheinlich richtig.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Das dürfte wohl richtig sein."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con reserva sobre la corrección de algo."
+    },
+    {
+      "source": "Er sollte das eigentlich wissen.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Er müsste eigentlich das wissen."
+      ],
+      "explanation": "Con 'müsste eigentlich' se expresa que, en principio, se espera que alguien sepa algo."
+    },
+    {
+      "source": "Das könnte vielleicht nicht funktionieren.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Das könnte nicht funktionieren."
+      ],
+      "explanation": "El uso de 'könnte' ya implica una posibilidad, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Es ist wahrscheinlich, dass er es getan hat.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Er dürfte wohl es getan haben."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con reserva sobre la acción de alguien."
+    },
+    {
+      "source": "Das sollte doch möglich sein.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Das müsste eigentlich möglich sein."
+      ],
+      "explanation": "Con 'müsste eigentlich' se expresa que, en principio, algo debería ser posible."
+    },
+    {
+      "source": "Er hätte das vielleicht tun können.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Er hätte das tun können."
+      ],
+      "explanation": "El uso de 'hätte können' ya implica una posibilidad pasada, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Es ist möglich, dass das stimmt.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Das dürfte wohl stimmen."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con reserva sobre la veracidad de algo."
+    },
+    {
+      "source": "Er sollte das tun.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Er müsste eigentlich das tun."
+      ],
+      "explanation": "Con 'müsste eigentlich' se expresa que, en principio, se espera que alguien haga algo."
+    },
+    {
+      "source": "Das könnte vielleicht wahr sein.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Das könnte wahr sein."
+      ],
+      "explanation": "El uso de 'könnte' ya implica una posibilidad, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Es ist wahrscheinlich, dass sie das weiß.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Sie dürfte wohl das wissen."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con reserva sobre el conocimiento de alguien."
+    },
+    {
+      "source": "Das sollte eigentlich nicht passieren.",
+      "instruction": "Reescribe la frase usando 'müsste eigentlich'.",
+      "solutions": [
+        "Das müsste eigentlich nicht passieren."
+      ],
+      "explanation": "Con 'müsste eigentlich' se expresa que, en principio, algo no debería ocurrir."
+    },
+    {
+      "source": "Er hätte das vielleicht vermeiden können.",
+      "instruction": "Reescribe la frase eliminando 'vielleicht'.",
+      "solutions": [
+        "Er hätte das vermeiden können."
+      ],
+      "explanation": "El uso de 'hätte können' ya implica una posibilidad pasada, por lo que 'vielleicht' es redundante."
+    },
+    {
+      "source": "Es ist möglich, dass das funktioniert.",
+      "instruction": "Reescribe la frase usando 'dürfte wohl'.",
+      "solutions": [
+        "Das dürfte wohl funktionieren."
+      ],
+      "explanation": "Se utiliza 'dürfte wohl' para expresar una suposición con reserva sobre el funcionamiento de algo."
+    }
+  ],
+  "c2-10": [
+    {
+      "source": "Ich habe den Artikel gelesen und fand ihn interessant.",
+      "instruction": "Reescribe la frase como apertura de Leserbrief.",
+      "solutions": [
+        "Zu Ihrem Artikel vom … möchte ich anmerken, dass ich ihn interessant fand."
+      ],
+      "explanation": "La frase debe comenzar con una fórmula de apertura típica de un Leserbrief."
+    },
+    {
+      "source": "Der Bericht wird zeigen, ob die Maßnahmen erfolgreich waren.",
+      "instruction": "Reescribe la frase como apertura de Gutachten.",
+      "solutions": [
+        "Im Folgenden wird beurteilt, ob die Maßnahmen erfolgreich waren."
+      ],
+      "explanation": "La frase debe comenzar con una fórmula de apertura típica de un Gutachten."
+    },
+    {
+      "source": "In dem Buch wird beschrieben, wie die Charaktere sich entwickeln.",
+      "instruction": "Reescribe la frase como parte de un Protokoll.",
+      "solutions": [
+        "In dem Buch wurde beschrieben, wie die Charaktere sich entwickeln."
+      ],
+      "explanation": "El Protokoll debe ser objetivo y usar pasado o presente, sin primera persona."
+    },
+    {
+      "source": "Der Aufsatz endet mit einer Zusammenfassung der wichtigsten Punkte.",
+      "instruction": "Reescribe la frase como conclusión de un Essay.",
+      "solutions": [
+        "Der Aufsatz schließt mit einer Schlussfolgerung der wichtigsten Punkte."
+      ],
+      "explanation": "La conclusión de un Essay debe usar una fórmula de cierre típica."
+    },
+    {
+      "source": "Der Leserbrief beginnt mit einer persönlichen Anekdote.",
+      "instruction": "Reescribe la frase como apertura de Leserbrief.",
+      "solutions": [
+        "Zu Ihrem Artikel vom … möchte ich anmerken, dass ich eine persönliche Anekdote habe."
+      ],
+      "explanation": "La apertura de un Leserbrief debe referirse al artículo mencionado."
+    },
+    {
+      "source": "Der Gutachter wird die Daten analysieren und seine Meinung äußern.",
+      "instruction": "Reescribe la frase como apertura de Gutachten.",
+      "solutions": [
+        "Im Folgenden wird beurteilt, ob die Daten korrekt analysiert wurden."
+      ],
+      "explanation": "La apertura de un Gutachten debe indicar que se evaluará algo."
+    },
+    {
+      "source": "In der Diskussion wurde festgestellt, dass die Ergebnisse positiv sind.",
+      "instruction": "Reescribe la frase como parte de un Protokoll.",
+      "solutions": [
+        "In der Diskussion wurde festgestellt, dass die Ergebnisse positiv sind."
+      ],
+      "explanation": "El Protokoll debe ser objetivo, sin primera persona, usando pasado o presente."
+    },
+    {
+      "source": "Der Aufsatz beginnt mit einer Einführung in das Thema.",
+      "instruction": "Reescribe la frase como introducción de un Essay.",
+      "solutions": [
+        "Der Aufsatz beginnt mit einer Einleitung in das Thema."
+      ],
+      "explanation": "La introducción de un Essay debe usar una fórmula de apertura típica."
+    },
+    {
+      "source": "Der Leserbrief endet mit einer persönlichen Meinung.",
+      "instruction": "Reescribe la frase como cierre de Leserbrief.",
+      "solutions": [
+        "Abschließend möchte ich sagen, dass meine persönliche Meinung ist, dass..."
+      ],
+      "explanation": "El cierre de un Leserbrief debe incluir una fórmula de cierre adecuada."
+    },
+    {
+      "source": "Der Gutachter wird seine Schlussfolgerungen am Ende präsentieren.",
+      "instruction": "Reescribe la frase como cierre de Gutachten.",
+      "solutions": [
+        "Abschließend wird im Gutachten beurteilt, ob die Schlussfolgerungen gerechtfertigt sind."
+      ],
+      "explanation": "El cierre de un Gutachten debe usar una fórmula de cierre típica."
+    },
+    {
+      "source": "In dem Bericht wird deutlich, dass die Maßnahmen erfolgreich waren.",
+      "instruction": "Reescribe la frase como parte de un Protokoll.",
+      "solutions": [
+        "In dem Bericht wurde deutlich, dass die Maßnahmen erfolgreich waren."
+      ],
+      "explanation": "El Protokoll debe ser objetivo, sin primera persona, usando pasado o presente."
+    },
+    {
+      "source": "Der Aufsatz diskutiert die Vor- und Nachteile des Themas.",
+      "instruction": "Reescribe la frase como desarrollo de un Essay.",
+      "solutions": [
+        "Der Aufsatz argumentiert die Vor- und Nachteile des Themas."
+      ],
+      "explanation": "El desarrollo de un Essay debe usar una fórmula de argumentación típica."
+    },
+    {
+      "source": "Der Leserbrief bezieht sich auf die kürzlich veröffentlichten Statistiken.",
+      "instruction": "Reescribe la frase como apertura de Leserbrief.",
+      "solutions": [
+        "Zu den kürzlich veröffentlichten Statistiken möchte ich anmerken, dass..."
+      ],
+      "explanation": "La apertura de un Leserbrief debe referirse a las estadísticas mencionadas."
+    },
+    {
+      "source": "Der Gutachter wird die Ergebnisse im Detail erläutern.",
+      "instruction": "Reescribe la frase como desarrollo de Gutachten.",
+      "solutions": [
+        "Im Folgenden wird im Gutachten im Detail erläutert, ob die Ergebnisse korrekt sind."
+      ],
+      "explanation": "El desarrollo de un Gutachten debe usar una fórmula de evaluación típica."
+    },
+    {
+      "source": "In der Sitzung wurde beschlossen, dass die Vorschläge angenommen werden.",
+      "instruction": "Reescribe la frase como parte de un Protokoll.",
+      "solutions": [
+        "In der Sitzung wurde beschlossen, dass die Vorschläge angenommen werden."
+      ],
+      "explanation": "El Protokoll debe ser objetivo, sin primera persona, usando pasado o presente."
+    },
+    {
+      "source": "Der Aufsatz schließt mit einer kritischen Betrachtung des Themas.",
+      "instruction": "Reescribe la frase como conclusión de un Essay.",
+      "solutions": [
+        "Der Aufsatz schließt mit einer Schlussfolgerung zur kritischen Betrachtung des Themas."
+      ],
+      "explanation": "La conclusión de un Essay debe usar una fórmula de cierre típica."
+    },
+    {
+      "source": "Der Leserbrief endet mit einer Aufforderung an die Leser.",
+      "instruction": "Reescribe la frase como cierre de Leserbrief.",
+      "solutions": [
+        "Abschließend möchte ich die Leser dazu auffordern, dass..."
+      ],
+      "explanation": "El cierre de un Leserbrief debe incluir una fórmula de cierre adecuada."
+    },
+    {
+      "source": "Der Gutachter wird seine Analyse der Daten abschließen.",
+      "instruction": "Reescribe la frase como cierre de Gutachten.",
+      "solutions": [
+        "Abschließend wird im Gutachten analysiert, ob die Daten korrekt sind."
+      ],
+      "explanation": "El cierre de un Gutachten debe usar una fórmula de cierre típica."
+    },
+    {
+      "source": "In dem Bericht wird festgestellt, dass die Maßnahmen erfolgreich sind.",
+      "instruction": "Reescribe la frase como parte de un Protokoll.",
+      "solutions": [
+        "In dem Bericht wurde festgestellt, dass die Maßnahmen erfolgreich sind."
+      ],
+      "explanation": "El Protokoll debe ser objetivo, sin primera persona, usando pasado o presente."
+    },
+    {
+      "source": "Der Aufsatz beginnt mit einer allgemeinen Einführung.",
+      "instruction": "Reescribe la frase como introducción de un Essay.",
+      "solutions": [
+        "Der Aufsatz beginnt mit einer Einleitung in das Thema."
+      ],
+      "explanation": "La introducción de un Essay debe usar una fórmula de apertura típica."
+    }
   ]
 }

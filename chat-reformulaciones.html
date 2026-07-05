@@ -137,6 +137,11 @@ const State = {
     ruleQueue: [],
     queueIndex: 0,
     currentRule: null,
+    bank: null,
+    bankPromise: null,
+    exerciseQueue: [],
+    exerciseIndex: 0,
+    currentExercise: null,
     messages: [],
     ruleScores: {},
     sessionScore: { correct: 0, partial: 0, incorrect: 0 },
@@ -223,7 +228,8 @@ function clearSelection() {
 }
 
 // ── SESSION ───────────────────────────────────────────────────────────────────
-function startSession() {
+async function startSession() {
+    if (State.bank === null && State.bankPromise) State.bank = await State.bankPromise;
     let rules;
     if (State.selectedIds.size === 0) {
         rules = [...State.allRules].sort(() => Math.random() - 0.5).slice(0, 5);
@@ -268,23 +274,137 @@ function loadRule(rule) {
     setHint('Espera la primera frase...');
     disableInput();
     updateScoreDisplay();
-    sendToAI(null);
+
+    const bankExercises = State.bank?.[rule.id];
+    if (Array.isArray(bankExercises) && bankExercises.length > 0) {
+        State.exerciseQueue = [...bankExercises].sort(() => Math.random() - 0.5);
+        State.exerciseIndex = 0;
+        showNextExercise();
+    } else {
+        State.currentExercise = null;
+        sendToAI(null);
+    }
+}
+
+// ── EXERCISE BANK (local, no API cost) ────────────────────────────────────────
+function showNextExercise() {
+    const ex = State.exerciseQueue[State.exerciseIndex % State.exerciseQueue.length];
+    State.exerciseIndex++;
+    State.currentExercise = ex;
+
+    const empty = document.getElementById('chatEmpty');
+    if (empty) empty.remove();
+
+    const task = `Reformuliere: ${ex.source}\nAnweisung: ${ex.instruction}`;
+    addBubble('ai', task);
+    speakTask(task);
+    enableInput();
+    setHint('Reformula la frase en voz alta o por escrito');
+}
+
+function normalizeAnswer(s) {
+    return s.toLowerCase()
+        .replace(/ß/g, 'ss')
+        .replace(/[.!?…]+\s*$/, '')
+        .replace(/\s*,\s*/g, ', ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+async function evaluateAnswer(userText) {
+    const ex = State.currentExercise;
+    addBubble('user', userText);
+
+    const norm = normalizeAnswer(userText);
+    if (ex.solutions.some(sol => normalizeAnswer(sol) === norm)) {
+        const feedback = `✅ ¡Correcto! ${ex.explanation}`;
+        recordScore(feedback);
+        addFeedbackCard(feedback);
+        showNextExercise();
+        return;
+    }
+
+    // No exact match → single short AI call to evaluate only
+    const thinkingId = addBubble('ai', '...', true);
+    setHint('Evaluando...');
+    disableInput();
+
+    const system = `Du bist Deutschlehrer. Der Student sollte diesen Satz umformen.
+Regel (${State.currentRule.nivel}): ${State.currentRule.titulo}
+Ausgangssatz: ${ex.source}
+Anweisung: ${ex.instruction}
+Musterlösungen:
+${ex.solutions.map(s => `  • ${s}`).join('\n')}
+
+Bewerte NUR die Antwort des Studenten. Beginne mit genau einem Symbol:
+✅ = Zielstruktur korrekt angewendet und Satz grammatisch richtig (auch wenn er von den Musterlösungen abweicht)
+⚠️ = Zielstruktur versucht, aber mit Fehlern
+❌ = Zielstruktur nicht angewendet oder unverständlich
+Danach 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neue Aufgabe.`;
+
+    try {
+        const token = await window.getAuthToken?.();
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userText }] }),
+        });
+        if (resp.status === 401) {
+            window.openAuthModal?.();
+            throw new Error('Inicia sesión para usar Reformulaciones.');
+        }
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); }
+        catch { throw new Error(`Respuesta inválida: ${raw.slice(0, 120)}`); }
+        if (!resp.ok) throw new Error(data.error || 'Error de red');
+
+        const evaluation = (data.reply || '').trim();
+        recordScore(evaluation);
+        removeBubble(thinkingId);
+        addFeedbackCard(evaluation);
+        showNextExercise();
+    } catch (e) {
+        updateBubble(thinkingId, `Error: ${e.message}`);
+        setHint('Error al conectar. Intenta de nuevo.');
+        enableInput();
+    }
+}
+
+function submitAnswer(text) {
+    if (State.currentExercise) evaluateAnswer(text);
+    else sendToAI(text);
 }
 
 function buildSystemPrompt(rule) {
     const ejemplos = (rule.ejemplos || []).slice(0, 2).map(e => `  • ${e.de}`).join('\n');
-    return `Du bist ein Deutschlehrer und machst Reformulierungsübungen.
+    return `Du bist ein Deutschlehrer und erstellst Umformungsübungen (Reformulierungen).
 
-Aktuelle Grammatikregel (Niveau ${rule.nivel}):
+Zielregel (Niveau ${rule.nivel}):
 REGEL: ${rule.regla_base || rule.titulo}
 TIPP: ${rule.tip || ''}
 BEISPIELE:
 ${ejemplos}
 
+AUFGABENFORMAT (exakt zwei Zeilen, nichts anderes):
+Reformuliere: [Ausgangssatz auf Deutsch, 8–15 Wörter, Niveau ${rule.nivel}]
+Anweisung: [instrucción en español que dice exactamente qué transformación aplicar, p. ej. "Reescribe la frase en Perfekt"]
+
+REGELN für den Ausgangssatz:
+- Er darf die Zielstruktur NICHT enthalten; er benutzt eine alternative Form (z. B. Regel = Perfekt → Satz im Präsens; Regel = Passiv → Aktivsatz; Regel = Konnektor → zwei getrennte Hauptsätze).
+- Die verlangte Umformung muss die Zielregel zwingend erfordern.
+
 ABLAUF:
-1. Beim ersten Aufruf: schreibe NUR eine Aufgabe im Format "Reformuliere: [Satz]" (8–15 Wörter, Niveau ${rule.nivel}). Keine Bewertung, keine Begrüßung.
-2. Wenn der Student antwortet: bewerte zuerst mit ✅ (korrekt) / ⚠️ (teilweise) / ❌ (falsch). Erkläre den Fehler kurz auf Spanisch (1–2 Sätze) und zeige die korrekte Variante. Trenne dann mit "---NUEVA---" auf einer eigenen Zeile. Danach folgt die nächste Aufgabe im gleichen Format.
-3. Variiere die Sätze und steigere die Schwierigkeit leicht mit jedem Durchgang.`;
+1. Beim ersten Aufruf: schreibe NUR die Aufgabe im obigen Format. Keine Bewertung, keine Begrüßung.
+2. Wenn der Student antwortet, bewerte ob er die ZIELSTRUKTUR angewendet hat:
+   ✅ = Zielstruktur korrekt angewendet und Satz grammatisch richtig
+   ⚠️ = Zielstruktur versucht, aber mit Fehlern
+   ❌ = Zielstruktur nicht angewendet (auch wenn der Satz korrekt ist) oder unverständlich
+   Erkläre kurz auf Spanisch (1–2 Sätze) und zeige die korrekte Umformung. Trenne dann mit "---NUEVA---" auf einer eigenen Zeile und schreibe die nächste Aufgabe im gleichen Format.
+3. Variiere die Sätze und steigere die Schwierigkeit leicht.`;
 }
 
 // ── AI CALL ───────────────────────────────────────────────────────────────────
@@ -552,7 +672,7 @@ function sendText() {
     const text = ta.value.trim();
     if (!text) return;
     ta.value = '';
-    sendToAI(text);
+    submitAnswer(text);
 }
 
 document.addEventListener('keydown', e => {
@@ -648,7 +768,7 @@ async function transcribeAndSend(blob) {
         if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
         const text = data.text?.trim();
         if (!text) { setHint('No se detectó voz. Intenta de nuevo.'); enableInput(); return; }
-        sendToAI(text);
+        submitAnswer(text);
     } catch (e) {
         setHint(`Error: ${e.message}`);
         enableInput();
@@ -670,6 +790,9 @@ window.onAuthSignedIn = () => {};
 
 (function init() {
     if (localStorage.getItem('darkMode_cr') === '1') document.body.classList.add('dark');
+    State.bankPromise = fetch('reformulaciones-data.json')
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
     State.allRules = buildAllRules();
     State.filteredRules = State.allRules;
     renderLevelFilter();

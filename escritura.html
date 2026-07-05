@@ -133,7 +133,11 @@
         cargando: false,
         evaluando: false,
         fotoBase64: null,
+        prefetch: null,
     };
+
+    const TAREA_KEY = 'esc_tarea';
+    const DRAFT_KEY = 'esc_draft';
 
     // ── Especificación por nivel (formatos Goethe/telc) ──
     const LEVEL_SPECS = {
@@ -144,9 +148,7 @@
                 { id: 'postal',   nombre: '🏖️ Postal',         desc: 'postal breve desde un viaje o lugar', registro: 'informal' },
                 { id: 'email',    nombre: '📧 E-Mail sencillo', desc: 'e-mail muy breve a un amigo o conocido', registro: 'informal' },
             ],
-            guia: 'Nivel A1 (Goethe Start Deutsch 1): texto muy breve con 3 puntos guía. Solo presente y Perfekt básico, frases de máximo 8 palabras, vocabulario de los primeros 500 términos. Debe incluir saludo y despedida adecuados.',
-            puntosEn: 'español',
-        },
+            guia: 'Nivel A1 (Goethe Start Deutsch 1): texto muy breve con 3 puntos guía. Solo presente y Perfekt básico, frases de máximo 8 palabras, vocabulario de los primeros 500 términos. Debe incluir saludo y despedida adecuados.',        },
         A2: {
             palabras: [35, 60],
             tipos: [
@@ -154,9 +156,7 @@
                 { id: 'nota',       nombre: '📌 Nota / aviso',   desc: 'nota breve para un vecino, compañero o familiar', registro: 'informal' },
                 { id: 'invitacion', nombre: '🎉 Responder invitación', desc: 'aceptar o rechazar una invitación explicando por qué', registro: 'informal' },
             ],
-            guia: 'Nivel A2 (Goethe A2 / telc A2): texto breve que responde a 3 preguntas o puntos guía. Presente, Perfekt, verbos modales, oraciones con weil/dass sencillas. Saludo y despedida adecuados.',
-            puntosEn: 'español',
-        },
+            guia: 'Nivel A2 (Goethe A2 / telc A2): texto breve que responde a 3 preguntas o puntos guía. Presente, Perfekt, verbos modales, oraciones con weil/dass sencillas. Saludo y despedida adecuados.',        },
         B1: {
             palabras: [70, 100],
             tipos: [
@@ -164,9 +164,7 @@
                 { id: 'foro',           nombre: '💬 Opinión en foro',    desc: 'aportación de opinión sobre un tema de actualidad', registro: 'neutral' },
                 { id: 'email-formal',   nombre: '🏢 E-Mail semi-formal', desc: 'disculparse, pedir información o cancelar una cita', registro: 'formal' },
             ],
-            guia: 'Nivel B1 (Goethe B1 Schreiben): texto de ~80 palabras que cubre 3 puntos guía (Leitpunkte). Conectores variados (weil, deshalb, trotzdem, obwohl), Konjunktiv II de cortesía en registro formal, estructura con introducción y cierre.',
-            puntosEn: 'alemán',
-        },
+            guia: 'Nivel B1 (Goethe B1 Schreiben): texto de ~80 palabras que cubre 3 puntos guía (Leitpunkte). Conectores variados (weil, deshalb, trotzdem, obwohl), Konjunktiv II de cortesía en registro formal, estructura con introducción y cierre.',        },
         B2: {
             palabras: [130, 180],
             tipos: [
@@ -174,9 +172,7 @@
                 { id: 'reclamacion', nombre: '📩 Reclamación formal', desc: 'carta o e-mail formal de queja con propuesta de solución', registro: 'formal' },
                 { id: 'email-trabajo', nombre: '🏢 E-Mail laboral',   desc: 'e-mail formal en contexto de trabajo o estudios', registro: 'formal' },
             ],
-            guia: 'Nivel B2 (Goethe B2 Schreiben): texto argumentativo de ~150 palabras con opinión fundamentada, ventajas y desventajas, ejemplos propios. Pasiva, oraciones de relativo, conectores dobles (einerseits…andererseits, je…desto). En cartas formales: estructura completa (Anrede, Einleitung, Hauptteil, Schluss, Grußformel).',
-            puntosEn: 'alemán',
-        },
+            guia: 'Nivel B2 (Goethe B2 Schreiben): texto argumentativo de ~150 palabras con opinión fundamentada, ventajas y desventajas, ejemplos propios. Pasiva, oraciones de relativo, conectores dobles (einerseits…andererseits, je…desto). En cartas formales: estructura completa (Anrede, Einleitung, Hauptteil, Schluss, Grußformel).',        },
         C1: {
             palabras: [200, 260],
             tipos: [
@@ -184,9 +180,7 @@
                 { id: 'informe',       nombre: '📊 Texto con datos',  desc: 'interpretar y comentar datos o resultados de una encuesta', registro: 'formal' },
                 { id: 'carta-formal',  nombre: '📩 Carta formal',     desc: 'correspondencia formal compleja (solicitud, propuesta)', registro: 'formal' },
             ],
-            guia: 'Nivel C1 (Goethe C1 / telc C1 Hochschule): texto estructurado de ~230 palabras con tesis, argumentación desarrollada y conclusión. Nominalizaciones, Konjunktiv I para discurso indirecto, léxico académico preciso, variedad sintáctica. Si el tipo es "informe", la consigna debe incluir 3-4 datos numéricos inventados pero verosímiles que el usuario debe comentar.',
-            puntosEn: 'alemán',
-        },
+            guia: 'Nivel C1 (Goethe C1 / telc C1 Hochschule): texto estructurado de ~230 palabras con tesis, argumentación desarrollada y conclusión. Nominalizaciones, Konjunktiv I para discurso indirecto, léxico académico preciso, variedad sintáctica. Si el tipo es "informe", la consigna debe incluir 3-4 datos numéricos inventados pero verosímiles que el usuario debe comentar.',        },
         C2: {
             palabras: [300, 400],
             tipos: [
@@ -194,9 +188,7 @@
                 { id: 'resena',  nombre: '🎭 Reseña crítica',     desc: 'reseña de un libro, película o exposición (real o ficticia)', registro: 'formal' },
                 { id: 'leserbrief', nombre: '📰 Carta al director', desc: 'Leserbrief reaccionando a un artículo de prensa', registro: 'formal' },
             ],
-            guia: 'Nivel C2 (Goethe C2 GDS): texto de ~350 palabras con dominio estilístico pleno: registro culto, ironía o matices cuando proceda, léxico idiomático y literario, cohesión impecable, estructura retórica (Aufhänger, Entfaltung, Pointe).',
-            puntosEn: 'alemán',
-        },
+            guia: 'Nivel C2 (Goethe C2 GDS): texto de ~350 palabras con dominio estilístico pleno: registro culto, ironía o matices cuando proceda, léxico idiomático y literario, cohesión impecable, estructura retórica (Aufhänger, Entfaltung, Pointe).',        },
     };
 
     // ── Temas por nivel (misma lógica que gramatica.js: contenidos graduados por nivel) ──
@@ -306,12 +298,39 @@
 
         const system = `Eres un profesor de alemán y diseñas tareas de expresión escrita al estilo de los exámenes oficiales (Goethe-Zertifikat, telc). ${spec.guia}
 Genera UNA tarea de escritura del tipo "${tipo.desc}" (registro ${tipo.registro}) sobre el tema "${tema}".
-La situación se describe en español para que el alumno la entienda; los puntos guía (Leitpunkte) van en ${spec.puntosEn}. Los puntos guía deben ser concretos y accionables (3 puntos, 4 si el nivel es C1 o C2).
+Toda la consigna va en ALEMÁN: la situación y los puntos guía (Leitpunkte) deben estar redactados en alemán con vocabulario y estructuras adecuados al nivel ${EscState.level} — en A1/A2 usa frases muy cortas (máx. 8 palabras) y solo vocabulario básico, para que el alumno entienda la consigna sin traducción. Los puntos guía deben ser concretos y accionables (3 puntos, 4 si el nivel es C1 o C2).
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
-{"titulo":"título breve de la tarea en alemán","situacion":"descripción de la situación y del destinatario en español (2-3 frases)","puntos":["punto guía 1","punto guía 2","punto guía 3"],"registro":"${tipo.registro}","min_palabras":${minP},"max_palabras":${maxP}}`;
+{"titulo":"título breve de la tarea en alemán","situacion":"descripción en alemán de la situación y del destinatario, adaptada al nivel (2-3 frases)","puntos":["Leitpunkt 1 en alemán","Leitpunkt 2 en alemán","Leitpunkt 3 en alemán"],"registro":"${tipo.registro}","min_palabras":${minP},"max_palabras":${maxP}}`;
 
         const userMsg = `Genera una tarea de escritura nivel ${EscState.level}, tipo "${tipo.nombre}", tema "${tema}".`;
         return { system, userMsg, tipo };
+    }
+
+    async function fetchTarea(token) {
+        for (let intento = 0; intento < 2; intento++) {
+            const p = buildTaskPrompt();
+            const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 800 });
+            try {
+                const t = JSON.parse(stripFences(reply));
+                if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 3) {
+                    t.tipoNombre = p.tipo.nombre;
+                    t.tipoId = p.tipo.id;
+                    t.level = EscState.level;
+                    return t;
+                }
+            } catch {}
+        }
+        throw new Error('El modelo devolvió una tarea inválida');
+    }
+
+    // Prefetch: mientras el alumno escribe, la siguiente tarea ya se genera
+    // en background; "Nueva tarea" carga al instante (mismo patrón que kasus.html).
+    function prefetchKey() { return `${EscState.level}|${EscState.tipo}`; }
+
+    function startPrefetch(token) {
+        const key = prefetchKey();
+        if (EscState.prefetch && EscState.prefetch.key === key) return;
+        EscState.prefetch = { key, promise: fetchTarea(token).catch(() => null) };
     }
 
     async function generarTarea() {
@@ -328,21 +347,16 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
             if (!token) throw new Error('AUTH');
 
-            let tarea = null, tipo = null;
-            for (let intento = 0; intento < 2 && !tarea; intento++) {
-                const p = buildTaskPrompt();
-                tipo = p.tipo;
-                const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 800 });
-                try {
-                    const t = JSON.parse(stripFences(reply));
-                    if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 3) tarea = t;
-                } catch {}
+            let tarea = null;
+            if (EscState.prefetch && EscState.prefetch.key === prefetchKey()) {
+                tarea = await EscState.prefetch.promise;
             }
-            if (!tarea) throw new Error('El modelo devolvió una tarea inválida');
+            EscState.prefetch = null;
+            if (!tarea) tarea = await fetchTarea(token);
 
-            tarea.tipoNombre = tipo.nombre;
-            tarea.tipoId = tipo.id;
             EscState.tarea = tarea;
+            try { localStorage.setItem(TAREA_KEY, JSON.stringify(tarea)); } catch {}
+            localStorage.removeItem(DRAFT_KEY);
             renderTarea(tarea);
 
             document.getElementById('esc-text').value = '';
@@ -350,8 +364,9 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             clearFoto();
             updateWordCount();
             if (typeof window.logEvent === 'function') {
-                window.logEvent('escritura', 'task_generated', { level: EscState.level, tipo: tipo.id });
+                window.logEvent('escritura', 'task_generated', { level: EscState.level, tipo: tarea.tipoId });
             }
+            startPrefetch(token);
         } catch (err) {
             if (err.message === 'AUTH') {
                 area.innerHTML = `<div class="esc-error">Inicia sesión para practicar escritura.</div>`;
@@ -368,7 +383,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
         area.innerHTML = `
             <div class="esc-task">
                 <div class="esc-task-meta">
-                    <span class="esc-badge">${escHtml(EscState.level)}</span>
+                    <span class="esc-badge">${escHtml(t.level || EscState.level)}</span>
                     <span class="esc-badge esc-badge-tipo">${escHtml(t.tipoNombre)}</span>
                     <span class="esc-badge esc-badge-reg">${t.registro === 'formal' ? 'Formal (Sie)' : t.registro === 'informal' ? 'Informal (du)' : 'Registro neutral'}</span>
                     <span class="esc-badge esc-badge-len">${t.min_palabras}–${t.max_palabras} palabras</span>
@@ -520,7 +535,16 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
         const t = EscState.tarea;
         el.classList.toggle('ok', !!t && n >= t.min_palabras && n <= t.max_palabras * 1.5);
     }
-    document.getElementById('esc-text').addEventListener('input', updateWordCount);
+    let _draftTimer = null;
+    document.getElementById('esc-text').addEventListener('input', () => {
+        updateWordCount();
+        clearTimeout(_draftTimer);
+        _draftTimer = setTimeout(() => {
+            const v = document.getElementById('esc-text').value;
+            if (v.trim()) { try { localStorage.setItem(DRAFT_KEY, v); } catch {} }
+            else localStorage.removeItem(DRAFT_KEY);
+        }, 500);
+    });
 
     // ── Evaluar texto ─────────────────────────────────
     async function evaluarTexto() {
@@ -625,6 +649,18 @@ ${texto}`;
             </div>`;
         document.getElementById('esc-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // ── Restaurar sesión (tarea + borrador sobreviven un reload) ──
+    (function restoreSession() {
+        let t = null;
+        try { t = JSON.parse(localStorage.getItem(TAREA_KEY)); } catch {}
+        if (!t || !t.titulo || !t.situacion || !Array.isArray(t.puntos)) return;
+        EscState.tarea = t;
+        renderTarea(t);
+        document.getElementById('esc-text').value = localStorage.getItem(DRAFT_KEY) || '';
+        document.getElementById('esc-editor').style.display = 'block';
+        updateWordCount();
+    })();
     </script>
 </body>
 </html>

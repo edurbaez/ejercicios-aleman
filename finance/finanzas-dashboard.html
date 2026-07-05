@@ -348,13 +348,13 @@ async function fetchAndRender() {
 
     try {
         const token = await window.getAuthToken?.();
-        const resp = await fetch('/api/finanzas-price', {
+        const resp = await fetch('/api/finanzas', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ crypto, indices }),
+            body: JSON.stringify({ action: 'price', crypto, indices }),
         });
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error);
@@ -667,13 +667,13 @@ async function openChart(symbol, assetType, name) {
 
     try {
         const token = await window.getAuthToken?.();
-        const resp = await fetch('/api/finanzas-history', {
+        const resp = await fetch('/api/finanzas', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ symbol, asset_type: assetType, days: 30 }),
+            body: JSON.stringify({ action: 'history', symbol, asset_type: assetType, days: 30 }),
         });
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error);

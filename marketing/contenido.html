@@ -678,8 +678,24 @@ async function deepseek(system, messages, maxTokens) {
   return data.reply;
 }
 
+async function savePost(post) {
+  try {
+    const { error } = await sb.from('marketing_posts').insert(post);
+    if (error) throw error;
+  } catch (e) {
+    console.warn('No se pudo guardar en marketing_posts:', e.message);
+  }
+}
+
 function useIdea(text) {
   $('tema-libre').value = text;
+  savePost({
+    kind: 'carrusel',
+    tema: text,
+    nivel: NICHES[currentNiche].isGerman ? getPill('nivel-pills', 'nivel') : null,
+    contenido: { niche: currentNiche },
+    estado: 'idea',
+  });
   document.querySelectorAll('#fuente-pills .pill').forEach(p =>
     p.classList.toggle('active', p.dataset.fuente === 'libre'));
   updateFuenteUI();
@@ -827,6 +843,23 @@ async function generar() {
     } catch (e) { /* review must never break generation */ }
 
     renderPreview();
+
+    const tags = (currentCarousel.hashtags || []).join(' ');
+    savePost({
+      kind: 'carrusel',
+      tema: sourceText,
+      nivel,
+      contenido: {
+        slides: currentCarousel.slides,
+        hashtags: currentCarousel.hashtags || [],
+        niche: currentNiche,
+        modo,
+        review: lastReview,
+      },
+      caption: (currentCarousel.caption || '') + (tags ? '\n\n' + tags : ''),
+      estado: 'generado',
+    });
+
     setStatus(lastReview ? '✅ Carrusel generado y revisado' : '✅ Carrusel generado (revisión no disponible)');
   } catch (e) {
     setStatus('❌ ' + e.message, true);

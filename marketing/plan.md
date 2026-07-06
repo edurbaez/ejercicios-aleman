@@ -73,7 +73,8 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
   - *Notas:* pills «Formato» al inicio del panel generador (`updateFormatoUI()`): en modo Reel se ocultan slides/fondo/color y aparece selector de duración objetivo (30/45/60 s). Reutiliza fuente/nivel/nicho y `buildSourceText()` sin cambios. Validación: si la suma de `segundos` > 60, una pasada extra de DeepSeek comprime el guion; si sigue >60 se conserva y el badge de duración avisa en rojo (`.warn`). La vista previa (tabla de escenas con rangos de tiempo acumulados, hook y CTA destacados, caption) se adelantó a esta sesión; teleprompter y copiar guion quedan para 3.2. Sin revisión IA para reels (solo carruseles).
 - [x] **Sesión 3.2 — UI de guion.** Vista de guion: tabla de escenas con tiempos, modo teleprompter (texto grande con auto-scroll a velocidad configurable para leer mientras grabas), copiar guion completo.
   - *Notas:* la tabla de escenas ya venía de 3.1. Teleprompter: overlay fullscreen negro con solo el texto hablado (hook + escenas + CTA), auto-scroll por `requestAnimationFrame` (deltas de tiempo reales), sliders de velocidad (20–140 px/s) y tamaño de fuente (28–72 px), pausa/reanuda con el botón o tocando el texto (útil grabando con el móvil), padding vertical 45vh para que el texto entre y salga centrado. «Copiar guion» exporta texto plano estructurado (ESCENA n (t₀–t₁ s) / Visual / En pantalla / Hablado).
-- [ ] **Sesión 3.3 — Integración pipeline.** Guardar guiones como `kind: 'reel'` en `marketing_posts`; aparecen en historial y calendario. Depende de Propuesta 1.
+- [x] **Sesión 3.3 — Integración pipeline.** Guardar guiones como `kind: 'reel'` en `marketing_posts`; aparecen en historial y calendario. Depende de Propuesta 1.
+  - *Notas:* `savePost()` con `contenido = { hook, escenas, cta, hashtags, niche }` (estado `generado`); calendario e historial ya soportaban `kind: 'reel'` (labels desde la Sesión 1.2/1.3). «🔄 Recargar» en el historial restaura el guion completo (formato Reel + vista previa + teleprompter); re-exportar PNGs sigue siendo solo de carruseles. El aviso de tema duplicado y las ideas guardadas ahora usan el formato activo (`currentFormat`) como `kind`.
 
 ---
 
@@ -120,6 +121,6 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 |-----------|----------------------|
 | 1 — Pipeline de contenido | 3/3 ✅ COMPLETA |
 | 2 — KPIs reales | 3/3 ✅ COMPLETA |
-| 3 — Guiones de Reels | 2/3 |
+| 3 — Guiones de Reels | 3/3 ✅ COMPLETA |
 | 4 — Testimonios | 1/3 |
 | 5 — Emails / newsletter | 1/3 |

@@ -1095,6 +1095,7 @@ function renderHistorial() {
     const actions = document.createElement('div');
     actions.className = 'hist-actions';
     const hasSlides = Array.isArray(post.contenido?.slides) && post.contenido.slides.length;
+    const hasEscenas = post.kind === 'reel' && Array.isArray(post.contenido?.escenas) && post.contenido.escenas.length;
 
     const mkBtn = (label, fn, danger) => {
       const b = document.createElement('button');
@@ -1103,7 +1104,7 @@ function renderHistorial() {
       b.onclick = () => fn(post, b);
       return b;
     };
-    actions.appendChild(mkBtn(hasSlides ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
+    actions.appendChild(mkBtn(hasSlides || hasEscenas ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
     if (hasSlides) actions.appendChild(mkBtn('⬇️ Re-exportar PNGs', histReexport));
     actions.appendChild(mkBtn('📄 Duplicar', histDuplicate));
     actions.appendChild(mkBtn('🗑️ Borrar', histDelete, true));
@@ -1167,7 +1168,22 @@ function histLoad(post) {
   updateFuenteUI();
   $('tema-libre').value = post.tema || '';
 
+  const formato = post.kind === 'reel' ? 'reel' : 'carrusel';
+  document.querySelectorAll('#formato-pills .pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.formato === formato));
+  updateFormatoUI();
+
   switchView('generador');
+
+  if (formato === 'reel' && Array.isArray(c.escenas) && c.escenas.length) {
+    let cap = post.caption || '';
+    const tags = (c.hashtags || []).join(' ');
+    if (tags && cap.endsWith('\n\n' + tags)) cap = cap.slice(0, cap.length - tags.length - 2);
+    currentReel = { hook: c.hook || '', escenas: c.escenas, cta: c.cta || '', caption: cap, hashtags: c.hashtags || [] };
+    renderReelPreview();
+    setStatus('📚 Guion cargado desde el historial — puedes usar el teleprompter o regenerar con el mismo tema');
+    return;
+  }
 
   if (Array.isArray(c.slides) && c.slides.length) {
     let cap = post.caption || '';
@@ -1283,7 +1299,7 @@ async function checkDuplicateTema(sourceText) {
   try {
     const { data } = await sb.from('marketing_posts')
       .select('tema, created_at')
-      .eq('kind', 'carrusel')
+      .eq('kind', currentFormat)
       .in('estado', ['generado', 'publicado'])
       .order('created_at', { ascending: false })
       .limit(100);
@@ -1299,7 +1315,7 @@ async function checkDuplicateTema(sourceText) {
 function useIdea(text) {
   $('tema-libre').value = text;
   savePost({
-    kind: 'carrusel',
+    kind: currentFormat,
     tema: text,
     nivel: NICHES[currentNiche].isGerman ? getPill('nivel-pills', 'nivel') : null,
     contenido: { niche: currentNiche },
@@ -1438,6 +1454,21 @@ async function generar() {
       setStatus('✍️ Generando guion con DeepSeek…');
       currentReel = await generateReel(sourceText, targetSecs, nivel, currentNiche);
       renderReelPreview();
+      const reelTags = (currentReel.hashtags || []).join(' ');
+      savePost({
+        kind: 'reel',
+        tema: sourceText,
+        nivel,
+        contenido: {
+          hook: currentReel.hook,
+          escenas: currentReel.escenas,
+          cta: currentReel.cta,
+          hashtags: currentReel.hashtags || [],
+          niche: currentNiche,
+        },
+        caption: (currentReel.caption || '') + (reelTags ? '\n\n' + reelTags : ''),
+        estado: 'generado',
+      });
       setStatus(`✅ Guion generado (~${reelDuration(currentReel)} s, ${currentReel.escenas.length} escenas)`);
       return;
     }

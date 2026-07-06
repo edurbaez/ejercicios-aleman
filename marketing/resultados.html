@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados — Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #1565C0; --blue-d: #0D47A1; --blue-l: #e3f0ff;
+      --green: #2e7d32; --green-l: #e8f5e9;
+      --red: #c62828; --red-l: #ffebee;
+      --purple: #6A1B9A; --purple-l: #f3e5f5;
+      --bg: #f0f2f7; --surface: #fff; --text: #1a1a2e; --muted: #64748b;
+      --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header { background: var(--blue); color: #fff; padding: 0 28px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; }
+    .btn-sm { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; }
+    .btn-sm:hover { background: rgba(255,255,255,.24); }
+    .nav-tabs { display: flex; gap: 4px; margin-left: 10px; }
+    .nav-tab { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 7px; transition: all .12s; }
+    .nav-tab:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-tab.active { background: rgba(255,255,255,.2); color: #fff; }
+    @media (max-width: 700px) { .nav-tab { padding: 6px 9px; font-size: 12px; } }
+
+    #loading { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 12px; font-size: 14px; color: var(--muted); }
+    .spin { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
+    .panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 22px; }
+    .panel h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* Cards */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
+    .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 20px; }
+    .card .c-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin-bottom: 6px; }
+    .card .c-value { font-size: 30px; font-weight: 800; line-height: 1.1; }
+    .card .c-sub { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+
+    /* Pills (rango) */
+    .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { border: 1.5px solid #d5dae6; background: #fff; color: var(--text); border-radius: 20px; padding: 5px 14px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all .12s; }
+    .pill:hover { border-color: var(--blue); }
+    .pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .panel-head h2 { margin-bottom: 0; }
+
+    /* Bar chart (patrón de /admin/) */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .bar-label { width: 110px; font-size: 12px; color: #555; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: #eef0f5; border-radius: 4px; height: 18px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, #1565C0, #42a5f5); border-radius: 4px; transition: width .5s ease; }
+    .bar-fill.green { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
+    .bar-count { font-size: 12px; color: #888; width: 62px; text-align: right; flex-shrink: 0; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spin"></div>
+  <span>Verificando acceso…</span>
+</div>
+
+<div id="app" style="display:none">
+
+  <header class="header">
+    <div class="header-left">
+      <span class="header-title">Ejercicios Alemán</span>
+      <span class="header-badge">ADMIN · MARKETING</span>
+      <nav class="nav-tabs">
+        <a href="/marketing/" class="nav-tab">📊 Estrategia</a>
+        <a href="/marketing/contenido.html" class="nav-tab">🎠 Generador</a>
+        <a href="/marketing/calendario.html" class="nav-tab">📅 Calendario</a>
+        <a href="/marketing/resultados.html" class="nav-tab active">📈 Resultados</a>
+      </nav>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="/admin/" class="btn-sm">← Dashboard</a>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <div class="cards" id="cards"></div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>🆕 Registros nuevos por semana</h2>
+        <div class="pills" id="range-pills">
+          <button class="pill" data-weeks="8">8 sem</button>
+          <button class="pill active" data-weeks="12">12 sem</button>
+          <button class="pill" data-weeks="26">26 sem</button>
+          <button class="pill" data-weeks="52">52 sem</button>
+        </div>
+      </div>
+      <div id="chart-signups"></div>
+    </div>
+
+    <div class="panel">
+      <h2>👥 Usuarios activos por semana</h2>
+      <div id="chart-active"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <h2>📱 Uso por app</h2>
+        <div class="pills" id="app-pills">
+          <button class="pill active" data-scope="30d">Últimos 30 días</button>
+          <button class="pill" data-scope="total">Histórico</button>
+        </div>
+      </div>
+      <div id="chart-apps"></div>
+      <div class="hint" style="margin-top:10px">Barra = eventos · número entre paréntesis = usuarios distintos.</div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+let sb;
+let weeklySignups = [], weeklyActive = [], appUsage = [], summary = null;
+
+const $ = id => document.getElementById(id);
+
+function setupPills(containerId, onChange) {
+  $(containerId).addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    $(containerId).querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    onChange();
+  });
+}
+
+const getPill = (containerId, attr) => $(containerId).querySelector('.pill.active').dataset[attr];
+
+function fmtWeek(iso) {
+  return new Date(iso + 'T00:00').toLocaleDateString('es', { day: 'numeric', month: 'short' });
+}
+
+// Fill missing weeks with zeros so gaps are visible
+function fillWeeks(rows, weeks, fields) {
+  const byWeek = new Map(rows.map(r => [r.week, r]));
+  const out = [];
+  const d = new Date();
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // this week's Monday
+  for (let i = weeks - 1; i >= 0; i--) {
+    const w = new Date(d);
+    w.setDate(d.getDate() - i * 7);
+    const iso = `${w.getFullYear()}-${String(w.getMonth() + 1).padStart(2, '0')}-${String(w.getDate()).padStart(2, '0')}`;
+    const row = byWeek.get(iso) || {};
+    out.push(Object.fromEntries([['week', iso], ...fields.map(f => [f, row[f] || 0])]));
+  }
+  return out;
+}
+
+function renderBars(containerId, rows, opts) {
+  const el = $(containerId);
+  el.innerHTML = '';
+  if (!rows.length) { el.innerHTML = '<div class="hint">Sin datos.</div>'; return; }
+  const max = Math.max(1, ...rows.map(opts.value));
+  rows.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    const label = document.createElement('div');
+    label.className = 'bar-label';
+    label.textContent = opts.label(r);
+    const track = document.createElement('div');
+    track.className = 'bar-track';
+    const fill = document.createElement('div');
+    fill.className = 'bar-fill' + (opts.green ? ' green' : '');
+    fill.style.width = (opts.value(r) / max * 100) + '%';
+    track.appendChild(fill);
+    const count = document.createElement('div');
+    count.className = 'bar-count';
+    count.textContent = opts.count(r);
+    row.append(label, track, count);
+    el.appendChild(row);
+  });
+}
+
+function renderCards() {
+  const s = summary || {};
+  const ret = s.active_8w ? Math.round(s.retained_2w / s.active_8w * 100) : 0;
+  const cards = [
+    { label: 'Usuarios totales', value: s.total_users ?? '—' },
+    { label: 'Activos 7 días', value: s.active_7d ?? '—' },
+    { label: 'Activos 30 días', value: s.active_30d ?? '—' },
+    { label: 'Retención', value: ret + '%', sub: `${s.retained_2w ?? 0} de ${s.active_8w ?? 0} activos vuelven ≥2 semanas (últimas 8)` },
+  ];
+  $('cards').innerHTML = cards.map(c =>
+    `<div class="card"><div class="c-label">${c.label}</div><div class="c-value">${c.value}</div>${c.sub ? `<div class="c-sub">${c.sub}</div>` : ''}</div>`
+  ).join('');
+}
+
+function renderCharts() {
+  const weeks = parseInt(getPill('range-pills', 'weeks'));
+  renderBars('chart-signups', fillWeeks(weeklySignups, weeks, ['signups']), {
+    label: r => fmtWeek(r.week),
+    value: r => r.signups,
+    count: r => r.signups,
+  });
+  renderBars('chart-active', fillWeeks(weeklyActive, weeks, ['active_users', 'events']), {
+    label: r => fmtWeek(r.week),
+    value: r => r.active_users,
+    count: r => `${r.active_users} (${r.events} ev)`,
+    green: true,
+  });
+
+  const scope = getPill('app-pills', 'scope');
+  const evField = scope === '30d' ? 'events_30d' : 'events_total';
+  const usField = scope === '30d' ? 'users_30d' : 'users_total';
+  const apps = appUsage.filter(a => a[evField] > 0).sort((a, b) => b[evField] - a[evField]);
+  renderBars('chart-apps', apps, {
+    label: r => r.app,
+    value: r => r[evField],
+    count: r => `${r[evField]} (${r[usField]})`,
+  });
+}
+
+// ─── Init ───
+(async () => {
+  sb = window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = '/'; return; }
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+  if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
+
+  const [sig, act, apps, sum] = await Promise.all([
+    sb.from('marketing_weekly_signups').select('*'),
+    sb.from('marketing_weekly_active').select('*'),
+    sb.from('marketing_app_usage').select('*'),
+    sb.from('marketing_summary').select('*').single(),
+  ]);
+  const err = sig.error || act.error || apps.error || sum.error;
+  if (err) alert('Error cargando KPIs: ' + err.message);
+  weeklySignups = sig.data || [];
+  weeklyActive = act.data || [];
+  appUsage = apps.data || [];
+  summary = sum.data;
+
+  setupPills('range-pills', renderCharts);
+  setupPills('app-pills', renderCharts);
+  renderCards();
+  renderCharts();
+
+  $('loading').style.display = 'none';
+  $('app').style.display = '';
+})();
+</script>
+
+</body>
+</html>

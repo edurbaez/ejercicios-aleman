@@ -58,7 +58,8 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
     - `marketing_weekly_active` → `{ week, active_users, events }` — actividad semanal desde `usage_events`.
     - `marketing_app_usage` → `{ app, events_total, events_30d, users_total, users_30d }` — uso por app, ordenada por `events_30d`.
     - `marketing_summary` → 1 fila `{ total_users, active_7d, active_30d, retained_2w, active_8w }` — retención simple: usuarios con actividad en ≥2 semanas distintas dentro de las últimas 8 (`retained_2w / active_8w`).
-- [ ] **Sesión 2.2 — Página Resultados.** Nueva página `marketing/resultados.html` (nav-tabs): tarjetas resumen + gráficos de barras (reutilizar patrón de chart del dashboard `/admin/`), selector de rango temporal.
+- [x] **Sesión 2.2 — Página Resultados.** Nueva página `marketing/resultados.html` (nav-tabs): tarjetas resumen + gráficos de barras (reutilizar patrón de chart del dashboard `/admin/`), selector de rango temporal.
+  - *Notas:* 4 tarjetas (`marketing_summary`): usuarios totales, activos 7d, activos 30d, retención % con desglose. 3 gráficos de barras horizontales (patrón `/admin/`): registros/semana y activos/semana (rango 8/12/26/52 semanas, semanas sin datos rellenadas a 0 con `fillWeeks()`), uso por app con toggle 30 días/histórico (barra = eventos, paréntesis = usuarios distintos). Pestaña 📈 añadida a las 4 páginas marketing. Sin dependencias externas de charting — CSS puro.
 - [ ] **Sesión 2.3 — Correlación con publicaciones.** Overlay de fechas de `marketing_posts` publicadas sobre la curva de registros/actividad; tabla "pieza → registros en los 3 días siguientes". Depende de Propuesta 1 (necesita `publish_date`).
 
 ---
@@ -113,7 +114,7 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 | Propuesta | Sesiones completadas |
 |-----------|----------------------|
 | 1 — Pipeline de contenido | 3/3 ✅ COMPLETA |
-| 2 — KPIs reales | 1/3 (2.1 ✅) |
+| 2 — KPIs reales | 2/3 (2.1 ✅ 2.2 ✅) |
 | 3 — Guiones de Reels | 0/3 |
 | 4 — Testimonios | 0/3 |
 | 5 — Emails / newsletter | 0/3 |

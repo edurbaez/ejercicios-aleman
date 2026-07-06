@@ -141,6 +141,10 @@ Admin-only Instagram carousel generator (linked from `/marketing/`). Niche selec
 
 Admin-only editorial calendar for the `marketing_posts` pipeline. Month view (Monday-first) with each scheduled piece as a chip colored by estado (idea / generado / publicado); a **"Esta semana"** panel lists this week's pieces plus overdue ones (past `publish_date` and not yet published, highlighted in red) with a one-click "✅ Publicado" button; a **"Sin programar"** panel assigns dates in two steps (📌 Programar → click a calendar day). Clicking a chip opens a detail box to mark as published, move to another date, or remove from the calendar. Talks to Supabase directly (admin RLS) — no serverless function.
 
+### Resultados / KPIs ([marketing/resultados.html](marketing/resultados.html))
+
+Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketing_views.sql](supabase/migrations/005_marketing_views.sql), all `security_invoker` so admin RLS applies): summary cards (total users, active last 7/30 days, simple retention — users active in ≥2 distinct weeks of the last 8), weekly signups and weekly active-users bar charts with a 8/12/26/52-week range selector (missing weeks shown as zero), and per-app usage (events + distinct users) with a 30-days/all-time toggle. Pure-CSS bar charts, no external library.
+
 ---
 
 ## API

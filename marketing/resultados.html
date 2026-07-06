@@ -61,6 +61,14 @@
     .bar-fill { height: 100%; background: linear-gradient(90deg, #1565C0, #42a5f5); border-radius: 4px; transition: width .5s ease; }
     .bar-fill.green { background: linear-gradient(90deg, #2e7d32, #66bb6a); }
     .bar-count { font-size: 12px; color: #888; width: 62px; text-align: right; flex-shrink: 0; font-weight: 600; }
+    .bar-mark { font-size: 11px; flex-shrink: 0; width: 34px; }
+
+    /* Publicaciones */
+    .pub-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .pub-table th { text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 6px 10px; border-bottom: 1.5px solid #e2e6ef; }
+    .pub-table td { padding: 8px 10px; border-bottom: 1px solid #eef0f5; vertical-align: top; }
+    .pub-table td.num { font-weight: 800; text-align: center; }
+    .pub-table td.num.pos { color: var(--green); }
   </style>
 </head>
 <body>
@@ -122,12 +130,25 @@
       <div class="hint" style="margin-top:10px">Barra = eventos · número entre paréntesis = usuarios distintos.</div>
     </div>
 
+    <div class="panel">
+      <h2>📣 Publicaciones → registros</h2>
+      <div class="hint" style="margin-bottom:12px">Piezas publicadas (del <a href="/marketing/calendario.html">calendario editorial</a>) y registros de usuarios en los <b>3 días siguientes</b> a cada publicación. En los gráficos semanales, 📣 marca las semanas con publicaciones.</div>
+      <table class="pub-table" id="pub-table">
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Tema</th><th>Registros +3d</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="hint" id="pub-empty" style="display:none">Aún no hay piezas marcadas como publicadas.</div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
 
 <script>
 let sb;
 let weeklySignups = [], weeklyActive = [], appUsage = [], summary = null;
+let published = [], signupDates = [], pubsByWeek = new Map();
+
+const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', email: '✉️ Email' };
 
 const $ = id => document.getElementById(id);
 
@@ -184,7 +205,46 @@ function renderBars(containerId, rows, opts) {
     count.className = 'bar-count';
     count.textContent = opts.count(r);
     row.append(label, track, count);
+    if (opts.mark) {
+      const mark = document.createElement('div');
+      mark.className = 'bar-mark';
+      const n = opts.mark(r);
+      mark.textContent = n ? '📣' + (n > 1 ? '×' + n : '') : '';
+      mark.title = n ? `${n} publicación(es) esta semana` : '';
+      row.appendChild(mark);
+    }
     el.appendChild(row);
+  });
+}
+
+const mondayOf = iso => {
+  const d = new Date(iso + 'T00:00');
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+function renderPubTable() {
+  const tbody = $('pub-table').querySelector('tbody');
+  tbody.innerHTML = '';
+  $('pub-table').style.display = published.length ? '' : 'none';
+  $('pub-empty').style.display = published.length ? 'none' : '';
+  published.forEach(p => {
+    const from = new Date(p.publish_date + 'T00:00');
+    const to = new Date(from);
+    to.setDate(from.getDate() + 3);
+    const n = signupDates.filter(d => d > from && d <= to).length;
+    const tr = document.createElement('tr');
+    const tdF = document.createElement('td');
+    tdF.textContent = new Date(p.publish_date + 'T00:00').toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+    const tdK = document.createElement('td');
+    tdK.textContent = KIND_LABELS[p.kind] || p.kind;
+    const tdT = document.createElement('td');
+    tdT.textContent = p.tema.length > 110 ? p.tema.slice(0, 110) + '…' : p.tema;
+    const tdN = document.createElement('td');
+    tdN.className = 'num' + (n > 0 ? ' pos' : '');
+    tdN.textContent = n;
+    tr.append(tdF, tdK, tdT, tdN);
+    tbody.appendChild(tr);
   });
 }
 
@@ -204,16 +264,19 @@ function renderCards() {
 
 function renderCharts() {
   const weeks = parseInt(getPill('range-pills', 'weeks'));
+  const mark = r => pubsByWeek.get(r.week) || 0;
   renderBars('chart-signups', fillWeeks(weeklySignups, weeks, ['signups']), {
     label: r => fmtWeek(r.week),
     value: r => r.signups,
     count: r => r.signups,
+    mark,
   });
   renderBars('chart-active', fillWeeks(weeklyActive, weeks, ['active_users', 'events']), {
     label: r => fmtWeek(r.week),
     value: r => r.active_users,
     count: r => `${r.active_users} (${r.events} ev)`,
     green: true,
+    mark,
   });
 
   const scope = getPill('app-pills', 'scope');
@@ -235,23 +298,35 @@ function renderCharts() {
   const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
   if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
 
-  const [sig, act, apps, sum] = await Promise.all([
+  const [sig, act, apps, sum, pubs, profs] = await Promise.all([
     sb.from('marketing_weekly_signups').select('*'),
     sb.from('marketing_weekly_active').select('*'),
     sb.from('marketing_app_usage').select('*'),
     sb.from('marketing_summary').select('*').single(),
+    sb.from('marketing_posts').select('id, kind, tema, publish_date')
+      .eq('estado', 'publicado').not('publish_date', 'is', null)
+      .order('publish_date', { ascending: false }),
+    sb.from('profiles').select('created_at'),
   ]);
-  const err = sig.error || act.error || apps.error || sum.error;
+  const err = sig.error || act.error || apps.error || sum.error || pubs.error || profs.error;
   if (err) alert('Error cargando KPIs: ' + err.message);
   weeklySignups = sig.data || [];
   weeklyActive = act.data || [];
   appUsage = apps.data || [];
   summary = sum.data;
+  published = pubs.data || [];
+  signupDates = (profs.data || []).map(p => new Date(p.created_at));
+  pubsByWeek = new Map();
+  published.forEach(p => {
+    const w = mondayOf(p.publish_date);
+    pubsByWeek.set(w, (pubsByWeek.get(w) || 0) + 1);
+  });
 
   setupPills('range-pills', renderCharts);
   setupPills('app-pills', renderCharts);
   renderCards();
   renderCharts();
+  renderPubTable();
 
   $('loading').style.display = 'none';
   $('app').style.display = '';

@@ -82,6 +82,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `supabase/migrations/002_user_data.sql` | Creates `user_data` (persistent user preferences: `cv_user_profile`, `cv_level`, with RLS). Idempotent — safe to run on existing tables. |
 | `supabase/migrations/003_reading_texts.sql` | Crea `reading_texts` (textos en alemán por nivel CEFR con preguntas de comprensión) y `user_reading_seen` (textos vistos por usuario). RLS habilitado. |
 | `supabase/migrations/004_marketing_posts.sql` | Crea `marketing_posts` (pipeline de contenido de marketing: carruseles/reels/testimonios/emails; estados idea/generado/publicado; `publish_date` para calendario editorial). RLS: solo `profiles.role = 'admin'`. Trigger auto-`updated_at`. |
+| `supabase/migrations/005_marketing_views.sql` | 4 vistas de KPIs para `/marketing/resultados.html`: `marketing_weekly_signups`, `marketing_weekly_active`, `marketing_app_usage`, `marketing_summary` (activos 7/30d + retención simple 8 semanas). Todas `security_invoker = true` — aplican las policies RLS `is_admin()` de las tablas base. |
 
 ### PWA & Deploy
 

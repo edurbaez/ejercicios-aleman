@@ -90,7 +90,8 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
 
 **Objetivo:** borradores de email para alumnos y leads (canal directo profesor-alumno). Reutiliza `/api/deepseek-chat`.
 
-- [ ] **Sesión 5.1 — Motor.** Tipos de email: bienvenida a alumno nuevo, resumen semanal (palabra/regla de la semana — puede tomar contenido de `grammar-data.js` / `Data{NIVEL}.json`), promoción de capacitación (usar precios de la sección capacitación de la estrategia). DeepSeek → `{ asunto, cuerpo }` con 2 variantes de asunto.
+- [x] **Sesión 5.1 — Motor.** Tipos de email: bienvenida a alumno nuevo, resumen semanal (palabra/regla de la semana — puede tomar contenido de `grammar-data.js` / `Data{NIVEL}.json`), promoción de capacitación (usar precios de la sección capacitación de la estrategia). DeepSeek → `{ asunto, cuerpo }` con 2 variantes de asunto.
+  - *Notas:* página nueva `marketing/emails.html` (flujo distinto al carrusel y `contenido.html` ya es grande); pestaña ✉️ añadida a las 5 páginas marketing. Esquema JSON: `{ asuntos: [v1, v2], cuerpo }` — el asunto se elige con radio-cards en el resultado. Resumen semanal: regla desde `GRAMMAR_DATA[nivel]` + 5 palabras aleatorias de `Data{NIVEL}.json` (chips con botón 🎲 re-roll). Promoción: 5 segmentos (`SEGMENTOS`) con módulos/duración/precio copiados de la tabla de capacitación de la estrategia + ángulo de venta por segmento. Cuerpo en texto plano (la plantilla HTML es la 5.2); botones copiar asunto/cuerpo/completo.
 - [ ] **Sesión 5.2 — Plantilla HTML.** Plantilla de email con branding (logo/colores), preview en iframe, botones copiar texto plano / copiar HTML (compatible con Gmail).
 - [ ] **Sesión 5.3 — Integración pipeline.** Guardar como `kind: 'email'` en `marketing_posts` + historial de asuntos usados para no repetir. Depende de Propuesta 1.
 
@@ -119,4 +120,4 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 | 2 — KPIs reales | 3/3 ✅ COMPLETA |
 | 3 — Guiones de Reels | 0/3 |
 | 4 — Testimonios | 1/3 |
-| 5 — Emails / newsletter | 0/3 |
+| 5 — Emails / newsletter | 1/3 |

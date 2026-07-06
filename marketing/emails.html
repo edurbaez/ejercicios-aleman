@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emails — Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.js"></script>
+  <script src="/grammar-data.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #1565C0; --blue-d: #0D47A1; --blue-l: #e3f0ff;
+      --green: #2e7d32; --green-l: #e8f5e9;
+      --red: #c62828;
+      --bg: #f0f2f7; --surface: #fff; --text: #1a1a2e; --muted: #64748b;
+      --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .header { background: var(--blue); color: #fff; padding: 0 28px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .header-title { font-size: 15px; font-weight: 700; }
+    .header-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; }
+    .btn-sm { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; }
+    .btn-sm:hover { background: rgba(255,255,255,.24); }
+    .nav-tabs { display: flex; gap: 4px; margin-left: 10px; }
+    .nav-tab { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 7px; transition: all .12s; }
+    .nav-tab:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .nav-tab.active { background: rgba(255,255,255,.2); color: #fff; }
+    @media (max-width: 700px) { .nav-tab { padding: 6px 9px; font-size: 12px; } }
+
+    #loading { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 12px; font-size: 14px; color: var(--muted); }
+    .spin { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .main { max-width: 900px; margin: 0 auto; padding: 28px 24px 60px; }
+    .panel { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 28px; margin-bottom: 22px; }
+    .panel h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .field-row { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 18px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); }
+
+    .pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill { border: 1.5px solid #d5dae6; background: #fff; color: var(--text); border-radius: 20px; padding: 6px 15px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .12s; }
+    .pill:hover { border-color: var(--blue); }
+    .pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    select, input[type=text] { border: 1.5px solid #d5dae6; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); min-width: 220px; }
+    select:focus, input:focus { outline: none; border-color: var(--blue); }
+
+    .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .hint b { color: var(--text); }
+
+    .vocab-chips { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .vocab-chip { background: var(--blue-l); color: var(--blue-d); border-radius: 14px; padding: 4px 11px; font-size: 12px; font-weight: 600; }
+
+    .btn-primary { background: var(--blue); color: #fff; border: none; border-radius: 9px; padding: 12px 26px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary:hover { background: var(--blue-d); }
+    .btn-primary:disabled { opacity: .55; cursor: default; }
+    .btn-secondary { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); border-radius: 9px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-secondary:hover { background: var(--blue-l); }
+    .btn-secondary:disabled { opacity: .55; cursor: default; }
+
+    #status { font-size: 13px; color: var(--muted); margin-top: 12px; min-height: 18px; }
+    #status.err { color: var(--red); font-weight: 600; }
+
+    /* Result */
+    #result { display: none; }
+    .asunto-option { display: flex; align-items: flex-start; gap: 10px; border: 1.5px solid #d5dae6; border-radius: 10px; padding: 11px 14px; cursor: pointer; margin-bottom: 8px; font-size: 14px; line-height: 1.4; transition: all .12s; }
+    .asunto-option:hover { border-color: var(--blue); }
+    .asunto-option.selected { border-color: var(--blue); background: var(--blue-l); font-weight: 600; }
+    .asunto-option .marker { flex-shrink: 0; font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+    .asunto-option.selected .marker { color: var(--blue); }
+    .cuerpo-box { background: var(--bg); border-radius: 10px; padding: 18px 20px; font-size: 14px; line-height: 1.65; white-space: pre-wrap; margin-bottom: 14px; }
+    .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+
+    @media (max-width: 700px) { .field-row { flex-direction: column; gap: 14px; } select, input[type=text] { min-width: 0; width: 100%; } }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spin"></div>
+  <span>Verificando acceso…</span>
+</div>
+
+<div id="app" style="display:none">
+
+  <header class="header">
+    <div class="header-left">
+      <span class="header-title">Ejercicios Alemán</span>
+      <span class="header-badge">ADMIN · MARKETING</span>
+      <nav class="nav-tabs">
+        <a href="/marketing/" class="nav-tab">📊 Estrategia</a>
+        <a href="/marketing/contenido.html" class="nav-tab">🎠 Generador</a>
+        <a href="/marketing/emails.html" class="nav-tab active">✉️ Emails</a>
+        <a href="/marketing/calendario.html" class="nav-tab">📅 Calendario</a>
+        <a href="/marketing/resultados.html" class="nav-tab">📈 Resultados</a>
+      </nav>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="/admin/" class="btn-sm">← Dashboard</a>
+    </div>
+  </header>
+
+  <div class="main">
+
+    <div class="panel">
+      <h2>✉️ Generador de emails</h2>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Tipo de email</label>
+          <div class="pills" id="tipo-pills">
+            <button class="pill active" data-tipo="bienvenida">👋 Bienvenida</button>
+            <button class="pill" data-tipo="resumen">📚 Resumen semanal</button>
+            <button class="pill" data-tipo="promocion">🎓 Promoción capacitación</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bienvenida -->
+      <div class="field-row" id="fields-bienvenida">
+        <div class="field">
+          <label>Nombre del alumno (opcional)</label>
+          <input type="text" id="bienvenida-nombre" placeholder="vacío = queda [Nombre] para rellenar">
+        </div>
+        <div class="field">
+          <label>Objetivo del alumno (opcional)</label>
+          <input type="text" id="bienvenida-objetivo" placeholder="p. ej. mudarse a Alemania en 6 meses">
+        </div>
+      </div>
+
+      <!-- Resumen semanal -->
+      <div id="fields-resumen" style="display:none">
+        <div class="field-row">
+          <div class="field">
+            <label>Nivel</label>
+            <div class="pills" id="nivel-pills">
+              <button class="pill" data-nivel="A1">A1</button>
+              <button class="pill" data-nivel="A2">A2</button>
+              <button class="pill active" data-nivel="B1">B1</button>
+              <button class="pill" data-nivel="B2">B2</button>
+              <button class="pill" data-nivel="C1">C1</button>
+              <button class="pill" data-nivel="C2">C2</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Regla de la semana</label>
+            <select id="regla-select"></select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Palabras de la semana</label>
+            <div class="vocab-chips" id="vocab-chips">
+              <span class="hint">Cargando…</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="btn-secondary" id="btn-vocab-reroll">🎲 Otras palabras</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promoción capacitación -->
+      <div id="fields-promocion" style="display:none">
+        <div class="field-row">
+          <div class="field">
+            <label>Segmento</label>
+            <select id="segmento-select"></select>
+          </div>
+          <div class="field">
+            <label>Destinatario (opcional)</label>
+            <input type="text" id="promocion-destinatario" placeholder="p. ej. Academia Hispania, María (RRHH)…">
+          </div>
+        </div>
+        <div class="hint" id="segmento-info" style="margin-bottom:18px"></div>
+      </div>
+
+      <button class="btn-primary" id="btn-generar">⚡ Generar email</button>
+      <div id="status"></div>
+    </div>
+
+    <div class="panel" id="result">
+      <h2>Asunto <span class="hint" style="font-weight:400">(elige una variante)</span></h2>
+      <div id="asuntos-list"></div>
+
+      <h2 style="margin-top:18px">Cuerpo</h2>
+      <div class="cuerpo-box" id="cuerpo-box"></div>
+
+      <div class="actions-row">
+        <button class="btn-primary" id="btn-copy-todo">📋 Copiar email completo</button>
+        <button class="btn-secondary" id="btn-copy-asunto">Copiar asunto</button>
+        <button class="btn-secondary" id="btn-copy-cuerpo">Copiar cuerpo</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+let sb, authToken;
+let currentEmail = null;      // { asuntos: [a, b], cuerpo }
+let selectedAsunto = 0;
+let weeklyVocab = [];         // [{ de, es }] for the resumen semanal
+
+const IDENTITY =
+  'Eres Edward, profesor de alemán para hispanohablantes y creador de la plataforma "Ejercicios Alemán" ' +
+  '(apps de vocabulario A1-C2, entrenador de casos, corrector con IA, chat de voz, plan de 30 días). ' +
+  'Escribes emails en español, cercanos y profesionales, en primera persona. ' +
+  'Párrafos cortos (2-3 líneas), sin jerga de marketing vacía, con un solo llamado a la acción claro al final. ' +
+  'Las palabras o frases en alemán llevan traducción al español entre paréntesis. ' +
+  'Respondes SOLO con JSON válido, sin markdown, con este esquema exacto: ' +
+  '{"asuntos":["variante 1","variante 2"],"cuerpo":"..."}. ' +
+  'Los 2 asuntos son variantes distintas del mismo email (una más directa, otra con gancho de curiosidad), máx 60 caracteres cada uno. ' +
+  'El cuerpo es texto plano con saltos de línea (\\n\\n entre párrafos), incluye saludo y despedida firmada "Edward — Ejercicios Alemán". ' +
+  'Si no conoces el nombre del destinatario usa el placeholder [Nombre].';
+
+// Pricing/módulos from the capacitación table in /marketing/ (strategy page)
+const SEGMENTOS = {
+  academia: {
+    label: 'Academia de idiomas (grupos)',
+    modulos: 'Vocabulario por nivel, Kasus-Trainer, Reformulaciones, Plan 30 días',
+    duracion: '1 semestre',
+    precio: '€150–300/mes (hasta 20 alumnos)',
+    angulo: 'complemento digital de sus clases: el profesor asigna módulos como tarea y verifica el uso desde el panel admin',
+  },
+  empresa: {
+    label: 'Empresa DACH (onboarding de empleados)',
+    modulos: 'Plan 30 días, Chat de Voz, Corrector, Vocabulario',
+    duracion: '30–60 días',
+    precio: '€50–80 por empleado',
+    angulo: 'acelerador de integración lingüística para empleados hispanohablantes recién contratados, sin depender de clases presenciales',
+  },
+  certificacion: {
+    label: 'Preparación certificación TELC/Goethe (individual)',
+    modulos: 'Vocabulario C1/C2, Reformulaciones, Corrector, Gramática',
+    duracion: '3 meses',
+    precio: '€29–49/mes',
+    angulo: 'preparación enfocada al examen: los módulos C1/C2 cubren contenidos evaluados en TELC y Goethe',
+  },
+  migrante: {
+    label: 'Migrante laboral (individual)',
+    modulos: 'Vocabulario A1–B1, Chat de Voz, Diccionario, Plan 30 días',
+    duracion: '6 meses',
+    precio: 'gratis para empezar / €9 al mes con funciones de IA',
+    angulo: 'alemán práctico para la vida y el trabajo en Alemania, a su ritmo y desde el móvil',
+  },
+  colegio: {
+    label: 'Colegio bilingüe (institucional)',
+    modulos: 'Todos los niveles + Corrector + Gramática',
+    duracion: 'Año escolar',
+    precio: '€500–1.200/año',
+    angulo: 'plataforma para todo el colegio: el corrector de redacciones ahorra horas de trabajo a los profesores',
+  },
+};
+
+const $ = id => document.getElementById(id);
+const getPill = (containerId, attr) => $(containerId).querySelector('.pill.active').dataset[attr];
+
+function setupPills(containerId, onChange) {
+  $(containerId).addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    $(containerId).querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    if (onChange) onChange(btn);
+  });
+}
+
+function setStatus(msg, isErr) {
+  const el = $('status');
+  el.textContent = msg;
+  el.className = isErr ? 'err' : '';
+}
+
+async function deepseek(system, messages, maxTokens) {
+  const res = await fetch('/api/deepseek-chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+    body: JSON.stringify({ system, max_tokens: maxTokens, messages }),
+  });
+  const raw = await res.text();
+  let data;
+  try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida del servidor: ' + raw.slice(0, 200)); }
+  if (!res.ok) throw new Error(data.error || 'Error del asistente');
+  return data.reply;
+}
+
+function parseJsonReply(reply) {
+  const clean = reply.replace(/```json/gi, '').replace(/```/g, '').trim();
+  const start = clean.indexOf('{');
+  const end = clean.lastIndexOf('}');
+  if (start === -1 || end === -1) throw new Error('La IA no devolvió JSON');
+  return JSON.parse(clean.slice(start, end + 1));
+}
+
+// ─── UI per email type ───
+function updateTipoUI() {
+  const tipo = getPill('tipo-pills', 'tipo');
+  $('fields-bienvenida').style.display = tipo === 'bienvenida' ? '' : 'none';
+  $('fields-resumen').style.display = tipo === 'resumen' ? '' : 'none';
+  $('fields-promocion').style.display = tipo === 'promocion' ? '' : 'none';
+  if (tipo === 'resumen' && !weeklyVocab.length) rerollVocab();
+}
+
+function fillReglas() {
+  const nivel = getPill('nivel-pills', 'nivel');
+  const rules = (typeof GRAMMAR_DATA !== 'undefined' && GRAMMAR_DATA[nivel]) || [];
+  $('regla-select').innerHTML = rules
+    .map(r => `<option value="${r.id}">${r.titulo} — ${r.subtitulo}</option>`)
+    .join('');
+}
+
+function updateSegmentoInfo() {
+  const s = SEGMENTOS[$('segmento-select').value];
+  $('segmento-info').innerHTML =
+    `<b>Módulos:</b> ${s.modulos} · <b>Duración:</b> ${s.duracion} · <b>Precio referencial:</b> ${s.precio}`;
+}
+
+async function pickRandomVocab(nivel, count) {
+  const res = await fetch(`/Data${nivel}.json`);
+  if (!res.ok) throw new Error(`No se pudo cargar Data${nivel}.json`);
+  const data = await res.json();
+  const pairs = [];
+  for (const cat of Object.values(data)) {
+    if (cat && Array.isArray(cat.de) && Array.isArray(cat.es)) {
+      for (let i = 0; i < cat.de.length; i++) pairs.push({ de: cat.de[i], es: cat.es[i] });
+    }
+  }
+  const picked = [];
+  while (picked.length < count && pairs.length) {
+    picked.push(pairs.splice(Math.floor(Math.random() * pairs.length), 1)[0]);
+  }
+  return picked;
+}
+
+async function rerollVocab() {
+  const chips = $('vocab-chips');
+  chips.innerHTML = '<span class="hint">Cargando…</span>';
+  try {
+    weeklyVocab = await pickRandomVocab(getPill('nivel-pills', 'nivel'), 5);
+    chips.innerHTML = '';
+    weeklyVocab.forEach(p => {
+      const chip = document.createElement('span');
+      chip.className = 'vocab-chip';
+      chip.textContent = `${p.de} = ${p.es}`;
+      chips.appendChild(chip);
+    });
+  } catch (e) {
+    weeklyVocab = [];
+    chips.innerHTML = `<span class="hint" style="color:var(--red)">❌ ${e.message}</span>`;
+  }
+}
+
+// ─── Brief per email type ───
+function buildBrief() {
+  const tipo = getPill('tipo-pills', 'tipo');
+
+  if (tipo === 'bienvenida') {
+    const nombre = $('bienvenida-nombre').value.trim();
+    const objetivo = $('bienvenida-objetivo').value.trim();
+    return 'Email de BIENVENIDA a un alumno nuevo de mis clases de alemán. ' +
+      (nombre ? `Se llama ${nombre}. ` : 'No sé su nombre (usa [Nombre]). ') +
+      (objetivo ? `Su objetivo: ${objetivo}. ` : '') +
+      'Contenido: darle la bienvenida a las clases, presentarle la plataforma "Ejercicios Alemán" como complemento gratuito de las clases ' +
+      '(vocabulario por niveles, plan de 30 días, corrector de textos con IA, chat de voz para practicar conversación), ' +
+      'y animarle a empezar por el plan de 30 días de su nivel. CTA: entrar en la plataforma y probar la primera actividad.';
+  }
+
+  if (tipo === 'resumen') {
+    const nivel = getPill('nivel-pills', 'nivel');
+    const rule = (GRAMMAR_DATA[nivel] || []).find(r => r.id === $('regla-select').value);
+    if (!rule) throw new Error('Regla no encontrada');
+    if (!weeklyVocab.length) throw new Error('No hay palabras de la semana — pulsa 🎲');
+    return `Email de RESUMEN SEMANAL para mis alumnos de nivel ${nivel}. Contenido: ` +
+      `1) La regla de la semana: ${rule.titulo} (${rule.subtitulo}) — ${rule.regla_base} ` +
+      (rule.excepciones ? `Notas: ${rule.excepciones} ` : '') +
+      'Explícala en 2-3 frases sencillas con 1 ejemplo en alemán traducido. ' +
+      `2) Las 5 palabras de la semana: ${weeklyVocab.map(p => `${p.de} = ${p.es}`).join('; ')}. Preséntalas como lista. ` +
+      `3) Reto de la semana: una mini-tarea concreta usando la regla y alguna de las palabras. ` +
+      `CTA: practicar la regla y el vocabulario en la plataforma (app de vocabulario ${nivel} y Kasus-Trainer).`;
+  }
+
+  const s = SEGMENTOS[$('segmento-select').value];
+  const dest = $('promocion-destinatario').value.trim();
+  return 'Email de PROMOCIÓN de capacitación con la plataforma "Ejercicios Alemán" (email en frío pero personalizado, no agresivo). ' +
+    `Destinatario: ${dest || '[Nombre]'} — segmento: ${s.label}. ` +
+    `Ángulo de venta: ${s.angulo}. ` +
+    `Módulos recomendados: ${s.modulos}. Duración sugerida: ${s.duracion}. Precio referencial: ${s.precio} (menciónalo con naturalidad, como orientativo). ` +
+    'CTA: agendar una demo gratuita de 30 minutos o probar la plataforma 30 días sin compromiso.';
+}
+
+// ─── Generate & render ───
+async function generar() {
+  const btn = $('btn-generar');
+  btn.disabled = true;
+  try {
+    const brief = buildBrief();
+    setStatus('✍️ Generando email con DeepSeek…');
+    const reply = await deepseek(IDENTITY, [{ role: 'user', content: brief }], 1800);
+    const parsed = parseJsonReply(reply);
+    if (!Array.isArray(parsed.asuntos) || parsed.asuntos.length < 2 || !parsed.cuerpo) {
+      throw new Error('JSON incompleto (faltan asuntos o cuerpo)');
+    }
+    currentEmail = { asuntos: parsed.asuntos.slice(0, 2), cuerpo: parsed.cuerpo };
+    selectedAsunto = 0;
+    renderResult();
+    setStatus('✅ Email generado');
+  } catch (e) {
+    setStatus('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResult() {
+  const list = $('asuntos-list');
+  list.innerHTML = '';
+  currentEmail.asuntos.forEach((asunto, i) => {
+    const opt = document.createElement('div');
+    opt.className = 'asunto-option' + (i === selectedAsunto ? ' selected' : '');
+    const marker = document.createElement('span');
+    marker.className = 'marker';
+    marker.textContent = i === selectedAsunto ? '●' : '○';
+    const txt = document.createElement('span');
+    txt.textContent = asunto;
+    opt.append(marker, txt);
+    opt.onclick = () => { selectedAsunto = i; renderResult(); };
+    list.appendChild(opt);
+  });
+  $('cuerpo-box').textContent = currentEmail.cuerpo;
+  $('result').style.display = 'block';
+  $('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function copyText(text, msg) {
+  await navigator.clipboard.writeText(text);
+  setStatus(msg);
+}
+
+// ─── Init ───
+(async () => {
+  sb = window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY);
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) { location.href = '/'; return; }
+
+  const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+  if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
+  authToken = session.access_token;
+
+  setupPills('tipo-pills', updateTipoUI);
+  setupPills('nivel-pills', () => { fillReglas(); rerollVocab(); });
+
+  $('segmento-select').innerHTML = Object.entries(SEGMENTOS)
+    .map(([key, s]) => `<option value="${key}">${s.label}</option>`)
+    .join('');
+  $('segmento-select').onchange = updateSegmentoInfo;
+  updateSegmentoInfo();
+
+  fillReglas();
+  updateTipoUI();
+
+  $('btn-vocab-reroll').onclick = rerollVocab;
+  $('btn-generar').onclick = generar;
+  $('btn-copy-asunto').onclick = () => copyText(currentEmail.asuntos[selectedAsunto], '📋 Asunto copiado');
+  $('btn-copy-cuerpo').onclick = () => copyText(currentEmail.cuerpo, '📋 Cuerpo copiado');
+  $('btn-copy-todo').onclick = () =>
+    copyText(`Asunto: ${currentEmail.asuntos[selectedAsunto]}\n\n${currentEmail.cuerpo}`, '📋 Email completo copiado');
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = '';
+})();
+</script>
+
+</body>
+</html>

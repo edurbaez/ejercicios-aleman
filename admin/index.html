@@ -727,7 +727,7 @@
   // ── Last 5 days per student ───────────────────────────────
   function renderLast5Days() {
     const container = document.getElementById('last5-container');
-    const students  = allProfiles.filter(p => p.role !== 'admin' && eventsByUser[p.id]?.length > 0);
+    const students  = allProfiles.filter(p => eventsByUser[p.id]?.length > 0);
 
     if (students.length === 0) {
       container.innerHTML = '<p class="empty">Sin actividad registrada.</p>';

@@ -190,12 +190,18 @@
       <div id="asuntos-list"></div>
 
       <h2 style="margin-top:18px">Cuerpo</h2>
+      <div class="pills" id="view-pills" style="margin-bottom:12px">
+        <button class="pill active" data-view="texto">📄 Texto plano</button>
+        <button class="pill" data-view="html">🎨 Vista HTML</button>
+      </div>
       <div class="cuerpo-box" id="cuerpo-box"></div>
+      <iframe id="email-iframe" title="Vista previa del email"></iframe>
 
       <div class="actions-row">
         <button class="btn-primary" id="btn-copy-todo">📋 Copiar email completo</button>
         <button class="btn-secondary" id="btn-copy-asunto">Copiar asunto</button>
         <button class="btn-secondary" id="btn-copy-cuerpo">Copiar cuerpo</button>
+        <button class="btn-secondary" id="btn-copy-html">Copiar HTML (Gmail)</button>
       </div>
     </div>
 
@@ -207,6 +213,8 @@ let sb, authToken;
 let currentEmail = null;      // { asuntos: [a, b], cuerpo }
 let selectedAsunto = 0;
 let weeklyVocab = [];         // [{ de, es }] for the resumen semanal
+
+const SITE_URL = 'https://ejercicios-aleman.vercel.app';
 
 const IDENTITY =
   'Eres Edward, profesor de alemán para hispanohablantes y creador de la plataforma "Ejercicios Alemán" ' +
@@ -395,13 +403,125 @@ function buildBrief() {
     'CTA: agendar una demo gratuita de 30 minutos o probar la plataforma 30 días sin compromiso.';
 }
 
+// ─── HTML template (Gmail-compatible: tables + inline styles) ───
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function buildEmailHtml(cuerpo) {
+  const paras = escapeHtml(cuerpo.trim())
+    .split(/\n{2,}/)
+    .map(p => `<p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#1a1a2e;">${p.replace(/\n/g, '<br>')}</p>`)
+    .join('');
+  return `<!DOCTYPE html><html><body style="margin:0;padding:0;background:#f0f2f7;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0f2f7;">
+  <tr><td align="center" style="padding:24px 12px;">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:10px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;">
+      <tr><td style="background:#1565C0;padding:20px 32px;">
+        <span style="display:inline-block;background:#ffffff;color:#1565C0;font-weight:bold;font-size:13px;border-radius:7px;padding:5px 9px;vertical-align:middle;">DE</span>
+        <span style="color:#ffffff;font-size:19px;font-weight:bold;padding-left:10px;vertical-align:middle;">Ejercicios Alemán</span>
+      </td></tr>
+      <tr><td style="padding:30px 32px 8px;">${paras}</td></tr>
+      <tr><td style="padding:4px 32px 30px;">
+        <a href="${SITE_URL}" style="display:inline-block;background:#1565C0;color:#ffffff;text-decoration:none;font-weight:bold;font-size:14px;padding:12px 26px;border-radius:8px;">Ir a la plataforma →</a>
+      </td></tr>
+      <tr><td style="background:#f7f9fc;padding:16px 32px;border-top:1px solid #e5e9f2;">
+        <p style="margin:0;font-size:12px;color:#64748b;line-height:1.6;">Edward — Ejercicios Alemán · Profesor de alemán para hispanohablantes<br>
+        <a href="${SITE_URL}" style="color:#1565C0;">ejercicios-aleman.vercel.app</a></p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table></body></html>`;
+}
+
+function updateResultView() {
+  const view = getPill('view-pills', 'view');
+  $('cuerpo-box').style.display = view === 'texto' ? '' : 'none';
+  const iframe = $('email-iframe');
+  iframe.style.display = view === 'html' ? 'block' : 'none';
+  if (view === 'html' && currentEmail) iframe.srcdoc = buildEmailHtml(currentEmail.cuerpo);
+}
+
+async function copyHtml() {
+  const html = buildEmailHtml(currentEmail.cuerpo);
+  try {
+    await navigator.clipboard.write([new ClipboardItem({
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([currentEmail.cuerpo], { type: 'text/plain' }),
+    })]);
+    setStatus('📋 Email con formato copiado — pégalo directamente en Gmail');
+  } catch {
+    await navigator.clipboard.writeText(html);
+    setStatus('📋 Código HTML copiado (el navegador no soporta copiado con formato)');
+  }
+}
+
+// ─── Pipeline (marketing_posts) ───
+function buildTema() {
+  const tipo = getPill('tipo-pills', 'tipo');
+  if (tipo === 'bienvenida') {
+    const nombre = $('bienvenida-nombre').value.trim();
+    return 'Email bienvenida' + (nombre ? ` — ${nombre}` : '');
+  }
+  if (tipo === 'resumen') {
+    const nivel = getPill('nivel-pills', 'nivel');
+    const rule = (GRAMMAR_DATA[nivel] || []).find(r => r.id === $('regla-select').value);
+    return `Email resumen ${nivel}` + (rule ? ` — ${rule.titulo}` : '');
+  }
+  const s = SEGMENTOS[$('segmento-select').value];
+  const dest = $('promocion-destinatario').value.trim();
+  return `Email promoción — ${s.label}` + (dest ? ` (${dest})` : '');
+}
+
+async function saveEmail(tipo) {
+  try {
+    const nivel = tipo === 'resumen' ? getPill('nivel-pills', 'nivel') : null;
+    const { error } = await sb.from('marketing_posts').insert({
+      id: crypto.randomUUID(),
+      kind: 'email',
+      tema: buildTema(),
+      nivel,
+      contenido: { tipo, asuntos: currentEmail.asuntos, cuerpo: currentEmail.cuerpo },
+      caption: null,
+      estado: 'generado',
+    });
+    if (error) throw error;
+  } catch (e) {
+    console.warn('No se pudo guardar el email en el pipeline:', e.message);
+  }
+}
+
+async function fetchUsedAsuntos(tipo) {
+  try {
+    const { data, error } = await sb.from('marketing_posts')
+      .select('contenido')
+      .eq('kind', 'email')
+      .order('created_at', { ascending: false })
+      .limit(40);
+    if (error) throw error;
+    return (data || [])
+      .filter(r => r.contenido && r.contenido.tipo === tipo && Array.isArray(r.contenido.asuntos))
+      .flatMap(r => r.contenido.asuntos)
+      .slice(0, 12);
+  } catch (e) {
+    console.warn('No se pudo cargar el historial de asuntos:', e.message);
+    return [];
+  }
+}
+
 // ─── Generate & render ───
 async function generar() {
   const btn = $('btn-generar');
   btn.disabled = true;
   try {
-    const brief = buildBrief();
+    const tipo = getPill('tipo-pills', 'tipo');
+    let brief = buildBrief();
     setStatus('✍️ Generando email con DeepSeek…');
+    const usados = await fetchUsedAsuntos(tipo);
+    if (usados.length) {
+      brief += '\n\nAsuntos ya usados en emails anteriores (NO los repitas ni escribas variantes casi idénticas): ' +
+        usados.map(a => `"${a}"`).join('; ');
+    }
     const reply = await deepseek(IDENTITY, [{ role: 'user', content: brief }], 1800);
     const parsed = parseJsonReply(reply);
     if (!Array.isArray(parsed.asuntos) || parsed.asuntos.length < 2 || !parsed.cuerpo) {
@@ -410,7 +530,8 @@ async function generar() {
     currentEmail = { asuntos: parsed.asuntos.slice(0, 2), cuerpo: parsed.cuerpo };
     selectedAsunto = 0;
     renderResult();
-    setStatus('✅ Email generado');
+    setStatus('✅ Email generado y guardado en el pipeline');
+    saveEmail(tipo);
   } catch (e) {
     setStatus('❌ ' + e.message, true);
   } finally {
@@ -434,6 +555,7 @@ function renderResult() {
     list.appendChild(opt);
   });
   $('cuerpo-box').textContent = currentEmail.cuerpo;
+  updateResultView();
   $('result').style.display = 'block';
   $('result').scrollIntoView({ behavior: 'smooth' });
 }
@@ -455,6 +577,7 @@ async function copyText(text, msg) {
 
   setupPills('tipo-pills', updateTipoUI);
   setupPills('nivel-pills', () => { fillReglas(); rerollVocab(); });
+  setupPills('view-pills', updateResultView);
 
   $('segmento-select').innerHTML = Object.entries(SEGMENTOS)
     .map(([key, s]) => `<option value="${key}">${s.label}</option>`)
@@ -471,6 +594,7 @@ async function copyText(text, msg) {
   $('btn-copy-cuerpo').onclick = () => copyText(currentEmail.cuerpo, '📋 Cuerpo copiado');
   $('btn-copy-todo').onclick = () =>
     copyText(`Asunto: ${currentEmail.asuntos[selectedAsunto]}\n\n${currentEmail.cuerpo}`, '📋 Email completo copiado');
+  $('btn-copy-html').onclick = copyHtml;
 
   document.getElementById('loading').style.display = 'none';
   document.getElementById('app').style.display = '';

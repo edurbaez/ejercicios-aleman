@@ -97,8 +97,10 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
 
 - [x] **Sesión 5.1 — Motor.** Tipos de email: bienvenida a alumno nuevo, resumen semanal (palabra/regla de la semana — puede tomar contenido de `grammar-data.js` / `Data{NIVEL}.json`), promoción de capacitación (usar precios de la sección capacitación de la estrategia). DeepSeek → `{ asunto, cuerpo }` con 2 variantes de asunto.
   - *Notas:* página nueva `marketing/emails.html` (flujo distinto al carrusel y `contenido.html` ya es grande); pestaña ✉️ añadida a las 5 páginas marketing. Esquema JSON: `{ asuntos: [v1, v2], cuerpo }` — el asunto se elige con radio-cards en el resultado. Resumen semanal: regla desde `GRAMMAR_DATA[nivel]` + 5 palabras aleatorias de `Data{NIVEL}.json` (chips con botón 🎲 re-roll). Promoción: 5 segmentos (`SEGMENTOS`) con módulos/duración/precio copiados de la tabla de capacitación de la estrategia + ángulo de venta por segmento. Cuerpo en texto plano (la plantilla HTML es la 5.2); botones copiar asunto/cuerpo/completo.
-- [ ] **Sesión 5.2 — Plantilla HTML.** Plantilla de email con branding (logo/colores), preview en iframe, botones copiar texto plano / copiar HTML (compatible con Gmail).
-- [ ] **Sesión 5.3 — Integración pipeline.** Guardar como `kind: 'email'` en `marketing_posts` + historial de asuntos usados para no repetir. Depende de Propuesta 1.
+- [x] **Sesión 5.2 — Plantilla HTML.** Plantilla de email con branding (logo/colores), preview en iframe, botones copiar texto plano / copiar HTML (compatible con Gmail).
+  - *Notas:* `buildEmailHtml()` genera HTML compatible con Gmail (tablas + estilos inline, 600px): header azul de marca con logo "DE", párrafos desde el texto plano (`\n\n` → `<p>`, `\n` → `<br>`, con escape HTML), botón CTA a la plataforma y footer con firma. Toggle «📄 Texto plano / 🎨 Vista HTML» (preview via `iframe.srcdoc`). «Copiar HTML (Gmail)» usa `ClipboardItem` con `text/html` + `text/plain` (pegar directo en Gmail conserva el formato); fallback a copiar el código fuente si el navegador no lo soporta.
+- [x] **Sesión 5.3 — Integración pipeline.** Guardar como `kind: 'email'` en `marketing_posts` + historial de asuntos usados para no repetir. Depende de Propuesta 1.
+  - *Notas:* `saveEmail()` fire-and-forget tras cada generación: `contenido = { tipo, asuntos, cuerpo }`, `tema` descriptivo por tipo (`buildTema()`), `nivel` solo en resumen semanal, estado `generado`. Anti-repetición: `fetchUsedAsuntos(tipo)` lee los últimos 40 emails del pipeline, filtra por el mismo tipo y añade hasta 12 asuntos al prompt con instrucción de no repetirlos. Compatibilidad verificada: calendario y filtro del historial ya tenían labels para `email`; en el historial de `contenido.html` un email cae en la acción «🔄 Usar como tema».
 
 ---
 
@@ -125,4 +127,4 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 | 2 — KPIs reales | 3/3 ✅ COMPLETA |
 | 3 — Guiones de Reels | 3/3 ✅ COMPLETA |
 | 4 — Testimonios | 3/3 ✅ COMPLETA |
-| 5 — Emails / newsletter | 1/3 |
+| 5 — Emails / newsletter | 3/3 ✅ COMPLETA |

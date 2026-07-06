@@ -6,143 +6,7 @@
   <title>Marketing — Admin</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/config.js"></script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --blue: #1565C0; --blue-d: #0D47A1; --blue-l: #e3f0ff;
-      --green: #2e7d32; --green-l: #e8f5e9;
-      --red: #c62828; --red-l: #ffebee;
-      --orange: #E65100; --orange-l: #fff3e0;
-      --purple: #6A1B9A; --purple-l: #f3e5f5;
-      --teal: #00796B; --teal-l: #e0f2f1;
-      --bg: #f0f2f7; --surface: #fff; --text: #1a1a2e; --muted: #64748b;
-      --radius: 12px; --shadow: 0 2px 10px rgba(0,0,0,.07);
-    }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    /* Header */
-    .header { background: var(--blue); color: #fff; padding: 0 28px; height: 54px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
-    .header-left { display: flex; align-items: center; gap: 14px; }
-    .header-title { font-size: 15px; font-weight: 700; }
-    .header-badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; }
-    .btn-sm { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; transition: background .15s; }
-    .btn-sm:hover { background: rgba(255,255,255,.24); }
-    .nav-tabs { display: flex; gap: 4px; margin-left: 10px; }
-    .nav-tab { color: rgba(255,255,255,.75); text-decoration: none; font-size: 13px; font-weight: 600; padding: 6px 14px; border-radius: 7px; transition: all .12s; }
-    .nav-tab:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .nav-tab.active { background: rgba(255,255,255,.2); color: #fff; }
-    @media (max-width: 700px) { .nav-tab { padding: 6px 9px; font-size: 12px; } }
-
-    /* Loading */
-    #loading { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; gap: 12px; font-size: 14px; color: var(--muted); }
-    .spin { width: 36px; height: 36px; border: 3px solid #e0e0e0; border-top-color: var(--blue); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Layout */
-    .main { max-width: 1100px; margin: 0 auto; padding: 28px 24px 60px; }
-
-    /* TOC nav */
-    .toc { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 24px; margin-bottom: 28px; }
-    .toc h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 14px; }
-    .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
-    .toc-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; text-decoration: none; color: var(--text); font-size: 13px; font-weight: 500; background: var(--bg); transition: background .15s; }
-    .toc-item:hover { background: var(--blue-l); color: var(--blue); }
-    .toc-num { width: 22px; height: 22px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-    /* Section */
-    .section { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px 28px 24px; margin-bottom: 22px; scroll-margin-top: 72px; }
-    .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #eef0f6; }
-    .section-icon { width: 44px; height: 44px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
-    .section-title { font-size: 20px; font-weight: 700; }
-    .section-sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
-
-    /* Cards grid */
-    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .card { border-radius: 10px; padding: 16px 18px; border-left: 4px solid transparent; }
-    .card h4 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-    .card p, .card ul { font-size: 13px; color: #444; line-height: 1.55; }
-    .card ul { padding-left: 16px; }
-    .card ul li { margin-bottom: 4px; }
-    .card.green { background: var(--green-l); border-color: var(--green); }
-    .card.green h4 { color: var(--green); }
-    .card.red { background: var(--red-l); border-color: var(--red); }
-    .card.red h4 { color: var(--red); }
-    .card.blue { background: var(--blue-l); border-color: var(--blue); }
-    .card.blue h4 { color: var(--blue); }
-    .card.orange { background: var(--orange-l); border-color: var(--orange); }
-    .card.orange h4 { color: var(--orange); }
-    .card.purple { background: var(--purple-l); border-color: var(--purple); }
-    .card.purple h4 { color: var(--purple); }
-    .card.teal { background: var(--teal-l); border-color: var(--teal); }
-    .card.teal h4 { color: var(--teal); }
-
-    /* SWOT */
-    .swot { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 600px) { .swot { grid-template-columns: 1fr; } }
-
-    /* Pitch blocks */
-    .pitch { border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
-    .pitch-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: .65; margin-bottom: 6px; }
-    .pitch-headline { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .pitch-body { font-size: 13px; line-height: 1.6; color: #444; }
-    .pitch-tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-top: 10px; margin-right: 4px; }
-    .pitch.blue { background: var(--blue-l); }
-    .pitch.blue .pitch-label, .pitch.blue .pitch-headline { color: var(--blue); }
-    .pitch.blue .pitch-tag { background: var(--blue); color: #fff; }
-    .pitch.purple { background: var(--purple-l); }
-    .pitch.purple .pitch-label, .pitch.purple .pitch-headline { color: var(--purple); }
-    .pitch.purple .pitch-tag { background: var(--purple); color: #fff; }
-    .pitch.teal { background: var(--teal-l); }
-    .pitch.teal .pitch-label, .pitch.teal .pitch-headline { color: var(--teal); }
-    .pitch.teal .pitch-tag { background: var(--teal); color: #fff; }
-    .pitch.orange { background: var(--orange-l); }
-    .pitch.orange .pitch-label, .pitch.orange .pitch-headline { color: var(--orange); }
-    .pitch.orange .pitch-tag { background: var(--orange); color: #fff; }
-
-    /* Roadmap */
-    .roadmap { display: flex; flex-direction: column; gap: 0; }
-    .rm-item { display: flex; gap: 18px; padding-bottom: 20px; position: relative; }
-    .rm-left { display: flex; flex-direction: column; align-items: center; gap: 0; flex-shrink: 0; width: 40px; }
-    .rm-dot { width: 16px; height: 16px; border-radius: 50%; background: var(--blue); border: 3px solid var(--blue-l); flex-shrink: 0; z-index: 1; }
-    .rm-line { width: 2px; flex: 1; background: #dde1ec; min-height: 24px; }
-    .rm-item:last-child .rm-line { display: none; }
-    .rm-content { padding-top: 0; }
-    .rm-phase { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); margin-bottom: 4px; }
-    .rm-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-    .rm-desc { font-size: 13px; color: #555; line-height: 1.55; }
-
-    /* KPIs */
-    .kpi-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
-    .kpi { background: var(--bg); border-radius: 10px; padding: 16px 18px; text-align: center; }
-    .kpi-value { font-size: 32px; font-weight: 800; line-height: 1; }
-    .kpi-label { font-size: 12px; color: var(--muted); margin-top: 6px; font-weight: 500; }
-    .kpi.blue .kpi-value { color: var(--blue); }
-    .kpi.green .kpi-value { color: var(--green); }
-    .kpi.orange .kpi-value { color: var(--orange); }
-    .kpi.purple .kpi-value { color: var(--purple); }
-
-    /* Table */
-    .mkt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .mkt-table th { text-align: left; padding: 10px 12px; background: var(--bg); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); border-bottom: 2px solid #e0e4ef; white-space: nowrap; }
-    .mkt-table td { padding: 10px 12px; border-bottom: 1px solid #eef0f6; vertical-align: top; line-height: 1.5; }
-    .mkt-table tr:last-child td { border-bottom: none; }
-    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    @media (max-width: 600px) { .main { padding: 14px 10px 40px; } }
-    .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
-    .tag.h { background: var(--red-l); color: var(--red); }
-    .tag.m { background: var(--orange-l); color: var(--orange); }
-    .tag.l { background: var(--green-l); color: var(--green); }
-
-    /* Caption */
-    .caption { font-size: 12px; color: var(--muted); margin-top: 14px; font-style: italic; }
-
-    /* Print hint */
-    .print-btn { float: right; }
-    @media print {
-      .header, .toc, #loading { display: none; }
-      .section { box-shadow: none; border: 1px solid #e0e4ef; page-break-inside: avoid; }
-    }
-  </style>
+  <link rel="stylesheet" href="/marketing/styles.css">
 </head>
 <body>
 
@@ -164,6 +28,18 @@
         <a href="/marketing/calendario.html" class="nav-tab">📅 Calendario</a>
         <a href="/marketing/resultados.html" class="nav-tab">📈 Resultados</a>
       </nav>
+      <div class="nav-menu-wrap" id="nav-menu-wrap">
+        <button class="nav-menu-btn" onclick="document.getElementById('nav-menu-wrap').classList.toggle('open')">
+          Menú ▾
+        </button>
+        <div class="nav-menu-dropdown">
+          <a href="/marketing/" class="active">📊 Estrategia</a>
+          <a href="/marketing/contenido.html">🎠 Generador</a>
+          <a href="/marketing/emails.html">✉️ Emails</a>
+          <a href="/marketing/calendario.html">📅 Calendario</a>
+          <a href="/marketing/resultados.html">📈 Resultados</a>
+        </div>
+      </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <button class="btn-sm" onclick="window.print()">&#x1F5A8; Imprimir</button>
@@ -744,6 +620,10 @@
   document.getElementById('loading').style.display = 'none';
   document.getElementById('app').style.display = '';
   document.getElementById('doc-date').textContent = new Date().toLocaleDateString('es-ES', { year:'numeric', month:'long', day:'numeric' });
+  document.addEventListener('click', e => {
+    const wrap = document.getElementById('nav-menu-wrap');
+    if (wrap && !wrap.contains(e.target)) wrap.classList.remove('open');
+  });
 })();
 </script>
 

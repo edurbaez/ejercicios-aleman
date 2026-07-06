@@ -69,7 +69,8 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
 
 **Objetivo:** mismo brief que un carrusel → guion de video corto de 30-60 s para grabar con el móvil. Reutiliza `/api/deepseek-chat`.
 
-- [ ] **Sesión 3.1 — Motor.** En `contenido.html`, selector de formato "Carrusel | Reel". Formato Reel: DeepSeek devuelve JSON `{ hook, escenas: [{ visual, texto_hablado, texto_pantalla, segundos }], cta, caption, hashtags }`. Validación de duración total ≤ 60 s.
+- [x] **Sesión 3.1 — Motor.** En `contenido.html`, selector de formato "Carrusel | Reel". Formato Reel: DeepSeek devuelve JSON `{ hook, escenas: [{ visual, texto_hablado, texto_pantalla, segundos }], cta, caption, hashtags }`. Validación de duración total ≤ 60 s.
+  - *Notas:* pills «Formato» al inicio del panel generador (`updateFormatoUI()`): en modo Reel se ocultan slides/fondo/color y aparece selector de duración objetivo (30/45/60 s). Reutiliza fuente/nivel/nicho y `buildSourceText()` sin cambios. Validación: si la suma de `segundos` > 60, una pasada extra de DeepSeek comprime el guion; si sigue >60 se conserva y el badge de duración avisa en rojo (`.warn`). La vista previa (tabla de escenas con rangos de tiempo acumulados, hook y CTA destacados, caption) se adelantó a esta sesión; teleprompter y copiar guion quedan para 3.2. Sin revisión IA para reels (solo carruseles).
 - [ ] **Sesión 3.2 — UI de guion.** Vista de guion: tabla de escenas con tiempos, modo teleprompter (texto grande con auto-scroll a velocidad configurable para leer mientras grabas), copiar guion completo.
 - [ ] **Sesión 3.3 — Integración pipeline.** Guardar guiones como `kind: 'reel'` en `marketing_posts`; aparecen en historial y calendario. Depende de Propuesta 1.
 
@@ -118,6 +119,6 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 |-----------|----------------------|
 | 1 — Pipeline de contenido | 3/3 ✅ COMPLETA |
 | 2 — KPIs reales | 3/3 ✅ COMPLETA |
-| 3 — Guiones de Reels | 0/3 |
+| 3 — Guiones de Reels | 1/3 |
 | 4 — Testimonios | 1/3 |
 | 5 — Emails / newsletter | 1/3 |

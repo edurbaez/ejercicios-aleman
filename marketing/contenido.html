@@ -136,6 +136,20 @@
     #testi-preview-wrap { margin-top: 4px; }
     #testi-cita { min-width: 320px; width: 100%; }
 
+    /* Reel script */
+    #result-reel { display: none; }
+    .reel-hook, .reel-cta { border-left: 5px solid var(--blue); background: var(--blue-l); border-radius: 8px; padding: 10px 14px; font-size: 14px; font-weight: 600; line-height: 1.5; margin-bottom: 14px; }
+    .reel-cta { border-left-color: var(--green); background: var(--green-l); }
+    .reel-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; }
+    .reel-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 6px 8px; border-bottom: 2px solid #e2e6ef; }
+    .reel-table td { padding: 8px; border-bottom: 1px solid #eef1f6; vertical-align: top; line-height: 1.45; }
+    .reel-table td.t { white-space: nowrap; font-weight: 700; color: var(--blue-d); }
+    .reel-table td.visual { color: var(--muted); font-style: italic; }
+    .reel-table td.pantalla { font-weight: 600; }
+    #reel-dur-badge { font-size: 12px; font-weight: 700; color: var(--green); background: var(--green-l); border-radius: 20px; padding: 3px 12px; margin-left: 10px; vertical-align: middle; }
+    #reel-dur-badge.warn { color: var(--red); background: var(--red-l); }
+    @media (max-width: 700px) { .reel-table th:nth-child(3), .reel-table td.visual { display: none; } }
+
     /* Historial */
     .view-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
     .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end; }
@@ -211,9 +225,16 @@
     </div>
 
     <div class="panel">
-      <h2>🎠 Carrusel para Instagram</h2>
+      <h2 id="gen-title">🎠 Carrusel para Instagram</h2>
 
       <div class="field-row">
+        <div class="field">
+          <label>Formato</label>
+          <div class="pills" id="formato-pills">
+            <button class="pill active" data-formato="carrusel">🎠 Carrusel</button>
+            <button class="pill" data-formato="reel">🎬 Reel (guion)</button>
+          </div>
+        </div>
         <div class="field">
           <label>Nicho</label>
           <div class="pills" id="nicho-pills"></div>
@@ -255,13 +276,21 @@
           <label>Vocabulario</label>
           <div class="hint">Se eligen <b>5 palabras al azar</b> del nivel seleccionado<br>(Data del nivel, mezcla de todas las categorías).</div>
         </div>
-        <div class="field">
+        <div class="field" id="field-slides">
           <label>Slides</label>
           <input type="number" id="num-slides" min="4" max="8" value="6" style="min-width:80px;width:80px">
         </div>
+        <div class="field" id="field-duracion" style="display:none">
+          <label>Duración objetivo</label>
+          <select id="reel-duracion" style="min-width:110px">
+            <option value="30">30 s</option>
+            <option value="45" selected>45 s</option>
+            <option value="60">60 s</option>
+          </select>
+        </div>
       </div>
 
-      <div class="field-row">
+      <div class="field-row" id="row-fondo">
         <div class="field">
           <label>Fondo de las slides</label>
           <div class="pills" id="modo-pills">
@@ -302,6 +331,23 @@
         <button class="btn-primary" id="btn-dl-all">⬇️ Descargar todas (PNG)</button>
         <button class="btn-secondary" id="btn-copy-caption">📋 Copiar caption</button>
       </div>
+    </div>
+
+    <div class="panel" id="result-reel">
+      <h2>🎬 Guion del Reel<span id="reel-dur-badge"></span></h2>
+      <div class="reel-hook" id="reel-hook"></div>
+      <table class="reel-table">
+        <thead>
+          <tr><th>#</th><th>Tiempo</th><th>Visual</th><th>En pantalla</th><th>Texto hablado</th></tr>
+        </thead>
+        <tbody id="reel-tbody"></tbody>
+      </table>
+      <div class="reel-cta" id="reel-cta"></div>
+
+      <h2 style="margin-top:18px">Caption</h2>
+      <div class="caption-box" id="reel-caption-box"></div>
+
+      <div class="actions-row" id="reel-actions"></div>
     </div>
 
     </div><!-- /view-generador -->
@@ -392,7 +438,9 @@
 
 <script>
 let sb, authToken;
+let currentFormat = 'carrusel'; // 'carrusel' | 'reel'
 let currentCarousel = null;   // { slides:[{titulo,texto,ejemplo,imagen_sugerida?}], caption, hashtags[] }
+let currentReel = null;       // { hook, escenas:[{visual,texto_hablado,texto_pantalla,segundos}], cta, caption, hashtags[] }
 let bgImageDataUrl = null;    // data URL when IA mode
 let uploadedBgDataUrl = null; // data URL when user uploads a background image
 let currentNiche = 'aleman';
@@ -513,6 +561,18 @@ function updateModoUI() {
   $('field-upload').style.display = modo === 'subir' ? '' : 'none';
 }
 
+function updateFormatoUI() {
+  currentFormat = getPill('formato-pills', 'formato');
+  const isReel = currentFormat === 'reel';
+  $('gen-title').textContent = isReel ? '🎬 Guion de Reel (30-60 s)' : '🎠 Carrusel para Instagram';
+  $('field-slides').style.display = isReel ? 'none' : '';
+  $('field-duracion').style.display = isReel ? '' : 'none';
+  $('row-fondo').style.display = isReel ? 'none' : '';
+  $('btn-generar').textContent = isReel ? '⚡ Generar guion' : '⚡ Generar carrusel';
+  $('result').style.display = !isReel && currentCarousel ? 'block' : 'none';
+  $('result-reel').style.display = isReel && currentReel ? 'block' : 'none';
+}
+
 function updateNichoUI() {
   currentNiche = getPill('nicho-pills', 'nicho');
   const n = NICHES[currentNiche];
@@ -603,6 +663,87 @@ async function generateCopy(sourceText, numSlides, nivel, niche, wantImageSugges
   const parsed = parseJsonReply(reply);
   if (!Array.isArray(parsed.slides) || !parsed.slides.length) throw new Error('JSON sin slides');
   return parsed;
+}
+
+// ─── Reels ───
+const REEL_RULES =
+  'TÉCNICAS PARA REELS: ' +
+  '1) El hook ocupa los primeros 1-3 s: frase corta que rompa el scroll (pregunta, error común o dato concreto). ' +
+  '2) Una sola idea por escena, lenguaje hablado natural (el texto se lee en voz alta a cámara). ' +
+  '3) "texto_pantalla": máx 8 palabras (overlay de texto del video). ' +
+  '4) La última escena es el CTA: seguir la cuenta, comentar o guardar. ' +
+  '5) Caption: la PRIMERA línea es un gancho independiente, luego valor, luego CTA.';
+
+function buildReelSystem(niche) {
+  const n = NICHES[niche];
+  return n.identity + ' ' +
+    'Escribes guiones de Reels (video vertical de 30-60 s) que el creador graba con el móvil hablando a cámara. ' +
+    'Respondes SOLO con JSON válido, sin markdown, con este esquema exacto: ' +
+    '{"hook":"...","escenas":[{"visual":"...","texto_hablado":"...","texto_pantalla":"...","segundos":N}],"cta":"...","caption":"...","hashtags":["#..."]}. ' +
+    '"hook" = frase de apertura (lo primero que se dice a cámara, incluida en la duración de la escena 1). ' +
+    '"visual" = qué se ve o hace en la escena (máx 12 palabras). "texto_hablado" = lo que se dice en voz alta. ' +
+    '"segundos" = duración estimada de la escena (número entero). ' +
+    `Caption: 3-5 líneas. Hashtags: ${n.hashtagsHint}. ` + REEL_RULES;
+}
+
+function reelDuration(reel) {
+  return (reel.escenas || []).reduce((sum, e) => sum + (parseInt(e.segundos) || 0), 0);
+}
+
+async function generateReel(sourceText, targetSecs, nivel, niche) {
+  const levelPart = NICHES[niche].isGerman ? ` (nivel ${nivel})` : '';
+  const ask = `Genera un guion de reel de ~${targetSecs} segundos (máximo 60)${levelPart} sobre:\n${sourceText}`;
+  let reel = parseJsonReply(await deepseek(buildReelSystem(niche), [{ role: 'user', content: ask }], 2500));
+  if (!Array.isArray(reel.escenas) || !reel.escenas.length) throw new Error('JSON sin escenas');
+
+  if (reelDuration(reel) > 60) {
+    setStatus(`✂️ El guion dura ${reelDuration(reel)} s — comprimiendo a ≤ 60 s…`);
+    try {
+      const fixed = parseJsonReply(await deepseek(buildReelSystem(niche), [{ role: 'user', content:
+        `Este guion dura ${reelDuration(reel)} s en total. Recórtalo para que dure máximo ${targetSecs} s ` +
+        'sin perder el hook ni el CTA. Devuelve el JSON completo con el mismo esquema:\n' + JSON.stringify(reel) }], 2500));
+      if (Array.isArray(fixed.escenas) && fixed.escenas.length && reelDuration(fixed) <= 60) reel = fixed;
+    } catch (e) { /* keep the long version; the badge will warn */ }
+  }
+  return reel;
+}
+
+function renderReelPreview() {
+  const dur = reelDuration(currentReel);
+  const badge = $('reel-dur-badge');
+  badge.textContent = `⏱ ~${dur} s`;
+  badge.classList.toggle('warn', dur > 60);
+  $('reel-hook').textContent = `🪝 Hook: ${currentReel.hook || ''}`;
+  $('reel-cta').textContent = `📣 CTA: ${currentReel.cta || ''}`;
+
+  const tbody = $('reel-tbody');
+  tbody.innerHTML = '';
+  let t = 0;
+  currentReel.escenas.forEach((esc, i) => {
+    const secs = parseInt(esc.segundos) || 0;
+    const tr = document.createElement('tr');
+    const cells = [
+      ['t', String(i + 1)],
+      ['t', `${t}–${t + secs} s`],
+      ['visual', esc.visual || ''],
+      ['pantalla', esc.texto_pantalla || ''],
+      ['', esc.texto_hablado || ''],
+    ];
+    cells.forEach(([cls, text]) => {
+      const td = document.createElement('td');
+      if (cls) td.className = cls;
+      td.textContent = text;
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+    t += secs;
+  });
+
+  const tags = (currentReel.hashtags || []).join(' ');
+  $('reel-caption-box').textContent = (currentReel.caption || '') + (tags ? '\n\n' + tags : '');
+  $('result').style.display = 'none';
+  $('result-reel').style.display = 'block';
+  $('result-reel').scrollIntoView({ behavior: 'smooth' });
 }
 
 async function reviewCopy(copy, niche, wantImageSuggestions) {
@@ -1216,7 +1357,7 @@ async function generar() {
     const modo = getPill('modo-pills', 'modo');
     const numSlides = Math.max(4, Math.min(8, parseInt($('num-slides').value) || 6));
     const wantImg = modo === 'subir';
-    if (modo === 'subir' && !uploadedBgDataUrl) throw new Error('Sube una imagen de fondo primero');
+    if (currentFormat !== 'reel' && modo === 'subir' && !uploadedBgDataUrl) throw new Error('Sube una imagen de fondo primero');
 
     let vocab = [];
     if (fuente === 'vocabulario') {
@@ -1227,6 +1368,15 @@ async function generar() {
 
     setStatus('🔎 Comprobando temas ya generados…');
     if (!await checkDuplicateTema(sourceText)) { setStatus('Generación cancelada — tema similar ya existente.'); return; }
+
+    if (currentFormat === 'reel') {
+      const targetSecs = parseInt($('reel-duracion').value) || 45;
+      setStatus('✍️ Generando guion con DeepSeek…');
+      currentReel = await generateReel(sourceText, targetSecs, nivel, currentNiche);
+      renderReelPreview();
+      setStatus(`✅ Guion generado (~${reelDuration(currentReel)} s, ${currentReel.escenas.length} escenas)`);
+      return;
+    }
 
     setStatus('✍️ Generando textos con DeepSeek…');
     const copyPromise = generateCopy(sourceText, numSlides, nivel, currentNiche, wantImg);
@@ -1288,6 +1438,7 @@ async function generar() {
   $('nicho-pills').innerHTML = Object.entries(NICHES)
     .map(([key, n], i) => `<button class="pill${i === 0 ? ' active' : ''}" data-nicho="${key}">${n.label}</button>`)
     .join('');
+  setupPills('formato-pills', updateFormatoUI);
   setupPills('nicho-pills', updateNichoUI);
   setupPills('fuente-pills', updateFuenteUI);
   setupPills('nivel-pills', fillReglas);
@@ -1307,6 +1458,7 @@ async function generar() {
   fillReglas();
   updateNichoUI();
   updateModoUI();
+  updateFormatoUI();
 
   $('tab-generador').onclick = () => switchView('generador');
   $('tab-testimonios').onclick = () => switchView('testimonios');

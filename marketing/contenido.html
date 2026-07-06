@@ -150,6 +150,14 @@
     #reel-dur-badge.warn { color: var(--red); background: var(--red-l); }
     @media (max-width: 700px) { .reel-table th:nth-child(3), .reel-table td.visual { display: none; } }
 
+    /* Teleprompter */
+    #teleprompter { position: fixed; inset: 0; background: #000; z-index: 999; display: none; flex-direction: column; }
+    #tp-controls { display: flex; gap: 16px; align-items: center; padding: 12px 18px; background: #14141e; flex-wrap: wrap; }
+    #tp-controls label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: #9aa3b5; }
+    #tp-scroll { flex: 1; overflow-y: auto; cursor: pointer; }
+    #tp-text { padding: 45vh 8vw; font-size: 46px; line-height: 1.65; font-weight: 600; color: #fff; text-align: center; white-space: pre-wrap; }
+    .tp-hint { font-size: 12px; color: #9aa3b5; }
+
     /* Historial */
     .view-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
     .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end; }
@@ -347,7 +355,11 @@
       <h2 style="margin-top:18px">Caption</h2>
       <div class="caption-box" id="reel-caption-box"></div>
 
-      <div class="actions-row" id="reel-actions"></div>
+      <div class="actions-row">
+        <button class="btn-primary" id="btn-teleprompter">🎥 Teleprompter</button>
+        <button class="btn-secondary" id="btn-copy-script">📋 Copiar guion</button>
+        <button class="btn-secondary" id="btn-copy-reel-caption">📋 Copiar caption</button>
+      </div>
     </div>
 
     </div><!-- /view-generador -->
@@ -433,6 +445,17 @@
 
   </div><!-- /main -->
 </div><!-- /app -->
+
+<div id="teleprompter">
+  <div id="tp-controls">
+    <button class="btn-primary" id="tp-play">▶️ Iniciar</button>
+    <label>Velocidad <input type="range" id="tp-speed" min="20" max="140" value="60"></label>
+    <label>Tamaño <input type="range" id="tp-font" min="28" max="72" value="46"></label>
+    <span class="tp-hint">Toca el texto para pausar/reanudar</span>
+    <button class="btn-secondary" id="tp-close" style="margin-left:auto">✖ Cerrar</button>
+  </div>
+  <div id="tp-scroll"><div id="tp-text"></div></div>
+</div>
 
 <div id="export-stage"></div>
 
@@ -744,6 +767,47 @@ function renderReelPreview() {
   $('result').style.display = 'none';
   $('result-reel').style.display = 'block';
   $('result-reel').scrollIntoView({ behavior: 'smooth' });
+}
+
+function buildReelScript() {
+  const lines = [`🪝 HOOK: ${currentReel.hook || ''}`, ''];
+  let t = 0;
+  currentReel.escenas.forEach((esc, i) => {
+    const secs = parseInt(esc.segundos) || 0;
+    lines.push(`ESCENA ${i + 1} (${t}–${t + secs} s)`);
+    if (esc.visual) lines.push(`Visual: ${esc.visual}`);
+    if (esc.texto_pantalla) lines.push(`En pantalla: ${esc.texto_pantalla}`);
+    lines.push(`Hablado: ${esc.texto_hablado || ''}`, '');
+    t += secs;
+  });
+  lines.push(`📣 CTA: ${currentReel.cta || ''}`);
+  return lines.join('\n');
+}
+
+// ─── Teleprompter ───
+let tpPlaying = false, tpLastTs = 0;
+
+function openTeleprompter() {
+  const parts = [currentReel.hook, ...currentReel.escenas.map(e => e.texto_hablado), currentReel.cta];
+  $('tp-text').textContent = parts.filter(Boolean).join('\n\n');
+  $('teleprompter').style.display = 'flex';
+  $('tp-scroll').scrollTop = 0;
+  tpSetPlaying(false);
+}
+
+function tpSetPlaying(playing) {
+  tpPlaying = playing;
+  $('tp-play').textContent = playing ? '⏸️ Pausa' : '▶️ Iniciar';
+  if (playing) { tpLastTs = 0; requestAnimationFrame(tpTick); }
+}
+
+function tpTick(ts) {
+  if (!tpPlaying) return;
+  const sc = $('tp-scroll');
+  if (tpLastTs) sc.scrollTop += (parseInt($('tp-speed').value) / 1000) * (ts - tpLastTs);
+  tpLastTs = ts;
+  if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 1) { tpSetPlaying(false); return; }
+  requestAnimationFrame(tpTick);
 }
 
 async function reviewCopy(copy, niche, wantImageSuggestions) {
@@ -1481,6 +1545,20 @@ async function generar() {
     await navigator.clipboard.writeText($('caption-box').textContent);
     setStatus('📋 Caption copiado');
   };
+
+  $('btn-teleprompter').onclick = openTeleprompter;
+  $('btn-copy-script').onclick = async () => {
+    await navigator.clipboard.writeText(buildReelScript());
+    setStatus('📋 Guion completo copiado');
+  };
+  $('btn-copy-reel-caption').onclick = async () => {
+    await navigator.clipboard.writeText($('reel-caption-box').textContent);
+    setStatus('📋 Caption copiado');
+  };
+  $('tp-play').onclick = () => tpSetPlaying(!tpPlaying);
+  $('tp-close').onclick = () => { tpSetPlaying(false); $('teleprompter').style.display = 'none'; };
+  $('tp-font').oninput = () => { $('tp-text').style.fontSize = $('tp-font').value + 'px'; };
+  $('tp-scroll').addEventListener('click', () => tpSetPlaying(!tpPlaying));
 
   document.getElementById('loading').style.display = 'none';
   document.getElementById('app').style.display = '';

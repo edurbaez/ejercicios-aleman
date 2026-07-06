@@ -41,7 +41,8 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
 
 - [x] **Sesión 1.1 — Persistencia.** Migración `004_marketing_posts.sql` (tabla + RLS admin) aplicada en Supabase. `contenido.html` guarda automáticamente cada carrusel generado (estado `generado`) y las ideas elegidas del chat (estado `idea`). Sin función serverless nueva: escribe directo con el cliente Supabase (RLS protege).
   - *Notas:* guardado con `savePost()` (fire-and-forget, `console.warn` si falla — nunca rompe la UX). El `contenido` jsonb del carrusel guarda `{ slides, hashtags, niche, modo, review }` para poder recargarlo en el generador en la Sesión 1.2. Las ideas guardan `{ niche }` y `tema` = brief. `updated_at` se mantiene con trigger `marketing_posts_touch_updated_at()`.
-- [ ] **Sesión 1.2 — Historial.** Pestaña "📚 Historial" en `contenido.html`: listado con filtros (estado/nivel/kind), acciones por pieza: recargar en el generador, duplicar, borrar, re-exportar PNGs, cambiar estado. Aviso de "tema similar ya generado" al crear una pieza nueva.
+- [x] **Sesión 1.2 — Historial.** Pestaña "📚 Historial" en `contenido.html`: listado con filtros (estado/nivel/kind), acciones por pieza: recargar en el generador, duplicar, borrar, re-exportar PNGs, cambiar estado. Aviso de "tema similar ya generado" al crear una pieza nueva.
+  - *Notas:* pestañas in-page (`switchView()`: `#view-generador` / `#view-historial`), no páginas separadas. Recargar fuerza modo Plantilla (los fondos IA/subidos no se persisten). Cambiar estado a `publicado` auto-rellena `publish_date` con hoy si está vacío (útil para 1.3 y 2.3). Aviso de duplicado: solapamiento de palabras normalizadas (≥60% sobre el set menor) contra las últimas 100 piezas `generado`/`publicado`, con `confirm()` para continuar; nunca bloquea si la query falla.
 - [ ] **Sesión 1.3 — Calendario editorial.** Nueva página `marketing/calendario.html` (misma nav-tabs): vista mensual, asignar piezas a fechas (`publish_date`), marcar como publicado, vista "esta semana" con pendientes. Añadir pestaña a los headers de todas las páginas marketing.
 
 ---
@@ -105,7 +106,7 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 
 | Propuesta | Sesiones completadas |
 |-----------|----------------------|
-| 1 — Pipeline de contenido | 1/3 (1.1 ✅) |
+| 1 — Pipeline de contenido | 2/3 (1.1 ✅ 1.2 ✅) |
 | 2 — KPIs reales | 0/3 |
 | 3 — Guiones de Reels | 0/3 |
 | 4 — Testimonios | 0/3 |

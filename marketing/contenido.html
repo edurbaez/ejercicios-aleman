@@ -119,6 +119,25 @@
     .chat-input-row { display: flex; gap: 8px; margin-top: 10px; }
     .chat-input-row input { flex: 1; min-width: 0; }
 
+    /* Historial */
+    .view-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
+    .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end; }
+    .hist-filters select { min-width: 140px; }
+    .hist-item { border: 1.5px solid #e2e6ef; border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; }
+    .hist-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .badge { font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 9px; }
+    .badge.estado-idea { background: var(--blue-l); color: var(--blue-d); }
+    .badge.estado-generado { background: var(--green-l); color: var(--green); }
+    .badge.estado-publicado { background: var(--purple-l); color: var(--purple); }
+    .badge.kind { background: #eef1f6; color: var(--muted); }
+    .hist-tema { font-size: 13px; line-height: 1.45; }
+    .hist-date { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+    .hist-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .hist-btn { border: 1.5px solid #d5dae6; background: #fff; border-radius: 7px; padding: 4px 10px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text); }
+    .hist-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .hist-btn.danger:hover { border-color: var(--red); color: var(--red); }
+    .hist-actions select { min-width: 0; padding: 4px 8px; font-size: 12px; }
+
     @media (max-width: 700px) { .field-row { flex-direction: column; gap: 14px; } #tema-libre { min-width: 0; } }
   </style>
 </head>
@@ -146,6 +165,13 @@
   </header>
 
   <div class="main">
+
+    <div class="view-tabs">
+      <button class="pill active" id="tab-generador">🎠 Generador</button>
+      <button class="pill" id="tab-historial">📚 Historial</button>
+    </div>
+
+    <div id="view-generador">
 
     <div class="panel">
       <h2>💡 Ideas y asistente</h2>
@@ -256,6 +282,46 @@
         <button class="btn-secondary" id="btn-copy-caption">📋 Copiar caption</button>
       </div>
     </div>
+
+    </div><!-- /view-generador -->
+
+    <div id="view-historial" style="display:none">
+      <div class="panel">
+        <h2>📚 Historial de piezas</h2>
+        <div class="hist-filters">
+          <div class="field">
+            <label>Estado</label>
+            <select id="hist-estado">
+              <option value="todos">Todos</option>
+              <option value="idea">💡 Idea</option>
+              <option value="generado">✅ Generado</option>
+              <option value="publicado">📣 Publicado</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Tipo</label>
+            <select id="hist-kind">
+              <option value="todos">Todos</option>
+              <option value="carrusel">🎠 Carrusel</option>
+              <option value="reel">🎬 Reel</option>
+              <option value="testimonio">💬 Testimonio</option>
+              <option value="email">✉️ Email</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Nivel</label>
+            <select id="hist-nivel">
+              <option value="todos">Todos</option>
+              <option value="A1">A1</option><option value="A2">A2</option>
+              <option value="B1">B1</option><option value="B2">B2</option>
+              <option value="C1">C1</option><option value="C2">C2</option>
+            </select>
+          </div>
+          <button class="btn-secondary" id="btn-hist-refresh">🔄 Actualizar</button>
+        </div>
+        <div id="hist-list"></div>
+      </div>
+    </div><!-- /view-historial -->
 
   </div><!-- /main -->
 </div><!-- /app -->
@@ -687,6 +753,208 @@ async function savePost(post) {
   }
 }
 
+// ─── Historial ───
+let histPosts = [];
+
+const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', email: '✉️ Email' };
+const ESTADO_LABELS = { idea: '💡 Idea', generado: '✅ Generado', publicado: '📣 Publicado' };
+
+function switchView(view) {
+  $('view-generador').style.display = view === 'generador' ? '' : 'none';
+  $('view-historial').style.display = view === 'historial' ? '' : 'none';
+  $('tab-generador').classList.toggle('active', view === 'generador');
+  $('tab-historial').classList.toggle('active', view === 'historial');
+  if (view === 'historial') loadHistorial();
+}
+
+async function loadHistorial() {
+  const list = $('hist-list');
+  list.innerHTML = '<div class="hint">Cargando…</div>';
+  const { data, error } = await sb.from('marketing_posts')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    list.innerHTML = `<div class="hint" style="color:var(--red)">❌ ${error.message}</div>`;
+    return;
+  }
+  histPosts = data || [];
+  renderHistorial();
+}
+
+function renderHistorial() {
+  const estado = $('hist-estado').value, kind = $('hist-kind').value, nivel = $('hist-nivel').value;
+  const rows = histPosts.filter(p =>
+    (estado === 'todos' || p.estado === estado) &&
+    (kind === 'todos' || p.kind === kind) &&
+    (nivel === 'todos' || p.nivel === nivel));
+
+  const list = $('hist-list');
+  list.innerHTML = '';
+  if (!rows.length) {
+    list.innerHTML = '<div class="hint">No hay piezas con estos filtros.</div>';
+    return;
+  }
+
+  rows.forEach(post => {
+    const item = document.createElement('div');
+    item.className = 'hist-item';
+
+    const top = document.createElement('div');
+    top.className = 'hist-top';
+    const kindBadge = document.createElement('span');
+    kindBadge.className = 'badge kind';
+    kindBadge.textContent = KIND_LABELS[post.kind] || post.kind;
+    const estadoBadge = document.createElement('span');
+    estadoBadge.className = `badge estado-${post.estado}`;
+    estadoBadge.textContent = ESTADO_LABELS[post.estado] || post.estado;
+    top.append(kindBadge, estadoBadge);
+    if (post.nivel) {
+      const nivelBadge = document.createElement('span');
+      nivelBadge.className = 'badge kind';
+      nivelBadge.textContent = post.nivel;
+      top.appendChild(nivelBadge);
+    }
+    const date = document.createElement('span');
+    date.className = 'hist-date';
+    date.textContent = new Date(post.created_at).toLocaleDateString('es', { day: 'numeric', month: 'short', year: 'numeric' }) +
+      (post.publish_date ? ` · 📅 ${post.publish_date}` : '');
+    top.appendChild(date);
+
+    const tema = document.createElement('div');
+    tema.className = 'hist-tema';
+    tema.textContent = post.tema.length > 220 ? post.tema.slice(0, 220) + '…' : post.tema;
+
+    const actions = document.createElement('div');
+    actions.className = 'hist-actions';
+    const hasSlides = Array.isArray(post.contenido?.slides) && post.contenido.slides.length;
+
+    const mkBtn = (label, fn, danger) => {
+      const b = document.createElement('button');
+      b.className = 'hist-btn' + (danger ? ' danger' : '');
+      b.textContent = label;
+      b.onclick = () => fn(post, b);
+      return b;
+    };
+    actions.appendChild(mkBtn(hasSlides ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
+    if (hasSlides) actions.appendChild(mkBtn('⬇️ Re-exportar PNGs', histReexport));
+    actions.appendChild(mkBtn('📄 Duplicar', histDuplicate));
+    actions.appendChild(mkBtn('🗑️ Borrar', histDelete, true));
+
+    const sel = document.createElement('select');
+    sel.innerHTML = Object.entries(ESTADO_LABELS)
+      .map(([v, l]) => `<option value="${v}"${v === post.estado ? ' selected' : ''}>${l}</option>`).join('');
+    sel.onchange = () => histSetEstado(post, sel.value);
+    actions.appendChild(sel);
+
+    item.append(top, tema, actions);
+    list.appendChild(item);
+  });
+}
+
+async function histSetEstado(post, estado) {
+  const patch = { estado };
+  if (estado === 'publicado' && !post.publish_date) patch.publish_date = new Date().toISOString().slice(0, 10);
+  const { error } = await sb.from('marketing_posts').update(patch).eq('id', post.id);
+  if (error) { alert('No se pudo cambiar el estado: ' + error.message); return; }
+  Object.assign(post, patch);
+  renderHistorial();
+}
+
+async function histDelete(post) {
+  const preview = post.tema.slice(0, 60) + (post.tema.length > 60 ? '…' : '');
+  if (!confirm(`¿Borrar esta pieza?\n\n«${preview}»`)) return;
+  const { error } = await sb.from('marketing_posts').delete().eq('id', post.id);
+  if (error) { alert('No se pudo borrar: ' + error.message); return; }
+  histPosts = histPosts.filter(p => p.id !== post.id);
+  renderHistorial();
+}
+
+async function histDuplicate(post, btn) {
+  btn.disabled = true;
+  try {
+    const copy = { kind: post.kind, tema: post.tema, nivel: post.nivel, contenido: post.contenido, caption: post.caption, estado: post.estado };
+    const { data, error } = await sb.from('marketing_posts').insert(copy).select().single();
+    if (error) { alert('No se pudo duplicar: ' + error.message); return; }
+    histPosts.unshift(data);
+    renderHistorial();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function histLoad(post) {
+  const c = post.contenido || {};
+  if (c.niche && NICHES[c.niche]) {
+    document.querySelectorAll('#nicho-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.nicho === c.niche));
+    updateNichoUI();
+  }
+  if (post.nivel) {
+    document.querySelectorAll('#nivel-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.nivel === post.nivel));
+    fillReglas();
+  }
+  document.querySelectorAll('#fuente-pills .pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.fuente === 'libre'));
+  updateFuenteUI();
+  $('tema-libre').value = post.tema || '';
+
+  switchView('generador');
+
+  if (Array.isArray(c.slides) && c.slides.length) {
+    let cap = post.caption || '';
+    const tags = (c.hashtags || []).join(' ');
+    if (tags && cap.endsWith('\n\n' + tags)) cap = cap.slice(0, cap.length - tags.length - 2);
+    currentCarousel = { slides: c.slides, caption: cap, hashtags: c.hashtags || [] };
+    lastReview = c.review || null;
+    bgImageDataUrl = null;
+    // AI/uploaded backgrounds aren't persisted — force template mode for a deterministic preview
+    document.querySelectorAll('#modo-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.modo === 'plantilla'));
+    updateModoUI();
+    renderPreview();
+    setStatus('📚 Pieza cargada desde el historial — puedes re-exportar o regenerar con el mismo tema');
+  } else {
+    setStatus('💡 Idea cargada como tema libre — pulsa «Generar carrusel»');
+    $('tema-libre').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+async function histReexport(post) {
+  histLoad(post);
+  if (currentCarousel) await downloadAll();
+}
+
+// ─── Aviso de tema similar ───
+function similarTema(a, b) {
+  const words = s => new Set(
+    s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-zñß ]/g, ' ').split(/\s+/).filter(w => w.length > 3));
+  const A = words(a), B = words(b);
+  if (A.size < 2 || B.size < 2) return false;
+  let inter = 0;
+  for (const w of A) if (B.has(w)) inter++;
+  return inter / Math.min(A.size, B.size) >= 0.6;
+}
+
+async function checkDuplicateTema(sourceText) {
+  try {
+    const { data } = await sb.from('marketing_posts')
+      .select('tema, created_at')
+      .eq('kind', 'carrusel')
+      .in('estado', ['generado', 'publicado'])
+      .order('created_at', { ascending: false })
+      .limit(100);
+    const dup = (data || []).find(p => similarTema(p.tema || '', sourceText));
+    if (dup) {
+      const fecha = new Date(dup.created_at).toLocaleDateString('es', { day: 'numeric', month: 'long' });
+      return confirm(`⚠️ Ya generaste una pieza con tema similar (${fecha}):\n\n«${dup.tema.slice(0, 150)}»\n\n¿Generar de todas formas?`);
+    }
+  } catch (e) { /* duplicate check must never block generation */ }
+  return true;
+}
+
 function useIdea(text) {
   $('tema-libre').value = text;
   savePost({
@@ -821,6 +1089,9 @@ async function generar() {
     }
     const sourceText = buildSourceText(fuente, nivel, vocab);
 
+    setStatus('🔎 Comprobando temas ya generados…');
+    if (!await checkDuplicateTema(sourceText)) { setStatus('Generación cancelada — tema similar ya existente.'); return; }
+
     setStatus('✍️ Generando textos con DeepSeek…');
     const copyPromise = generateCopy(sourceText, numSlides, nivel, currentNiche, wantImg);
 
@@ -900,6 +1171,11 @@ async function generar() {
   fillReglas();
   updateNichoUI();
   updateModoUI();
+
+  $('tab-generador').onclick = () => switchView('generador');
+  $('tab-historial').onclick = () => switchView('historial');
+  $('btn-hist-refresh').onclick = loadHistorial;
+  ['hist-estado', 'hist-kind', 'hist-nivel'].forEach(id => $(id).onchange = renderHistorial);
 
   $('btn-generar').onclick = generar;
   $('btn-ideas').onclick = sugerirIdeas;

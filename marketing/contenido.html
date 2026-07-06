@@ -49,8 +49,9 @@
     .pill:hover { border-color: var(--blue); }
     .pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
-    select, input[type=text], input[type=number] { border: 1.5px solid #d5dae6; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); min-width: 200px; }
-    select:focus, input:focus { outline: none; border-color: var(--blue); }
+    select, input[type=text], input[type=number], textarea { border: 1.5px solid #d5dae6; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-family: inherit; background: #fff; color: var(--text); min-width: 200px; }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: var(--blue); }
+    textarea { resize: vertical; }
     #tema-libre { min-width: 320px; }
 
     .hint { font-size: 12px; color: var(--muted); line-height: 1.5; }
@@ -70,7 +71,7 @@
     #result { display: none; }
     .slides-strip { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 14px; }
     .slide-wrap { flex-shrink: 0; width: 270px; height: 337.5px; overflow: hidden; border-radius: 10px; box-shadow: 0 3px 14px rgba(0,0,0,.18); position: relative; }
-    .slide-wrap .ig-slide { transform: scale(0.25); transform-origin: top left; }
+    .slide-wrap .ig-slide, .slide-wrap .testi-slide { transform: scale(0.25); transform-origin: top left; }
     .slide-dl { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,.55); color: #fff; border: none; border-radius: 6px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; }
     .slide-dl:hover { background: rgba(0,0,0,.8); }
 
@@ -119,6 +120,22 @@
     .chat-input-row { display: flex; gap: 8px; margin-top: 10px; }
     .chat-input-row input { flex: 1; min-width: 0; }
 
+    /* Testimonios (1080x1350, quote-focused design) */
+    .testi-slide { width: 1080px; height: 1350px; display: flex; flex-direction: column; padding: 110px 95px; position: relative; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #fff; }
+    .testi-head { font-size: 30px; font-weight: 800; letter-spacing: 3px; opacity: .8; }
+    .testi-mark { font-family: Georgia, 'Times New Roman', serif; font-size: 260px; line-height: .55; opacity: .3; margin-top: 70px; }
+    .testi-quote { font-size: 66px; line-height: 1.35; font-weight: 600; font-style: italic; flex: 1; display: flex; align-items: center; white-space: pre-wrap; }
+    .testi-quote.md { font-size: 56px; }
+    .testi-quote.sm { font-size: 46px; }
+    .testi-divider { width: 140px; height: 8px; border-radius: 4px; background: rgba(255,255,255,.85); margin: 60px 0 44px; }
+    .testi-who { display: flex; align-items: center; gap: 24px; }
+    .testi-name { font-size: 46px; font-weight: 800; }
+    .testi-level { background: rgba(255,255,255,.18); border: 3px solid rgba(255,255,255,.55); border-radius: 40px; padding: 8px 30px; font-size: 34px; font-weight: 800; letter-spacing: 1px; }
+    .testi-logro { font-size: 36px; font-weight: 500; opacity: .92; margin-top: 26px; line-height: 1.4; }
+    .testi-footer { display: flex; align-items: center; justify-content: space-between; font-size: 28px; font-weight: 700; opacity: .85; letter-spacing: 1px; margin-top: 70px; }
+    #testi-preview-wrap { margin-top: 4px; }
+    #testi-cita { min-width: 320px; width: 100%; }
+
     /* Historial */
     .view-tabs { display: flex; gap: 6px; margin-bottom: 18px; }
     .hist-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; align-items: flex-end; }
@@ -157,6 +174,7 @@
       <nav class="nav-tabs">
         <a href="/marketing/" class="nav-tab">📊 Estrategia</a>
         <a href="/marketing/contenido.html" class="nav-tab active">🎠 Generador</a>
+        <a href="/marketing/emails.html" class="nav-tab">✉️ Emails</a>
         <a href="/marketing/calendario.html" class="nav-tab">📅 Calendario</a>
         <a href="/marketing/resultados.html" class="nav-tab">📈 Resultados</a>
       </nav>
@@ -170,6 +188,7 @@
 
     <div class="view-tabs">
       <button class="pill active" id="tab-generador">🎠 Generador</button>
+      <button class="pill" id="tab-testimonios">💬 Testimonios</button>
       <button class="pill" id="tab-historial">📚 Historial</button>
     </div>
 
@@ -286,6 +305,47 @@
     </div>
 
     </div><!-- /view-generador -->
+
+    <div id="view-testimonios" style="display:none">
+      <div class="panel">
+        <h2>💬 Testimonio de alumno</h2>
+        <div class="hint" style="margin-bottom:16px">Prueba social sin coste de IA: rellena los datos y descarga la slide de <b>1080×1350</b> lista para publicar.</div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Cita del alumno</label>
+            <textarea id="testi-cita" rows="3" placeholder="p. ej. En 6 meses pasé de no entender nada a mantener conversaciones en el trabajo."></textarea>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Nombre o inicial</label>
+            <input type="text" id="testi-nombre" placeholder="p. ej. María G.">
+          </div>
+          <div class="field">
+            <label>Nivel alcanzado</label>
+            <div class="pills" id="testi-nivel-pills">
+              <button class="pill" data-nivel="A1">A1</button>
+              <button class="pill" data-nivel="A2">A2</button>
+              <button class="pill active" data-nivel="B1">B1</button>
+              <button class="pill" data-nivel="B2">B2</button>
+              <button class="pill" data-nivel="C1">C1</button>
+              <button class="pill" data-nivel="C2">C2</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Logro concreto</label>
+            <input type="text" id="testi-logro" placeholder="p. ej. Aprobó el Goethe-Zertifikat B1 a la primera">
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="btn-primary" id="btn-testi-dl">⬇️ Descargar PNG</button>
+        </div>
+        <h2 style="margin-top:26px">Vista previa</h2>
+        <div class="slide-wrap" id="testi-preview-wrap"></div>
+      </div>
+    </div><!-- /view-testimonios -->
 
     <div id="view-historial" style="display:none">
       <div class="panel">
@@ -762,10 +822,10 @@ const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: 
 const ESTADO_LABELS = { idea: '💡 Idea', generado: '✅ Generado', publicado: '📣 Publicado' };
 
 function switchView(view) {
-  $('view-generador').style.display = view === 'generador' ? '' : 'none';
-  $('view-historial').style.display = view === 'historial' ? '' : 'none';
-  $('tab-generador').classList.toggle('active', view === 'generador');
-  $('tab-historial').classList.toggle('active', view === 'historial');
+  ['generador', 'testimonios', 'historial'].forEach(v => {
+    $(`view-${v}`).style.display = v === view ? '' : 'none';
+    $(`tab-${v}`).classList.toggle('active', v === view);
+  });
   if (view === 'historial') loadHistorial();
 }
 
@@ -926,6 +986,80 @@ function histLoad(post) {
 async function histReexport(post) {
   histLoad(post);
   if (currentCarousel) await downloadAll();
+}
+
+// ─── Testimonios ───
+function buildTestiSlideNode() {
+  const cita = $('testi-cita').value.trim() || 'Escribe la cita del alumno…';
+  const nombre = $('testi-nombre').value.trim() || 'Alumno/a';
+  const nivel = getPill('testi-nivel-pills', 'nivel');
+  const logro = $('testi-logro').value.trim();
+  const color = '#1565C0';
+
+  const el = document.createElement('div');
+  el.className = 'testi-slide';
+  el.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
+
+  const head = document.createElement('div');
+  head.className = 'testi-head';
+  head.textContent = 'TESTIMONIO DE ALUMNO';
+
+  const mark = document.createElement('div');
+  mark.className = 'testi-mark';
+  mark.textContent = '“';
+
+  const quote = document.createElement('div');
+  quote.className = 'testi-quote' + (cita.length > 260 ? ' sm' : cita.length > 150 ? ' md' : '');
+  quote.textContent = cita;
+
+  const divider = document.createElement('div');
+  divider.className = 'testi-divider';
+
+  const who = document.createElement('div');
+  who.className = 'testi-who';
+  const name = document.createElement('span');
+  name.className = 'testi-name';
+  name.textContent = nombre;
+  const level = document.createElement('span');
+  level.className = 'testi-level';
+  level.textContent = `Nivel ${nivel}`;
+  who.append(name, level);
+
+  const footer = document.createElement('div');
+  footer.className = 'testi-footer';
+  footer.innerHTML = `<span>${NICHES.aleman.brand}</span><span>🇩🇪</span>`;
+
+  el.append(head, mark, quote, divider, who);
+  if (logro) {
+    const logroEl = document.createElement('div');
+    logroEl.className = 'testi-logro';
+    logroEl.textContent = `🏆 ${logro}`;
+    el.appendChild(logroEl);
+  }
+  el.appendChild(footer);
+  return el;
+}
+
+function renderTestiPreview() {
+  const wrap = $('testi-preview-wrap');
+  wrap.innerHTML = '';
+  wrap.appendChild(buildTestiSlideNode());
+}
+
+async function downloadTesti() {
+  const btn = $('btn-testi-dl');
+  btn.disabled = true;
+  const node = buildTestiSlideNode();
+  $('export-stage').appendChild(node);
+  try {
+    const canvas = await html2canvas(node, { width: 1080, height: 1350, scale: 1, useCORS: true, backgroundColor: null });
+    const nombre = $('testi-nombre').value.trim() || 'alumno';
+    const slug = nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    triggerDownload(canvas.toDataURL('image/png'), `testimonio-${slug || 'alumno'}.png`);
+  } finally {
+    node.remove();
+    btn.disabled = false;
+  }
 }
 
 // ─── Aviso de tema similar ───
@@ -1175,7 +1309,13 @@ async function generar() {
   updateModoUI();
 
   $('tab-generador').onclick = () => switchView('generador');
+  $('tab-testimonios').onclick = () => switchView('testimonios');
   $('tab-historial').onclick = () => switchView('historial');
+
+  setupPills('testi-nivel-pills', renderTestiPreview);
+  ['testi-cita', 'testi-nombre', 'testi-logro'].forEach(id => $(id).addEventListener('input', renderTestiPreview));
+  $('btn-testi-dl').onclick = downloadTesti;
+  renderTestiPreview();
   $('btn-hist-refresh').onclick = loadHistorial;
   ['hist-estado', 'hist-kind', 'hist-nivel'].forEach(id => $(id).onchange = renderHistorial);
 

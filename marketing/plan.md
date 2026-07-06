@@ -84,8 +84,10 @@ RLS: solo usuarios con `profiles.role = 'admin'` pueden leer/escribir.
 
 - [x] **Sesión 4.1 — Plantilla base.** En `contenido.html` (o sección propia): formulario (cita, nombre/inicial, nivel alcanzado, logro concreto) → slide 1080×1350 con diseño de cita destacada + export PNG. Sin llamadas API.
   - *Notas:* tercera pestaña in-page "💬 Testimonios" (`switchView()` generalizado a 3 vistas). Vista previa en vivo (escala 0.25, mismo patrón `.slide-wrap`) que se actualiza en cada `input`. Tamaño de fuente de la cita auto-ajustado por longitud (>150 / >260 chars). Logro opcional (línea 🏆 solo si se rellena). Export reutiliza `#export-stage` + html2canvas; archivo `testimonio-<nombre-slug>.png`. Fondo fijo azul de marca (gradiente via `shadeColor()`) — el selector de color queda para 4.2.
-- [ ] **Sesión 4.2 — Variantes.** 3 diseños alternativos (cita grande / antes-después / logro numérico), selector de tema de color, formato adicional 1080×1920 para Stories.
-- [ ] **Sesión 4.3 — Banco de testimonios.** Guardar testimonios como `kind: 'testimonio'` en `marketing_posts`; listado reutilizable (un testimonio → regenerar en otro diseño/formato). Depende de Propuesta 1.
+- [x] **Sesión 4.2 — Variantes.** 3 diseños alternativos (cita grande / antes-después / logro numérico), selector de tema de color, formato adicional 1080×1920 para Stories.
+  - *Notas:* selector de diseño (`testi-design-pills`) con campos condicionales (`updateTestiUI()`): antes-después oculta la cita y muestra dos textareas; logro numérico añade campo cifra (auto-reduce fuente si >8 chars) y usa la cita como quote secundaria. Selector de color (mismos 6 temas que carruseles, gradiente `shadeColor()`) y formato Feed 1080×1350 / Story 1080×1920 (clase `.story`, export con altura dinámica, sufijo `-story` en el archivo).
+- [x] **Sesión 4.3 — Banco de testimonios.** Guardar testimonios como `kind: 'testimonio'` en `marketing_posts`; listado reutilizable (un testimonio → regenerar en otro diseño/formato). Depende de Propuesta 1.
+  - *Notas:* al descargar el PNG se guarda automáticamente (`saveTesti()`): primer download inserta y recuerda el id (`currentTestiId`), downloads siguientes actualizan la misma fila (contenido = todos los campos + design/color/formato); botón «🆕 Nuevo testimonio» limpia formulario e id. En el Historial: «🔄 Recargar» restaura el formulario completo (`histLoadTesti()`) y «⬇️ Re-exportar PNG» regenera el archivo directamente. `tema` = nombre + resumen de la cita; `nivel` para el filtro del historial.
 
 ---
 
@@ -122,5 +124,5 @@ Las sesiones x.1 y x.2 de las propuestas 3, 4 y 5 no dependen de la Propuesta 1 
 | 1 — Pipeline de contenido | 3/3 ✅ COMPLETA |
 | 2 — KPIs reales | 3/3 ✅ COMPLETA |
 | 3 — Guiones de Reels | 3/3 ✅ COMPLETA |
-| 4 — Testimonios | 1/3 |
+| 4 — Testimonios | 3/3 ✅ COMPLETA |
 | 5 — Emails / newsletter | 1/3 |

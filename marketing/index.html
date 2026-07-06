@@ -123,9 +123,11 @@
 
     /* Table */
     .mkt-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .mkt-table th { text-align: left; padding: 10px 12px; background: var(--bg); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); border-bottom: 2px solid #e0e4ef; }
+    .mkt-table th { text-align: left; padding: 10px 12px; background: var(--bg); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); border-bottom: 2px solid #e0e4ef; white-space: nowrap; }
     .mkt-table td { padding: 10px 12px; border-bottom: 1px solid #eef0f6; vertical-align: top; line-height: 1.5; }
     .mkt-table tr:last-child td { border-bottom: none; }
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    @media (max-width: 600px) { .main { padding: 14px 10px 40px; } }
     .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
     .tag.h { background: var(--red-l); color: var(--red); }
     .tag.m { background: var(--orange-l); color: var(--orange); }
@@ -477,7 +479,7 @@
       </div>
 
       <h3 style="margin:24px 0 14px;font-size:15px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.6px">Propuesta de capacitación por segmento</h3>
-      <table class="mkt-table">
+      <div class="table-scroll"><table class="mkt-table">
         <thead>
           <tr>
             <th>Segmento</th>
@@ -524,7 +526,7 @@
             <td><span class="tag h">Alto</span></td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
       <p class="caption">* Precios referenciales para mercado hispanohablante con clientes en Europa. Ajustar según región.</p>
     </div>
 
@@ -537,7 +539,7 @@
           <div class="section-sub">Cómo llegar a cada segmento con el menor esfuerzo inicial</div>
         </div>
       </div>
-      <table class="mkt-table">
+      <div class="table-scroll"><table class="mkt-table">
         <thead>
           <tr>
             <th>Canal</th>
@@ -590,7 +592,7 @@
             <td><span class="tag m">Media</span></td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <!-- 7. KPIs -->
@@ -620,7 +622,7 @@
           <div class="kpi-label">Tasa free→pago (meta: &gt;5% en freemium)</div>
         </div>
       </div>
-      <table class="mkt-table" style="margin-top:20px">
+      <div class="table-scroll"><table class="mkt-table" style="margin-top:20px">
         <thead>
           <tr><th>Métrica</th><th>Definición</th><th>Fuente de datos</th><th>Meta 6 meses</th></tr>
         </thead>
@@ -662,7 +664,7 @@
             <td>€15/mes</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <!-- 8. Roadmap -->

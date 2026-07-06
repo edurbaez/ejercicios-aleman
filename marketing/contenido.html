@@ -135,6 +135,18 @@
     .testi-footer { display: flex; align-items: center; justify-content: space-between; font-size: 28px; font-weight: 700; opacity: .85; letter-spacing: 1px; margin-top: 70px; }
     #testi-preview-wrap { margin-top: 4px; }
     #testi-cita { min-width: 320px; width: 100%; }
+    .testi-slide.story { height: 1920px; padding: 170px 95px; }
+    .slide-wrap.story { height: 480px; }
+    .testi-ba-wrap, .testi-logro-wrap { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .testi-tag { font-size: 30px; font-weight: 800; letter-spacing: 4px; opacity: .75; margin-bottom: 18px; }
+    .testi-card { background: rgba(255,255,255,.10); border: 3px solid rgba(255,255,255,.3); border-radius: 24px; padding: 42px 48px; font-size: 46px; line-height: 1.4; font-weight: 600; white-space: pre-wrap; }
+    .testi-card.after { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.85); }
+    .testi-arrow { font-size: 96px; text-align: center; margin: 34px 0; line-height: 1; }
+    .testi-cifra { font-size: 200px; font-weight: 800; line-height: 1; letter-spacing: -6px; }
+    .testi-cifra.md { font-size: 140px; letter-spacing: -3px; }
+    .testi-headline { font-size: 60px; font-weight: 700; line-height: 1.3; margin-top: 44px; white-space: pre-wrap; }
+    .testi-quote-sm { font-size: 40px; line-height: 1.45; font-style: italic; opacity: .92; margin-top: 44px; white-space: pre-wrap; }
+    #testi-status { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 16px; }
 
     /* Reel script */
     #result-reel { display: none; }
@@ -367,11 +379,57 @@
     <div id="view-testimonios" style="display:none">
       <div class="panel">
         <h2>💬 Testimonio de alumno</h2>
-        <div class="hint" style="margin-bottom:16px">Prueba social sin coste de IA: rellena los datos y descarga la slide de <b>1080×1350</b> lista para publicar.</div>
+        <div class="hint" style="margin-bottom:16px">Prueba social sin coste de IA: rellena los datos y descarga la slide lista para publicar. Al descargar se guarda automáticamente en el <b>Historial</b> (kind «testimonio») para regenerarla luego en otro diseño o formato.</div>
         <div class="field-row">
+          <div class="field">
+            <label>Diseño</label>
+            <div class="pills" id="testi-design-pills">
+              <button class="pill active" data-design="cita">💬 Cita grande</button>
+              <button class="pill" data-design="antes">🔀 Antes → Después</button>
+              <button class="pill" data-design="logro">🏆 Logro numérico</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Formato</label>
+            <div class="pills" id="testi-formato-pills">
+              <button class="pill active" data-tformato="feed">📐 Feed 1080×1350</button>
+              <button class="pill" data-tformato="story">📱 Story 1080×1920</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Color</label>
+            <div class="pills" id="testi-color-pills">
+              <button class="pill active" data-color="#1565C0">Azul</button>
+              <button class="pill" data-color="#2e7d32">Verde</button>
+              <button class="pill" data-color="#6A1B9A">Morado</button>
+              <button class="pill" data-color="#E65100">Naranja</button>
+              <button class="pill" data-color="#00796B">Teal</button>
+              <button class="pill" data-color="#1a1a2e">Oscuro</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row" id="testi-row-cita">
           <div class="field" style="flex:1">
             <label>Cita del alumno</label>
             <textarea id="testi-cita" rows="3" placeholder="p. ej. En 6 meses pasé de no entender nada a mantener conversaciones en el trabajo."></textarea>
+          </div>
+        </div>
+        <div class="field-row" id="testi-row-ba" style="display:none">
+          <div class="field" style="flex:1">
+            <label>Antes</label>
+            <textarea id="testi-antes" rows="2" placeholder="p. ej. No me atrevía a decir ni una frase en alemán."></textarea>
+          </div>
+          <div class="field" style="flex:1">
+            <label>Después</label>
+            <textarea id="testi-despues" rows="2" placeholder="p. ej. Hago reuniones de trabajo enteras en alemán."></textarea>
+          </div>
+        </div>
+        <div class="field-row" id="testi-row-cifra" style="display:none">
+          <div class="field">
+            <label>Cifra / dato destacado</label>
+            <input type="text" id="testi-cifra" placeholder="p. ej. 6 meses">
           </div>
         </div>
         <div class="field-row">
@@ -399,7 +457,9 @@
         </div>
         <div class="actions-row">
           <button class="btn-primary" id="btn-testi-dl">⬇️ Descargar PNG</button>
+          <button class="btn-secondary" id="btn-testi-nuevo">🆕 Nuevo testimonio</button>
         </div>
+        <div id="testi-status"></div>
         <h2 style="margin-top:26px">Vista previa</h2>
         <div class="slide-wrap" id="testi-preview-wrap"></div>
       </div>
@@ -1096,6 +1156,7 @@ function renderHistorial() {
     actions.className = 'hist-actions';
     const hasSlides = Array.isArray(post.contenido?.slides) && post.contenido.slides.length;
     const hasEscenas = post.kind === 'reel' && Array.isArray(post.contenido?.escenas) && post.contenido.escenas.length;
+    const hasTesti = post.kind === 'testimonio' && !!post.contenido?.design;
 
     const mkBtn = (label, fn, danger) => {
       const b = document.createElement('button');
@@ -1104,8 +1165,9 @@ function renderHistorial() {
       b.onclick = () => fn(post, b);
       return b;
     };
-    actions.appendChild(mkBtn(hasSlides || hasEscenas ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
+    actions.appendChild(mkBtn(hasSlides || hasEscenas || hasTesti ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
     if (hasSlides) actions.appendChild(mkBtn('⬇️ Re-exportar PNGs', histReexport));
+    if (hasTesti) actions.appendChild(mkBtn('⬇️ Re-exportar PNG', histReexportTesti));
     actions.appendChild(mkBtn('📄 Duplicar', histDuplicate));
     actions.appendChild(mkBtn('🗑️ Borrar', histDelete, true));
 
@@ -1152,6 +1214,7 @@ async function histDuplicate(post, btn) {
 }
 
 function histLoad(post) {
+  if (post.kind === 'testimonio') { histLoadTesti(post); return; }
   const c = post.contenido || {};
   if (c.niche && NICHES[c.niche]) {
     document.querySelectorAll('#nicho-pills .pill').forEach(p =>
@@ -1209,78 +1272,181 @@ async function histReexport(post) {
   if (currentCarousel) await downloadAll();
 }
 
+async function histReexportTesti(post) {
+  histLoadTesti(post);
+  await downloadTesti();
+}
+
 // ─── Testimonios ───
-function buildTestiSlideNode() {
-  const cita = $('testi-cita').value.trim() || 'Escribe la cita del alumno…';
-  const nombre = $('testi-nombre').value.trim() || 'Alumno/a';
-  const nivel = getPill('testi-nivel-pills', 'nivel');
-  const logro = $('testi-logro').value.trim();
-  const color = '#1565C0';
+let currentTestiId = null;
 
+function collectTesti() {
+  return {
+    design: getPill('testi-design-pills', 'design'),
+    formato: getPill('testi-formato-pills', 'tformato'),
+    color: getPill('testi-color-pills', 'color'),
+    cita: $('testi-cita').value.trim(),
+    nombre: $('testi-nombre').value.trim(),
+    nivel: getPill('testi-nivel-pills', 'nivel'),
+    logro: $('testi-logro').value.trim(),
+    antes: $('testi-antes').value.trim(),
+    despues: $('testi-despues').value.trim(),
+    cifra: $('testi-cifra').value.trim(),
+  };
+}
+
+function updateTestiUI() {
+  const design = getPill('testi-design-pills', 'design');
+  $('testi-row-cita').style.display = design === 'antes' ? 'none' : '';
+  $('testi-row-ba').style.display = design === 'antes' ? '' : 'none';
+  $('testi-row-cifra').style.display = design === 'logro' ? '' : 'none';
+}
+
+function setTestiStatus(msg) {
+  $('testi-status').textContent = msg;
+}
+
+function testiEl(cls, text) {
   const el = document.createElement('div');
-  el.className = 'testi-slide';
-  el.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
+  el.className = cls;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
 
-  const head = document.createElement('div');
-  head.className = 'testi-head';
-  head.textContent = 'TESTIMONIO DE ALUMNO';
-
-  const mark = document.createElement('div');
-  mark.className = 'testi-mark';
-  mark.textContent = '“';
-
-  const quote = document.createElement('div');
-  quote.className = 'testi-quote' + (cita.length > 260 ? ' sm' : cita.length > 150 ? ' md' : '');
-  quote.textContent = cita;
-
-  const divider = document.createElement('div');
-  divider.className = 'testi-divider';
-
-  const who = document.createElement('div');
-  who.className = 'testi-who';
+function testiWho(d) {
+  const who = testiEl('testi-who');
   const name = document.createElement('span');
   name.className = 'testi-name';
-  name.textContent = nombre;
+  name.textContent = d.nombre || 'Alumno/a';
   const level = document.createElement('span');
   level.className = 'testi-level';
-  level.textContent = `Nivel ${nivel}`;
+  level.textContent = `Nivel ${d.nivel}`;
   who.append(name, level);
+  return who;
+}
 
-  const footer = document.createElement('div');
-  footer.className = 'testi-footer';
+function buildTestiSlideNode() {
+  const d = collectTesti();
+  const el = testiEl('testi-slide' + (d.formato === 'story' ? ' story' : ''));
+  el.style.background = `linear-gradient(150deg, ${shadeColor(d.color, 0.25)} 0%, ${d.color} 55%, ${shadeColor(d.color, -0.35)} 100%)`;
+
+  const footer = testiEl('testi-footer');
   footer.innerHTML = `<span>${NICHES.aleman.brand}</span><span>🇩🇪</span>`;
 
-  el.append(head, mark, quote, divider, who);
-  if (logro) {
-    const logroEl = document.createElement('div');
-    logroEl.className = 'testi-logro';
-    logroEl.textContent = `🏆 ${logro}`;
-    el.appendChild(logroEl);
+  el.appendChild(testiEl('testi-head', 'TESTIMONIO DE ALUMNO'));
+
+  if (d.design === 'antes') {
+    const wrap = testiEl('testi-ba-wrap');
+    wrap.append(
+      testiEl('testi-tag', 'ANTES'),
+      testiEl('testi-card', d.antes || 'Escribe la situación de partida…'),
+      testiEl('testi-arrow', '⬇'),
+      testiEl('testi-tag', 'DESPUÉS'),
+      testiEl('testi-card after', d.despues || 'Escribe el resultado…'),
+    );
+    el.append(wrap, testiEl('testi-divider'), testiWho(d));
+    if (d.logro) el.appendChild(testiEl('testi-logro', `🏆 ${d.logro}`));
+  } else if (d.design === 'logro') {
+    const wrap = testiEl('testi-logro-wrap');
+    const cifra = d.cifra || 'X meses';
+    wrap.appendChild(testiEl('testi-cifra' + (cifra.length > 8 ? ' md' : ''), cifra));
+    wrap.appendChild(testiEl('testi-headline', d.logro || 'Describe el logro…'));
+    if (d.cita) wrap.appendChild(testiEl('testi-quote-sm', `“${d.cita}”`));
+    el.append(wrap, testiEl('testi-divider'), testiWho(d));
+  } else {
+    const cita = d.cita || 'Escribe la cita del alumno…';
+    el.append(
+      testiEl('testi-mark', '“'),
+      testiEl('testi-quote' + (cita.length > 260 ? ' sm' : cita.length > 150 ? ' md' : ''), cita),
+      testiEl('testi-divider'),
+      testiWho(d),
+    );
+    if (d.logro) el.appendChild(testiEl('testi-logro', `🏆 ${d.logro}`));
   }
+
   el.appendChild(footer);
   return el;
 }
 
 function renderTestiPreview() {
   const wrap = $('testi-preview-wrap');
+  wrap.className = 'slide-wrap' + (getPill('testi-formato-pills', 'tformato') === 'story' ? ' story' : '');
   wrap.innerHTML = '';
   wrap.appendChild(buildTestiSlideNode());
+}
+
+async function saveTesti(d) {
+  const resumen = d.design === 'antes' ? d.despues : (d.cita || d.logro);
+  const tema = `${d.nombre || 'Alumno/a'}: ${(resumen || '(sin texto)').slice(0, 160)}`;
+  try {
+    if (currentTestiId) {
+      const { error } = await sb.from('marketing_posts')
+        .update({ tema, nivel: d.nivel, contenido: d })
+        .eq('id', currentTestiId);
+      if (error) throw error;
+      setTestiStatus('💾 Testimonio actualizado en el historial');
+    } else {
+      const { data, error } = await sb.from('marketing_posts')
+        .insert({ kind: 'testimonio', tema, nivel: d.nivel, contenido: d, estado: 'generado' })
+        .select('id').single();
+      if (error) throw error;
+      currentTestiId = data.id;
+      setTestiStatus('💾 Testimonio guardado en el historial');
+    }
+  } catch (e) {
+    console.warn('No se pudo guardar el testimonio:', e.message);
+    setTestiStatus('⚠️ PNG descargado, pero no se pudo guardar en el historial');
+  }
 }
 
 async function downloadTesti() {
   const btn = $('btn-testi-dl');
   btn.disabled = true;
+  const d = collectTesti();
   const node = buildTestiSlideNode();
   $('export-stage').appendChild(node);
   try {
-    const canvas = await html2canvas(node, { width: 1080, height: 1350, scale: 1, useCORS: true, backgroundColor: null });
-    const nombre = $('testi-nombre').value.trim() || 'alumno';
-    const slug = nombre.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-    triggerDownload(canvas.toDataURL('image/png'), `testimonio-${slug || 'alumno'}.png`);
+    const height = d.formato === 'story' ? 1920 : 1350;
+    const canvas = await html2canvas(node, { width: 1080, height, scale: 1, useCORS: true, backgroundColor: null });
+    const slug = (d.nombre || 'alumno').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    triggerDownload(canvas.toDataURL('image/png'), `testimonio-${slug || 'alumno'}${d.formato === 'story' ? '-story' : ''}.png`);
+    await saveTesti(d);
   } finally {
     node.remove();
     btn.disabled = false;
   }
+}
+
+function resetTesti() {
+  ['testi-cita', 'testi-nombre', 'testi-logro', 'testi-antes', 'testi-despues', 'testi-cifra']
+    .forEach(id => { $(id).value = ''; });
+  currentTestiId = null;
+  setTestiStatus('🆕 Formulario limpio — el próximo PNG se guardará como testimonio nuevo');
+  renderTestiPreview();
+}
+
+function histLoadTesti(post) {
+  const c = post.contenido || {};
+  const setP = (containerId, attr, val, fallback) => {
+    const pills = document.querySelectorAll(`#${containerId} .pill`);
+    const target = [...pills].some(p => p.dataset[attr] === val) ? val : fallback;
+    pills.forEach(p => p.classList.toggle('active', p.dataset[attr] === target));
+  };
+  setP('testi-design-pills', 'design', c.design, 'cita');
+  setP('testi-formato-pills', 'tformato', c.formato, 'feed');
+  setP('testi-color-pills', 'color', c.color, '#1565C0');
+  setP('testi-nivel-pills', 'nivel', c.nivel || post.nivel, 'B1');
+  $('testi-cita').value = c.cita || '';
+  $('testi-nombre').value = c.nombre || '';
+  $('testi-logro').value = c.logro || '';
+  $('testi-antes').value = c.antes || '';
+  $('testi-despues').value = c.despues || '';
+  $('testi-cifra').value = c.cifra || '';
+  currentTestiId = post.id;
+  updateTestiUI();
+  switchView('testimonios');
+  renderTestiPreview();
+  setTestiStatus('📚 Testimonio cargado — cambia diseño/formato/color y vuelve a descargar');
 }
 
 // ─── Aviso de tema similar ───
@@ -1560,8 +1726,14 @@ async function generar() {
   $('tab-historial').onclick = () => switchView('historial');
 
   setupPills('testi-nivel-pills', renderTestiPreview);
-  ['testi-cita', 'testi-nombre', 'testi-logro'].forEach(id => $(id).addEventListener('input', renderTestiPreview));
+  setupPills('testi-design-pills', () => { updateTestiUI(); renderTestiPreview(); });
+  setupPills('testi-formato-pills', renderTestiPreview);
+  setupPills('testi-color-pills', renderTestiPreview);
+  ['testi-cita', 'testi-nombre', 'testi-logro', 'testi-antes', 'testi-despues', 'testi-cifra']
+    .forEach(id => $(id).addEventListener('input', renderTestiPreview));
   $('btn-testi-dl').onclick = downloadTesti;
+  $('btn-testi-nuevo').onclick = resetTesti;
+  updateTestiUI();
   renderTestiPreview();
   $('btn-hist-refresh').onclick = loadHistorial;
   ['hist-estado', 'hist-kind', 'hist-nivel'].forEach(id => $(id).onchange = renderHistorial);

@@ -37,6 +37,7 @@
 
     /* ── Main layout ── */
     .adm-main { padding: 20px 24px 32px; max-width: 1200px; margin: 0 auto; }
+    @media (max-width: 600px) { .adm-main { padding: 12px 10px 24px; } }
 
     /* ── Summary cards ── */
     .cards-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
@@ -170,6 +171,14 @@
     #invite-msg.err { background: #ffebee; color: #c62828; }
     body.dark #invite-msg.ok  { background: #0a2a0c; color: #81c784; }
     body.dark #invite-msg.err { background: #2a0a0a; color: #ef9a9a; }
+
+    /* ── Users table responsive ── */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    @media (max-width: 600px) {
+      .col-hide-mobile { display: none; }
+      tbody td { padding: 8px 6px; font-size: 12px; }
+      thead th { padding: 6px 6px; font-size: 10px; }
+    }
 
     /* ── Skeleton ── */
     .sk { border-radius: 5px; background: linear-gradient(90deg, #e8eaf0 25%, #f5f6fa 50%, #e8eaf0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
@@ -397,15 +406,16 @@
         Usuarios
       </div>
       <input type="search" class="search-box" id="user-search" placeholder="Buscar por nombre o email…" oninput="filterUsers(this.value)">
+      <div class="table-scroll">
       <table id="users-table">
         <thead>
           <tr>
             <th onclick="sortUsers('display_name')">Nombre<span class="sort-icon"></span></th>
             <th onclick="sortUsers('email')">Email<span class="sort-icon"></span></th>
-            <th>Rol</th>
-            <th onclick="sortUsers('created_at')">Registro<span class="sort-icon"></span></th>
+            <th class="col-hide-mobile">Rol</th>
+            <th class="col-hide-mobile" onclick="sortUsers('created_at')">Registro<span class="sort-icon"></span></th>
             <th>Última actividad</th>
-            <th onclick="sortUsers('events')">Eventos<span class="sort-icon"></span></th>
+            <th class="col-hide-mobile" onclick="sortUsers('events')">Eventos<span class="sort-icon"></span></th>
           </tr>
         </thead>
         <tbody id="users-tbody">
@@ -416,6 +426,7 @@
           <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- 5. User detail -->
@@ -815,13 +826,13 @@
           </div>
         </td>
         <td style="color:#777;font-size:12px">${esc(p.email || '—')}</td>
-        <td>${roleBadge}</td>
-        <td style="color:#888;font-size:12px">${fmtDate(p.created_at)}</td>
+        <td class="col-hide-mobile">${roleBadge}</td>
+        <td class="col-hide-mobile" style="color:#888;font-size:12px">${fmtDate(p.created_at)}</td>
         <td style="font-size:12px">
           <span class="active-dot ${dotClass}" title="${dotTitle}"></span>
           ${lastEv ? fmtDate(lastEv.created_at) : '—'}
         </td>
-        <td style="font-weight:600;color:#555">${evs.length}</td>
+        <td class="col-hide-mobile" style="font-weight:600;color:#555">${evs.length}</td>
       </tr>`;
     }).join('');
   }

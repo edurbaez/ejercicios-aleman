@@ -995,6 +995,41 @@ th, td {
     color: #fff;
 }
 
+#activity-tabs {
+    display: flex;
+    gap: 8px;
+    max-width: 720px;
+    margin: 0 auto 16px;
+    padding: 0 12px;
+}
+
+.activity-tab {
+    flex: 1;
+    padding: 10px;
+    border: 2px solid var(--btn, #1976D2);
+    border-radius: var(--radius, 8px);
+    background: transparent;
+    color: var(--btn, #1976D2);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.activity-tab.active {
+    background: var(--btn, #1976D2);
+    color: #fff;
+}
+
+.sprint-quiz-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+
 .comp-mode-section { }
 
 #comp-texto-input {

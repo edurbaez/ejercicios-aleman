@@ -30,7 +30,7 @@ Multiple-choice vocabulary quiz targeting B2-level German words.
 
 ### Lectura Veloz ([lectura veloz.html](lectura%20veloz.html))
 
-Speed-reading tool (RSVP — Rapid Serial Visual Presentation).
+Speed-reading tool (RSVP — Rapid Serial Visual Presentation). Three mutually exclusive activities selected via tabs — ⚡ Sprint (default on load), 📚 Lectura veloz and 📖 Comprensión — only one visible at a time.
 
 **Features:**
 - Paste text or upload a file (`.txt`, `.pdf`, `.doc`, `.docx`)
@@ -42,7 +42,7 @@ Speed-reading tool (RSVP — Rapid Serial Visual Presentation).
 - Progress bar and word counter
 - **Save texts** — stored in IndexedDB, resumes from last position
 - **Blog view** — read the full text as a paragraph with TTS narration; chunks highlight as they're read
-- **Sprint de vocabulario** — RSVP flash of known words with adaptive WPM: source selector (SRS-mastered words by default, system level lists A1–C2, or personal lists), surprise MCQ every 10 words, pace goes up on correct answers and down on mistakes
+- **Sprint de vocabulario** — RSVP flash of known words with adaptive WPM: source selector (SRS-mastered words by default, system level lists A1–C2, or personal lists), surprise MCQ every 10 words, pace goes up on correct answers and down on mistakes. A "Preguntas sorpresa" toggle (persisted as `lv_sprint_quiz`) lets the student flash words with no quiz interruptions
 - Dark mode toggle
 
 ---

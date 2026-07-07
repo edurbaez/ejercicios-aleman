@@ -42,6 +42,12 @@
     <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
     <h1>Lectura Veloz</h1>
 
+    <div id="activity-tabs">
+        <button class="activity-tab active" data-activity="sprint" onclick="switchActivity('sprint')">⚡ Sprint</button>
+        <button class="activity-tab" data-activity="lectura" onclick="switchActivity('lectura')">📚 Lectura veloz</button>
+        <button class="activity-tab" data-activity="comprension" onclick="switchActivity('comprension')">📖 Comprensión</button>
+    </div>
+
     <div id="blog-view">
         <button id="blog-back-btn" onclick="salirBlogView()">← Volver</button>
         <div id="blog-title"></div>
@@ -60,9 +66,9 @@
         <div id="blog-content"></div>
     </div>
 
-    <textarea id="text" placeholder="Ingrese el texto aquí..."></textarea>
+    <textarea id="text" placeholder="Ingrese el texto aquí..." style="display:none"></textarea>
 
-    <div id="controls">
+    <div id="controls" style="display:none">
         <div class="controls-row">
             <div id="wpm-control">
                 <span>WPM:</span>
@@ -86,22 +92,20 @@
             <button class="btn secondary" id="backButton" onclick="goBack()">« 5</button>
             <button class="btn" onclick="guardarTexto()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar</button>
             <button class="btn secondary" onclick="document.getElementById('fileInput').click()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir archivo</button>
-            <button class="btn secondary" id="btn-comprension" onclick="toggleComprensionPanel()">📖 Comprensión</button>
-            <button class="btn secondary" id="btn-sprint" onclick="toggleSprintPanel()">⚡ Sprint</button>
             <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx" style="display:none" onchange="handleFile(this)">
         </div>
     </div>
 
-    <div id="progress-container">
+    <div id="progress-container" style="display:none">
         <div id="progress-bar-wrap"><div id="progress-bar"></div></div>
         <div id="progress-text"></div>
     </div>
 
-    <div id="display-container">
+    <div id="display-container" style="display:none">
         <div id="display">—</div>
     </div>
-    
-    <div id="saved-section">
+
+    <div id="saved-section" style="display:none">
         <h3>Textos guardados</h3>
         <div id="textosguardados"></div>
     </div>
@@ -146,7 +150,7 @@
         </div>
     </div>
 
-    <div id="sprint-panel" style="display:none">
+    <div id="sprint-panel">
         <h3 class="sprint-title">⚡ Sprint de vocabulario</h3>
         <p class="sprint-desc">Palabras que ya conoces, flasheadas a ritmo creciente: cada 10 palabras hay una pregunta sorpresa. Si aciertas, el ritmo sube; si fallas, baja. Entrena el reconocimiento directo sin traducir mentalmente.</p>
         <div class="sprint-row">
@@ -167,6 +171,7 @@
             <button class="wpm-btn" onclick="sprintChangeWpm(-10)">−</button>
             <span id="sprint-wpm-value">200</span>
             <button class="wpm-btn" onclick="sprintChangeWpm(10)">+</button>
+            <label class="sprint-quiz-toggle"><input type="checkbox" id="sprint-quiz-enabled" checked> Preguntas sorpresa</label>
         </div>
         <button class="btn success comp-action-btn" id="sprint-start-btn">▶ Iniciar sprint</button>
         <div id="sprint-stats" style="display:none"></div>
@@ -778,16 +783,27 @@
         document.getElementById('pauseButton').addEventListener('click', pauseReading);
         document.getElementById('stopButton').addEventListener('click', stopReading);
 
+        /* ========================= ACTIVIDADES (tabs excluyentes) ========================= */
+        const LECTURA_IDS = ['text', 'controls', 'progress-container', 'display-container', 'saved-section'];
+        let currentActivity = 'sprint';
+
+        function switchActivity(name) {
+            if (name === currentActivity) return;
+            if (currentActivity === 'lectura') {
+                if (document.getElementById('blog-view').style.display === 'block') salirBlogView();
+                if (isRunning) stopReading();
+            } else if (currentActivity === 'sprint' && sprintRunning) {
+                sprintStop();
+            }
+            currentActivity = name;
+            LECTURA_IDS.forEach(id => document.getElementById(id).style.display = name === 'lectura' ? '' : 'none');
+            document.getElementById('comprension-panel').style.display = name === 'comprension' ? 'block' : 'none';
+            document.getElementById('sprint-panel').style.display = name === 'sprint' ? 'block' : 'none';
+            document.querySelectorAll('.activity-tab').forEach(t => t.classList.toggle('active', t.dataset.activity === name));
+        }
+
         /* ========================= COMPRENSIÓN ========================= */
         let _compActiveMode = 'A'; // 'A' o 'B' — controla qué hace el botón "Intentar otro"
-
-        function toggleComprensionPanel() {
-            const panel = document.getElementById('comprension-panel');
-            const btn = document.getElementById('btn-comprension');
-            const isHidden = panel.style.display === 'none';
-            panel.style.display = isHidden ? 'block' : 'none';
-            btn.classList.toggle('active', isHidden);
-        }
 
         function compSwitchMode(mode) {
             _compActiveMode = mode;
@@ -999,14 +1015,14 @@
 
         document.getElementById('sprint-wpm-value').textContent = sprintWpm;
 
-        function toggleSprintPanel() {
-            const panel = document.getElementById('sprint-panel');
-            const btn = document.getElementById('btn-sprint');
-            const isHidden = panel.style.display === 'none';
-            panel.style.display = isHidden ? 'block' : 'none';
-            btn.classList.toggle('active', isHidden);
-            if (isHidden) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            else if (sprintRunning) sprintStop();
+        const _sprintQuizCheckbox = document.getElementById('sprint-quiz-enabled');
+        _sprintQuizCheckbox.checked = localStorage.getItem('lv_sprint_quiz') !== '0';
+        _sprintQuizCheckbox.addEventListener('change', () => {
+            localStorage.setItem('lv_sprint_quiz', _sprintQuizCheckbox.checked ? '1' : '0');
+        });
+
+        function sprintQuizEnabled() {
+            return _sprintQuizCheckbox.checked;
         }
 
         function sprintChangeWpm(delta) {
@@ -1162,7 +1178,7 @@
         function sprintNextWord() {
             if (!sprintRunning) return;
             if (sprintPos >= sprintPairs.length) {
-                if (sprintBatch.length >= 4) sprintQuiz();
+                if (sprintQuizEnabled() && sprintBatch.length >= 4) sprintQuiz();
                 else sprintFinish();
                 return;
             }
@@ -1171,8 +1187,16 @@
             sprintRenderWord(pair.de);
             sprintUpdateStats();
             const delay = 60000 / sprintWpm;
-            if (sprintBatch.length >= SPRINT_BATCH) sprintTimer = setTimeout(sprintQuiz, delay + 300);
-            else sprintTimer = setTimeout(sprintNextWord, delay);
+            if (sprintBatch.length >= SPRINT_BATCH) {
+                if (sprintQuizEnabled()) {
+                    sprintTimer = setTimeout(sprintQuiz, delay + 300);
+                } else {
+                    sprintBatch = [];
+                    sprintTimer = setTimeout(sprintNextWord, delay);
+                }
+            } else {
+                sprintTimer = setTimeout(sprintNextWord, delay);
+            }
         }
 
         function sprintQuiz() {
@@ -1219,9 +1243,11 @@
             sprintRunning = false;
             clearTimeout(sprintTimer);
             document.getElementById('sprint-display').textContent = '🏁';
-            const pct = sprintAsked > 0 ? Math.round(sprintCorrect / sprintAsked * 100) : 0;
-            sprintShowMsg('Sprint completado: ' + sprintPairs.length + ' palabras · ' + sprintCorrect + '/' + sprintAsked +
-                ' preguntas (' + pct + '%) · ritmo final ' + sprintWpm + ' WPM', 'sprint-msg-ok');
+            const quizPart = sprintAsked > 0
+                ? ' · ' + sprintCorrect + '/' + sprintAsked + ' preguntas (' + Math.round(sprintCorrect / sprintAsked * 100) + '%)'
+                : '';
+            sprintShowMsg('Sprint completado: ' + sprintPairs.length + ' palabras' + quizPart +
+                ' · ritmo final ' + sprintWpm + ' WPM', 'sprint-msg-ok');
             window.logEvent('lectura-veloz', 'sprint_end', { words: sprintPairs.length, correct: sprintCorrect, asked: sprintAsked, final_wpm: sprintWpm });
             sprintResetBtn();
         }

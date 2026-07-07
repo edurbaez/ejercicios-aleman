@@ -45,6 +45,13 @@
             <p>Practica la expresión escrita con tareas al estilo de los exámenes Goethe/telc: la IA genera una consigna según tu nivel, tú escribes y recibes una corrección detallada.</p>
         </div>
 
+        <div id="hint-esc" style="display:none; background:#EDE7F6; border-left:4px solid #303F9F; border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
+          <button onclick="dismissEscHint()" style="position:absolute;top:6px;right:10px;background:none;border:none;cursor:pointer;font-size:1rem;color:#555">×</button>
+          <strong>Cómo funciona:</strong> elige nivel → tipo de tarea → genera → escribe → evalúa<br>
+          ⏱️ Activa <b>Modo examen</b> para practicar con tiempo límite<br>
+          📷 Puedes escribir a mano y <b>subir una foto</b> para que la IA la evalúe
+        </div>
+
         <!-- Selector de nivel -->
         <div class="esc-selector" id="esc-level-btns">
             <button class="esc-pill" data-level="A1">A1</button>
@@ -890,6 +897,16 @@ ${texto}`;
         document.getElementById('esc-editor').style.display = 'block';
         updateWordCount();
     })();
+
+    (function initEscHints() {
+        if (localStorage.getItem('esc_hints_v1')) return;
+        const el = document.getElementById('hint-esc');
+        if (el) el.style.display = 'block';
+    })();
+    function dismissEscHint() {
+        localStorage.setItem('esc_hints_v1', '1');
+        document.getElementById('hint-esc').style.display = 'none';
+    }
     </script>
 </body>
 </html>

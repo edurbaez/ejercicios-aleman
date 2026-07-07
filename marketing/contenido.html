@@ -162,6 +162,32 @@
     .hist-actions select { min-width: 0; padding: 4px 8px; font-size: 12px; }
 
     @media (max-width: 700px) { .field-row { flex-direction: column; gap: 14px; } #tema-libre { min-width: 0; } }
+
+    /* Infografía (1080×1080 cuadrado) */
+    .info-slide { width:1080px; height:1080px; display:flex; flex-direction:column; justify-content:space-between; padding:80px 85px 60px; position:relative; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#fff; }
+    .slide-wrap .info-slide { transform:scale(0.25); transform-origin:top left; }
+    #info-preview-wrap { width:270px !important; height:270px !important; }
+    .info-title { font-size:68px; font-weight:800; line-height:1.15; margin-bottom:24px; position:relative; z-index:2; }
+    .info-body { flex:1; display:flex; flex-direction:column; position:relative; z-index:2; }
+    /* Tips */
+    .info-tips { gap:22px; justify-content:center; }
+    .info-tip { display:flex; align-items:flex-start; gap:22px; font-size:38px; line-height:1.4; font-weight:500; }
+    .info-tip-dot { font-size:32px; font-weight:900; opacity:.9; flex-shrink:0; margin-top:4px; }
+    /* Estadística */
+    .info-estadistica { align-items:center; justify-content:center; text-align:center; gap:20px; }
+    .info-stat-num { font-size:160px; font-weight:900; line-height:1; letter-spacing:-4px; }
+    .info-stat-ctx { font-size:38px; line-height:1.4; opacity:.88; }
+    /* Comparación */
+    .info-comparacion { flex:1; }
+    .info-cmp-cols { display:flex; gap:20px; height:100%; }
+    .info-cmp-col { flex:1; background:rgba(255,255,255,.12); border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:14px; }
+    .info-cmp-label { font-size:52px; font-weight:900; text-align:center; margin-bottom:6px; }
+    .info-cmp-item { font-size:36px; line-height:1.35; font-weight:500; opacity:.92; border-left:6px solid rgba(255,255,255,.7); padding-left:14px; }
+    /* Proceso */
+    .info-proceso { gap:24px; justify-content:center; }
+    .info-step { display:flex; align-items:center; gap:26px; }
+    .info-step-num { width:68px; height:68px; border-radius:50%; background:rgba(255,255,255,.25); display:flex; align-items:center; justify-content:center; font-size:42px; font-weight:900; flex-shrink:0; }
+    .info-step-txt { font-size:40px; line-height:1.35; font-weight:500; }
   </style>
 </head>
 <body>
@@ -205,6 +231,7 @@
     <div class="view-tabs">
       <button class="pill active" id="tab-generador">🎠 Generador</button>
       <button class="pill" id="tab-testimonios">💬 Testimonios</button>
+      <button class="pill" id="tab-infografia">🖼️ Infografía</button>
       <button class="pill" id="tab-historial">📚 Historial</button>
     </div>
 
@@ -467,6 +494,7 @@
               <option value="carrusel">🎠 Carrusel</option>
               <option value="reel">🎬 Reel</option>
               <option value="testimonio">💬 Testimonio</option>
+              <option value="infografia">🖼️ Infografía</option>
               <option value="email">✉️ Email</option>
             </select>
           </div>
@@ -484,6 +512,104 @@
         <div id="hist-list"></div>
       </div>
     </div><!-- /view-historial -->
+
+    <div id="view-infografia" style="display:none">
+      <div class="panel">
+        <h2>🖼️ Generador de Infografías</h2>
+        <div class="field-row">
+          <div class="field">
+            <label>Nicho</label>
+            <div class="pills" id="info-nicho-pills">
+              <button class="pill active" data-nicho="aleman">🇩🇪 Alemán</button>
+              <button class="pill" data-nicho="motivacion">🔥 Motivación</button>
+              <button class="pill" data-nicho="curiosidades">🧠 Datos curiosos</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Tipo</label>
+            <div class="pills" id="info-tipo-pills">
+              <button class="pill active" data-tipo="tips">💡 Tips</button>
+              <button class="pill" data-tipo="estadistica">📊 Estadística</button>
+              <button class="pill" data-tipo="comparacion">🔄 Comparación</button>
+              <button class="pill" data-tipo="proceso">📈 Proceso</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row" id="info-field-fuente">
+          <div class="field">
+            <label>Fuente</label>
+            <div class="pills" id="info-fuente-pills">
+              <button class="pill" data-fuente="gramatica">📖 Regla gramatical</button>
+              <button class="pill" data-fuente="vocabulario">📚 Vocabulario</button>
+              <button class="pill active" data-fuente="libre">✍️ Tema libre</button>
+            </div>
+          </div>
+          <div class="field" id="info-field-nivel">
+            <label>Nivel</label>
+            <div class="pills" id="info-nivel-pills">
+              <button class="pill" data-nivel="A1">A1</button>
+              <button class="pill" data-nivel="A2">A2</button>
+              <button class="pill active" data-nivel="B1">B1</button>
+              <button class="pill" data-nivel="B2">B2</button>
+              <button class="pill" data-nivel="C1">C1</button>
+              <button class="pill" data-nivel="C2">C2</button>
+            </div>
+          </div>
+        </div>
+        <div class="field-row" id="info-field-regla" style="display:none">
+          <div class="field">
+            <label>Regla gramatical</label>
+            <select id="info-regla-select"></select>
+          </div>
+        </div>
+        <div class="field-row" id="info-field-tema">
+          <div class="field">
+            <label>Tema</label>
+            <input type="text" id="info-tema-libre" placeholder="Ej: Los verbos modales en alemán" style="min-width:320px">
+          </div>
+        </div>
+        <div class="field-row" id="info-field-vocab-hint" style="display:none">
+          <div class="field">
+            <span class="hint">Se usarán 5 palabras aleatorias del nivel seleccionado.</span>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Fondo</label>
+            <div class="pills" id="info-modo-pills">
+              <button class="pill active" data-modo="plantilla">🎨 Plantilla</button>
+              <button class="pill" data-modo="ia">🤖 Imagen IA</button>
+            </div>
+          </div>
+          <div class="field" id="info-field-color">
+            <label>Color</label>
+            <div class="pills" id="info-color-pills">
+              <button class="pill active" data-color="#1565C0" style="background:#1565C0;color:#fff;border-color:#1565C0">Azul</button>
+              <button class="pill" data-color="#2E7D32" style="background:#2E7D32;color:#fff;border-color:#2E7D32">Verde</button>
+              <button class="pill" data-color="#6A1B9A" style="background:#6A1B9A;color:#fff;border-color:#6A1B9A">Púrpura</button>
+              <button class="pill" data-color="#C62828" style="background:#C62828;color:#fff;border-color:#C62828">Rojo</button>
+              <button class="pill" data-color="#E65100" style="background:#E65100;color:#fff;border-color:#E65100">Naranja</button>
+              <button class="pill" data-color="#00695C" style="background:#00695C;color:#fff;border-color:#00695C">Teal</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" id="btn-generar-info">✨ Generar infografía</button>
+        <div id="status-info" style="font-size:13px;color:var(--muted);margin-top:12px;min-height:18px"></div>
+      </div>
+      <div class="panel" id="result-info" style="display:none">
+        <h2>Vista previa</h2>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+          <div class="slide-wrap" id="info-preview-wrap"></div>
+          <div style="flex:1;min-width:220px">
+            <div class="caption-box" id="info-caption-box"></div>
+            <div class="actions-row">
+              <button class="btn-primary" id="btn-dl-info">⬇️ Descargar PNG</button>
+              <button class="btn-secondary" id="btn-copy-info-caption">📋 Copiar caption</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-infografia -->
 
   </div><!-- /main -->
 </div><!-- /app -->
@@ -510,6 +636,9 @@ let bgImageDataUrl = null;    // data URL when IA mode
 let uploadedBgDataUrl = null; // data URL when user uploads a background image
 let currentNiche = 'aleman';
 let lastReview = null;        // { nota_idioma, nota_marketing, aprobado, problemas[] }
+let currentInfo = null;       // { titulo, puntos[], caption, hashtags[] }
+let infoNiche = 'aleman';
+let infoBgDataUrl = null;
 
 const MARKETING_RULES =
   'TÉCNICAS DE RETENCIÓN OBLIGATORIAS: ' +
@@ -1062,14 +1191,304 @@ async function savePost(post) {
   }
 }
 
+// ─── Infografía ───
+
+function infoSetStatus(msg, isErr) {
+  const el = $('status-info');
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
+  if (isErr) el.style.fontWeight = '600';
+  else el.style.fontWeight = '';
+}
+
+function updateInfoNichoUI() {
+  infoNiche = getPill('info-nicho-pills', 'nicho');
+  const n = NICHES[infoNiche];
+  $('info-field-fuente').style.display = n.isGerman ? '' : 'none';
+  if (!n.isGerman) {
+    document.querySelectorAll('#info-fuente-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.fuente === 'libre'));
+  }
+  updateInfoFuenteUI();
+}
+
+function updateInfoFuenteUI() {
+  const fuente = getPill('info-fuente-pills', 'fuente');
+  $('info-field-regla').style.display = fuente === 'gramatica' ? '' : 'none';
+  $('info-field-tema').style.display = fuente === 'libre' ? '' : 'none';
+  $('info-field-vocab-hint').style.display = fuente === 'vocabulario' ? '' : 'none';
+}
+
+function fillInfoReglas() {
+  const nivel = getPill('info-nivel-pills', 'nivel');
+  const rules = (typeof GRAMMAR_DATA !== 'undefined' && GRAMMAR_DATA[nivel]) || [];
+  $('info-regla-select').innerHTML = rules
+    .map(r => `<option value="${r.id}">${r.titulo} — ${r.subtitulo}</option>`)
+    .join('');
+}
+
+function updateInfoModoUI() {
+  $('info-field-color').style.display = getPill('info-modo-pills', 'modo') === 'plantilla' ? '' : 'none';
+}
+
+function buildInfoSourceText() {
+  if (!NICHES[infoNiche].isGerman) {
+    const tema = $('info-tema-libre').value.trim();
+    if (!tema) throw new Error('Escribe un tema');
+    return `Tema (${NICHES[infoNiche].label}): ${tema}`;
+  }
+  const fuente = getPill('info-fuente-pills', 'fuente');
+  const nivel = getPill('info-nivel-pills', 'nivel');
+  if (fuente === 'gramatica') {
+    const id = $('info-regla-select').value;
+    const rule = (GRAMMAR_DATA[nivel] || []).find(r => r.id === id);
+    if (!rule) throw new Error('Regla no encontrada');
+    return `Regla gramatical (nivel ${nivel}): ${rule.titulo} (${rule.subtitulo}). ${rule.regla_base}` +
+      (rule.excepciones ? ` Excepciones/notas: ${rule.excepciones}` : '');
+  }
+  const tema = $('info-tema-libre').value.trim();
+  if (!tema) throw new Error('Escribe un tema');
+  return `Tema libre (nivel ${nivel}): ${tema}`;
+}
+
+async function generateInfoCopy(sourceText, tipo, nivel, niche) {
+  const n = NICHES[niche];
+  const levelPart = n.isGerman ? ` (nivel ${nivel})` : '';
+  const tipoSchema = {
+    tips:
+      `Infografía de 5 tips prácticos${levelPart}. ` +
+      `JSON: {"titulo":"...","puntos":["tip 1","tip 2","tip 3","tip 4","tip 5"],"caption":"...","hashtags":["#..."]}. ` +
+      `Cada tip máx 12 palabras, accionable y concreto.`,
+    estadistica:
+      `Infografía de dato/estadística impactante${levelPart}. ` +
+      `JSON: {"titulo":"...","puntos":["cifra principal con unidad (ej: 87% de los estudiantes...)","contexto 1","contexto 2","fuente o año"],"caption":"...","hashtags":["#..."]}. ` +
+      `El primer punto es el NÚMERO o dato grande.`,
+    comparacion:
+      `Infografía de comparación A vs B${levelPart}. ` +
+      `JSON: {"titulo":"A vs B: ...","puntos":["Lado A: punto 1","Lado A: punto 2","Lado A: punto 3","Lado B: punto 1","Lado B: punto 2","Lado B: punto 3"],"caption":"...","hashtags":["#..."]}. ` +
+      `3 puntos por lado, máx 10 palabras cada uno.`,
+    proceso:
+      `Infografía de proceso paso a paso${levelPart}. ` +
+      `JSON: {"titulo":"...","puntos":["Paso 1: ...","Paso 2: ...","Paso 3: ...","Paso 4: ..."],"caption":"...","hashtags":["#..."]}. ` +
+      `4 pasos claros, máx 12 palabras cada uno.`,
+  };
+  const system =
+    n.identity + ' Respondes SOLO con JSON válido, sin markdown. ' +
+    tipoSchema[tipo] +
+    ` Caption: primera línea es gancho independiente, luego valor, luego CTA. ${n.hashtagsHint || '10-12 hashtags relevantes'}.`;
+  const reply = await deepseek(system, [{ role: 'user', content: sourceText }], 900);
+  return parseJsonReply(reply);
+}
+
+function buildInfoNode(data, tipo, niche) {
+  const el = document.createElement('div');
+  el.className = 'info-slide';
+
+  const bg = document.createElement('div');
+  bg.className = 'ig-bg';
+  const overlay = document.createElement('div');
+  overlay.className = 'ig-overlay';
+
+  if (infoBgDataUrl) {
+    bg.style.backgroundImage = `url(${infoBgDataUrl})`;
+    overlay.style.background = 'linear-gradient(180deg, rgba(10,10,25,.55) 0%, rgba(10,10,25,.78) 100%)';
+  } else {
+    const color = getPill('info-color-pills', 'color');
+    bg.style.background = `linear-gradient(150deg, ${shadeColor(color, 0.25)} 0%, ${color} 55%, ${shadeColor(color, -0.35)} 100%)`;
+  }
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'info-title';
+  titleEl.textContent = data.titulo || '';
+
+  const bodyEl = document.createElement('div');
+  bodyEl.className = `info-body info-${tipo}`;
+
+  if (tipo === 'estadistica') {
+    const [cifra, ...rest] = data.puntos || [];
+    const cifraEl = document.createElement('div');
+    cifraEl.className = 'info-stat-num';
+    cifraEl.textContent = cifra || '';
+    bodyEl.appendChild(cifraEl);
+    rest.forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'info-stat-ctx';
+      d.textContent = p;
+      bodyEl.appendChild(d);
+    });
+  } else if (tipo === 'comparacion') {
+    const pts = data.puntos || [];
+    const cols = document.createElement('div');
+    cols.className = 'info-cmp-cols';
+    [pts.slice(0, 3), pts.slice(3, 6)].forEach((side, si) => {
+      const col = document.createElement('div');
+      col.className = 'info-cmp-col';
+      const label = document.createElement('div');
+      label.className = 'info-cmp-label';
+      label.textContent = si === 0 ? '👈' : '👉';
+      col.appendChild(label);
+      side.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'info-cmp-item';
+        d.textContent = p.replace(/^Lado [AB]:\s*/i, '');
+        col.appendChild(d);
+      });
+      cols.appendChild(col);
+    });
+    bodyEl.appendChild(cols);
+  } else if (tipo === 'proceso') {
+    (data.puntos || []).forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'info-step';
+      const num = document.createElement('div');
+      num.className = 'info-step-num';
+      num.textContent = i + 1;
+      const txt = document.createElement('div');
+      txt.className = 'info-step-txt';
+      txt.textContent = p.replace(/^Paso \d+:\s*/i, '');
+      row.append(num, txt);
+      bodyEl.appendChild(row);
+    });
+  } else {
+    // tips
+    (data.puntos || []).forEach(p => {
+      const d = document.createElement('div');
+      d.className = 'info-tip';
+      d.innerHTML = `<span class="info-tip-dot">✓</span><span>${p}</span>`;
+      bodyEl.appendChild(d);
+    });
+  }
+
+  const footer = document.createElement('div');
+  footer.className = 'ig-footer';
+  footer.innerHTML = `<span>${NICHES[niche].brand}</span><span>${NICHES[niche].finalEmoji || ''}</span>`;
+
+  el.append(bg, overlay, titleEl, bodyEl, footer);
+  return el;
+}
+
+function renderInfoPreview() {
+  const wrap = $('info-preview-wrap');
+  wrap.innerHTML = '';
+  const tipo = getPill('info-tipo-pills', 'tipo');
+  wrap.appendChild(buildInfoNode(currentInfo, tipo, infoNiche));
+  const tags = (currentInfo.hashtags || []).join(' ');
+  $('info-caption-box').textContent = (currentInfo.caption || '') + (tags ? '\n\n' + tags : '');
+  $('result-info').style.display = 'block';
+  $('result-info').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function downloadInfo() {
+  const btn = $('btn-dl-info');
+  btn.disabled = true;
+  try {
+    const tipo = getPill('info-tipo-pills', 'tipo');
+    const node = buildInfoNode(currentInfo, tipo, infoNiche);
+    $('export-stage').appendChild(node);
+    try {
+      const canvas = await html2canvas(node, { width: 1080, height: 1080, scale: 1, useCORS: true, backgroundColor: null });
+      triggerDownload(canvas.toDataURL('image/png'), `infografia-${tipo}-${Date.now()}.png`);
+    } finally {
+      node.remove();
+    }
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function generarInfo() {
+  const btn = $('btn-generar-info');
+  btn.disabled = true;
+  infoBgDataUrl = null;
+  $('result-info').style.display = 'none';
+  try {
+    const tipo = getPill('info-tipo-pills', 'tipo');
+    const modo = getPill('info-modo-pills', 'modo');
+    const n = NICHES[infoNiche];
+    const nivel = n.isGerman ? getPill('info-nivel-pills', 'nivel') : null;
+    const fuente = n.isGerman ? getPill('info-fuente-pills', 'fuente') : 'libre';
+
+    let sourceText;
+    if (fuente === 'vocabulario') {
+      infoSetStatus('Cargando vocabulario…');
+      const vocab = await pickRandomVocab(nivel, 5);
+      sourceText = `Vocabulario alemán nivel ${nivel}: ` + vocab.map(p => `${p.de} = ${p.es}`).join('; ');
+    } else {
+      sourceText = buildInfoSourceText();
+    }
+
+    if (modo === 'ia') {
+      infoSetStatus('Generando imagen de fondo…');
+      infoBgDataUrl = await generateBackground(sourceText);
+    }
+
+    infoSetStatus('Generando contenido…');
+    const data = await generateInfoCopy(sourceText, tipo, nivel, infoNiche);
+    currentInfo = data;
+    renderInfoPreview();
+
+    await savePost({
+      kind: 'infografia',
+      tema: sourceText.slice(0, 300),
+      nivel,
+      contenido: { ...data, tipo, niche: infoNiche },
+      caption: (data.caption || '') + (data.hashtags?.length ? '\n\n' + data.hashtags.join(' ') : ''),
+      estado: 'generado',
+    });
+    infoSetStatus('✅ Infografía generada');
+  } catch (e) {
+    infoSetStatus('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function histLoadInfo(post) {
+  const c = post.contenido || {};
+  if (c.niche && NICHES[c.niche]) {
+    document.querySelectorAll('#info-nicho-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.nicho === c.niche));
+    updateInfoNichoUI();
+  }
+  if (post.nivel) {
+    document.querySelectorAll('#info-nivel-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.nivel === post.nivel));
+    fillInfoReglas();
+  }
+  if (c.tipo) {
+    document.querySelectorAll('#info-tipo-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.tipo === c.tipo));
+  }
+  document.querySelectorAll('#info-fuente-pills .pill').forEach(p =>
+    p.classList.toggle('active', p.dataset.fuente === 'libre'));
+  updateInfoFuenteUI();
+  $('info-tema-libre').value = post.tema || '';
+  switchView('infografia');
+  if (Array.isArray(c.puntos) && c.puntos.length) {
+    currentInfo = c;
+    infoNiche = c.niche || 'aleman';
+    infoBgDataUrl = null;
+    document.querySelectorAll('#info-modo-pills .pill').forEach(p =>
+      p.classList.toggle('active', p.dataset.modo === 'plantilla'));
+    updateInfoModoUI();
+    renderInfoPreview();
+  }
+}
+
+async function histReexportInfo(post) {
+  histLoadInfo(post);
+  await new Promise(r => setTimeout(r, 80));
+  if (currentInfo) await downloadInfo();
+}
+
 // ─── Historial ───
 let histPosts = [];
 
-const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', email: '✉️ Email' };
+const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', infografia: '🖼️ Infografía', email: '✉️ Email' };
 const ESTADO_LABELS = { idea: '💡 Idea', generado: '✅ Generado', publicado: '📣 Publicado' };
 
 function switchView(view) {
-  ['generador', 'testimonios', 'historial'].forEach(v => {
+  ['generador', 'testimonios', 'infografia', 'historial'].forEach(v => {
     $(`view-${v}`).style.display = v === view ? '' : 'none';
     $(`tab-${v}`).classList.toggle('active', v === view);
   });
@@ -1139,6 +1558,7 @@ function renderHistorial() {
     const hasSlides = Array.isArray(post.contenido?.slides) && post.contenido.slides.length;
     const hasEscenas = post.kind === 'reel' && Array.isArray(post.contenido?.escenas) && post.contenido.escenas.length;
     const hasTesti = post.kind === 'testimonio' && !!post.contenido?.design;
+    const hasInfo = post.kind === 'infografia' && Array.isArray(post.contenido?.puntos) && post.contenido.puntos.length;
 
     const mkBtn = (label, fn, danger) => {
       const b = document.createElement('button');
@@ -1147,9 +1567,10 @@ function renderHistorial() {
       b.onclick = () => fn(post, b);
       return b;
     };
-    actions.appendChild(mkBtn(hasSlides || hasEscenas || hasTesti ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
+    actions.appendChild(mkBtn(hasSlides || hasEscenas || hasTesti || hasInfo ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
     if (hasSlides) actions.appendChild(mkBtn('⬇️ Re-exportar PNGs', histReexport));
     if (hasTesti) actions.appendChild(mkBtn('⬇️ Re-exportar PNG', histReexportTesti));
+    if (hasInfo) actions.appendChild(mkBtn('⬇️ Re-exportar PNG', histReexportInfo));
     actions.appendChild(mkBtn('📄 Duplicar', histDuplicate));
     actions.appendChild(mkBtn('🗑️ Borrar', histDelete, true));
 
@@ -1197,6 +1618,7 @@ async function histDuplicate(post, btn) {
 
 function histLoad(post) {
   if (post.kind === 'testimonio') { histLoadTesti(post); return; }
+  if (post.kind === 'infografia') { histLoadInfo(post); return; }
   const c = post.contenido || {};
   if (c.niche && NICHES[c.niche]) {
     document.querySelectorAll('#nicho-pills .pill').forEach(p =>
@@ -1705,7 +2127,24 @@ async function generar() {
 
   $('tab-generador').onclick = () => switchView('generador');
   $('tab-testimonios').onclick = () => switchView('testimonios');
+  $('tab-infografia').onclick = () => switchView('infografia');
   $('tab-historial').onclick = () => switchView('historial');
+
+  setupPills('info-nicho-pills', updateInfoNichoUI);
+  setupPills('info-tipo-pills', () => { if (currentInfo) renderInfoPreview(); });
+  setupPills('info-fuente-pills', updateInfoFuenteUI);
+  setupPills('info-nivel-pills', () => fillInfoReglas());
+  setupPills('info-modo-pills', updateInfoModoUI);
+  setupPills('info-color-pills', () => { if (currentInfo) renderInfoPreview(); });
+  $('btn-generar-info').onclick = generarInfo;
+  $('btn-dl-info').onclick = downloadInfo;
+  $('btn-copy-info-caption').onclick = async () => {
+    await navigator.clipboard.writeText($('info-caption-box').textContent);
+    infoSetStatus('📋 Caption copiado');
+  };
+  fillInfoReglas();
+  updateInfoNichoUI();
+  updateInfoModoUI();
 
   setupPills('testi-nivel-pills', renderTestiPreview);
   setupPills('testi-design-pills', () => { updateTestiUI(); renderTestiPreview(); });

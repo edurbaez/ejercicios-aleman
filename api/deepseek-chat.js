@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { messages, system, max_tokens } = req.body;
+    const { messages, system, max_tokens, json } = req.body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
@@ -50,6 +50,7 @@ export default async function handler(req, res) {
                 ? [{ role: 'system', content: String(system) }, ...messages]
                 : messages,
         };
+        if (json === true) body.response_format = { type: 'json_object' };
 
         const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
             method: 'POST',

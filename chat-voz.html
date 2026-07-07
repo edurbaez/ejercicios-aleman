@@ -346,24 +346,25 @@
         const scenarioContextLine = scenarioObj?.contexto
             ? `\nSituación actual: ${scenarioObj.contexto}\n`
             : '';
-        const userProfileLine = State.userProfile
-            ? `\nInformación sobre el estudiante: ${State.userProfile}\n`
+        const userProfile = (State.userProfile || '').slice(0, 300);
+        const userProfileLine = userProfile
+            ? `\nInformación sobre el estudiante: ${userProfile}\n`
             : '';
-        const rolLine = State.scenarioRol || DEFAULT_ROL;
-        const misionLine = State.mision
-            ? `\nZiel des Studenten in dieser Sitzung: ${State.mision}\n`
+        const rolLine = (State.scenarioRol || DEFAULT_ROL).slice(0, 200);
+        const mision = (State.mision || '').slice(0, 150);
+        const misionLine = mision
+            ? `\nZiel des Studenten in dieser Sitzung: ${mision}\n`
             : '';
         let base = `${rolLine} Der Benutzer lernt Deutsch auf Niveau ${level}.
 ${scenarioContextLine}${userProfileLine}${misionLine}
 ${guides[level]}
 
-Regeln:
-- Antworte immer auf Deutsch
-- Halte deine Antworten kurz (2-4 Sätze) — sie werden laut vorgelesen
-- Wenn der Benutzer Grammatikfehler macht, füge am Ende deiner Antwort einen separaten Abschnitt hinzu, der mit "---CORRECCIÓN---" beginnt. Format (eine Zeile pro Fehler): ❌ "falsche Formulierung" → ✅ "korrekte Formulierung" (kurze Erklärung auf Spanisch). Die Konversationsantwort selbst soll KEINE eingebetteten Korrekturen enthalten.
-- Stelle am Ende jeder Antwort eine Frage, um das Gespräch fortzuführen${State.mision ? `\n- Wenn das Ziel des Studenten erfüllt wurde, füge am absoluten Ende deiner Antwort (nach allen anderen Abschnitten) genau "---MISION_CUMPLIDA---" hinzu` : ''}`;
+Antworte IMMER mit einem JSON-Objekt:
+{"antwort":"deine Antwort auf Deutsch (2-4 Sätze + Frage am Ende)","korrekturen":[{"falsch":"x","richtig":"y","erklaerung":"español"}],"mision_cumplida":false}
+- "korrekturen": solo si hay errores gramaticales del usuario, si no []
+- "mision_cumplida": true solo si el estudiante cumplió su objetivo`;
         if (State.guidedMode) {
-            base += `\n\nMODO GUIADO ACTIVO: Justo después de tu pregunta, escribe entre paréntesis una respuesta modelo breve (1-2 oraciones) que el estudiante podría usar. Solo en alemán, sin explicar. Ejemplo: "Wie heißt du? (Ich heiße Ana und komme aus Spanien.)"`;
+            base += `\n- En "antwort", tras tu pregunta añade entre paréntesis una respuesta modelo breve en alemán. Ej: "Wie heißt du? (Ich heiße Ana.)"`;
         }
         return base;
     }
@@ -399,7 +400,16 @@ Regeln:
             return;
         }
 
-        // Generate rich AI persona via API
+        // Generate rich AI persona via API (cached in localStorage)
+        const cacheKey = `cv_rol_cache_${key}`;
+        const cachedRol = localStorage.getItem(cacheKey);
+        if (cachedRol) {
+            State.scenarioRol = cachedRol;
+            if (rolEl) { rolEl.value = State.scenarioRol; rolEl.disabled = false; }
+            if (spinner) spinner.style.display = 'none';
+            return;
+        }
+
         if (rolEl) { rolEl.value = ''; rolEl.disabled = true; }
         if (spinner) spinner.style.display = 'inline';
 
@@ -424,6 +434,7 @@ Regeln:
             try { data = JSON.parse(raw); } catch { throw new Error('invalid response'); }
             if (resp.ok && data.reply) {
                 State.scenarioRol = data.reply.trim();
+                localStorage.setItem(cacheKey, State.scenarioRol);
             } else {
                 throw new Error(data.error || 'no reply');
             }
@@ -508,7 +519,7 @@ Regeln:
 
         try {
             const initialMessages = userText
-                ? State.messages
+                ? State.messages.slice(-10)
                 : [{ role: 'user', content: 'Begrüße mich freundlich und stelle mir eine erste Frage auf Deutsch.' }];
 
             const chatToken = await (window.getAuthToken?.());
@@ -521,6 +532,7 @@ Regeln:
                 body: JSON.stringify({
                     system: getSystemPrompt(State.level),
                     messages: initialMessages,
+                    json: true,
                 }),
             });
 
@@ -535,20 +547,34 @@ Regeln:
             if (!resp.ok) throw new Error(data.error || 'Error de red');
 
             let displayReply = data.reply;
+            let correctionText = null;
+            let misionCumplida = false;
 
-            // Extract mission completed marker
-            if (!State.misionCompleted && displayReply.includes('---MISION_CUMPLIDA---')) {
-                displayReply = displayReply.replace('---MISION_CUMPLIDA---', '').trim();
-                State.misionCompleted = true;
-                showMisionCompleted();
+            try {
+                const parsed = JSON.parse(data.reply);
+                displayReply = parsed.antwort || data.reply;
+                misionCumplida = parsed.mision_cumplida === true;
+                if (Array.isArray(parsed.korrekturen) && parsed.korrekturen.length > 0) {
+                    correctionText = parsed.korrekturen
+                        .map(k => `❌ "${k.falsch}" → ✅ "${k.richtig}" (${k.erklaerung})`)
+                        .join('\n');
+                }
+            } catch {
+                // fallback to text-marker parsing
+                if (displayReply.includes('---MISION_CUMPLIDA---')) {
+                    displayReply = displayReply.replace('---MISION_CUMPLIDA---', '').trim();
+                    misionCumplida = true;
+                }
+                const corrParts = displayReply.split('---CORRECCIÓN---');
+                if (corrParts.length > 1) {
+                    displayReply = corrParts[0].trim();
+                    correctionText = corrParts[1].trim();
+                }
             }
 
-            // Extract grammar correction block
-            let correctionText = null;
-            const corrParts = displayReply.split('---CORRECCIÓN---');
-            if (corrParts.length > 1) {
-                displayReply = corrParts[0].trim();
-                correctionText = corrParts[1].trim();
+            if (!State.misionCompleted && misionCumplida) {
+                State.misionCompleted = true;
+                showMisionCompleted();
             }
 
             State.messages.push({ role: 'assistant', content: displayReply });

@@ -5662,6 +5662,117 @@ body.dark .cr-results-title { color: #ce93d8; }
     margin: 0;
 }
 
+.esc-word-count.over {
+    color: var(--color-danger, #C62828);
+    opacity: 1;
+}
+#page-esc.dark .esc-word-count.over { color: #EF9A9A; }
+
+/* Aviso inline (sustituye alert/confirm) */
+.esc-inline-warn {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #FFF8E1;
+    border: 1px solid #FFE082;
+    color: #7A5C00;
+    font-size: 13.5px;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+#page-esc.dark .esc-inline-warn {
+    background: #3a3320;
+    border-color: #6d5c22;
+    color: #FFE082;
+}
+
+/* Aviso de nivel desincronizado */
+.esc-level-hint {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #FFF8E1;
+    border: 1px solid #FFE082;
+    color: #7A5C00;
+    font-size: 13px;
+}
+#page-esc.dark .esc-level-hint {
+    background: #3a3320;
+    border-color: #6d5c22;
+    color: #FFE082;
+}
+
+/* Modo examen */
+.esc-exam-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.esc-exam-toggle {
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.8;
+}
+#esc-exam-timer {
+    font-size: 15px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+}
+#esc-exam-timer.warn { color: var(--color-danger, #C62828); }
+
+/* Diff en versión mejorada */
+.esc-improved mark.esc-diff {
+    background: #C8E6C9;
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+#page-esc.dark .esc-improved mark.esc-diff { background: #2E5E33; }
+
+/* Historial */
+#esc-hist-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.esc-hist-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+}
+.esc-hist-item:hover { border-color: var(--accent); }
+.esc-hist-meta {
+    font-size: 12.5px;
+    font-weight: 600;
+    opacity: 0.75;
+}
+.esc-hist-excerpt {
+    font-size: 13px;
+    opacity: 0.6;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @media (max-width: 600px) {
     .esc-eval-head { flex-direction: column; text-align: center; }
     .esc-editor-footer { flex-direction: column; align-items: stretch; }

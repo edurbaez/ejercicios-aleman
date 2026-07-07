@@ -69,6 +69,10 @@
 
         <!-- Editor -->
         <div class="esc-card" id="esc-editor" style="display:none;">
+            <div class="esc-exam-bar">
+                <label class="esc-exam-toggle"><input type="checkbox" id="esc-exam-toggle"> ⏱️ Modo examen</label>
+                <span id="esc-exam-timer"></span>
+            </div>
             <div class="esc-input-tabs">
                 <button class="esc-input-tab active" data-modo="texto" onclick="setInputMode('texto')">⌨️ Escribir aquí</button>
                 <button class="esc-input-tab" data-modo="foto" onclick="setInputMode('foto')">📷 Foto de tu texto a mano</button>
@@ -102,12 +106,22 @@
                     <button class="esc-gen-btn" id="esc-foto-btn" onclick="evaluarFoto()" disabled>Corregir mi foto</button>
                 </div>
             </div>
+            <div class="esc-inline-warn" id="esc-warn" style="display:none;"></div>
         </div>
 
         <!-- Resultado -->
         <div id="esc-result" style="display:none;"></div>
 
         <button class="esc-next-btn" id="esc-next-btn" style="display:none;" onclick="generarTarea()">Nueva tarea →</button>
+
+        <!-- Historial de correcciones -->
+        <details class="esc-theory" id="esc-historial" style="display:none;">
+            <summary>📚 Mis textos</summary>
+            <div class="esc-theory-body">
+                <div id="esc-hist-list"></div>
+                <button class="esc-pill esc-pill-sm" id="esc-hist-clear">🗑️ Borrar historial</button>
+            </div>
+        </details>
 
         <!-- Guía por nivel -->
         <details class="esc-theory">
@@ -267,6 +281,7 @@
                 EscState.level = btn.dataset.level;
                 localStorage.setItem('esc_level', EscState.level);
                 renderTypeButtons();
+                updateLevelHint();
             });
         });
         renderTypeButtons();
@@ -307,6 +322,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
     }
 
     async function fetchTarea(token) {
+        const spec = LEVEL_SPECS[EscState.level];
         for (let intento = 0; intento < 2; intento++) {
             const p = buildTaskPrompt();
             const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 800 });
@@ -316,6 +332,8 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     t.tipoNombre = p.tipo.nombre;
                     t.tipoId = p.tipo.id;
                     t.level = EscState.level;
+                    t.min_palabras = Number(t.min_palabras) || spec.palabras[0];
+                    t.max_palabras = Number(t.max_palabras) || spec.palabras[1];
                     return t;
                 }
             } catch {}
@@ -362,7 +380,10 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             document.getElementById('esc-text').value = '';
             document.getElementById('esc-editor').style.display = 'block';
             clearFoto();
+            hideWarn();
             updateWordCount();
+            if (document.getElementById('esc-exam-toggle').checked) startExamTimer(tarea.level);
+            else stopExamTimer();
             if (typeof window.logEvent === 'function') {
                 window.logEvent('escritura', 'task_generated', { level: EscState.level, tipo: tarea.tipoId });
             }
@@ -379,6 +400,8 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
     }
 
     function renderTarea(t) {
+        const min = Number(t.min_palabras) || 0;
+        const max = Number(t.max_palabras) || 0;
         const area = document.getElementById('esc-task-area');
         area.innerHTML = `
             <div class="esc-task">
@@ -386,14 +409,26 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     <span class="esc-badge">${escHtml(t.level || EscState.level)}</span>
                     <span class="esc-badge esc-badge-tipo">${escHtml(t.tipoNombre)}</span>
                     <span class="esc-badge esc-badge-reg">${t.registro === 'formal' ? 'Formal (Sie)' : t.registro === 'informal' ? 'Informal (du)' : 'Registro neutral'}</span>
-                    <span class="esc-badge esc-badge-len">${t.min_palabras}–${t.max_palabras} palabras</span>
+                    <span class="esc-badge esc-badge-len">${min}–${max} palabras</span>
                 </div>
                 <h2 class="esc-task-title">${escHtml(t.titulo)}</h2>
                 <p class="esc-task-situacion">${escHtml(t.situacion)}</p>
                 <ul class="esc-task-puntos">
                     ${t.puntos.map(p => `<li>${escHtml(p)}</li>`).join('')}
                 </ul>
+                <div class="esc-level-hint" id="esc-level-hint" style="display:none;"></div>
             </div>`;
+        updateLevelHint();
+    }
+
+    // Aviso cuando el nivel seleccionado ya no coincide con la tarea en pantalla
+    function updateLevelHint() {
+        const hint = document.getElementById('esc-level-hint');
+        if (!hint) return;
+        const t = EscState.tarea;
+        const mismatch = !!t && !!t.level && t.level !== EscState.level;
+        hint.style.display = mismatch ? 'block' : 'none';
+        if (mismatch) hint.textContent = `⚠️ Esta tarea es de nivel ${t.level} y se corregirá con criterios ${t.level}. Pulsa "Generar tarea" para practicar en ${EscState.level}.`;
     }
 
     // ── Modo de entrada (texto / foto) ────────────────
@@ -489,6 +524,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
             if (!token) throw new Error('Inicia sesión para corregir tu texto');
 
+            const lvl = t.level || EscState.level;
             const resp = await fetch('/api/vision', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -497,7 +533,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     mime_type: 'image/jpeg',
                     type: 'escritura',
                     task: {
-                        level: EscState.level,
+                        level: lvl,
                         titulo: t.titulo,
                         situacion: t.situacion,
                         puntos: t.puntos,
@@ -513,11 +549,14 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             if (!resp.ok) throw new Error(ev.error || 'Error de API');
             if (typeof ev.puntuacion !== 'number' || !Array.isArray(ev.errores)) throw new Error('La corrección llegó incompleta. Inténtalo de nuevo.');
 
+            stopExamTimer();
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
+            saveToHistory(t, 'foto', ev.texto_transcrito || '', ev);
             if (typeof window.logEvent === 'function') {
-                window.logEvent('escritura', 'photo_evaluated', { level: EscState.level, tipo: t.tipoId, score: ev.puntuacion });
+                window.logEvent('escritura', 'photo_evaluated', { level: lvl, tipo: t.tipoId, score: ev.puntuacion });
             }
+            startPrefetch(token);
         } catch (err) {
             result.innerHTML = `<div class="esc-card"><div class="esc-error">Error: ${escHtml(err.message)}</div></div>`;
         } finally {
@@ -531,13 +570,33 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
     function updateWordCount() {
         const n = countWords(document.getElementById('esc-text').value);
         const el = document.getElementById('esc-word-count');
-        el.textContent = `${n} palabras`;
         const t = EscState.tarea;
-        el.classList.toggle('ok', !!t && n >= t.min_palabras && n <= t.max_palabras * 1.5);
+        if (t && t.min_palabras) {
+            el.textContent = `${n} / ${t.min_palabras}–${t.max_palabras} palabras`;
+            el.classList.toggle('ok', n >= t.min_palabras && n <= t.max_palabras * 1.5);
+            el.classList.toggle('over', n > t.max_palabras * 1.5);
+        } else {
+            el.textContent = `${n} palabras`;
+            el.classList.remove('ok', 'over');
+        }
     }
+
+    // ── Aviso inline (sustituye alert/confirm) ────────
+    function showWarn(html) {
+        const el = document.getElementById('esc-warn');
+        el.innerHTML = html;
+        el.style.display = 'flex';
+    }
+    function hideWarn() {
+        const el = document.getElementById('esc-warn');
+        el.style.display = 'none';
+        el.innerHTML = '';
+    }
+
     let _draftTimer = null;
     document.getElementById('esc-text').addEventListener('input', () => {
         updateWordCount();
+        hideWarn();
         clearTimeout(_draftTimer);
         _draftTimer = setTimeout(() => {
             const v = document.getElementById('esc-text').value;
@@ -547,13 +606,17 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
     });
 
     // ── Evaluar texto ─────────────────────────────────
-    async function evaluarTexto() {
+    async function evaluarTexto(force) {
         const t = EscState.tarea;
         if (!t || EscState.evaluando) return;
         const texto = document.getElementById('esc-text').value.trim();
         const n = countWords(texto);
-        if (n < 5) { alert('Escribe tu texto antes de corregir.'); return; }
-        if (n < t.min_palabras * 0.6 && !confirm(`Tu texto tiene ${n} palabras y la tarea pide al menos ${t.min_palabras}. ¿Corregir de todos modos?`)) return;
+        if (n < 5) { showWarn('✏️ Escribe tu texto antes de corregir.'); return; }
+        if (n < t.min_palabras * 0.6 && !force) {
+            showWarn(`Tu texto tiene ${n} palabras y la tarea pide al menos ${t.min_palabras}. <button class="esc-pill esc-pill-sm" onclick="hideWarn();evaluarTexto(true)">Corregir de todos modos</button>`);
+            return;
+        }
+        hideWarn();
 
         EscState.evaluando = true;
         const btn = document.getElementById('esc-eval-btn');
@@ -567,12 +630,13 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
             if (!token) throw new Error('Inicia sesión para corregir tu texto');
 
-            const system = `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${EscState.level}. Evalúa con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
+            const lvl = t.level || EscState.level;
+            const system = `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${lvl}. Evalúa con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
 {"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, en el mismo orden], "registro_adecuado": true|false, "errores": [{"original":"fragmento con error","correccion":"fragmento corregido","explicacion":"explicación breve en español","categoria":"gramática|vocabulario|ortografía|registro|estructura"}], "version_mejorada":"el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido", "comentario":"valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar"}
 Si el texto no tiene errores, devuelve "errores": [].`;
 
-            const userMsg = `TAREA (nivel ${EscState.level}, registro ${t.registro}, ${t.min_palabras}-${t.max_palabras} palabras):
+            const userMsg = `TAREA (nivel ${lvl}, registro ${t.registro}, ${t.min_palabras}-${t.max_palabras} palabras):
 ${t.titulo}
 ${t.situacion}
 Puntos guía: ${t.puntos.join(' | ')}
@@ -590,11 +654,14 @@ ${texto}`;
             }
             if (!ev) throw new Error('La corrección llegó en un formato inválido. Inténtalo de nuevo.');
 
+            stopExamTimer();
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
+            saveToHistory(t, 'texto', texto, ev);
             if (typeof window.logEvent === 'function') {
-                window.logEvent('escritura', 'text_evaluated', { level: EscState.level, tipo: t.tipoId, words: n, score: ev.puntuacion });
+                window.logEvent('escritura', 'text_evaluated', { level: lvl, tipo: t.tipoId, words: n, score: ev.puntuacion });
             }
+            startPrefetch(token);
         } catch (err) {
             result.innerHTML = `<div class="esc-card"><div class="esc-error">Error: ${escHtml(err.message)}</div></div>`;
         } finally {
@@ -602,6 +669,21 @@ ${texto}`;
             btn.disabled = false;
             btn.textContent = 'Corregir mi texto';
         }
+    }
+
+    // Marca en la versión mejorada los fragmentos que corrigen un error
+    function highlightImproved(text, errores) {
+        let html = escHtml(text);
+        const seen = new Set();
+        for (const e of errores || []) {
+            const c = (e.correccion || '').trim();
+            if (!c || seen.has(c)) continue;
+            seen.add(c);
+            const esc = escHtml(c);
+            const idx = html.indexOf(esc);
+            if (idx !== -1) html = html.slice(0, idx) + '<mark class="esc-diff">' + esc + '</mark>' + html.slice(idx + esc.length);
+        }
+        return html;
     }
 
     function renderEvaluacion(ev, t) {
@@ -644,11 +726,158 @@ ${texto}`;
                 ${ev.version_mejorada ? `
                 <details class="esc-improved">
                     <summary>✨ Ver versión mejorada</summary>
-                    <p>${escHtml(ev.version_mejorada)}</p>
+                    <p>${highlightImproved(ev.version_mejorada, ev.errores)}</p>
                 </details>` : ''}
             </div>`;
         document.getElementById('esc-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+
+    // ── Modo examen (temporizador opcional por nivel) ──
+    const EXAM_MINUTES = { A1: 15, A2: 20, B1: 30, B2: 45, C1: 60, C2: 80 };
+    let _examInterval = null;
+
+    function startExamTimer(level) {
+        stopExamTimer();
+        let remaining = (EXAM_MINUTES[level] || 30) * 60;
+        const el = document.getElementById('esc-exam-timer');
+        const tick = () => {
+            if (remaining <= 0) {
+                stopExamTimer(true);
+                el.textContent = '⏱️ Tiempo agotado';
+                el.classList.add('warn');
+                showWarn('⏱️ El tiempo del examen ha terminado. En el examen real se entrega el texto tal como está — corrígelo ahora.');
+                return;
+            }
+            const m = Math.floor(remaining / 60), s = remaining % 60;
+            el.textContent = `⏱️ ${m}:${String(s).padStart(2, '0')}`;
+            el.classList.toggle('warn', remaining <= 300);
+            remaining--;
+        };
+        tick();
+        _examInterval = setInterval(tick, 1000);
+    }
+
+    function stopExamTimer(keepText) {
+        clearInterval(_examInterval);
+        _examInterval = null;
+        if (!keepText) {
+            const el = document.getElementById('esc-exam-timer');
+            el.textContent = '';
+            el.classList.remove('warn');
+        }
+    }
+
+    (function initExamToggle() {
+        const cb = document.getElementById('esc-exam-toggle');
+        cb.checked = localStorage.getItem('esc_exam') === 'true';
+        cb.addEventListener('change', () => {
+            localStorage.setItem('esc_exam', cb.checked);
+            if (cb.checked && EscState.tarea) startExamTimer(EscState.tarea.level || EscState.level);
+            else stopExamTimer();
+        });
+    })();
+
+    // ── Historial (IndexedDB, mismo patrón que corrector.js) ──
+    const HIST_MAX = 20;
+    let _histCache = [];
+
+    function histOpen() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('escritura-db', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    function histTx(db, mode, fn) {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('history', mode);
+            const result = fn(tx.objectStore('history'));
+            tx.oncomplete = () => resolve(result);
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    function histGetAll(db) {
+        return new Promise((resolve, reject) => {
+            const req = db.transaction('history', 'readonly').objectStore('history').getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function saveToHistory(tarea, modo, texto, evaluacion) {
+        try {
+            const entry = { ts: Date.now(), level: tarea.level || EscState.level, tipoNombre: tarea.tipoNombre || '', modo, texto: texto || '', tarea, evaluacion };
+            const db = await histOpen();
+            await histTx(db, 'readwrite', st => st.add(entry));
+            const all = await histGetAll(db);
+            if (all.length > HIST_MAX) {
+                const extra = all.slice(0, all.length - HIST_MAX);
+                await histTx(db, 'readwrite', st => extra.forEach(e => st.delete(e.id)));
+            }
+            await renderHistory(db);
+        } catch { /* best-effort; nunca bloquea el resultado */ }
+    }
+
+    async function renderHistory(db) {
+        try {
+            db = db || await histOpen();
+            const all = (await histGetAll(db)).reverse();
+            _histCache = all;
+            const wrap = document.getElementById('esc-historial');
+            const list = document.getElementById('esc-hist-list');
+            if (all.length === 0) {
+                wrap.style.display = 'none';
+                list.innerHTML = '';
+                return;
+            }
+            list.innerHTML = all.map(e => {
+                const date = new Date(e.ts).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                const score = typeof e.evaluacion?.puntuacion === 'number' ? Math.round(e.evaluacion.puntuacion) : '–';
+                const excerpt = (e.texto || e.tarea?.titulo || '').slice(0, 80);
+                return `
+                <button class="esc-hist-item" data-id="${e.id}">
+                    <span class="esc-hist-meta">${e.modo === 'foto' ? '📷' : '✏️'} ${escHtml(e.level)} · ${escHtml(e.tipoNombre)} · ${date} · <strong>${score}</strong>/100</span>
+                    <span class="esc-hist-excerpt">${escHtml(excerpt)}</span>
+                </button>`;
+            }).join('');
+            list.querySelectorAll('.esc-hist-item').forEach(btn => {
+                btn.addEventListener('click', () => loadHistEntry(+btn.dataset.id));
+            });
+            wrap.style.display = 'block';
+        } catch { /* ignore */ }
+    }
+
+    function loadHistEntry(id) {
+        const e = _histCache.find(x => x.id === id);
+        if (!e || !e.tarea) return;
+        stopExamTimer();
+        hideWarn();
+        EscState.tarea = e.tarea;
+        try { localStorage.setItem(TAREA_KEY, JSON.stringify(e.tarea)); } catch {}
+        renderTarea(e.tarea);
+        if (e.modo === 'texto') {
+            document.getElementById('esc-text').value = e.texto;
+            setInputMode('texto');
+        }
+        document.getElementById('esc-editor').style.display = 'block';
+        updateWordCount();
+        document.getElementById('esc-result').style.display = 'block';
+        renderEvaluacion(e.evaluacion, e.tarea);
+        document.getElementById('esc-next-btn').style.display = 'block';
+    }
+
+    document.getElementById('esc-hist-clear').addEventListener('click', async () => {
+        try {
+            const db = await histOpen();
+            await histTx(db, 'readwrite', st => st.clear());
+            await renderHistory(db);
+        } catch { /* ignore */ }
+    });
+
+    renderHistory();
 
     // ── Restaurar sesión (tarea + borrador sobreviven un reload) ──
     (function restoreSession() {

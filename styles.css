@@ -5351,6 +5351,8 @@ body.dark .cr-results-title { color: #ce93d8; }
     letter-spacing: 0.3px;
 }
 
+.esc-retask-btn { margin-left: auto; }
+
 .esc-badge-tipo { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
 .esc-badge-reg  { background: #FFF3E0; color: #E65100; }
 .esc-badge-len  { background: #E8F5E9; color: #2E7D32; }

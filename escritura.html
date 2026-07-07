@@ -417,6 +417,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     <span class="esc-badge esc-badge-tipo">${escHtml(t.tipoNombre)}</span>
                     <span class="esc-badge esc-badge-reg">${t.registro === 'formal' ? 'Formal (Sie)' : t.registro === 'informal' ? 'Informal (du)' : 'Registro neutral'}</span>
                     <span class="esc-badge esc-badge-len">${min}–${max} palabras</span>
+                    <button class="esc-pill esc-pill-sm esc-retask-btn" onclick="generarTarea()" title="Genera otra tarea con el nivel y tipo seleccionados">🔄 Otra tarea</button>
                 </div>
                 <h2 class="esc-task-title">${escHtml(t.titulo)}</h2>
                 <p class="esc-task-situacion">${escHtml(t.situacion)}</p>
@@ -435,7 +436,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
         const t = EscState.tarea;
         const mismatch = !!t && !!t.level && t.level !== EscState.level;
         hint.style.display = mismatch ? 'block' : 'none';
-        if (mismatch) hint.textContent = `⚠️ Esta tarea es de nivel ${t.level} y se corregirá con criterios ${t.level}. Pulsa "Generar tarea" para practicar en ${EscState.level}.`;
+        if (mismatch) hint.textContent = `⚠️ Esta tarea es de nivel ${t.level} y se corregirá con criterios ${t.level}. Pulsa "🔄 Otra tarea" para practicar en ${EscState.level}.`;
     }
 
     // ── Modo de entrada (texto / foto) ────────────────

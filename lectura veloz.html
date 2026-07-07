@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lectura Veloz</title>
+    <title>Entrenamiento de lectura</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -24,7 +24,7 @@
                 <a href="C1.html">Vocabulario C1</a>
                 <a href="C2.html">Vocabulario C2</a>
                 <a href="diccionario.html">Diccionario</a>
-                <a href="lectura veloz.html" class="active">Lectura Veloz</a>
+                <a href="lectura veloz.html" class="active">Entrenamiento de lectura</a>
                 <a href="chat-voz.html">Chat de Voz</a>
                 <a href="corrector.html">Corrector</a>
                 <a href="escritura.html">Escritura</a>
@@ -40,7 +40,7 @@
     <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown'))document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});});</script>
 
     <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
-    <h1>Lectura Veloz</h1>
+    <h1>Entrenamiento de lectura</h1>
 
     <div id="activity-tabs">
         <button class="activity-tab active" data-activity="sprint" onclick="switchActivity('sprint')">⚡ Sprint</button>
@@ -1346,31 +1346,22 @@
             document.getElementById('comp-loading').style.display = 'none';
         }
 
+        // Generates and stores the text server-side (reading_texts has no client INSERT policy)
         async function modoB_generarTextoIA(level) {
             const token = await window.getAuthToken();
-            const prompt = `Genera un texto en alemán de nivel ${level} sobre un tema cotidiano (100-150 palabras) con título. Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 },
-                body: JSON.stringify({ messages: [{ role: 'user', content: prompt }] })
+                body: JSON.stringify({ action: 'generate-reading', level })
             });
             const raw = await res.text();
-            if (!res.ok) throw new Error('API error ' + res.status + ': ' + raw.slice(0, 120));
             let parsed;
             try { parsed = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor: ' + raw.slice(0, 100)); }
-            const content = parsed.choices?.[0]?.message?.content || parsed.content || parsed;
-            let data;
-            if (typeof content === 'string') {
-                const jsonMatch = content.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) throw new Error('No se encontró JSON en la respuesta de la IA');
-                data = JSON.parse(jsonMatch[0]);
-            } else {
-                data = content;
-            }
-            return data;
+            if (!res.ok) throw new Error(parsed.error || ('API error ' + res.status));
+            return parsed.text;
         }
 
         async function modoB_obtenerTexto() {
@@ -1410,21 +1401,7 @@
                 if (unseen.length > 0) {
                     chosenText = unseen[Math.floor(Math.random() * unseen.length)];
                 } else {
-                    const generated = await modoB_generarTextoIA(level);
-                    const newId = crypto.randomUUID();
-                    const { data: inserted, error: insertErr } = await window.sb
-                        .from('reading_texts')
-                        .insert({
-                            id: newId,
-                            level,
-                            title: generated.titulo,
-                            content: generated.contenido,
-                            questions: generated.preguntas
-                        })
-                        .select('id, title, content, questions')
-                        .single();
-                    if (insertErr) throw new Error('Error al guardar texto generado: ' + insertErr.message);
-                    chosenText = inserted;
+                    chosenText = await modoB_generarTextoIA(level);
                 }
 
                 await window.sb.from('user_reading_seen').upsert(

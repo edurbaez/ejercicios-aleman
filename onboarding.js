@@ -46,7 +46,7 @@
       {
         target: () => document.getElementById('navDropdown'),
         title: '🧭 Todas las herramientas',
-        html: `<p style="margin:0">Desde <strong>Menú ▾</strong> accedes al resto: diccionario, corrector de textos, chat de voz con IA, lectura veloz y más.</p>`,
+        html: `<p style="margin:0">Desde <strong>Menú ▾</strong> accedes al resto: diccionario, corrector de textos, chat de voz con IA, entrenamiento de lectura y más.</p>`,
       },
       {
         target: () => document.getElementById('auth-btn'),

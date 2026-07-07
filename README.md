@@ -28,7 +28,7 @@ Multiple-choice vocabulary quiz targeting B2-level German words.
 
 ---
 
-### Lectura Veloz ([lectura veloz.html](lectura%20veloz.html))
+### Entrenamiento de lectura ([lectura veloz.html](lectura%20veloz.html))
 
 Speed-reading tool (RSVP — Rapid Serial Visual Presentation). Three mutually exclusive activities selected via tabs — ⚡ Sprint (default on load), 📚 Lectura veloz and 📖 Comprensión — only one visible at a time.
 
@@ -156,7 +156,7 @@ Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketi
 
 ### `/api/chat` ([api/chat.js](api/chat.js))
 
-Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html` and `chat-voz.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable.
+Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html` and `chat-voz.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable. Also handles `action: 'generate-reading'` (`{ action, level }`): generates a reading-comprehension text server-side and stores it in `reading_texts` with the service role key (used by `lectura veloz.html` Modo B).
 
 ### `/api/whisper` ([api/whisper.js](api/whisper.js))
 
@@ -189,7 +189,7 @@ First-time visitors on `index.html` get a guided tour ([onboarding.js](onboardin
 
 ## Navigation
 
-All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Lectura Veloz, Diccionario, B1, Chat de Voz, Corrector — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
+All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Entrenamiento de lectura, Diccionario, B1, Chat de Voz, Corrector — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
 
 ---
 

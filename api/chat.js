@@ -27,7 +27,11 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { messages, system, max_tokens, json } = req.body;
+    const { action, messages, system, max_tokens, json } = req.body;
+
+    if (action === 'generate-reading') {
+        return generateReading(req, res);
+    }
 
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
@@ -73,6 +77,85 @@ export default async function handler(req, res) {
 
         const data = await response.json();
         return res.status(200).json({ reply: data.choices[0].message.content });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// Generates a reading-comprehension text server-side and stores it in reading_texts
+// with the service role key (the table has no client INSERT policy).
+async function generateReading(req, res) {
+    const level = String(req.body.level || '').toUpperCase();
+    if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
+        return res.status(400).json({ error: 'level inválido (A1–C2)' });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
+    }
+
+    const prompt = `Genera un texto en alemán de nivel ${level} sobre un tema cotidiano (100-150 palabras) con título. Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
+
+    try {
+        const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                max_tokens: 1200,
+                response_format: { type: 'json_object' },
+                messages: [{ role: 'user', content: prompt }],
+            }),
+        });
+        if (!aiRes.ok) {
+            const err = await aiRes.json().catch(() => ({}));
+            return res.status(aiRes.status).json({ error: err?.error?.message || 'Error de OpenAI' });
+        }
+        const aiData = await aiRes.json();
+        const parsed = JSON.parse(aiData.choices[0].message.content);
+
+        const valid = parsed
+            && typeof parsed.titulo === 'string'
+            && typeof parsed.contenido === 'string'
+            && Array.isArray(parsed.preguntas)
+            && parsed.preguntas.length > 0
+            && parsed.preguntas.every(p =>
+                typeof p.pregunta === 'string'
+                && Array.isArray(p.opciones) && p.opciones.length === 4
+                && Number.isInteger(p.correcta) && p.correcta >= 0 && p.correcta < 4);
+        if (!valid) {
+            return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+        }
+
+        const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/reading_texts`, {
+            method: 'POST',
+            headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation',
+            },
+            body: JSON.stringify({
+                level,
+                title: parsed.titulo,
+                content: parsed.contenido,
+                questions: parsed.preguntas,
+            }),
+        });
+        if (!insertRes.ok) {
+            const errText = await insertRes.text().catch(() => '');
+            return res.status(502).json({ error: 'Error al guardar el texto: ' + errText.slice(0, 200) });
+        }
+        const [row] = await insertRes.json();
+        return res.status(200).json({
+            text: { id: row.id, title: row.title, content: row.content, questions: row.questions },
+        });
     } catch {
         return res.status(500).json({ error: 'Error interno' });
     }

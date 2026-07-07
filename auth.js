@@ -279,29 +279,40 @@
     return data ? data.role : null;
   }
 
+  const ADMIN_LINKS = [
+    { id: 'nav-dashboard-link', href: '/admin/', text: 'Dashboard →', color: '#1976D2' },
+    { id: 'nav-marketing-link', href: '/marketing/', text: 'Marketing →', color: '#6A1B9A' },
+    { id: 'nav-chatvoz2-link', href: '/chatvoz2/', text: 'Chat de Voz 2 →', color: '#1565C0' },
+    { id: 'nav-finanzas-link', href: '/finance/finanzas-dashboard.html', text: 'Dashboard Financiero →', color: '#0F172A' }
+  ];
+
+  function _toggleAdminOnlyEls(show) {
+    document.querySelectorAll('[data-admin-only]').forEach(function (el) {
+      el.style.display = show ? '' : 'none';
+    });
+  }
+
   function _removeDashboardLink() {
-    const existing = document.getElementById('nav-dashboard-link');
-    if (existing) existing.remove();
-    const mkt = document.getElementById('nav-marketing-link');
-    if (mkt) mkt.remove();
+    ADMIN_LINKS.forEach(function (l) {
+      const el = document.getElementById(l.id);
+      if (el) el.remove();
+    });
+    _toggleAdminOnlyEls(false);
   }
 
   function _addDashboardLink() {
+    _toggleAdminOnlyEls(true);
     if (document.getElementById('nav-dashboard-link')) return;
     const menu = document.querySelector('.nav-dropdown-menu');
     if (!menu) return;
-    const a = document.createElement('a');
-    a.id = 'nav-dashboard-link';
-    a.href = '/admin/';
-    a.textContent = 'Dashboard →';
-    a.style.cssText = 'font-weight:600;color:#1976D2;';
-    menu.appendChild(a);
-    const b = document.createElement('a');
-    b.id = 'nav-marketing-link';
-    b.href = '/marketing/';
-    b.textContent = 'Marketing →';
-    b.style.cssText = 'font-weight:600;color:#6A1B9A;';
-    menu.appendChild(b);
+    ADMIN_LINKS.forEach(function (l) {
+      const a = document.createElement('a');
+      a.id = l.id;
+      a.href = l.href;
+      a.textContent = l.text;
+      a.style.cssText = 'font-weight:600;color:' + l.color + ';';
+      menu.appendChild(a);
+    });
   }
 
   window.updateAuthUI = async function () {

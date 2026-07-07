@@ -87,6 +87,7 @@
             <button class="btn" onclick="guardarTexto()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>Guardar</button>
             <button class="btn secondary" onclick="document.getElementById('fileInput').click()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Subir archivo</button>
             <button class="btn secondary" id="btn-comprension" onclick="toggleComprensionPanel()">📖 Comprensión</button>
+            <button class="btn secondary" id="btn-sprint" onclick="toggleSprintPanel()">⚡ Sprint</button>
             <input type="file" id="fileInput" accept=".txt,.pdf,.doc,.docx" style="display:none" onchange="handleFile(this)">
         </div>
     </div>
@@ -143,6 +144,38 @@
             <div id="comp-resultado-texto"></div>
             <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
         </div>
+    </div>
+
+    <div id="sprint-panel" style="display:none">
+        <h3 class="sprint-title">⚡ Sprint de vocabulario</h3>
+        <p class="sprint-desc">Palabras que ya conoces, flasheadas a ritmo creciente: cada 10 palabras hay una pregunta sorpresa. Si aciertas, el ritmo sube; si fallas, baja. Entrena el reconocimiento directo sin traducir mentalmente.</p>
+        <div class="sprint-row">
+            <label for="sprint-source">Lista:</label>
+            <select id="sprint-source">
+                <option value="srs" selected>🧠 Mis palabras SRS (dominadas)</option>
+                <optgroup label="Listas por nivel">
+                    <option value="lvl:a1">Vocabulario A1</option>
+                    <option value="lvl:a2">Vocabulario A2</option>
+                    <option value="lvl:b1">Vocabulario B1</option>
+                    <option value="lvl:b2">Vocabulario B2</option>
+                    <option value="lvl:c1">Vocabulario C1</option>
+                    <option value="lvl:c2">Vocabulario C2</option>
+                </optgroup>
+                <optgroup label="Mis listas" id="sprint-user-lists"></optgroup>
+            </select>
+            <span>Ritmo:</span>
+            <button class="wpm-btn" onclick="sprintChangeWpm(-10)">−</button>
+            <span id="sprint-wpm-value">200</span>
+            <button class="wpm-btn" onclick="sprintChangeWpm(10)">+</button>
+        </div>
+        <button class="btn success comp-action-btn" id="sprint-start-btn">▶ Iniciar sprint</button>
+        <div id="sprint-stats" style="display:none"></div>
+        <div id="sprint-display-wrap" style="display:none"><div id="sprint-display">—</div></div>
+        <div id="sprint-quiz" style="display:none">
+            <p class="comp-pregunta-texto" id="sprint-quiz-word"></p>
+            <div class="comp-opciones" id="sprint-quiz-options"></div>
+        </div>
+        <div id="sprint-msg" style="display:none"></div>
     </div>
 
     <script>
@@ -950,11 +983,274 @@
         migrateFromLocalStorage().then(() => mostrarTextosGuardados());
         updateButtons();
 
+        /* ========================= SPRINT DE VOCABULARIO ========================= */
+        const SPRINT_BATCH = 10;
+        const SPRINT_LEVELS = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
+        let sprintWpm = parseInt(localStorage.getItem('lv_sprint_wpm')) || 200;
+        let sprintPairs = [];
+        let sprintPos = 0;
+        let sprintBatch = [];
+        let sprintTimer = null;
+        let sprintRunning = false;
+        let sprintCorrect = 0;
+        let sprintAsked = 0;
+        const _sprintLevelCache = {};
+        let _sprintUserListsCache = null;
+
+        document.getElementById('sprint-wpm-value').textContent = sprintWpm;
+
+        function toggleSprintPanel() {
+            const panel = document.getElementById('sprint-panel');
+            const btn = document.getElementById('btn-sprint');
+            const isHidden = panel.style.display === 'none';
+            panel.style.display = isHidden ? 'block' : 'none';
+            btn.classList.toggle('active', isHidden);
+            if (isHidden) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            else if (sprintRunning) sprintStop();
+        }
+
+        function sprintChangeWpm(delta) {
+            sprintWpm = Math.max(80, Math.min(600, sprintWpm + delta));
+            document.getElementById('sprint-wpm-value').textContent = sprintWpm;
+            localStorage.setItem('lv_sprint_wpm', sprintWpm);
+        }
+
+        function sprintShowMsg(msg, cls) {
+            const el = document.getElementById('sprint-msg');
+            el.textContent = msg;
+            el.className = cls || '';
+            el.style.display = 'block';
+        }
+
+        function sprintRenderWord(w) {
+            const pos = getORPpos(w);
+            document.getElementById('sprint-display').innerHTML =
+                escHtml(w.slice(0, pos)) + '<span class="orp">' + escHtml(w[pos]) + '</span>' + escHtml(w.slice(pos + 1));
+        }
+
+        function _pairsFromWords(words) {
+            const pairs = [];
+            if (words?.de && words?.es) words.de.forEach((w, i) => { if (w && words.es[i]) pairs.push({ de: w, es: words.es[i] }); });
+            return pairs;
+        }
+
+        // Same source priority as the quiz apps: Supabase system lists first, static JSON as fallback
+        async function sprintLevelPairs(level) {
+            if (_sprintLevelCache[level]) return _sprintLevelCache[level];
+            let pairs = [];
+            try {
+                const { data } = await window.sb.from('word_lists').select('words').eq('app_id', level).eq('is_system', true);
+                (data || []).forEach(r => pairs.push(..._pairsFromWords(r.words)));
+            } catch {}
+            if (pairs.length === 0) {
+                const res = await fetch('Data' + level.toUpperCase() + '.json');
+                if (res.ok) {
+                    const data = JSON.parse(await res.text());
+                    Object.values(data).forEach(cat => pairs.push(..._pairsFromWords(cat)));
+                }
+            }
+            const seen = new Set();
+            pairs = pairs.filter(p => !seen.has(p.de) && seen.add(p.de));
+            _sprintLevelCache[level] = pairs;
+            return pairs;
+        }
+
+        async function sprintFetchUserLists() {
+            if (!window.currentUser) return [];
+            try {
+                const { data } = await window.sb.from('word_lists').select('id, name, words')
+                    .eq('user_id', window.currentUser.id).eq('is_system', false);
+                return (data || []).map(r => ({ id: r.id, name: r.name.replace(/^mis:\s*/i, ''), pairs: _pairsFromWords(r.words) }));
+            } catch { return []; }
+        }
+
+        async function sprintPopulateUserLists() {
+            _sprintUserListsCache = await sprintFetchUserLists();
+            document.getElementById('sprint-user-lists').innerHTML = _sprintUserListsCache
+                .map(l => `<option value="user:${l.id}">${escHtml(l.name)}</option>`).join('');
+        }
+
+        async function sprintSrsPairs() {
+            if (!window.currentUser) throw new Error('Inicia sesión para usar tus palabras del SRS, o elige una lista por nivel.');
+            const { data, error } = await window.sb.from('srs_progress')
+                .select('word, app_id, reps')
+                .eq('user_id', window.currentUser.id)
+                .gte('reps', 2);
+            if (error) throw new Error('Error al cargar SRS: ' + error.message);
+            if (!data || data.length === 0) throw new Error('Aún no tienes palabras dominadas en el SRS (2+ repasos correctos). Elige una lista por nivel mientras tanto.');
+            const apps = [...new Set(data.map(r => r.app_id))].filter(a => SPRINT_LEVELS.includes(a));
+            const map = new Map();
+            for (const app of apps) (await sprintLevelPairs(app)).forEach(p => { if (!map.has(p.de)) map.set(p.de, p.es); });
+            if (!_sprintUserListsCache) await sprintPopulateUserLists();
+            (_sprintUserListsCache || []).forEach(l => l.pairs.forEach(p => { if (!map.has(p.de)) map.set(p.de, p.es); }));
+            const seen = new Set();
+            const pairs = [];
+            data.forEach(r => {
+                const es = map.get(r.word);
+                if (es && !seen.has(r.word)) { seen.add(r.word); pairs.push({ de: r.word, es }); }
+            });
+            if (pairs.length < 8) throw new Error('Solo ' + pairs.length + ' palabras dominadas con traducción disponible — se necesitan al menos 8. Elige una lista por nivel.');
+            return pairs;
+        }
+
+        async function sprintLoadPairs() {
+            const src = document.getElementById('sprint-source').value;
+            if (src === 'srs') return sprintSrsPairs();
+            if (src.startsWith('lvl:')) {
+                const pairs = await sprintLevelPairs(src.slice(4));
+                if (pairs.length < 8) throw new Error('No se pudo cargar la lista de ese nivel.');
+                return pairs;
+            }
+            if (src.startsWith('user:')) {
+                if (!_sprintUserListsCache) await sprintPopulateUserLists();
+                const l = (_sprintUserListsCache || []).find(x => 'user:' + x.id === src);
+                if (!l) throw new Error('Lista no encontrada.');
+                if (l.pairs.length < 8) throw new Error('Esta lista tiene muy pocas palabras (mínimo 8).');
+                return l.pairs;
+            }
+            throw new Error('Fuente no válida.');
+        }
+
+        function shuffleArr(arr) {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        async function sprintStart() {
+            if (sprintRunning) { sprintStop(); return; }
+            const btn = document.getElementById('sprint-start-btn');
+            document.getElementById('sprint-msg').style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Cargando…';
+            let pairs;
+            try {
+                pairs = await sprintLoadPairs();
+            } catch (err) {
+                sprintShowMsg(err.message, 'sprint-msg-warn');
+                btn.disabled = false;
+                btn.textContent = '▶ Iniciar sprint';
+                return;
+            }
+            sprintPairs = shuffleArr(pairs);
+            sprintPos = 0;
+            sprintBatch = [];
+            sprintCorrect = 0;
+            sprintAsked = 0;
+            sprintRunning = true;
+            window.logEvent('lectura-veloz', 'sprint_start', { source: document.getElementById('sprint-source').value, words: sprintPairs.length, wpm: sprintWpm });
+            btn.disabled = false;
+            btn.textContent = '⏹ Detener sprint';
+            btn.classList.remove('success');
+            btn.classList.add('danger');
+            document.getElementById('sprint-quiz').style.display = 'none';
+            document.getElementById('sprint-display-wrap').style.display = 'flex';
+            document.getElementById('sprint-stats').style.display = 'block';
+            sprintUpdateStats();
+            sprintNextWord();
+        }
+
+        function sprintUpdateStats() {
+            document.getElementById('sprint-stats').innerHTML =
+                'Palabra <b>' + Math.min(sprintPos, sprintPairs.length) + '</b> de ' + sprintPairs.length +
+                ' · Ritmo <b>' + sprintWpm + '</b> WPM · Preguntas <b>' + sprintCorrect + '/' + sprintAsked + '</b>';
+        }
+
+        function sprintNextWord() {
+            if (!sprintRunning) return;
+            if (sprintPos >= sprintPairs.length) {
+                if (sprintBatch.length >= 4) sprintQuiz();
+                else sprintFinish();
+                return;
+            }
+            const pair = sprintPairs[sprintPos++];
+            sprintBatch.push(pair);
+            sprintRenderWord(pair.de);
+            sprintUpdateStats();
+            const delay = 60000 / sprintWpm;
+            if (sprintBatch.length >= SPRINT_BATCH) sprintTimer = setTimeout(sprintQuiz, delay + 300);
+            else sprintTimer = setTimeout(sprintNextWord, delay);
+        }
+
+        function sprintQuiz() {
+            if (!sprintRunning) return;
+            const target = sprintBatch[Math.floor(Math.random() * sprintBatch.length)];
+            const distractors = shuffleArr(sprintPairs.filter(p => p.es !== target.es)).slice(0, 3).map(p => p.es);
+            const options = shuffleArr([target.es, ...distractors]);
+            document.getElementById('sprint-display').textContent = '❓';
+            document.getElementById('sprint-quiz-word').innerHTML = '¿Qué significa «<b>' + escHtml(target.de) + '</b>»?';
+            const optsEl = document.getElementById('sprint-quiz-options');
+            optsEl.dataset.answered = 'false';
+            optsEl.innerHTML = options.map(op =>
+                '<button class="comp-opcion" data-correct="' + (op === target.es) + '" onclick="sprintAnswer(this)">' + escHtml(op) + '</button>'
+            ).join('');
+            document.getElementById('sprint-quiz').style.display = 'block';
+        }
+
+        function sprintAnswer(btn) {
+            const optsEl = document.getElementById('sprint-quiz-options');
+            if (optsEl.dataset.answered === 'true') return;
+            optsEl.dataset.answered = 'true';
+            const isCorrect = btn.dataset.correct === 'true';
+            sprintAsked++;
+            if (isCorrect) { sprintCorrect++; sprintWpm = Math.min(600, sprintWpm + 20); }
+            else { sprintWpm = Math.max(80, sprintWpm - 20); }
+            localStorage.setItem('lv_sprint_wpm', sprintWpm);
+            document.getElementById('sprint-wpm-value').textContent = sprintWpm;
+            optsEl.querySelectorAll('.comp-opcion').forEach(b => {
+                b.disabled = true;
+                if (b.dataset.correct === 'true') b.classList.add('correcta');
+                else if (b === btn) b.classList.add('incorrecta');
+            });
+            sprintUpdateStats();
+            setTimeout(() => {
+                if (!sprintRunning) return;
+                document.getElementById('sprint-quiz').style.display = 'none';
+                sprintBatch = [];
+                if (sprintPos >= sprintPairs.length) sprintFinish();
+                else sprintNextWord();
+            }, isCorrect ? 700 : 1600);
+        }
+
+        function sprintFinish() {
+            sprintRunning = false;
+            clearTimeout(sprintTimer);
+            document.getElementById('sprint-display').textContent = '🏁';
+            const pct = sprintAsked > 0 ? Math.round(sprintCorrect / sprintAsked * 100) : 0;
+            sprintShowMsg('Sprint completado: ' + sprintPairs.length + ' palabras · ' + sprintCorrect + '/' + sprintAsked +
+                ' preguntas (' + pct + '%) · ritmo final ' + sprintWpm + ' WPM', 'sprint-msg-ok');
+            window.logEvent('lectura-veloz', 'sprint_end', { words: sprintPairs.length, correct: sprintCorrect, asked: sprintAsked, final_wpm: sprintWpm });
+            sprintResetBtn();
+        }
+
+        function sprintStop() {
+            sprintRunning = false;
+            clearTimeout(sprintTimer);
+            window.logEvent('lectura-veloz', 'sprint_end', { words: sprintPos, correct: sprintCorrect, asked: sprintAsked, final_wpm: sprintWpm, aborted: true });
+            document.getElementById('sprint-quiz').style.display = 'none';
+            document.getElementById('sprint-display').textContent = '—';
+            sprintResetBtn();
+        }
+
+        function sprintResetBtn() {
+            const btn = document.getElementById('sprint-start-btn');
+            btn.textContent = '▶ Iniciar sprint';
+            btn.classList.add('success');
+            btn.classList.remove('danger');
+            btn.disabled = false;
+        }
+
+        document.getElementById('sprint-start-btn').addEventListener('click', sprintStart);
+
         /* ========================= AUTH ========================= */
         // El flujo de login/logout lo gestiona auth.js mediante window.sb y window.currentUser.
         // Solo definimos la lógica específica de Lectura Veloz: sincronizar preferencias del usuario.
 
         window.onAuthSignedIn = async function () {
+            sprintPopulateUserLists();
             const { data } = await window.sb.from('user_data').select('*').eq('user_id', window.currentUser.id).maybeSingle();
             if (!data) return;
             if (data.lv_wpm) {

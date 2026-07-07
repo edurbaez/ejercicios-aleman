@@ -1162,6 +1162,100 @@ th, td {
 
 
 /* ========================
+   SPRINT DE VOCABULARIO (Lectura Veloz)
+   ======================== */
+#sprint-panel {
+    max-width: 720px;
+    margin: 24px auto;
+    background: var(--card);
+    border-radius: var(--radius, 8px);
+    box-shadow: 0 2px 10px var(--shadow, rgba(0,0,0,0.1));
+    padding: 24px;
+    color: var(--text);
+}
+
+.sprint-title { margin: 0 0 6px; font-size: 17px; }
+
+.sprint-desc {
+    font-size: 14px;
+    opacity: 0.75;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+
+.sprint-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+    font-size: 15px;
+}
+
+#sprint-source {
+    padding: 8px 10px;
+    border: 1px solid var(--border, #ccc);
+    border-radius: var(--radius, 8px);
+    background: var(--bg, #f4f4f9);
+    color: var(--text, #222);
+    font-size: 14px;
+    max-width: 100%;
+}
+
+#sprint-wpm-value {
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+}
+
+#sprint-stats {
+    margin-top: 16px;
+    font-size: 14px;
+    text-align: center;
+    opacity: 0.85;
+}
+
+#sprint-display-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90px;
+    margin-top: 14px;
+}
+
+#sprint-display {
+    text-align: center;
+    font-size: 40px;
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+    background: var(--bg, #f4f4f9);
+    padding: 16px 30px;
+    border-radius: 8px;
+    min-width: 240px;
+    letter-spacing: 2px;
+}
+
+#sprint-display .orp { color: #e63946; font-weight: bold; }
+
+#sprint-quiz { margin-top: 16px; }
+
+#sprint-msg {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: var(--radius, 8px);
+    font-size: 14px;
+}
+
+#sprint-msg.sprint-msg-warn { background: rgba(253, 126, 20, 0.12); color: #fd7e14; }
+#sprint-msg.sprint-msg-ok   { background: rgba(40, 167, 69, 0.12); color: #28a745; }
+
+@media (max-width: 600px) {
+    #sprint-panel { padding: 16px; margin: 16px 12px; }
+    #sprint-display { font-size: 30px; min-width: 0; }
+}
+
+
+/* ========================
    CHAT DE VOZ
    ======================== */
 

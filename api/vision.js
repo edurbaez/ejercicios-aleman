@@ -8,6 +8,12 @@ const PROMPTS = {
     frases: 'Eres un corrector nativo de alemán. Analiza cada frase de la imagen por separado. Indica si cada frase es gramaticalmente correcta y natural para un hablante nativo.',
 };
 
+const STYLE_ANALYSIS_PROMPT = `You are a graphic design analyst. Look at the reference image and describe its visual style in a single dense paragraph (80-120 words) so it can be pasted into an AI image-generation prompt for a similar-looking design. Cover: color palette (name the actual hues), overall mood/tone, decorative motifs (icons, illustrations, shapes, textures), layout structure (badges, panels, cards, borders), and typography feel (weight, style, serif/sans). Do not describe or mention any text content, logos, or people in the image. Write in English, as a plain descriptive paragraph with no markdown, no preamble.
+Responde ÚNICAMENTE con un objeto JSON válido con esta estructura exacta:
+{
+  "style_description": "<párrafo descriptivo en inglés>"
+}`;
+
 const SYSTEM_JSON = `Responde ÚNICAMENTE con un objeto JSON válido con esta estructura exacta:
 {
   "puntuacion": <número entero del 1 al 10>,
@@ -90,6 +96,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'task requerido para type escritura' });
         }
         systemPrompt = buildEscrituraPrompt(task);
+    } else if (type === 'style-analysis') {
+        systemPrompt = STYLE_ANALYSIS_PROMPT;
     } else {
         const reviewType = ['tarea', 'carta', 'frases'].includes(type) ? type : 'tarea';
         systemPrompt = `${PROMPTS[reviewType]}\n\n${SYSTEM_JSON}`;

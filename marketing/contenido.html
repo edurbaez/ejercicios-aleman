@@ -232,6 +232,7 @@
       <button class="pill active" id="tab-generador">🎠 Generador</button>
       <button class="pill" id="tab-testimonios">💬 Testimonios</button>
       <button class="pill" id="tab-infografia">🖼️ Infografía</button>
+      <button class="pill" id="tab-curso">🎓 Publicidad de curso</button>
       <button class="pill" id="tab-historial">📚 Historial</button>
     </div>
 
@@ -495,6 +496,7 @@
               <option value="reel">🎬 Reel</option>
               <option value="testimonio">💬 Testimonio</option>
               <option value="infografia">🖼️ Infografía</option>
+              <option value="curso_ad">🎓 Curso</option>
               <option value="email">✉️ Email</option>
             </select>
           </div>
@@ -611,6 +613,56 @@
       </div>
     </div><!-- /view-infografia -->
 
+    <div id="view-curso" style="display:none">
+      <div class="panel">
+        <h2>🎓 Publicidad de curso</h2>
+        <div class="hint" style="margin-bottom:16px">Genera solo la imagen de fondo del flyer con IA. Puedes subir hasta 2 imágenes de referencia para que el estilo visual se parezca al de otras piezas. Los datos concretos del curso (fechas, precio, horario…) se añaden después, fuera de esta herramienta por ahora.</div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Nombre del curso</label>
+            <input type="text" id="curso-nombre" placeholder="p. ej. Curso de Alemán A2.1" style="min-width:280px">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Estilo deseado (opcional)</label>
+            <input type="text" id="curso-estilo" placeholder="p. ej. cálido, otoñal, con plantas y estrellas" style="min-width:320px">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Imágenes de referencia (máx. 2)</label>
+            <input type="file" id="curso-ref-upload" accept="image/*" multiple>
+            <div id="curso-ref-previews" style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap"></div>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="btn-secondary" id="btn-curso-analizar" disabled>🔍 Analizar referencia</button>
+        </div>
+        <div class="field-row">
+          <div class="field" style="flex:1">
+            <label>Descripción de estilo (editable)</label>
+            <textarea id="curso-style-desc" rows="3" placeholder="Se completa al analizar las imágenes de referencia, o escríbela tú mismo."></textarea>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button class="btn-primary" id="btn-curso-generar">✨ Generar imagen</button>
+        </div>
+        <div class="hint" style="margin-top:6px">Límite de la API de imágenes: 3 generaciones por minuto.</div>
+        <div id="curso-status"></div>
+      </div>
+      <div class="panel" id="curso-result" style="display:none">
+        <h2>Vista previa</h2>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start">
+          <img id="curso-preview-img" style="max-width:340px;width:100%;border-radius:var(--radius);box-shadow:var(--shadow)">
+          <div class="actions-row">
+            <button class="btn-primary" id="btn-curso-dl">⬇️ Descargar PNG</button>
+            <button class="btn-secondary" id="btn-curso-guardar">💾 Guardar en historial</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /view-curso -->
+
   </div><!-- /main -->
 </div><!-- /app -->
 
@@ -639,6 +691,9 @@ let lastReview = null;        // { nota_idioma, nota_marketing, aprobado, proble
 let currentInfo = null;       // { titulo, puntos[], caption, hashtags[] }
 let infoNiche = 'aleman';
 let infoBgDataUrl = null;
+let cursoRefImages = [];      // [{ dataUrl, base64, mimeType }] — up to 2 style references
+let cursoImageDataUrl = null; // data URL of the last generated flyer background
+let currentCursoId = null;
 
 const MARKETING_RULES =
   'TÉCNICAS DE RETENCIÓN OBLIGATORIAS: ' +
@@ -1484,11 +1539,11 @@ async function histReexportInfo(post) {
 // ─── Historial ───
 let histPosts = [];
 
-const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', infografia: '🖼️ Infografía', email: '✉️ Email' };
+const KIND_LABELS = { carrusel: '🎠 Carrusel', reel: '🎬 Reel', testimonio: '💬 Testimonio', infografia: '🖼️ Infografía', curso_ad: '🎓 Curso', email: '✉️ Email' };
 const ESTADO_LABELS = { idea: '💡 Idea', generado: '✅ Generado', publicado: '📣 Publicado' };
 
 function switchView(view) {
-  ['generador', 'testimonios', 'infografia', 'historial'].forEach(v => {
+  ['generador', 'testimonios', 'infografia', 'curso', 'historial'].forEach(v => {
     $(`view-${v}`).style.display = v === view ? '' : 'none';
     $(`tab-${v}`).classList.toggle('active', v === view);
   });
@@ -1559,6 +1614,7 @@ function renderHistorial() {
     const hasEscenas = post.kind === 'reel' && Array.isArray(post.contenido?.escenas) && post.contenido.escenas.length;
     const hasTesti = post.kind === 'testimonio' && !!post.contenido?.design;
     const hasInfo = post.kind === 'infografia' && Array.isArray(post.contenido?.puntos) && post.contenido.puntos.length;
+    const hasCursoAd = post.kind === 'curso_ad' && !!post.contenido?.nombreCurso;
 
     const mkBtn = (label, fn, danger) => {
       const b = document.createElement('button');
@@ -1567,7 +1623,7 @@ function renderHistorial() {
       b.onclick = () => fn(post, b);
       return b;
     };
-    actions.appendChild(mkBtn(hasSlides || hasEscenas || hasTesti || hasInfo ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
+    actions.appendChild(mkBtn(hasSlides || hasEscenas || hasTesti || hasInfo || hasCursoAd ? '🔄 Recargar' : '🔄 Usar como tema', histLoad));
     if (hasSlides) actions.appendChild(mkBtn('⬇️ Re-exportar PNGs', histReexport));
     if (hasTesti) actions.appendChild(mkBtn('⬇️ Re-exportar PNG', histReexportTesti));
     if (hasInfo) actions.appendChild(mkBtn('⬇️ Re-exportar PNG', histReexportInfo));
@@ -1619,6 +1675,7 @@ async function histDuplicate(post, btn) {
 function histLoad(post) {
   if (post.kind === 'testimonio') { histLoadTesti(post); return; }
   if (post.kind === 'infografia') { histLoadInfo(post); return; }
+  if (post.kind === 'curso_ad') { histLoadCursoAd(post); return; }
   const c = post.contenido || {};
   if (c.niche && NICHES[c.niche]) {
     document.querySelectorAll('#nicho-pills .pill').forEach(p =>
@@ -1851,6 +1908,147 @@ function histLoadTesti(post) {
   switchView('testimonios');
   renderTestiPreview();
   setTestiStatus('📚 Testimonio cargado — cambia diseño/formato/color y vuelve a descargar');
+}
+
+// ─── Publicidad de curso ───
+function setCursoStatus(msg, isErr) {
+  const el = $('curso-status');
+  el.textContent = msg;
+  el.style.color = isErr ? 'var(--red)' : 'var(--muted)';
+}
+
+function renderCursoRefPreviews() {
+  const wrap = $('curso-ref-previews');
+  wrap.innerHTML = '';
+  cursoRefImages.forEach((ref, i) => {
+    const box = document.createElement('div');
+    box.style.cssText = 'position:relative';
+    const img = document.createElement('img');
+    img.src = ref.dataUrl;
+    img.style.cssText = 'width:90px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #ddd';
+    const rm = document.createElement('button');
+    rm.textContent = '✖';
+    rm.className = 'btn-secondary';
+    rm.style.cssText = 'position:absolute;top:-8px;right:-8px;width:22px;height:22px;padding:0;line-height:1;border-radius:50%;font-size:11px';
+    rm.onclick = () => { cursoRefImages.splice(i, 1); renderCursoRefPreviews(); };
+    box.append(img, rm);
+    wrap.appendChild(box);
+  });
+  $('btn-curso-analizar').disabled = cursoRefImages.length === 0;
+}
+
+async function analizarReferenciasCurso() {
+  if (!cursoRefImages.length) return;
+  const btn = $('btn-curso-analizar');
+  btn.disabled = true;
+  setCursoStatus('🔍 Analizando estilo de las referencias…');
+  try {
+    const descriptions = [];
+    for (const ref of cursoRefImages) {
+      const res = await fetch('/api/vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+        body: JSON.stringify({ image_base64: ref.base64, mime_type: ref.mimeType, type: 'style-analysis' }),
+      });
+      const raw = await res.text();
+      let data;
+      try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida de /api/vision: ' + raw.slice(0, 200)); }
+      if (!res.ok) throw new Error(data.error || 'Error analizando la imagen');
+      if (data.style_description) descriptions.push(data.style_description);
+    }
+    $('curso-style-desc').value = descriptions.join(' ');
+    setCursoStatus('✅ Estilo analizado — puedes editarlo antes de generar');
+  } catch (e) {
+    setCursoStatus('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = cursoRefImages.length === 0;
+  }
+}
+
+async function generarImagenCurso() {
+  const nombre = $('curso-nombre').value.trim();
+  if (!nombre) { setCursoStatus('❌ Escribe el nombre del curso', true); return; }
+  const btn = $('btn-curso-generar');
+  btn.disabled = true;
+  setCursoStatus('✨ Generando imagen…');
+  try {
+    const estilo = $('curso-estilo').value.trim();
+    const styleDesc = $('curso-style-desc').value.trim();
+    const prompt =
+      'Vertical promotional flyer background image for an online German language course, for an Instagram post. ' +
+      'Warm, inviting, professional educational design with soft decorative elements (no text, no letters, no words, no numbers in the image). ' +
+      `Course: ${nombre.slice(0, 150)}. ` +
+      (estilo ? `Desired mood: ${estilo.slice(0, 200)}. ` : '') +
+      (styleDesc ? `Visual style reference: ${styleDesc.slice(0, 500)}. ` : '') +
+      'Leave clear open areas suitable for adding text overlays later.';
+
+    const res = await fetch('/api/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
+      body: JSON.stringify({ prompt, size: '1024x1536', quality: 'medium' }),
+    });
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); } catch { throw new Error('Respuesta no válida de /api/image: ' + raw.slice(0, 200)); }
+    if (!res.ok) throw new Error(data.error || 'Error generando la imagen');
+
+    cursoImageDataUrl = 'data:image/png;base64,' + data.image_base64;
+    $('curso-preview-img').src = cursoImageDataUrl;
+    $('curso-result').style.display = 'block';
+    $('curso-result').scrollIntoView({ behavior: 'smooth' });
+    setCursoStatus('✅ Imagen generada');
+  } catch (e) {
+    setCursoStatus('❌ ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function downloadCursoImagen() {
+  if (!cursoImageDataUrl) return;
+  const nombre = $('curso-nombre').value.trim();
+  const slug = (nombre || 'curso').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  triggerDownload(cursoImageDataUrl, `curso-${slug || 'curso'}.png`);
+}
+
+async function guardarCursoAd() {
+  if (!cursoImageDataUrl) { setCursoStatus('❌ Genera una imagen primero', true); return; }
+  const nombre = $('curso-nombre').value.trim();
+  const estilo = $('curso-estilo').value.trim();
+  const styleDesc = $('curso-style-desc').value.trim();
+  const contenido = { nombreCurso: nombre, estiloDeseado: estilo, styleDescription: styleDesc };
+  try {
+    if (currentCursoId) {
+      const { error } = await sb.from('marketing_posts')
+        .update({ tema: nombre, contenido })
+        .eq('id', currentCursoId);
+      if (error) throw error;
+      setCursoStatus('💾 Pieza actualizada en el historial');
+    } else {
+      const { data, error } = await sb.from('marketing_posts')
+        .insert({ kind: 'curso_ad', tema: nombre, contenido, estado: 'generado' })
+        .select('id').single();
+      if (error) throw error;
+      currentCursoId = data.id;
+      setCursoStatus('💾 Pieza guardada en el historial');
+    }
+  } catch (e) {
+    setCursoStatus('⚠️ No se pudo guardar en el historial: ' + e.message, true);
+  }
+}
+
+function histLoadCursoAd(post) {
+  const c = post.contenido || {};
+  $('curso-nombre').value = c.nombreCurso || '';
+  $('curso-estilo').value = c.estiloDeseado || '';
+  $('curso-style-desc').value = c.styleDescription || '';
+  cursoRefImages = [];
+  renderCursoRefPreviews();
+  cursoImageDataUrl = null;
+  $('curso-result').style.display = 'none';
+  currentCursoId = post.id;
+  switchView('curso');
+  setCursoStatus('📚 Datos cargados desde el historial — la imagen no se guarda, pulsa «Generar imagen» de nuevo');
 }
 
 // ─── Aviso de tema similar ───
@@ -2128,6 +2326,7 @@ async function generar() {
   $('tab-generador').onclick = () => switchView('generador');
   $('tab-testimonios').onclick = () => switchView('testimonios');
   $('tab-infografia').onclick = () => switchView('infografia');
+  $('tab-curso').onclick = () => switchView('curso');
   $('tab-historial').onclick = () => switchView('historial');
 
   setupPills('info-nicho-pills', updateInfoNichoUI);
@@ -2156,6 +2355,24 @@ async function generar() {
   $('btn-testi-nuevo').onclick = resetTesti;
   updateTestiUI();
   renderTestiPreview();
+
+  $('curso-ref-upload').addEventListener('change', e => {
+    const files = Array.from(e.target.files || []).slice(0, 2 - cursoRefImages.length);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        cursoRefImages.push({ dataUrl: reader.result, base64: reader.result.split(',')[1], mimeType: file.type });
+        renderCursoRefPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  });
+  $('btn-curso-analizar').onclick = analizarReferenciasCurso;
+  $('btn-curso-generar').onclick = generarImagenCurso;
+  $('btn-curso-dl').onclick = downloadCursoImagen;
+  $('btn-curso-guardar').onclick = guardarCursoAd;
+
   $('btn-hist-refresh').onclick = loadHistorial;
   ['hist-estado', 'hist-kind', 'hist-nivel'].forEach(id => $(id).onchange = renderHistorial);
 

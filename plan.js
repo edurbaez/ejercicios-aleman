@@ -258,246 +258,256 @@ window.PLANS = {
   ],
 
   a2: [
-    // Semana 1: Nominativ + Akkusativ
+    // Semana 1: Dativ + Wechselpräpositionen (con repaso A1 intercalado)
     {
       day: 1, week: 1,
-      focus: "Caso Nominativo: sujetos y artículos",
+      focus: "Dativo: objeto indirecto",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: el Nominativ", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Nominativ", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Dativo", minutes: 15 },
+        { app: "kasus.html", label: "Entrenador de casos: Dativ", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Caso Acusativo: objeto directo",
+      focus: "Dativo en la práctica",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: el Akkusativ", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Akkusativ", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: verbos transitivos", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Dativo", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Artículos definidos", minutes: 10 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "Artículos en Nominativ y Akkusativ",
+      focus: "Wechselpräpositionen: ¿wohin? vs. ¿wo?",
       tasks: [
-        { app: "kasus.html", label: "Práctica: Nominativ vs Akkusativ", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario A2 esenciales", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Wechselpräpositionen", minutes: 15 },
+        { app: "kasus.html", label: "Entrenador de casos: Wechselpräpositionen", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
-      focus: "Verbos con Akkusativ",
+      focus: "Wechselpräpositionen en la práctica",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: haben, sehen, kaufen…", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: verbos frecuentes A2", minutes: 15 },
-        { app: "chat-voz.html", label: "Práctica oral: frases con Akkusativ", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Wechselpräpositionen", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Pronombres personales", minutes: 10 }
       ]
     },
     {
       day: 5, week: 1,
-      focus: "Pronombres personales en Akkusativ",
+      focus: "Práctica integrada: Dativ y Wechselpräpositionen",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: mich, dich, ihn…", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador: pronombres en Akkusativ", minutes: 15 }
+        { app: "kasus.html", label: "Práctica combinada: Dativ y Wechselpräpositionen", minutes: 20 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con Dativ y preposiciones mixtas", minutes: 10 },
+        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 10 }
       ]
     },
     {
       day: 6, week: 1,
-      focus: "El tiempo libre y pasatiempos",
+      focus: "Repaso oral: casos de la semana",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: ocio y pasatiempos", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: actividades de tiempo libre", minutes: 15 }
+        { app: "chat-voz.html", label: "🔁 Repetir: repaso Dativ y Wechselpräpositionen", minutes: 15 },
+        { app: "gramatica.html", label: "Repaso A1: Verbos sein y haben", minutes: 10 }
       ]
     },
     {
       day: 7, week: 1,
-      focus: "Repaso Nominativ y Akkusativ",
+      focus: "Repaso semana 1: Dativo y Wechselpräpositionen",
       tasks: [
+        { app: "A2.html", label: "Repaso vocabulario semana 1", minutes: 15 },
         { app: "kasus.html", label: "Repaso casos semana 1", minutes: 15 },
-        { app: "A2.html", label: "Repaso vocabulario semana 1", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso A1: Presente verbos regulares", minutes: 10 }
       ]
     },
-    // Semana 2: Verbos irregulares
+    // Semana 2: modales, Perfekt, separables, imperativo (con repaso A1 intercalado)
     {
       day: 8, week: 2,
-      focus: "Verbos con cambio vocálico (e→i)",
+      focus: "Verbos modales",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: geben, nehmen, sprechen", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: verbos irregulares", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Verbos modales", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 },
+        { app: "chat-voz.html", label: "Conversación: pedir permiso y expresar obligación", minutes: 10 }
       ]
     },
     {
       day: 9, week: 2,
-      focus: "Verbos con cambio vocálico (a→ä)",
+      focus: "Verbos modales en la práctica",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: fahren, schlafen, laufen", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: verbos de movimiento", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: rutina diaria", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: verbos modales", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Negación: nicht y kein", minutes: 10 }
       ]
     },
     {
       day: 10, week: 2,
-      focus: "Verbos modales en presente",
+      focus: "Pretérito perfecto (Perfekt)",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: können, müssen, wollen", minutes: 15 },
-        { app: "kasus.html", label: "Práctica con verbos modales", minutes: 15 }
-      ]
-    },
-    {
-      day: 11, week: 2,
-      focus: "Verbos modales: dürfen, sollen, möchten",
-      tasks: [
-        { app: "gramatica.html", label: "Gramática: dürfen, sollen, möchten", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: situaciones con modales", minutes: 10 },
-        { app: "chat-voz.html", label: "Práctica: pedir permiso y dar órdenes", minutes: 10 }
-      ]
-    },
-    {
-      day: 12, week: 2,
-      focus: "El pretérito perfecto (Perfekt)",
-      tasks: [
-        { app: "gramatica.html", label: "Gramática: Perfekt con haben", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: participios frecuentes", minutes: 15 }
-      ]
-    },
-    {
-      day: 13, week: 2,
-      focus: "Perfekt con sein",
-      tasks: [
-        { app: "gramatica.html", label: "Gramática: Perfekt con sein", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: verbos de movimiento", minutes: 15 },
+        { app: "gramatica.html", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 },
         { app: "chat-voz.html", label: "Conversación: ¿qué hiciste ayer?", minutes: 10 }
       ]
     },
     {
-      day: 14, week: 2,
-      focus: "Repaso verbos irregulares y Perfekt",
+      day: 11, week: 2,
+      focus: "Perfekt en la práctica",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario semana 2", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre A2", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Perfekt", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Acusativo básico", minutes: 10 }
       ]
     },
-    // Semana 3: Preposiciones básicas
+    {
+      day: 12, week: 2,
+      focus: "Verbos separables",
+      tasks: [
+        { app: "gramatica.html", label: "Gramática: Verbos separables", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 10 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: verbos separables", minutes: 15 }
+      ]
+    },
+    {
+      day: 13, week: 2,
+      focus: "Imperativo: du, ihr, Sie",
+      tasks: [
+        { app: "gramatica.html", label: "Gramática: Imperativo", minutes: 15 },
+        { app: "chat-voz.html", label: "Conversación: dar instrucciones y órdenes", minutes: 15 },
+        { app: "gramatica.html", label: "Repaso A1: W-Fragen", minutes: 10 }
+      ]
+    },
+    {
+      day: 14, week: 2,
+      focus: "Repaso semana 2: modales, Perfekt, separables e imperativo",
+      tasks: [
+        { app: "A2.html", label: "Repaso vocabulario semana 2", minutes: 15 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: repaso combinado semana 2", minutes: 20 },
+        { app: "gramatica.html", label: "Repaso A1: Orden de palabras", minutes: 10 }
+      ]
+    },
+    // Semana 3: preposiciones Akk./Dat., comparativo/superlativo, reflexivos (con repaso A1 intercalado)
     {
       day: 15, week: 3,
-      focus: "Preposiciones de lugar (in, an, auf, über…)",
+      focus: "Preposiciones + Acusativo (durch, für, gegen, ohne, um)",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Wo? – Dativ con preposiciones", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: ubicaciones y lugares", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Preposiciones + Acusativo", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: preposiciones + Acusativo", minutes: 15 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Preposiciones de dirección (Wohin?)",
+      focus: "Preposiciones + Dativo (aus, bei, mit, nach, seit, von, zu…)",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Wohin? – Akkusativ", minutes: 10 },
-        { app: "kasus.html", label: "Entrenador: preposiciones mixtas", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: dar y pedir direcciones", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Preposiciones + Dativo", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Plurales", minutes: 10 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Preposiciones temporales (seit, vor, nach…)",
+      focus: "Comparativo y superlativo",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: preposiciones de tiempo", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: expresiones de tiempo", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Comparativo y superlativo", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 15 },
+        { app: "chat-voz.html", label: "Conversación: comparar personas y cosas", minutes: 10 }
       ]
     },
     {
       day: 18, week: 3,
-      focus: "Preposiciones con Dativ fijo (mit, bei, von…)",
+      focus: "Verbos reflexivos",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: preposiciones + Dativ", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador: Dativ con preposiciones", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Verbos reflexivos", minutes: 15 },
+        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 },
+        { app: "gramatica.html", label: "Repaso A1: Artículo indefinido y su negación", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Preposiciones con Akkusativ fijo (durch, für…)",
+      focus: "Práctica integrada: preposiciones de Acusativo y Dativo",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: preposiciones + Akkusativ", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: conectores y preposiciones", minutes: 15 },
-        { app: "chat-voz.html", label: "Práctica oral: describir trayectos", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: preposiciones Akk. y Dat. combinadas", minutes: 20 },
+        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 15 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Salud y el cuerpo humano",
+      focus: "Primera práctica de escritura guiada A2",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: cuerpo y salud", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: en el médico", minutes: 15 }
+        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
+        { app: "corrector.html", label: "Corrección: frases sueltas A2", minutes: 15 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Repaso preposiciones y vocabulario",
+      focus: "Repaso semana 3: preposiciones, comparativo y reflexivos",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario semana 3", minutes: 20 },
-        { app: "kasus.html", label: "Repaso entrenador de casos A2", minutes: 15 }
+        { app: "A2.html", label: "Repaso vocabulario semana 3", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
       ]
     },
-    // Semana 4: Repaso
+    // Semana 4: escritura.html, mundliche.html y evaluación final
     {
       day: 22, week: 4,
-      focus: "Repaso: casos y preposiciones juntos",
+      focus: "Repaso integral: los 10 puntos gramaticales de A2",
       tasks: [
-        { app: "kasus.html", label: "Repaso integral de casos", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación: describir tu barrio", minutes: 15 }
+        { app: "kasus.html", label: "Repaso integral de casos A2", minutes: 15 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: repaso general A2", minutes: 20 }
       ]
     },
     {
       day: 23, week: 4,
-      focus: "Escritura: una postal de viaje",
+      focus: "Escritura: describir una experiencia pasada",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: viajes y vacaciones", minutes: 15 },
-        { app: "corrector.html", label: "Corrección de postal A2", minutes: 20 }
+        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
+        { app: "escritura.html", label: "Tarea de escritura A2", minutes: 20 }
       ]
     },
     {
       day: 24, week: 4,
-      focus: "Lectura rápida de textos A2",
+      focus: "Lectura de textos A2",
       tasks: [
         { app: "lectura veloz.html", label: "Lectura RSVP de texto A2", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario del texto", minutes: 15 }
+        { app: "A2.html", label: "Vocabulario de la lectura", minutes: 15 }
       ]
     },
     {
       day: 25, week: 4,
-      focus: "Conversación: planes de fin de semana",
+      focus: "Conversación: situaciones cotidianas A2",
       tasks: [
-        { app: "chat-voz.html", label: "Simulacro: planes y actividades", minutes: 20 },
+        { app: "chat-voz.html", label: "Simulacro: planes de fin de semana", minutes: 15 },
         { app: "A2.html", label: "Vocabulario repaso final", minutes: 15 }
       ]
     },
     {
       day: 26, week: 4,
-      focus: "Reformulación de frases A2",
+      focus: "Reformulación general A2",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación A2: tiempos verbales", minutes: 20 },
-        { app: "A2.html", label: "Vocabulario complementario", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: consolidación A2", minutes: 20 },
+        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 }
       ]
     },
     {
       day: 27, week: 4,
-      focus: "El trabajo y la profesión",
+      focus: "Repaso oral y escrito",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: trabajo y empresa", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: hablar del trabajo", minutes: 15 }
+        { app: "mundliche.html", label: "Simulacro oral estructurado A2", minutes: 15 },
+        { app: "corrector.html", label: "Corrección: frases sueltas A2", minutes: 15 }
       ]
     },
     {
       day: 28, week: 4,
-      focus: "Corrección de texto: narrar un fin de semana",
+      focus: "Vocabulario temático: repaso semanal",
       tasks: [
-        { app: "corrector.html", label: "Corrección: narración en Perfekt", minutes: 20 },
-        { app: "A2.html", label: "Vocabulario de repaso", minutes: 15 }
+        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
+        { app: "chat-voz.html", label: "Conversación libre A2", minutes: 15 }
       ]
     },
     {
       day: 29, week: 4,
-      focus: "Repaso integral A2",
+      focus: "Repaso integral con juego de palabras",
       tasks: [
-        { app: "A2.html", label: "Vocabulario completo A2", minutes: 20 },
+        { app: "A2.html", label: "Repaso vocabulario completo A2", minutes: 20 },
         { app: "gramatica.html", label: "Repaso gramática A2", minutes: 15 }
       ]
     },
@@ -505,8 +515,8 @@ window.PLANS = {
       day: 30, week: 4,
       focus: "Evaluación final A2",
       tasks: [
-        { app: "chat-voz.html", label: "Conversación evaluación A2", minutes: 20 },
-        { app: "corrector.html", label: "Texto de evaluación A2", minutes: 15 }
+        { app: "mundliche.html", label: "Simulacro examen oral A2", minutes: 20 },
+        { app: "escritura.html", label: "Simulacro examen escrito A2", minutes: 15 }
       ]
     }
   ],

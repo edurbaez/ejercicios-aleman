@@ -1603,6 +1603,39 @@ th, td {
     opacity: 0.85;
 }
 
+.cv-rol-label-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cv-regen-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-bg, transparent);
+    color: inherit;
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: transform 0.15s, background 0.15s;
+}
+
+.cv-regen-btn:hover:not(:disabled) {
+    background: var(--border);
+    transform: rotate(45deg);
+}
+
+.cv-regen-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
 .cv-modal-textarea {
     width: 100%;
     padding: 10px 12px;

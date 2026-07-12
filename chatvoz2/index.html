@@ -135,7 +135,11 @@
                 <h3>Personalizar conversación</h3>
                 <p class="cv-modal-label">Escenario:</p>
                 <div class="cv-scenarios-grid" id="scenariosGrid"></div>
-                <p class="cv-modal-label" style="margin-top:12px">Rol de la IA:</p>
+                <p class="cv-modal-label cv-rol-label-row" style="margin-top:12px">
+                    Rol de la IA:
+                    <span id="rolLoadingSpinner" style="display:none;font-size:11px;color:#1976D2;font-weight:400;">✨ generando...</span>
+                    <button type="button" id="regenRolBtn" class="cv-regen-btn" onclick="regenerateRol()" title="Generar otro perfil" aria-label="Generar otro perfil" disabled>⟳</button>
+                </p>
                 <textarea id="rolText" class="cv-modal-textarea" rows="3"
                     placeholder="Ejemplos:&#10;• Eres un compañero de clase del curso de alemán&#10;• Eres un trabajador en una tienda de ropa&#10;• Eres un médico en un consultorio&#10;• Eres un mesero en un restaurante"></textarea>
                 <p class="cv-modal-label" style="margin-top:12px">Contexto sobre ti:</p>
@@ -244,6 +248,7 @@
         started: false,
         contexto: '',
         rol: DEFAULT_ROL,
+        scenarioRol: DEFAULT_ROL,
         dailyUsedMs: 0,
         guidedMode: false,
         currentAudio: null,
@@ -386,7 +391,7 @@ Antworte IMMER mit einem JSON-Objekt:
         });
     }
 
-    function selectScenario(key) {
+    async function selectScenario(key) {
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
@@ -394,10 +399,81 @@ Antworte IMMER mit einem JSON-Objekt:
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
         });
-        const rolEl = document.getElementById('rolText');
         const ctxEl = document.getElementById('contextText');
-        if (rolEl) rolEl.value = scenario.rol;
         if (ctxEl) ctxEl.value = scenario.contexto;
+
+        const regenBtn = document.getElementById('regenRolBtn');
+        if (regenBtn) regenBtn.disabled = (key === 'libre');
+
+        if (key === 'libre') {
+            State.scenarioRol = scenario.rol;
+            const rolEl = document.getElementById('rolText');
+            if (rolEl) rolEl.value = scenario.rol;
+            return;
+        }
+
+        await generateRol(scenario, false);
+    }
+
+    async function regenerateRol() {
+        const scenario = SCENARIOS.find(s => s.key === State.selectedScenario);
+        if (!scenario || scenario.key === 'libre') return;
+        await generateRol(scenario, true);
+    }
+
+    // Generate a rich AI persona anchored on scenario.rol (cached in localStorage unless forceNew)
+    async function generateRol(scenario, forceNew) {
+        const rolEl = document.getElementById('rolText');
+        const spinner = document.getElementById('rolLoadingSpinner');
+        const cacheKey = STORAGE_PREFIX + 'rol_cache_' + scenario.key;
+
+        if (!forceNew) {
+            const cachedRol = localStorage.getItem(cacheKey);
+            if (cachedRol) {
+                State.scenarioRol = cachedRol;
+                if (rolEl) { rolEl.value = cachedRol; rolEl.disabled = false; }
+                if (spinner) spinner.style.display = 'none';
+                return;
+            }
+        }
+
+        if (rolEl) { rolEl.value = ''; rolEl.disabled = true; }
+        if (spinner) spinner.style.display = 'inline';
+
+        try {
+            const token = await window.getAuthToken?.();
+            const resp = await fetch(CHAT_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({
+                    system: 'Eres un asistente que crea perfiles de personajes para conversaciones de práctica de alemán. Responde solo en español. Sé creativo y detallado pero conciso.',
+                    messages: [{
+                        role: 'user',
+                        content: `Crea un perfil detallado y realista en primera persona para este personaje: "${scenario.rol}" (contexto: "${scenario.contexto}"). Mantén exactamente el mismo rol descrito, sin invertirlo${forceNew ? '. Genera una variante distinta a perfiles anteriores: otro nombre y otros rasgos de personalidad' : ''}. Incluye: nombre alemán típico, edad, 2-3 rasgos de personalidad concretos y cómo habla o se comporta con la otra persona. Máximo 90 palabras. Empieza directamente con "Eres [nombre],..."`
+                    }],
+                }),
+            });
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('invalid response'); }
+            if (resp.ok && data.reply) {
+                const rol = data.reply.trim();
+                localStorage.setItem(cacheKey, rol);
+                State.scenarioRol = rol;
+                if (rolEl) rolEl.value = rol;
+            } else {
+                throw new Error(data.error || 'no reply');
+            }
+        } catch {
+            State.scenarioRol = scenario.rol;
+            if (rolEl) rolEl.value = scenario.rol;
+        } finally {
+            if (rolEl) rolEl.disabled = false;
+            if (spinner) spinner.style.display = 'none';
+        }
     }
 
     function showMisionBanner() {
@@ -774,6 +850,8 @@ Antworte IMMER mit einem JSON-Objekt:
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === State.selectedScenario);
         });
+        const regenBtn = document.getElementById('regenRolBtn');
+        if (regenBtn) regenBtn.disabled = (State.selectedScenario === 'libre');
         document.getElementById('contextModal').classList.add('cv-modal-open');
         document.getElementById('rolText').focus();
     }
@@ -787,7 +865,7 @@ Antworte IMMER mit einem JSON-Objekt:
         const newRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
         const newCtx = document.getElementById('contextText').value.trim();
         const active = SCENARIOS.find(s => s.key === State.selectedScenario);
-        if (active && (newRol !== active.rol || newCtx !== active.contexto)) {
+        if (active && (newRol !== State.scenarioRol || newCtx !== active.contexto)) {
             State.selectedScenario = 'libre';
         }
         State.rol = newRol;

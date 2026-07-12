@@ -88,7 +88,11 @@
                     placeholder="Ejemplos:&#10;• Tengo 28 años, soy ingeniero y aprendo alemán para trabajar en Berlín&#10;• Soy estudiante de medicina, me interesan los viajes y la cultura alemana&#10;• Tengo 35 años, trabajo en marketing y quiero vivir en Múnich"></textarea>
                 <p class="cv-modal-label" style="margin-top:14px">Escenario:</p>
                 <div class="cv-scenarios-grid" id="scenariosGrid"></div>
-                <p class="cv-modal-label" style="margin-top:12px">Perfil de la IA: <span id="rolLoadingSpinner" style="display:none;font-size:11px;color:#1976D2;font-weight:400;">✨ generando...</span></p>
+                <p class="cv-modal-label cv-rol-label-row" style="margin-top:12px">
+                    Perfil de la IA:
+                    <span id="rolLoadingSpinner" style="display:none;font-size:11px;color:#1976D2;font-weight:400;">✨ generando...</span>
+                    <button type="button" id="regenRolBtn" class="cv-regen-btn" onclick="regenerateRol()" title="Generar otro perfil" aria-label="Generar otro perfil" disabled>⟳</button>
+                </p>
                 <textarea id="rolText" class="cv-modal-textarea" rows="4"
                     placeholder="Selecciona un escenario para generar el perfil automáticamente, o escríbelo tú mismo."></textarea>
                 <div class="cv-modal-actions">
@@ -397,23 +401,39 @@ Antworte IMMER mit einem JSON-Objekt:
             c.classList.toggle('active', c.dataset.key === key);
         });
 
-        const rolEl = document.getElementById('rolText');
-        const spinner = document.getElementById('rolLoadingSpinner');
+        const regenBtn = document.getElementById('regenRolBtn');
+        if (regenBtn) regenBtn.disabled = (key === 'libre');
 
         if (key === 'libre') {
             State.scenarioRol = DEFAULT_ROL;
+            const rolEl = document.getElementById('rolText');
             if (rolEl) rolEl.value = DEFAULT_ROL;
             return;
         }
 
-        // Generate rich AI persona via API (cached in localStorage)
-        const cacheKey = `cv_rol_cache_${key}`;
-        const cachedRol = localStorage.getItem(cacheKey);
-        if (cachedRol) {
-            State.scenarioRol = cachedRol;
-            if (rolEl) { rolEl.value = State.scenarioRol; rolEl.disabled = false; }
-            if (spinner) spinner.style.display = 'none';
-            return;
+        await generateRol(scenario, false);
+    }
+
+    async function regenerateRol() {
+        const scenario = SCENARIOS.find(s => s.key === State.selectedScenario);
+        if (!scenario || scenario.key === 'libre') return;
+        await generateRol(scenario, true);
+    }
+
+    // Generate a rich AI persona anchored on scenario.rol (cached in localStorage unless forceNew)
+    async function generateRol(scenario, forceNew) {
+        const rolEl = document.getElementById('rolText');
+        const spinner = document.getElementById('rolLoadingSpinner');
+        const cacheKey = `cv_rol_cache_${scenario.key}`;
+
+        if (!forceNew) {
+            const cachedRol = localStorage.getItem(cacheKey);
+            if (cachedRol) {
+                State.scenarioRol = cachedRol;
+                if (rolEl) { rolEl.value = State.scenarioRol; rolEl.disabled = false; }
+                if (spinner) spinner.style.display = 'none';
+                return;
+            }
         }
 
         if (rolEl) { rolEl.value = ''; rolEl.disabled = true; }
@@ -431,7 +451,7 @@ Antworte IMMER mit einem JSON-Objekt:
                     system: 'Eres un asistente que crea perfiles de personajes para conversaciones de práctica de alemán. Responde solo en español. Sé creativo y detallado pero conciso.',
                     messages: [{
                         role: 'user',
-                        content: `Crea un perfil detallado y realista en primera persona para este rol: "${scenario.name}" en el contexto: "${scenario.contexto}". Incluye: nombre alemán típico, edad, 2-3 rasgos de personalidad concretos y cómo habla o se comporta con los clientes/alumnos. Máximo 90 palabras. Empieza directamente con "Eres [nombre],..."`
+                        content: `Crea un perfil detallado y realista en primera persona para este personaje: "${scenario.rol}" (contexto: "${scenario.contexto}"). Mantén exactamente el mismo rol descrito, sin invertirlo${forceNew ? '. Genera una variante distinta a perfiles anteriores: otro nombre y otros rasgos de personalidad' : ''}. Incluye: nombre alemán típico, edad, 2-3 rasgos de personalidad concretos y cómo habla o se comporta con la otra persona. Máximo 90 palabras. Empieza directamente con "Eres [nombre],..."`
                     }],
                 }),
             });
@@ -884,6 +904,8 @@ Antworte IMMER mit einem JSON-Objekt:
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === State.selectedScenario);
         });
+        const regenBtn = document.getElementById('regenRolBtn');
+        if (regenBtn) regenBtn.disabled = (State.selectedScenario === 'libre');
         document.getElementById('contextModal').classList.add('cv-modal-open');
         document.getElementById('contextText').focus();
     }

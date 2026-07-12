@@ -478,6 +478,6 @@ function escHtml(str) {
 
 // --- Init ---
 (function init() {
-    if (localStorage.getItem('darkMode_cor') === '1') document.body.classList.add('dark');
+    if (localStorage.getItem('darkMode_cor') !== '') document.body.classList.add('dark');
     renderHistory();
 })();

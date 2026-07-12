@@ -216,7 +216,7 @@
             document.body.classList.toggle('dark');
             localStorage.setItem('darkMode_plan', document.body.classList.contains('dark'));
         }
-        if (localStorage.getItem('darkMode_plan') === 'true') {
+        if (localStorage.getItem('darkMode_plan') !== 'false') {
             document.body.classList.add('dark');
         }
 

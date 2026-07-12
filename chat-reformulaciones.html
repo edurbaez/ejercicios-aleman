@@ -816,7 +816,7 @@ function toggleDarkMode() {
 window.onAuthSignedIn = () => { loadDailyUsage(); };
 
 (function init() {
-    if (localStorage.getItem('darkMode_cr') === '1') document.body.classList.add('dark');
+    if (localStorage.getItem('darkMode_cr') !== '') document.body.classList.add('dark');
     State.bankPromise = fetch('reformulaciones-data.json')
         .then(r => r.ok ? r.json() : null)
         .catch(() => null);

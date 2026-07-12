@@ -1133,7 +1133,7 @@
 
   /* ── Bootstrap (se ejecuta al cargar el script) ────── */
 
-  if (localStorage.getItem(DARK_KEY) === 'true') {
+  if (localStorage.getItem(DARK_KEY) !== 'false') {
     document.body.classList.add('dark');
     const btn = document.getElementById('darkModeBtn');
     if (btn) btn.innerHTML = _sunSVG;

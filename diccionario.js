@@ -32,7 +32,7 @@ function toggleDarkMode() {
     const isDark = document.body.classList.toggle("dark");
     localStorage.setItem("darkMode_dic", isDark ? "1" : "0");
 }
-if (localStorage.getItem("darkMode_dic") === "1") document.body.classList.add("dark");
+if (localStorage.getItem("darkMode_dic") !== "0") document.body.classList.add("dark");
 
 // ── Caché IndexedDB ────────────────────────────────────
 const DB_NAME = "diccionario";

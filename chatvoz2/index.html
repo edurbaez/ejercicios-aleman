@@ -1034,7 +1034,7 @@ Antworte IMMER mit einem JSON-Objekt:
     window.onAuthSignedIn = () => { loadDailyUsage(); loadPreferences(); };
 
     (function init() {
-        if (localStorage.getItem(STORAGE_PREFIX + 'darkMode') === '1') document.body.classList.add('dark');
+        if (localStorage.getItem(STORAGE_PREFIX + 'darkMode') !== '') document.body.classList.add('dark');
         buildScenarioCards();
         loadPreferences();
         loadVoices();

@@ -1457,7 +1457,7 @@ window.addEventListener('popstate', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.getItem('darkMode_gram') === 'true') {
+  if (localStorage.getItem('darkMode_gram') !== 'false') {
     document.body.classList.add('dark');
     document.getElementById('darkModeBtn').innerHTML = _sunSVG;
   }

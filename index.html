@@ -316,7 +316,7 @@
     const dark = document.body.classList.toggle('dark');
     localStorage.setItem('darkMode_home', dark ? '1' : '0');
   }
-  if (localStorage.getItem('darkMode_home') === '1') document.body.classList.add('dark');
+  if (localStorage.getItem('darkMode_home') !== '0') document.body.classList.add('dark');
 </script>
 </body>
 </html>

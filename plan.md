@@ -55,6 +55,44 @@ Diagnóstico previo (referencia histórica, ya aplicado arriba):
 5. Revisar que ningún día quede con vocabulario o gramática inventados que no correspondan a `DataA2.json` / `GRAMMAR_DATA.A2`.
 
 ### B1 — pendiente
+
+## Ampliación de gramática B1 (`grammar-data.js`)
+
+`grammar-data.js` tiene hoy 10 reglas B1 (`b1-01`…`b1-10`). Comparando contra el índice de un libro de referencia, faltan ~14 reglas B1 reales y hay 3 reglas que el libro clasifica como B1 pero que en la app viven en B2 (`b2-03` Partizip I, `b2-06` Doppelkonnektoren, `b2-09` Finalsätze). Decisión: no tocar lo que ya existe en B2 — se crean versiones nuevas y propias de B1, con explicaciones y ejemplos calibrados al nivel (más simples que sus contrapartes B2), como entradas adicionales en `grammar-data.js`. Es trabajo de redacción de contenido (no de ingeniería — `gramatica.js` renderiza cualquier regla que exista en `GRAMMAR_DATA` sin cambios de código), repartido en 5 sesiones para cuidar la calidad de cada explicación/ejemplo.
+
+- [x] Sesión 1 — completada: Pasado y subordinadas (continuación de lo existente)
+  - `b1-11` Plusquamperfekt (continúa de `b1-01` Präteritum)
+  - `b1-12` Wenn vs. als (extensión explícita de `b1-06`)
+  - `b1-13` Indirekte Fragen (ob / W-Wort + verbo final)
+  - `b1-14` Infinitiv ohne zu (contraste directo con `b1-08`)
+
+- [x] Sesión 2 — completada: Relativas, comparación y declinación nominal
+  - `b1-15` Relativsätze mit Präposition (extensión de `b1-03`)
+  - `b1-16` Vergleichssätze: je...desto
+  - `b1-17` n-Deklination
+  - `b1-18` Adjektive als Nomen (para personas y neutros — "der Jugendliche", "alles Gute")
+
+- [x] Sesión 3 — completada: Preposiciones
+  - `b1-19` Präpositionaladverbien (da-/wo-) — relacionado con `b1-07`
+  - `b1-20` Präpositionen mit Genitiv (während, wegen, trotz, innerhalb, außerhalb)
+  - `b1-21` Temporale Präpositionen 2 (repaso/ampliación)
+
+- [x] Sesión 4 — completada: werden, verbos con partícula, reflexivos, negación
+  - `b1-22` Funktionen von werden (verbo pleno / futuro / pasiva — unifica `b1-09` y `b1-10`)
+  - `b1-23` Trennbare vs. untrennbare Verben (antes de `b1-07` en la secuencia de lectura)
+  - `b1-24` Reflexivpronomen im Akkusativ und Dativ
+  - `b1-25` Negationswörter: nicht mehr / noch nicht
+
+- [x] Sesión 5 — completada: Adverbios/verbos de posición, lassen, y equivalentes B1 de temas hoy en B2
+  - `b1-26` Lokale Adverbien: Position und Direktion
+  - `b1-27` Positions-/Direktionsverben (stehen/stellen, sitzen/setzen, liegen/legen, hängen)
+  - `b1-28` Das Verb lassen (causativo básico — distinto de `c1-01`)
+  - `b1-29` Finalsätze B1 (um...zu / damit) — versión propia B1, `b2-09` se mantiene intacto
+  - `b1-30` Doppelkonnektoren B1 (entweder...oder, weder...noch, sowohl...als auch) — versión propia B1, `b2-06` se mantiene intacto
+  - `b1-31` Partizip I als Adjektiv B1 — versión propia B1, `b2-03` se mantiene intacto
+
+Cada sesión se ejecuta y marca `[x]` de forma independiente; verificar antes de escribir cada regla que el id no colisione con uno ya usado en `grammar-data.js`.
+
 ### B2 — pendiente
 ### C1 — pendiente
 ### C2 — pendiente

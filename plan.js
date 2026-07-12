@@ -3,61 +3,65 @@ window.PLANS = {
     // Semana 1: Saludos + artículos
     {
       day: 1, week: 1,
-      focus: "Saludos y presentaciones básicas",
+      focus: "Artículos definidos: der, die, das",
       tasks: [
-        { app: "A1.html", label: "Vocabulario esencial A1", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: saludos y despedidas", minutes: 10 },
-        { app: "chat-voz.html", label: "Práctica oral: presentarse", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Artículos definidos", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con der/die/das", minutes: 10 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Artículos definidos (der, die, das)",
+      focus: "Pronombres personales",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: artículos definidos", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: sustantivos con artículo", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Pronombres personales", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con pronombres", minutes: 10 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "Artículos indefinidos y negación",
+      focus: "Verbos sein y haben",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: ein/eine/kein", minutes: 10 },
-        { app: "A1.html", label: "Vocabulario de objetos cotidianos", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: describir objetos", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Verbos sein y haben", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con sein y haben", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
-      focus: "Pronombres personales y verbo sein",
+      focus: "Presente de verbos regulares",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: pronombres y sein", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: profesiones", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Presente verbos regulares", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con verbos regulares", minutes: 10 }
       ]
     },
     {
       day: 5, week: 1,
-      focus: "El alfabeto y deletrear",
+      focus: "Negación: nicht y kein",
       tasks: [
-        { app: "A1.html", label: "Vocabulario esencial", minutes: 15 },
-        { app: "chat-voz.html", label: "Práctica oral: deletrear nombres", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Negación: nicht y kein", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases con nicht/kein", minutes: 10 }
       ]
     },
     {
       day: 6, week: 1,
-      focus: "Países y nacionalidades",
+      focus: "Acusativo básico",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: países y lenguas", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: Woher kommst du?", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: origen y nacionalidad", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Acusativo básico", minutes: 10 },
+        { app: "kasus.html", label: "Entrenador de casos: Akkusativ", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 10 },
+        { app: "chat-voz.html", label: "🔁 Repetir: frases en Akkusativ", minutes: 10 }
       ]
     },
     {
       day: 7, week: 1,
-      focus: "Repaso saludos y artículos",
+      focus: "Repaso: artículos, pronombres, sein/haben y negación",
       tasks: [
         { app: "A1.html", label: "Repaso vocabulario semana 1", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre A1", minutes: 15 }
+        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
       ]
     },
     // Semana 2: Números + colores
@@ -202,7 +206,7 @@ window.PLANS = {
       focus: "Escritura: describir una imagen sencilla",
       tasks: [
         { app: "A1.html", label: "Vocabulario: vocabulario descriptivo", minutes: 15 },
-        { app: "corrector.html", label: "Corrección de texto A1", minutes: 20 }
+        { app: "escritura.html", label: "Tarea de escritura A1", minutes: 20 }
       ]
     },
     {
@@ -225,7 +229,7 @@ window.PLANS = {
       day: 27, week: 4,
       focus: "Repaso oral y escrito",
       tasks: [
-        { app: "chat-voz.html", label: "Conversación: temas variados A1", minutes: 15 },
+        { app: "mundliche.html", label: "Simulacro oral estructurado A1", minutes: 15 },
         { app: "corrector.html", label: "Corrección: frases sueltas A1", minutes: 15 }
       ]
     },
@@ -249,8 +253,8 @@ window.PLANS = {
       day: 30, week: 4,
       focus: "Evaluación final A1",
       tasks: [
-        { app: "chat-voz.html", label: "Conversación evaluación A1", minutes: 20 },
-        { app: "corrector.html", label: "Texto de evaluación A1", minutes: 15 }
+        { app: "mundliche.html", label: "Simulacro examen oral A1", minutes: 20 },
+        { app: "escritura.html", label: "Simulacro examen escrito A1", minutes: 15 }
       ]
     }
   ],

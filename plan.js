@@ -64,124 +64,122 @@ window.PLANS = {
         { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
       ]
     },
-    // Semana 2: Números + colores
+    // Semana 2: W-Fragen, orden de palabras, plurales, artículo indefinido
     {
       day: 8, week: 2,
-      focus: "Números del 1 al 20",
+      focus: "W-Fragen: palabras interrogativas",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: números cardinales", minutes: 10 },
-        { app: "A1.html", label: "Vocabulario: números", minutes: 15 },
-        { app: "chat-voz.html", label: "Práctica oral: contar y calcular", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: W-Fragen", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: preguntas con W-Fragen", minutes: 10 }
       ]
     },
     {
       day: 9, week: 2,
-      focus: "Números del 20 al 100 y la hora",
+      focus: "Orden de palabras: el verbo en posición 2",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: números y tiempo", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: la hora (Wie spät ist es?)", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Orden de palabras", minutes: 15 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: orden de palabras", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 10 }
       ]
     },
     {
       day: 10, week: 2,
-      focus: "Colores y descripciones básicas",
+      focus: "Plurales: los 5 patrones frecuentes",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: colores", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: adjetivos atributivos", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: describir colores", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Plurales", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 },
+        { app: "chat-voz.html", label: "🔁 Repetir: plurales frecuentes", minutes: 10 }
       ]
     },
     {
       day: 11, week: 2,
-      focus: "Los días de la semana y meses",
+      focus: "Artículo indefinido y su negación",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: días y meses", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: fechas y calendarios", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Artículo indefinido y su negación", minutes: 15 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: ein/eine – kein/keine", minutes: 15 },
+        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 10 }
       ]
     },
     {
       day: 12, week: 2,
-      focus: "La familia y relaciones",
+      focus: "Práctica integrada: W-Fragen y orden de palabras",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: familia", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: hablar de la familia", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: preguntas y orden de palabras", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 }
       ]
     },
     {
       day: 13, week: 2,
-      focus: "Comida y bebida básica",
+      focus: "Práctica integrada: plurales y artículo indefinido",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: comida y bebida", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: mögen y möchten", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: pedir en un café", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: plurales y artículos", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 15 }
       ]
     },
     {
       day: 14, week: 2,
-      focus: "Repaso números, colores y familia",
+      focus: "Repaso: W-Fragen, orden de palabras, plurales y artículo indefinido",
       tasks: [
         { app: "A1.html", label: "Repaso vocabulario semana 2", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre A1", minutes: 15 }
+        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
       ]
     },
-    // Semana 3: Verbos sein/haben
+    // Semana 3: consolidación de los 10 puntos gramaticales de A1
     {
       day: 15, week: 3,
-      focus: "Conjugación de sein en presente",
+      focus: "Repaso combinado: artículos, pronombres y sein/haben",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: sein – conjugación completa", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: adjetivos para describir", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: artículos, pronombres y sein/haben", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Conjugación de haben en presente",
+      focus: "Repaso combinado: verbos regulares y negación",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: haben – conjugación completa", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: posesiones y objetos", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: qué tienes y quién eres", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: verbos regulares y negación", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Verbos regulares en presente",
+      focus: "Casos en contexto: Nominativ y Akkusativ combinados",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: verbos -en en presente", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: verbos de acción básicos", minutes: 15 }
+        { app: "kasus.html", label: "Entrenador de casos: Nominativ vs Akkusativ", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 }
       ]
     },
     {
       day: 18, week: 3,
-      focus: "La casa y las habitaciones",
+      focus: "Repaso combinado: W-Fragen y orden de palabras",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: la casa", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: describir tu casa", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: W-Fragen y orden de palabras", minutes: 20 },
+        { app: "chat-voz.html", label: "🔁 Repetir: preguntas y frases en orden correcto", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Preguntas básicas con W-Fragen",
+      focus: "Repaso combinado: plurales y artículo indefinido",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: W-Fragen (wer, was, wo…)", minutes: 10 },
-        { app: "A1.html", label: "Vocabulario de preguntas frecuentes", minutes: 15 },
-        { app: "chat-voz.html", label: "Práctica oral: hacer preguntas", minutes: 10 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: plurales y artículo indefinido", minutes: 20 },
+        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 15 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Ropa y compras",
+      focus: "Primera práctica de escritura guiada A1",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: ropa y tiendas", minutes: 15 },
-        { app: "gramatica.html", label: "Gramática: precios y cantidades", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: en la tienda", minutes: 10 }
+        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 15 },
+        { app: "corrector.html", label: "Corrección: frases sueltas A1", minutes: 15 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Repaso verbos y vida cotidiana",
+      focus: "Repaso: los 10 puntos gramaticales de A1",
       tasks: [
         { app: "A1.html", label: "Repaso vocabulario semana 3", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre A1", minutes: 15 }
+        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
       ]
     },
     // Semana 4: Repaso general

@@ -569,6 +569,9 @@
     _scheduleFlush();
   };
 
+  // Apps that consume OpenAI Whisper STT; their 'audio_sent' events share a single 60min/day cap.
+  window.VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulaciones'];
+
   window.sb.auth.onAuthStateChange(async function (event, session) {
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;

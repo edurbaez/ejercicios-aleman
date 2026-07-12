@@ -88,6 +88,12 @@ AI voice conversation app for practicing German at any CEFR level.
 
 ---
 
+### Chat de Voz 2 ([chatvoz2/index.html](chatvoz2/index.html))
+
+Second AI voice conversation app, same architecture/features as Chat de Voz above (hold-to-record, `/api/whisper` STT, GPT-4o-mini reply, browser TTS, repetir mode). Shares the same 60-minute/day voice-STT cap.
+
+---
+
 ### Corrector ([corrector.html](corrector.html))
 
 Grammar correction app that analyses a photo (GPT-4o Vision) or pasted text (GPT-4o-mini via `/api/chat`) of German writing. Logic in [`corrector.js`](corrector.js).
@@ -146,7 +152,7 @@ Oral exam trainer practicing individual parts (Teile) of the Goethe/telc speakin
 - CEFR level selector (A1–C2, persisted as `mp_level`) and a Teil selector per level — 2-3 parts matching real exam formats (e.g. A1: Sich vorstellen / Fragen und Antworten / Bitte formulieren; B1: Vorstellung / Präsentation / Gemeinsam etwas planen; B2: Präsentation / Bildbeschreibung / Diskussion; C1/C2: Vortrag / Diskussion / Stellung nehmen or Zusammenfassen)
 - Each Teil is generated via `/api/chat` as title + situation + guide points in German, level-appropriate; the next task is prefetched in background
 - Optional short "Vorbereitung" countdown before recording, then either a **monólogo** (one continuous timed recording, e.g. self-presentation or a Vortrag) or a **diálogo** (multi-turn voice exchange where the AI plays exam partner/negotiator/debate opponent, replying with a JSON `{antwort, turno_final}` until a turn cap or natural close)
-- Voice via `MediaRecorder` → `/api/whisper` (German) and AI prompts read aloud with browser TTS, reusing `chat-voz.html`'s recording/transcription patterns; daily 60-minute usage cap shared per user
+- Voice via `MediaRecorder` → `/api/whisper` (German) and AI prompts read aloud with browser TTS, reusing `chat-voz.html`'s recording/transcription patterns; daily 60-minute usage cap shared across all voice apps (`mundliche.html`, `chat-voz.html`, `chatvoz2/index.html`, `chat-reformulaciones.html`), enforced both client- and server-side
 - Evaluation via a second `/api/chat` call: score 0–100, guide-points checklist, fluency assessment (proxy from the transcript: hesitations, incomplete sentences), grammar/vocabulary error cards, interaction quality (dialogue Teile), and a general comment — with a persistent disclaimer that transcript-based grading **cannot assess pronunciation or accent**
 - **Bildbeschreibung** (B2 "describe a picture" Teil) uses an AI-described scene in German instead of a real photo, avoiding `/api/image`'s marketing-only 3 req/min budget
 - Local history of the last 20 attempts in IndexedDB `mundliche-db` (transcript + evaluation, no audio)
@@ -178,7 +184,7 @@ Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`).
 
 ### `/api/whisper` ([api/whisper.js](api/whisper.js))
 
-Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`. Rate limited to 10 req/min per user.
+Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`, `chatvoz2/index.html`, `chat-reformulaciones.html`, and `mundliche.html`. Rate limited to 10 req/min per user. Also enforces the shared 60-minute/day voice-STT cap server-side (queries `usage_events` with `SUPABASE_SERVICE_ROLE_KEY` before transcribing) — see "Voice-STT daily usage cap" in `CLAUDE.md`.
 
 ### `/api/vision` ([api/vision.js](api/vision.js))
 

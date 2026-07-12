@@ -263,7 +263,7 @@
         const { data } = await window.sb
             .from('usage_events')
             .select('payload')
-            .eq('app', 'chatvoz2')
+            .in('app', window.VOICE_STT_APPS || ['chatvoz2'])
             .eq('event_type', 'audio_sent')
             .eq('user_id', window.currentUser.id)
             .gte('created_at', startOfDay.toISOString());

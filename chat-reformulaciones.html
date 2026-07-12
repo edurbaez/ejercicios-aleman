@@ -135,6 +135,7 @@
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────────
+const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos, compartido entre todas las apps de voz
 const State = {
     allRules: [],
     filteredRules: [],
@@ -156,6 +157,7 @@ const State = {
     audioChunks: [],
     recSeconds: 0,
     recTimerInterval: null,
+    dailyUsedMs: 0,
     isSpeaking: false,
     currentAudio: null,
     voices: [],
@@ -696,6 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function startRecording() {
     if (State.isRecording) return;
+    if (State.dailyUsedMs >= DAILY_LIMIT_MS) { setHint('Límite diario de 60 min alcanzado.'); return; }
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         State.audioChunks = [];
@@ -756,6 +759,9 @@ function updateRecTimer() {
 
 async function transcribeAndSend(blob) {
     setHint('Transcribiendo...');
+    const durationMs = State.recSeconds * 1000;
+    window.logEvent?.('chat-reformulaciones', 'audio_sent', { duration_ms: durationMs });
+    State.dailyUsedMs += durationMs;
     const formData = new FormData();
     formData.append('file', blob, 'audio.webm');
     formData.append('model', 'whisper-1');
@@ -781,6 +787,21 @@ async function transcribeAndSend(blob) {
     }
 }
 
+// ── Tope de uso diario (mismo patrón que chat-voz.html) ──
+async function loadDailyUsage() {
+    if (!window.currentUser || !window.sb) return;
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const { data } = await window.sb
+        .from('usage_events')
+        .select('payload')
+        .in('app', window.VOICE_STT_APPS || ['chat-reformulaciones'])
+        .eq('event_type', 'audio_sent')
+        .eq('user_id', window.currentUser.id)
+        .gte('created_at', startOfDay.toISOString());
+    if (data) State.dailyUsedMs = data.reduce((sum, e) => sum + (e.payload?.duration_ms || 0), 0);
+}
+
 // ── UI HELPERS ────────────────────────────────────────────────────────────────
 function setHint(text) {
     document.getElementById('crHint').textContent = text;
@@ -792,7 +813,7 @@ function toggleDarkMode() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-window.onAuthSignedIn = () => {};
+window.onAuthSignedIn = () => { loadDailyUsage(); };
 
 (function init() {
     if (localStorage.getItem('darkMode_cr') === '1') document.body.classList.add('dark');

@@ -175,6 +175,7 @@
       desc.className = 'lista-info';
       desc.innerHTML = '<strong>Seleccione una o más listas:</strong> Los botones en rojo indican listas activas';
       container.appendChild(desc);
+      setTimeout(() => { desc.style.display = 'none'; }, 3000);
       const bar = document.createElement('div');
       bar.id = 'sets-bar'; bar.className = 'panel';
       container.appendChild(bar);
@@ -213,16 +214,33 @@
     sections.juego.parentNode.insertBefore(tabs, sections.juego);
 
     const STORAGE_KEY = 'section_tab_' + APP;
+    let currentTab = null;
+
+    function updateListaHeight() {
+      if (currentTab !== 'lista') return;
+      const rect = sections.lista.getBoundingClientRect();
+      const bottomPadding = 20;
+      const h = window.innerHeight - rect.top - bottomPadding;
+      sections.lista.style.maxHeight = Math.max(h, 150) + 'px';
+    }
+
     function showTab(name) {
+      currentTab = name;
       Object.entries(sections).forEach(([key, el]) => {
         el.style.display = key === name ? '' : 'none';
       });
       tabs.querySelectorAll('button[data-tab]').forEach(btn =>
         btn.classList.toggle('btn-active', btn.dataset.tab === name));
       localStorage.setItem(STORAGE_KEY, name);
+      updateListaHeight();
     }
     tabs.querySelectorAll('button[data-tab]').forEach(btn =>
       btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+
+    window.addEventListener('resize', updateListaHeight);
+    if (window.ResizeObserver) {
+      new ResizeObserver(updateListaHeight).observe(app);
+    }
 
     showTab(localStorage.getItem(STORAGE_KEY) || 'juego');
   }

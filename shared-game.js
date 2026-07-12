@@ -192,6 +192,41 @@
     updateSetButtonsUI();
   }
 
+  function mountSectionTabs() {
+    const app = document.querySelector('.app');
+    const sections = {
+      juego:      $('seleccion-multiple'),
+      repeticion: $('repeticion-palabras'),
+      lista:      document.querySelector('.table-container'),
+    };
+    if (!app || !sections.juego || !sections.repeticion || !sections.lista) return;
+    if ($('section-tabs')) return;
+
+    const tabs = document.createElement('div');
+    tabs.id = 'section-tabs';
+    tabs.className = 'panel section-tabs';
+    tabs.innerHTML = `
+      <button class="btn" data-tab="juego">🎮 Juego</button>
+      <button class="btn" data-tab="repeticion">🔁 Repetición</button>
+      <button class="btn" data-tab="lista">📋 Lista de palabras</button>
+    `;
+    sections.juego.parentNode.insertBefore(tabs, sections.juego);
+
+    const STORAGE_KEY = 'section_tab_' + APP;
+    function showTab(name) {
+      Object.entries(sections).forEach(([key, el]) => {
+        el.style.display = key === name ? '' : 'none';
+      });
+      tabs.querySelectorAll('button[data-tab]').forEach(btn =>
+        btn.classList.toggle('btn-active', btn.dataset.tab === name));
+      localStorage.setItem(STORAGE_KEY, name);
+    }
+    tabs.querySelectorAll('button[data-tab]').forEach(btn =>
+      btn.addEventListener('click', () => showTab(btn.dataset.tab)));
+
+    showTab(localStorage.getItem(STORAGE_KEY) || 'juego');
+  }
+
   /* ── Selección múltiple ────────────────────────────── */
 
   function renderSelectionNext() {
@@ -1023,6 +1058,7 @@
   async function initUnifiedApp() {
     await Promise.all([inyectarListasPersonales(), loadSRSCache()]);
     mountSetButtons();
+    mountSectionTabs();
     montarPanelMisListas();
     bindSelectionEvents();
     bindRepeatControls();

@@ -54,45 +54,89 @@ Diagnóstico previo (referencia histórica, ya aplicado arriba):
 4. Semana 4 (días 22-30): incorporar `escritura.html` (reemplazar `corrector.html` en el día de "escritura", p. ej. día 23) y `mundliche.html` (simulacro oral estructurado, y combinarlo con `escritura.html` en el día de evaluación final, día 30 — mismo patrón que A1).
 5. Revisar que ningún día quede con vocabulario o gramática inventados que no correspondan a `DataA2.json` / `GRAMMAR_DATA.A2`.
 
-### B1 — pendiente
+### B1 — completado
+- [x] Reescrito el array `b1` completo (30 días) en `plan.js` siguiendo la rotación de las 31 reglas de `GRAMMAR_DATA.B1` y las rotaciones de vocabulario/escritura/mündliche definidas abajo. Corrección al diagnóstico original: las categorías reales de `DataB1.json` son `esenciales, verbos, sustantivos, adjetivos, expresiones` (mismo esquema que A1/A2/B2), no `verbos1, verbos2, adjetivos, adverbios, particulas_modales` como se había anotado — se usó el esquema real. Semana 1 (días 1-7): primera pasada de las 21 primeras reglas (`b1-01`…`b1-21`) con `gramatica.html`. Semana 2 (días 8-14): termina la primera pasada (`b1-22`…`b1-31`) y arranca el repaso, incluyendo `kasus.html` para Genitiv/declinación de adjetivos (día 12). Semana 3 (días 15-21): consolidación con `chat-reformulaciones.html` para las reglas con banco (`b1-01`…`b1-10`) y `kasus.html` para Genitiv/adjetivos. Semana 4 (días 22-28): repaso cruzado de las reglas restantes; días 29-30: simulacro final repartido en dos días — día 29 escritura evaluada completa (tipo foro) + repaso ligero, día 30 mündliche evaluada con los 3 Teile del día en una sola sesión.
 
-## Ampliación de gramática B1 (`grammar-data.js`)
+### B1 — histórico (diagnóstico previo a la reescritura, ya aplicado arriba)
 
-`grammar-data.js` tiene hoy 10 reglas B1 (`b1-01`…`b1-10`). Comparando contra el índice de un libro de referencia, faltan ~14 reglas B1 reales y hay 3 reglas que el libro clasifica como B1 pero que en la app viven en B2 (`b2-03` Partizip I, `b2-06` Doppelkonnektoren, `b2-09` Finalsätze). Decisión: no tocar lo que ya existe en B2 — se crean versiones nuevas y propias de B1, con explicaciones y ejemplos calibrados al nivel (más simples que sus contrapartes B2), como entradas adicionales en `grammar-data.js`. Es trabajo de redacción de contenido (no de ingeniería — `gramatica.js` renderiza cualquier regla que exista en `GRAMMAR_DATA` sin cambios de código), repartido en 5 sesiones para cuidar la calidad de cada explicación/ejemplo.
+Mismo formato diario que B2 (ver abajo): **2-3 reglas gramaticales/día** (5 min c/u), **repaso de vocabulario máx. 5 min/día**, **escritura diaria** (`escritura.html`) y **mündliche diaria** (`mundliche.html`).
 
-- [x] Sesión 1 — completada: Pasado y subordinadas (continuación de lo existente)
-  - `b1-11` Plusquamperfekt (continúa de `b1-01` Präteritum)
-  - `b1-12` Wenn vs. als (extensión explícita de `b1-06`)
-  - `b1-13` Indirekte Fragen (ob / W-Wort + verbo final)
-  - `b1-14` Infinitiv ohne zu (contraste directo con `b1-08`)
+**Recursos reales disponibles (verificados en código):**
+- `GRAMMAR_DATA.B1` (`grammar-data.js`) tiene **31 reglas** (`b1-01`…`b1-31`), muchas más que A1/A2/B2 (10 c/u): `b1-01` Präteritum, `b1-02` Konjunktiv II, `b1-03` Oraciones de relativo, `b1-04` Genitivo, `b1-05` Declinación de adjetivos, `b1-06` Conectores subordinantes, `b1-07` Verbos con preposición fija, `b1-08` Infinitivo con zu, `b1-09` Pasiva básica, `b1-10` Futuro, `b1-11` Plusquamperfekt, `b1-12` Wenn vs. als (ampliado), `b1-13` Preguntas indirectas, `b1-14` Infinitivo sin zu, `b1-15` Relativsätze mit Präposition, `b1-16` je…desto, `b1-17` n-Deklination, `b1-18` Adjektive als Nomen, `b1-19` da-/wo-Präpositionaladverbien, `b1-20` Präpositionen mit Genitiv, `b1-21` Preposiciones temporales, `b1-22` Funciones de werden, `b1-23` Verbos separables/inseparables, `b1-24` Reflexivpronomen (ampliado), `b1-25` Negationswörter, `b1-26` Adverbios locales wo/wohin, `b1-27` Positions-/Direktionsverben, `b1-28` lassen (causativo), `b1-29` Finalsätze um…zu/damit (B1), `b1-30` Doppelkonnektoren (B1), `b1-31` Partizip I als Adjektiv (B1).
+- **`reformulaciones-data.json` solo cubre `b1-01`…`b1-10`** (banco gratuito para `chat-reformulaciones.html`). Para `b1-11`…`b1-31` la app usa su fallback de generación IA completa (protocolo `---NUEVA---`), con coste de API — tenerlo en cuenta al planificar cuántas veces se repasan esas reglas.
+- Categorías reales de vocabulario — `DataB1.json` (vía `B1.html`): `verbos1`, `verbos2`, `adjetivos`, `adverbios`, `particulas_modales` (distintas de las de A1/A2/B2).
+- `escritura.html` nivel B1 (`LEVEL_SPECS.B1`, 70-100 palabras): 3 tipos reales — `email-informal` (e-mail a un amigo), `foro` (opinión en foro), `email-formal` (semi-formal: disculpa, información, cancelación).
+- `mundliche.html` nivel B1 (`LEVEL_SPECS.B1.teile`): 3 Teile reales — `vorstellung` (Teil 1, monólogo 50s), `praesentation` (Teil 2, "presentar un tema", monólogo 120s), `gemeinsam-planen` (Teil 3, diálogo 45s×6 turnos).
+- `kasus.html` **sí aplica a B1** (a diferencia de B2): modo Genitiv cubre `b1-04`; modo "Rellenar: declinación de adjetivo" cubre `b1-05`; modo Wechselpräpositionen sirve de refuerzo para `b1-26`/`b1-27` (wo/wohin en adverbios y verbos de posición).
 
-- [x] Sesión 2 — completada: Relativas, comparación y declinación nominal
-  - `b1-15` Relativsätze mit Präposition (extensión de `b1-03`)
-  - `b1-16` Vergleichssätze: je...desto
-  - `b1-17` n-Deklination
-  - `b1-18` Adjektive als Nomen (para personas y neutros — "der Jugendliche", "alles Gute")
+**Plantilla diaria:**
+```
+tasks: [
+  { app: "gramatica.html" | "chat-reformulaciones.html" | "kasus.html", label: "Gramática: <título regla>", minutes: 5 },  // × 2-3
+  { app: "B1.html", label: "Vocabulario: <categoría del día>", minutes: 5 },
+  { app: "escritura.html", label: "Escritura: <tipo del día>", minutes: 15 },
+  { app: "mundliche.html", label: "Mündliche: <Teil del día>", minutes: 10 }
+]
+```
 
-- [x] Sesión 3 — completada: Preposiciones
-  - `b1-19` Präpositionaladverbien (da-/wo-) — relacionado con `b1-07`
-  - `b1-20` Präpositionen mit Genitiv (während, wegen, trotz, innerhalb, außerhalb)
-  - `b1-21` Temporale Präpositionen 2 (repaso/ampliación)
+**Rotación de vocabulario/escritura/mündliche (ciclos fijos):**
+- Vocabulario: `verbos1→verbos2→adjetivos→adverbios→particulas_modales→repite` cada 5 días.
+- Escritura: `email-informal→foro→email-formal→repite` cada 3 días.
+- Mündliche: `vorstellung→praesentation→gemeinsam-planen→repite` cada 3 días.
 
-- [x] Sesión 4 — completada: werden, verbos con partícula, reflexivos, negación
-  - `b1-22` Funktionen von werden (verbo pleno / futuro / pasiva — unifica `b1-09` y `b1-10`)
-  - `b1-23` Trennbare vs. untrennbare Verben (antes de `b1-07` en la secuencia de lectura)
-  - `b1-24` Reflexivpronomen im Akkusativ und Dativ
-  - `b1-25` Negationswörter: nicht mehr / noch nicht
+**Rotación de gramática (31 reglas en 30 días — primera pasada + consolidación):**
+- **Semana 1 (días 1-7) — primera pasada, `gramatica.html`, 3/día:** día1 `b1-01,02,03`; día2 `b1-04,05,06`; día3 `b1-07,08,09`; día4 `b1-10,11,12`; día5 `b1-13,14,15`; día6 `b1-16,17,18`; día7 `b1-19,20,21` (21 reglas cubiertas).
+- **Semana 2 (días 8-14) — termina primera pasada + repaso:** día8 `b1-22,23,24`; día9 `b1-25,26,27`; día10 `b1-28,29,30`; día11 `b1-31` + repaso `b1-01,02` (las 31 quedan cubiertas); día12 repaso `b1-03,04,05` (con `kasus.html` para 04/05); día13 repaso `b1-06,07,08`; día14 repaso `b1-09,10`.
+- **Semana 3 (días 15-21) — consolidación temática, priorizando `chat-reformulaciones.html` donde hay banco (`b1-01`…`b1-10`) y `kasus.html` para declinación:** día15 `b1-01+02` (reformulaciones); día16 `b1-03+07` (relativas + verbos con preposición); día17 `kasus.html` Genitiv (`b1-04`) + repaso `b1-17` (n-Deklination, misma familia); día18 `kasus.html` adjetivos (`b1-05`) + repaso `b1-18` (Adjektive als Nomen); día19 `b1-08+14` (infinitivo con/sin zu, contraste directo); día20 `b1-09+22` (pasiva + funciones de werden); día21 `b1-06+12` (conectores subordinantes + wenn/als ampliado).
+- **Semana 4 (días 22-30) — repaso cruzado final + simulacro:** día22 `b1-19+20` (da-/wo- + prep. genitivo); día23 `b1-21+27` (prep. temporales + verbos posición/dirección); día24 `b1-23+24` (separables/inseparables + reflexivos ampliado); día25 `b1-25+28` (negación temporal + lassen); día26 `b1-29+30` (finalidad B1 + conectores dobles); día27 `b1-11+31` (Plusquamperfekt + Partizip I) repaso general; día28 repaso libre de las 3 reglas más flojas (a definir en la sesión de ejecución según errores registrados, o `b1-13,16,20` por defecto); días 29-30: **simulacro final** — mantener escritura/mündliche del día pero con evaluación completa (`escritura.html` tipo `foro` + `mundliche.html` los 3 Teile con puntuación 0-100), sin gramática nueva (solo repaso ligero de 1-2 reglas).
 
-- [x] Sesión 5 — completada: Adverbios/verbos de posición, lassen, y equivalentes B1 de temas hoy en B2
-  - `b1-26` Lokale Adverbien: Position und Direktion
-  - `b1-27` Positions-/Direktionsverben (stehen/stellen, sitzen/setzen, liegen/legen, hängen)
-  - `b1-28` Das Verb lassen (causativo básico — distinto de `c1-01`)
-  - `b1-29` Finalsätze B1 (um...zu / damit) — versión propia B1, `b2-09` se mantiene intacto
-  - `b1-30` Doppelkonnektoren B1 (entweder...oder, weder...noch, sowohl...als auch) — versión propia B1, `b2-06` se mantiene intacto
-  - `b1-31` Partizip I als Adjektiv B1 — versión propia B1, `b2-03` se mantiene intacto
+**Siguiente paso de ejecución:** generar el array `b1: [...]` en `plan.js` (30 objetos `{ day, week, focus, tasks }`) siguiendo la plantilla y rotaciones de arriba, revisando primero el `b1` actual para detectar labels/temas inventados (mismo patrón de diagnóstico que se hizo con A1/A2 antes de reescribir). Ejecutar en una o más sesiones separadas (p. ej. semana por semana) para preservar contexto; marcar cada semana con `[x]` aquí al terminarla.
 
-Cada sesión se ejecuta y marca `[x]` de forma independiente; verificar antes de escribir cada regla que el id no colisione con uno ya usado en `grammar-data.js`.
+### B2 — pendiente (plan de modificación definido, listo para ejecutar por sesiones)
 
-### B2 — pendiente
+**Requisito específico del usuario para B2 (distinto al patrón A1/A2):** cada uno de los 30 días debe incluir **2-3 reglas gramaticales** (no 1), **escritura diaria** (`escritura.html`, no solo semana 4) y **mündliche diaria** (`mundliche.html`, no solo semana 4). Tope de tiempo: repaso de vocabulario **máx. 5 min/día**, cada regla gramatical **5 min**.
+
+**Recursos reales disponibles (verificados en código):**
+- `GRAMMAR_DATA.B2` (`grammar-data.js`, 10 ids `b2-01`…`b2-10`, todos con banco completo en `reformulaciones-data.json` para `chat-reformulaciones.html`):
+  1. `b2-01` Konjunktiv I (discurso indirecto)
+  2. `b2-02` Konjunktiv II pasado (hipótesis irreales en el pasado)
+  3. `b2-03` Partizip I como adjetivo (acción en curso)
+  4. `b2-04` Partizip II como adjetivo (acción completada/resultado)
+  5. `b2-05` Pasiva con agente (von/durch, Zustandspassiv)
+  6. `b2-06` Conectores de dos partes (sowohl…als auch, weder…noch…)
+  7. `b2-07` Nominalizaciones
+  8. `b2-08` Partículas modales (doch, mal, ja, eigentlich, eben, halt)
+  9. `b2-09` Finalidad: um…zu / damit
+  10. `b2-10` Concesión y adversación (obwohl, trotzdem, dennoch, zwar…aber)
+- Categorías reales de vocabulario — `DataB2.json` (vía `palabrasB2.html`, leídas por `shared-game.js`): `esenciales`, `verbos`, `sustantivos`, `adjetivos`, `expresiones`.
+- `escritura.html` nivel B2 (`LEVEL_SPECS.B2`, 130-180 palabras): 3 tipos reales — `foro` (Forumsbeitrag argumentativo), `reclamacion` (carta/e-mail formal de queja), `email-trabajo` (e-mail formal laboral/estudios).
+- `mundliche.html` nivel B2 (`LEVEL_SPECS.B2.teile`): 3 Teile reales — `praesentation` (Teil 1, monólogo 150s), `bildbeschreibung` (Teil 2, "describir una situación", monólogo 90s), `diskussion` (Teil 3, diálogo 60s×6 turnos).
+- `chat-reformulaciones.html`: banco `b2-01`…`b2-10` completo en `reformulaciones-data.json` — se usa para las pasadas de repaso/consolidación (en vez de `gramatica.html`, que se reserva para la primera explicación de cada regla).
+- `kasus.html` **no aplica a B2**: sus modos (Nominativ/Akkusativ/Dativ/Genitiv/Wechselpräpositionen) son contenido de A1/A2; ninguna regla `b2-01`…`b2-10` es de flexión de caso. Se omite del plan B2 salvo que se quiera un repaso puntual de A2 (no solicitado).
+
+**Plantilla diaria (misma estructura los 30 días):**
+```
+tasks: [
+  { app: "gramatica.html" | "chat-reformulaciones.html", label: "Gramática: <título regla>", minutes: 5 },  // × 2-3, una por regla del día
+  { app: "palabrasB2.html", label: "Vocabulario: <categoría del día>", minutes: 5 },
+  { app: "escritura.html", label: "Escritura: <tipo del día>", minutes: 15 },
+  { app: "mundliche.html", label: "Mündliche: <Teil del día>", minutes: 10 }
+]
+```
+Total: ~35-45 min/día (5-6 tareas).
+
+**Rotación de vocabulario y escritura/mündliche (ciclos fijos, sin necesidad de lógica nueva en la app):**
+- Vocabulario: cicla las 5 categorías de `DataB2.json` cada 5 días (`esenciales→verbos→sustantivos→adjetivos→expresiones→repite`).
+- Escritura: cicla los 3 tipos (`foro→reclamacion→email-trabajo→repite`).
+- Mündliche: cicla los 3 Teile (`praesentation→bildbeschreibung→diskussion→repite`).
+
+**Rotación de gramática (spaced repetition, 3 pasadas + repaso final):**
+- **Semana 1 (días 1-7) — primera pasada, explicación con `gramatica.html`:** día 1: `b2-01,02,03`; día 2: `b2-04,05,06`; día 3: `b2-07,08,09`; día 4: `b2-10` + repaso `b2-01,02`; días 5-7: repaso por pares con `chat-reformulaciones.html` (`b2-03+04`, `b2-05+06`, `b2-07+08`) — cierra la primera pasada completa de las 10 reglas.
+- **Semana 2 (días 8-14) — segunda pasada, consolidación temática con `chat-reformulaciones.html`:** agrupar por familia — día 8: `b2-01+02` (Konjunktiv I/II); día 9: `b2-03+04` (Partizip I/II); día 10: `b2-05+07` (pasiva + nominalización, frecuentes juntas en registro formal); día 11: `b2-06+10` (conectores dobles + concesión); día 12: `b2-09+10` (finalidad + concesión); día 13: `b2-08` + repaso libre; día 14: repaso mixto 3 reglas más débiles (a definir en la sesión de ejecución según errores registrados, o `b2-01,05,09` por defecto).
+- **Semana 3 (días 15-21) — tercera pasada, combinaciones cruzadas:** día 15: `b2-01+05`; día 16: `b2-02+04`; día 17: `b2-03+09`; día 18: `b2-06+08`; día 19: `b2-07+10`; día 20: repaso 3 reglas (`b2-02,06,09`); día 21: repaso 3 reglas (`b2-01,04,08`).
+- **Semana 4 (días 22-30) — repaso final + simulacro:** días 22-27: ciclo completo una vez más a 2/día (`b2-01,02` / `b2-03,04` / `b2-05,06` / `b2-07,08` / `b2-09,10` / repaso libre 2 reglas más flojas); día 28: repaso general 3 reglas variadas; días 29-30: **simulacro final** — mantener escritura/mündliche del día pero evaluación completa (`escritura.html` tipo `foro` + `mundliche.html` Teile completos con puntuación 0-100), como cierre del mes, sin introducir gramática nueva (solo repaso ligero 2 reglas).
+
+**Siguiente paso de ejecución:** generar el array `b2: [...]` en `plan.js` (30 objetos `{ day, week, focus, tasks }`) siguiendo la plantilla y rotaciones de arriba, reemplazando el `b2` actual (que usa labels inventados como "Vorgangspassiv básico", "conversación libre B2" sin regla real asociada, y no usa `escritura.html` ni `mundliche.html`). Hacerlo en una o más sesiones separadas (p. ej. semana por semana) para preservar contexto; marcar cada semana con `[x]` aquí al terminarla, siguiendo el mismo formato de bitácora usado en A1/A2.
+
 ### C1 — pendiente
 ### C2 — pendiente

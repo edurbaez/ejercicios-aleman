@@ -395,6 +395,11 @@ body {
 
 #sets-bar .btn { flex: 0 0 auto; }
 
+.section-tabs {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
 .footer-controls {
     display: flex;
     gap: 10px;

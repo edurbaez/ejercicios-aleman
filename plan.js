@@ -522,253 +522,352 @@ window.PLANS = {
   ],
 
   b1: [
-    // Semana 1: Dativ + Genitiv
+    // Semana 1 (días 1-7): primera pasada de gramática, 3 reglas/día (b1-01…b1-21)
     {
       day: 1, week: 1,
-      focus: "El caso Dativo: objeto indirecto",
+      focus: "Präteritum + Konjunktiv II + oraciones de relativo",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: el Dativ", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Dativ", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Präteritum", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Konjunktiv II", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Oraciones de relativo", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Verbos que rigen Dativ",
+      focus: "Genitivo + declinación de adjetivos + conectores subordinantes",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: geben, helfen, danken…", minutes: 10 },
-        { app: "B1.html", label: "Vocabulario: verbos con Dativ", minutes: 15 },
-        { app: "kasus.html", label: "Práctica: Dativ en oraciones", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Genitivo", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Declinación de adjetivos", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Conectores subordinantes", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "Pronombres en Dativ",
+      focus: "Verbos con preposición fija + infinitivo con zu + pasiva básica",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: mir, dir, ihm, ihr…", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador: pronombres Dativ", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Verbos con preposición fija", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Infinitivo con \"zu\"", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Pasiva básica", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
-      focus: "El caso Genitivo: posesión",
+      focus: "Futuro + Plusquamperfekt + wenn vs. als",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: el Genitiv", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Genitiv", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Futuro", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Plusquamperfekt", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Wenn vs. als", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 5, week: 1,
-      focus: "Preposiciones con Genitiv (wegen, trotz…)",
+      focus: "Preguntas indirectas + infinitivo sin zu + relativas con preposición",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: preposiciones + Genitiv", minutes: 10 },
-        { app: "B1.html", label: "Vocabulario: conectores y argumentación", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: expresar causa y razón", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Preguntas indirectas", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Infinitivo sin \"zu\"", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Relativsätze mit Präposition", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 6, week: 1,
-      focus: "Los cuatro casos en contexto",
+      focus: "je…desto + n-Deklination + Adjektive als Nomen",
       tasks: [
-        { app: "kasus.html", label: "Práctica: los 4 casos combinados", minutes: 20 },
-        { app: "B1.html", label: "Vocabulario B1 esenciales", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Vergleichssätze je…desto", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: n-Deklination", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Adjektive als Nomen", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 7, week: 1,
-      focus: "Repaso Dativ y Genitiv",
+      focus: "da-/wo-Präpositionaladverbien + preposiciones con Genitiv + preposiciones temporales",
       tasks: [
-        { app: "kasus.html", label: "Repaso casos semana 1", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre B1", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Präpositionaladverbien da-/wo-", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Präpositionen mit Genitiv", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Temporale Präpositionen", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
-    // Semana 2: Konjunktiv II
+    // Semana 2 (días 8-14): termina primera pasada (b1-22…b1-31) + repaso
     {
       day: 8, week: 2,
-      focus: "Konjunktiv II: formas básicas",
+      focus: "Funciones de werden + verbos separables/inseparables + reflexivos ampliado",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: würde + Infinitiv", minutes: 15 },
-        { app: "B1.html", label: "Vocabulario: deseos y suposiciones", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Funktionen von werden", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Trennbare vs. untrennbare Verben", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Reflexivpronomen (ampliado)", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 9, week: 2,
-      focus: "Konjunktiv II de verbos modales",
+      focus: "Negationswörter + adverbios locales + verbos de posición/dirección",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: könnte, müsste, sollte…", minutes: 10 },
-        { app: "chat-voz.html", label: "Práctica oral: dar consejos", minutes: 15 },
-        { app: "B1.html", label: "Vocabulario: situaciones hipotéticas", minutes: 10 }
+        { app: "gramatica.html", label: "Gramática: Negationswörter", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Lokale Adverbien (Position/Direktion)", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Positions- und Direktionsverben", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 10, week: 2,
-      focus: "Konjunktiv II en oraciones condicionales",
+      focus: "lassen + Finalsätze um…zu/damit + Doppelkonnektoren",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: wenn ich… würde ich…", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: oraciones condicionales", minutes: 20 }
+        { app: "gramatica.html", label: "Gramática: Das Verb lassen", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Finalsätze um…zu / damit", minutes: 5 },
+        { app: "gramatica.html", label: "Gramática: Doppelkonnektoren", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 11, week: 2,
-      focus: "Expresar deseos y sueños",
+      focus: "Partizip I als Adjektiv + repaso Präteritum/Konjunktiv II",
       tasks: [
-        { app: "B1.html", label: "Vocabulario: aspiraciones y planes", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: mis sueños y deseos", minutes: 15 }
+        { app: "gramatica.html", label: "Gramática: Partizip I als Adjektiv", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Präteritum", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Konjunktiv II", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 12, week: 2,
-      focus: "Sugerencias y recomendaciones",
+      focus: "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Du solltest / Es wäre besser", minutes: 10 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: dar consejos B1", minutes: 15 },
-        { app: "B1.html", label: "Vocabulario: vida social", minutes: 10 }
+        { app: "gramatica.html", label: "Repaso: Oraciones de relativo", minutes: 5 },
+        { app: "kasus.html", label: "Repaso: Entrenador de casos Genitiv", minutes: 5 },
+        { app: "kasus.html", label: "Repaso: Entrenador de declinación de adjetivos", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 13, week: 2,
-      focus: "Educación y sistema escolar",
+      focus: "Repaso: conectores subordinantes + verbos con preposición fija + infinitivo con zu",
       tasks: [
-        { app: "B1.html", label: "Vocabulario: educación y escuela", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: experiencias escolares", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Conectores subordinantes", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Verbos con preposición fija", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Infinitivo con \"zu\"", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 14, week: 2,
-      focus: "Repaso Konjunktiv II",
+      focus: "Repaso: pasiva básica + futuro",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Repaso: Konjunktiv II aplicado", minutes: 20 },
-        { app: "B1.html", label: "Repaso vocabulario semana 2", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Pasiva básica", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Futuro", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
-    // Semana 3: Passiv
+    // Semana 3 (días 15-21): consolidación con chat-reformulaciones.html (b1-01…b1-10) y kasus.html
     {
       day: 15, week: 3,
-      focus: "La voz pasiva (Passiv): introducción",
+      focus: "Consolidación: Präteritum + Konjunktiv II",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: werden + Partizip II", minutes: 15 },
-        { app: "B1.html", label: "Vocabulario: procesos y acciones pasivas", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Präteritum", minutes: 5 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: Konjunktiv II", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Passiv en diferentes tiempos verbales",
+      focus: "Consolidación: oraciones de relativo + verbos con preposición fija",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Passiv Präsens / Perfekt", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: activa → pasiva", minutes: 20 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Oraciones de relativo", minutes: 5 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: Verbos con preposición fija", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Passiv con agente (von + Dativ)",
+      focus: "Genitiv (kasus.html) + repaso n-Deklination",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Passiv + von/durch", minutes: 10 },
-        { app: "B1.html", label: "Vocabulario: ciencia y tecnología", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: explicar procesos", minutes: 10 }
+        { app: "kasus.html", label: "Entrenador de casos: Genitiv", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: n-Deklination", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 18, week: 3,
-      focus: "Zustandspassiv vs. Vorgangspassiv",
+      focus: "Declinación de adjetivos (kasus.html) + repaso Adjektive als Nomen",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: sein + Partizip II", minutes: 15 },
-        { app: "kasus.html", label: "Práctica: casos en oraciones pasivas", minutes: 15 }
+        { app: "kasus.html", label: "Entrenador: declinación de adjetivos", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Adjektive als Nomen", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Medioambiente y naturaleza",
+      focus: "Contraste: infinitivo con zu vs. sin zu",
       tasks: [
-        { app: "B1.html", label: "Vocabulario: medioambiente", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: problemas ambientales", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Infinitivo con \"zu\"", minutes: 5 },
+        { app: "chat-reformulaciones.html", label: "Reformulación: Infinitivo sin \"zu\"", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Infinitivkonstruktionen (um zu, ohne zu)",
+      focus: "Pasiva básica + funciones de werden",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: um zu / ohne zu / statt zu", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: construcciones de infinitivo", minutes: 20 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Pasiva básica", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Funktionen von werden", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Repaso Passiv y construcciones verbales",
+      focus: "Conectores subordinantes + wenn vs. als (ampliado)",
       tasks: [
-        { app: "B1.html", label: "Repaso vocabulario semana 3", minutes: 20 },
-        { app: "chat-voz.html", label: "Conversación libre B1", minutes: 15 }
+        { app: "chat-reformulaciones.html", label: "Reformulación: Conectores subordinantes", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Wenn vs. als", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
-    // Semana 4: Simulacro
+    // Semana 4 (días 22-30): repaso cruzado final + simulacro
     {
       day: 22, week: 4,
-      focus: "Simulacro: comprensión oral B1",
+      focus: "Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv",
       tasks: [
-        { app: "chat-voz.html", label: "Simulacro: comprensión y respuesta B1", minutes: 20 },
-        { app: "B1.html", label: "Vocabulario para el examen", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Präpositionaladverbien da-/wo-", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Präpositionen mit Genitiv", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 23, week: 4,
-      focus: "Simulacro: expresión escrita",
+      focus: "Repaso: preposiciones temporales + verbos de posición/dirección",
       tasks: [
-        { app: "corrector.html", label: "Corrección: carta formal B1", minutes: 20 },
-        { app: "B1.html", label: "Vocabulario de cartas y emails", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Temporale Präpositionen", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Positions- und Direktionsverben", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 24, week: 4,
-      focus: "Lectura de textos B1",
+      focus: "Repaso: verbos separables/inseparables + reflexivos ampliado",
       tasks: [
-        { app: "lectura veloz.html", label: "Lectura RSVP de texto B1", minutes: 15 },
-        { app: "B1.html", label: "Vocabulario del texto leído", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Trennbare vs. untrennbare Verben", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Reflexivpronomen (ampliado)", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 25, week: 4,
-      focus: "Simulacro: expresión oral espontánea",
+      focus: "Repaso: Negationswörter + lassen",
       tasks: [
-        { app: "chat-voz.html", label: "Monólogo sobre un tema B1", minutes: 20 },
-        { app: "B1.html", label: "Vocabulario complementario", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Negationswörter", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Das Verb lassen", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 26, week: 4,
-      focus: "Repaso de casos gramaticales",
+      focus: "Repaso: Finalsätze um…zu/damit + Doppelkonnektoren",
       tasks: [
-        { app: "kasus.html", label: "Repaso integral de los 4 casos", minutes: 20 },
-        { app: "gramatica.html", label: "Repaso gramática B1", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Finalsätze um…zu / damit", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Doppelkonnektoren", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: Opinión en foro", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Präsentation", minutes: 10 }
       ]
     },
     {
       day: 27, week: 4,
-      focus: "Reformulación avanzada B1",
+      focus: "Repaso general: Plusquamperfekt + Partizip I als Adjektiv",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: variedad de estructuras", minutes: 20 },
-        { app: "B1.html", label: "Vocabulario repaso", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso: Plusquamperfekt", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Partizip I als Adjektiv", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail semi-formal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 28, week: 4,
-      focus: "Actualidad y sociedad",
+      focus: "Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv",
       tasks: [
-        { app: "B1.html", label: "Vocabulario: sociedad y actualidad", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: temas de actualidad B1", minutes: 20 }
+        { app: "gramatica.html", label: "Repaso: Preguntas indirectas", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Vergleichssätze je…desto", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso: Präpositionen mit Genitiv", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html", label: "Escritura: E-Mail informal", minutes: 15 },
+        { app: "mundliche.html", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 29, week: 4,
-      focus: "Repaso integral B1",
+      focus: "Simulacro final (1/2): escritura evaluada + repaso ligero",
       tasks: [
-        { app: "B1.html", label: "Vocabulario completo B1", minutes: 20 },
-        { app: "corrector.html", label: "Corrección: texto libre B1", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso ligero: Konjunktiv II", minutes: 5 },
+        { app: "gramatica.html", label: "Repaso ligero: Conectores subordinantes", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html", label: "Simulacro examen: Opinión en foro (evaluación completa)", minutes: 20 },
+        { app: "mundliche.html", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
     {
       day: 30, week: 4,
-      focus: "Evaluación final B1",
+      focus: "Simulacro final (2/2): mündliche evaluada, los 3 Teile",
       tasks: [
-        { app: "chat-voz.html", label: "Conversación evaluación B1", minutes: 20 },
-        { app: "corrector.html", label: "Texto de evaluación B1", minutes: 15 }
+        { app: "gramatica.html", label: "Repaso ligero: Pasiva básica", minutes: 5 },
+        { app: "B1.html", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "mundliche.html", label: "Simulacro examen Teil 1: Sich vorstellen", minutes: 10 },
+        { app: "mundliche.html", label: "Simulacro examen Teil 2: Präsentation", minutes: 10 },
+        { app: "mundliche.html", label: "Simulacro examen Teil 3: Gemeinsam planen", minutes: 10 }
       ]
     }
   ],

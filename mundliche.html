@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mündliche Prüfung</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body id="page-mp">
+    <nav id="navbar">
+        <a href="/">Inicio</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu">
+                <div class="nav-submenu">
+                    <button type="button" class="nav-submenu-btn" onclick="this.closest('.nav-submenu').classList.toggle('open');event.stopPropagation()">Vocabulario ▸</button>
+                    <div class="nav-submenu-menu">
+                        <a href="A1.html">A1</a>
+                        <a href="A2.html">A2</a>
+                        <a href="B1.html">B1</a>
+                        <a href="palabrasB2.html">B2</a>
+                        <a href="C1.html">C1</a>
+                        <a href="C2.html">C2</a>
+                    </div>
+                </div>
+                <a href="gramatica.html">Gramática</a>
+                <a href="kasus.html">Kasus-Trainer</a>
+                <a href="chat-reformulaciones.html">Reformulaciones</a>
+                <a href="escritura.html">Escritura</a>
+                <a href="mundliche.html" class="active">Mündliche Prüfung</a>
+                <a href="diccionario.html">Diccionario</a>
+                <a href="chat-voz.html">Chat de Voz</a>
+                <a href="corrector.html">Corrector</a>
+                <a href="lectura veloz.html">Entrenamiento de lectura</a>
+                <a href="plan.html">Plan 30 días</a>
+            </div>
+        </div>
+        <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión" aria-label="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <button id="darkModeBtn" onclick="toggleMpDark()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown')){document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}else if(!e.target.closest('.nav-submenu')){document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}});</script>
+
+    <div class="mp-container">
+
+        <div class="mp-header">
+            <h1>🗣️ Mündliche Prüfung</h1>
+            <p>Practica las partes del examen oral (Goethe/telc) por nivel: la IA genera la tarea, tú respondes en voz alta y recibes una evaluación detallada.</p>
+        </div>
+
+        <div class="mp-disclaimer">
+            ⚠️ La evaluación se basa en la transcripción de tu voz (Whisper): puede juzgar <strong>contenido, gramática, vocabulario, fluidez e interacción</strong>, pero <strong>no puede evaluar tu pronunciación ni acento</strong>.
+        </div>
+
+        <!-- Selector de nivel -->
+        <div class="mp-selector" id="mp-level-btns">
+            <button class="mp-pill" data-level="A1">A1</button>
+            <button class="mp-pill" data-level="A2">A2</button>
+            <button class="mp-pill active" data-level="B1">B1</button>
+            <button class="mp-pill" data-level="B2">B2</button>
+            <button class="mp-pill" data-level="C1">C1</button>
+            <button class="mp-pill" data-level="C2">C2</button>
+        </div>
+
+        <!-- Selector de Teil (se llena según nivel) -->
+        <div class="mp-selector" id="mp-teil-btns"></div>
+
+        <!-- Área de tarea -->
+        <div class="mp-card" id="mp-task-area">
+            <div class="mp-idle">
+                <div class="mp-idle-icon">🎤</div>
+                <p>Elige tu nivel y una parte del examen, y pulsa <strong>Generar tarea</strong>.</p>
+                <button class="mp-gen-btn" id="mp-gen-btn" onclick="generarTarea()">Generar tarea</button>
+            </div>
+        </div>
+
+        <!-- Zona de práctica (preparación / grabación / diálogo) -->
+        <div class="mp-card" id="mp-practice-area" style="display:none;"></div>
+
+        <!-- Resultado -->
+        <div id="mp-result" style="display:none;"></div>
+
+        <button class="mp-next-btn" id="mp-next-btn" style="display:none;" onclick="generarTarea()">Nueva tarea →</button>
+
+        <p class="mp-daily-info" id="mp-daily-info"></p>
+
+        <!-- Historial de intentos -->
+        <details class="mp-theory" id="mp-historial" style="display:none;">
+            <summary>📚 Mis intentos</summary>
+            <div class="mp-theory-body">
+                <div id="mp-hist-list"></div>
+                <button class="mp-pill mp-pill-sm" id="mp-hist-clear">🗑️ Borrar historial</button>
+            </div>
+        </details>
+
+    </div>
+
+    <script>
+    // ── Estado ────────────────────────────────────────
+    const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos
+
+    const MpState = {
+        level: 'B1',
+        teilId: null,
+        tarea: null,
+        cargando: false,
+        evaluando: false,
+        prefetch: null,
+        dailyUsedMs: 0,
+        // grabación
+        isRecording: false,
+        mediaRecorder: null,
+        audioChunks: [],
+        recTimerInterval: null,
+        recSeconds: 0,
+        // TTS
+        isSpeaking: false,
+        voices: [],
+        selectedVoice: null,
+        currentAudio: null,
+        // diálogo
+        turnos: [],       // [{role:'ai'|'user', text}]
+        turnoCount: 0,
+        dialogoActivo: false,
+    };
+
+    // ── Especificación por nivel: Teile del examen oral (Goethe/telc) ──
+    const LEVEL_SPECS = {
+        A1: { teile: [
+            { id: 'vorstellung', nombre: 'Teil 1: Sich vorstellen', modo: 'monologo', duracion_seg: 60, vorbereitung_seg: 30,
+              guia: 'Nivel A1 (Goethe Start Deutsch 1, Teil 1 - Sich vorstellen): el estudiante debe presentarse con datos muy básicos (Name, Land, Wohnort, Sprachen, Beruf, Hobby). Genera 4-5 palabras clave en alemán muy simple que el estudiante debe mencionar al presentarse.' },
+            { id: 'frage-antwort', nombre: 'Teil 2: Fragen und Antworten', modo: 'dialogo', duracion_seg: 30, vorbereitung_seg: 20, turnos_max: 4,
+              guia: 'Nivel A1 Teil 2 - Fragen und Antworten: dos tarjetas de palabras clave (p.ej. "Wohnung", "Urlaub") sobre las que el estudiante debe preguntar y responder junto a su compañero. Genera 2 palabras clave en alemán muy simple.',
+              persona: 'Eres el compañero de examen del estudiante en el Teil 2 (Fragen und Antworten). Hazle una pregunta simple sobre la primera palabra clave, espera su respuesta y luego pregúntale también sobre la segunda. Usa alemán muy simple (nivel A1), frases de máximo 6 palabras.' },
+            { id: 'bitte-formulieren', nombre: 'Teil 3: Um etwas bitten', modo: 'dialogo', duracion_seg: 30, vorbereitung_seg: 20, turnos_max: 3,
+              guia: 'Nivel A1 Teil 3 - Bitte formulieren: el estudiante debe formular una petición sencilla o reaccionar a una petición (p.ej. pedir prestado algo, pedir ayuda). Describe brevemente en alemán muy simple la situación.',
+              persona: 'Eres el examinador del Teil 3. Pide algo al estudiante o reacciona a su petición de forma breve y simple, en alemán nivel A1.' },
+        ]},
+        A2: { teile: [
+            { id: 'vorstellung', nombre: 'Teil 1: Sich vorstellen', modo: 'monologo', duracion_seg: 60, vorbereitung_seg: 20,
+              guia: 'Nivel A2 (Goethe A2 / Fit 2, Teil 1): presentación personal algo más completa que A1: nombre, edad, familia, trabajo/estudios, aficiones. Genera 5 palabras clave en alemán simple.' },
+            { id: 'thema-erzaehlen', nombre: 'Teil 2: Über ein Thema sprechen', modo: 'monologo', duracion_seg: 75, vorbereitung_seg: 45,
+              guia: 'Nivel A2 Teil 2 - über ein vertrautes Thema sprechen: el estudiante habla ~1 minuto sobre un tema cotidiano a partir de una tarjeta con palabras clave (p.ej. vacaciones, familia, tiempo libre). Genera 3-4 palabras clave en alemán simple.' },
+            { id: 'gemeinsam-planen', nombre: 'Teil 3: Etwas gemeinsam planen', modo: 'dialogo', duracion_seg: 40, vorbereitung_seg: 30, turnos_max: 5,
+              guia: 'Nivel A2 Teil 3 - Etwas gemeinsam planen: el estudiante y su compañero deben planificar algo sencillo (p.ej. una pequeña fiesta o una excursión). Describe la situación en alemán simple con 2-3 puntos a decidir.',
+              persona: 'Eres el compañero de examen del Teil 3. Da tu opinión, propone alternativas y ayuda a llegar a un acuerdo sobre lo que hay que planificar, en alemán simple (nivel A2).' },
+        ]},
+        B1: { teile: [
+            { id: 'vorstellung', nombre: 'Teil 1: Sich kurz vorstellen', modo: 'monologo', duracion_seg: 50, vorbereitung_seg: 20,
+              guia: 'Nivel B1 Teil 1: presentación personal breve y fluida (nombre, origen, formación, motivaciones). Genera 4 palabras clave en alemán nivel B1.' },
+            { id: 'praesentation', nombre: 'Teil 2: Ein Thema präsentieren', modo: 'monologo', duracion_seg: 120, vorbereitung_seg: 60,
+              guia: 'Nivel B1 (Goethe B1 Sprechen) Teil 2 - Präsentation: presentación breve y estructurada (introducción, desarrollo, cierre) de unos 2 minutos sobre un tema cotidiano. Genera un título y 3 puntos guía (Leitpunkte) en alemán nivel B1.' },
+            { id: 'gemeinsam-planen', nombre: 'Teil 3: Gemeinsam etwas planen', modo: 'dialogo', duracion_seg: 45, vorbereitung_seg: 30, turnos_max: 6,
+              guia: 'Nivel B1 Teil 3 - Gemeinsam etwas planen: el clásico ejercicio B1 de organizar algo juntos (un evento, un viaje, una celebración), discutiendo pros y contras hasta llegar a un acuerdo. Describe la situación en alemán B1 con 3 puntos a decidir.',
+              persona: 'Eres el compañero de examen del Teil 3 (Gemeinsam etwas planen). Discute con el estudiante para organizar lo propuesto: da tu opinión, sugiere alternativas, plantea algún inconveniente y busca llegar a un acuerdo final. Alemán nivel B1.' },
+        ]},
+        B2: { teile: [
+            { id: 'praesentation', nombre: 'Teil 1: Präsentation', modo: 'monologo', duracion_seg: 150, vorbereitung_seg: 60,
+              guia: 'Nivel B2 (Goethe B2 Sprechen) Teil 1 - Präsentation: presentación estructurada (introducción, desarrollo con argumentos, conclusión) de ~2-3 minutos sobre un tema social semi-abstracto. Genera un título y 3 puntos guía en alemán nivel B2.' },
+            { id: 'bildbeschreibung', nombre: 'Teil 2: Eine Situation beschreiben', modo: 'monologo', duracion_seg: 90, vorbereitung_seg: 30,
+              guia: 'Nivel B2 Teil 2 - Bildbeschreibung: en vez de una fotografía real, describe en alemán (nivel B2) una escena visual detallada (lugar, personas, qué hacen, posible contexto) que el estudiante debe describir e interpretar oralmente como si viera la imagen. Genera esa descripción de escena como "situacion" y 3 puntos guía (qué debe describir/interpretar).' },
+            { id: 'diskussion', nombre: 'Teil 3: Diskussion', modo: 'dialogo', duracion_seg: 60, vorbereitung_seg: 40, turnos_max: 6,
+              guia: 'Nivel B2 Teil 3 - Diskussion (Streitgespräch): el estudiante debe defender una postura sobre un tema controvertido y responder a contraargumentos. Genera el tema y 2-3 puntos guía en alemán B2.',
+              persona: 'Eres el oponente en un Streitgespräch. Adopta una postura contraria a la del estudiante sobre el tema propuesto y argumenta con firmeza pero de forma educada, en alemán nivel B2.' },
+        ]},
+        C1: { teile: [
+            { id: 'vortrag', nombre: 'Teil 1: Vortrag', modo: 'monologo', duracion_seg: 210, vorbereitung_seg: 90,
+              guia: 'Nivel C1 (Goethe C1 Sprechen) Teil 1 - Vortrag: presentación estructurada de 3-4 minutos sobre un tema social o de actualidad, con tesis, argumentación desarrollada y conclusión. Genera un título y 3-4 puntos guía en alemán nivel C1.' },
+            { id: 'diskussion', nombre: 'Teil 2: Diskussion', modo: 'dialogo', duracion_seg: 60, vorbereitung_seg: 40, turnos_max: 6,
+              guia: 'Nivel C1 Teil 2 - Diskussion: debate matizado sobre el tema del Vortrag u otro tema relacionado, con una postura adversarial asignada al examinador. Genera el tema y 2-3 puntos guía en alemán C1.',
+              persona: 'Eres el interlocutor en un debate de nivel C1. Adopta una postura adversarial asignada, argumenta con matices y presiona al estudiante a defender y refinar su posición, en alemán culto y preciso.' },
+            { id: 'feedback-geben', nombre: 'Teil 3: Stellung nehmen', modo: 'monologo', duracion_seg: 60, vorbereitung_seg: 30,
+              guia: 'Nivel C1 Teil 3 - Stellung nehmen: el estudiante debe reaccionar y comentar una afirmación o dato dado. Genera esa afirmación/dato (breve, en alemán C1) como "situacion" y 2 puntos guía sobre qué debe comentar.' },
+        ]},
+        C2: { teile: [
+            { id: 'vortrag', nombre: 'Teil 1: Vortrag', modo: 'monologo', duracion_seg: 240, vorbereitung_seg: 90,
+              guia: 'Nivel C2 (Goethe C2 GDS) Teil 1 - Vortrag académico: presentación compleja con estructura retórica (Aufhänger, Entfaltung, Pointe) sobre un tema abstracto. Genera un título y 3-4 puntos guía en alemán de registro culto.' },
+            { id: 'diskussion', nombre: 'Teil 2: Diskussion', modo: 'dialogo', duracion_seg: 60, vorbereitung_seg: 40, turnos_max: 6,
+              guia: 'Nivel C2 Teil 2 - Diskussion: debate de registro alto sobre el tema del Vortrag u otro tema relacionado. Genera el tema y 2-3 puntos guía en alemán C2.',
+              persona: 'Eres el interlocutor en un debate de nivel C2. Argumenta con registro alto, matices e idiomatismo, y empuja al estudiante hacia posiciones más nuanced, en alemán muy natural.' },
+            { id: 'zusammenfassen-kommentieren', nombre: 'Teil 3: Zusammenfassen und kommentieren', modo: 'monologo', duracion_seg: 90, vorbereitung_seg: 45,
+              guia: 'Nivel C2 Teil 3 - Zusammenfassen und kommentieren: el estudiante debe resumir y comentar un texto o cita breve. Genera ese texto/cita corto (en alemán C2) como "situacion" y 2 puntos guía sobre qué debe resumir/comentar.' },
+        ]},
+    };
+
+    // ── Temas por nivel (mismos que escritura.html) ──
+    const TEMAS = {
+        A1: ['la familia', 'la comida y las bebidas', 'la rutina diaria', 'el tiempo libre', 'la casa y la vivienda', 'las compras', 'una cita (médico, amigo)', 'un cumpleaños o una fiesta'],
+        A2: ['las vacaciones', 'el trabajo diario', 'una invitación', 'la salud y el médico', 'el transporte y la ciudad', 'una mudanza', 'el fin de semana', 'el clima y las estaciones'],
+        B1: ['el medio ambiente y el reciclaje', 'la vida en la ciudad vs. el campo', 'el deporte y la salud', 'aprender idiomas', 'las redes sociales', 'el trabajo y la formación profesional', 'los viajes y el turismo', 'la alimentación sana'],
+        B2: ['el teletrabajo', 'el consumo y la publicidad', 'la educación digital', 'la migración y la integración', 'la movilidad y el transporte del futuro', 'la inteligencia artificial en la vida diaria', 'el turismo de masas', 'el sistema de salud'],
+        C1: ['la globalización y sus efectos', 'la ética en la ciencia', 'el mercado laboral moderno', 'la protección de datos', 'el cambio climático y la política', 'la cultura y la identidad', 'la desigualdad social', 'el papel de los medios de comunicación'],
+        C2: ['la bioética', 'la libertad de expresión y sus límites', 'el arte contemporáneo y su valor', 'la tecnología y la condición humana', 'la política internacional', 'la literatura y la sociedad', 'la memoria histórica', 'el futuro de la democracia'],
+    };
+
+    // ── Dark mode ─────────────────────────────────────
+    const _moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
+    const _sunSVG  = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
+
+    (function () {
+        if (localStorage.getItem('darkMode_mp') === 'true') {
+            document.body.classList.add('dark');
+            document.getElementById('darkModeBtn').innerHTML = _sunSVG;
+        }
+    })();
+
+    function toggleMpDark() {
+        document.body.classList.toggle('dark');
+        const isDark = document.body.classList.contains('dark');
+        document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
+        localStorage.setItem('darkMode_mp', isDark);
+    }
+
+    // ── Helpers ───────────────────────────────────────
+    function escHtml(s) {
+        return String(s)
+            .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+            .replaceAll('"','&quot;');
+    }
+
+    function stripFences(s) {
+        const start = s.indexOf('{');
+        const end = s.lastIndexOf('}');
+        if (start === -1 || end === -1 || end < start) return s;
+        return s.slice(start, end + 1);
+    }
+
+    function currentTeil() {
+        const teile = LEVEL_SPECS[MpState.level].teile;
+        return teile.find(t => t.id === MpState.teilId) || teile[0];
+    }
+
+    // ── Selectores de nivel / Teil ─────────────────────
+    function renderTeilButtons() {
+        const wrap = document.getElementById('mp-teil-btns');
+        const teile = LEVEL_SPECS[MpState.level].teile;
+        if (!teile.some(t => t.id === MpState.teilId)) MpState.teilId = teile[0].id;
+        wrap.innerHTML = teile.map(t =>
+            `<button class="mp-pill mp-pill-sm ${MpState.teilId === t.id ? 'active' : ''}" data-teil="${t.id}">${escHtml(t.nombre)}</button>`
+        ).join('');
+        wrap.querySelectorAll('[data-teil]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                wrap.querySelectorAll('[data-teil]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                MpState.teilId = btn.dataset.teil;
+            });
+        });
+    }
+
+    (function initLevel() {
+        const saved = localStorage.getItem('mp_level') || localStorage.getItem('onboarding_level');
+        if (saved && LEVEL_SPECS[saved.toUpperCase()]) MpState.level = saved.toUpperCase();
+        document.querySelectorAll('#mp-level-btns .mp-pill').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.level === MpState.level);
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#mp-level-btns .mp-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                MpState.level = btn.dataset.level;
+                localStorage.setItem('mp_level', MpState.level);
+                MpState.teilId = null;
+                renderTeilButtons();
+            });
+        });
+        renderTeilButtons();
+    })();
+
+    // ── API ───────────────────────────────────────────
+    async function apiChat(token, system, userMsg, opts = {}) {
+        const resp = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }], ...opts }),
+        });
+        if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para practicar el examen oral.'); }
+        const raw = await resp.text();
+        let data;
+        try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+        if (!resp.ok) throw new Error(data.error || 'Error de API');
+        return data.reply;
+    }
+
+    // ── Generar tarea ─────────────────────────────────
+    function buildTaskPrompt() {
+        const teil = currentTeil();
+        const tema = TEMAS[MpState.level][Math.floor(Math.random() * TEMAS[MpState.level].length)];
+
+        const system = `Eres un examinador de alemán y diseñas tareas de expresión oral al estilo de los exámenes oficiales (Goethe-Zertifikat, telc). ${teil.guia}
+Tema sugerido: "${tema}" (úsalo solo si encaja con el tipo de tarea; si no encaja, elige un tema similar apropiado).
+Toda la consigna va en ALEMÁN, con vocabulario y estructuras adecuados al nivel ${MpState.level}.
+Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
+{"titulo":"título breve en alemán","situacion":"descripción en alemán de la situación/tarjeta/escena (2-4 frases)","puntos":["punto guía 1 en alemán","punto guía 2 en alemán","punto guía 3 en alemán"]}`;
+
+        const userMsg = `Genera una tarea oral nivel ${MpState.level}, ${teil.nombre}.`;
+        return { system, userMsg, teil };
+    }
+
+    async function fetchTarea(token) {
+        for (let intento = 0; intento < 2; intento++) {
+            const p = buildTaskPrompt();
+            const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 700 });
+            try {
+                const t = JSON.parse(stripFences(reply));
+                if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 2) {
+                    t.teilId = p.teil.id;
+                    t.teilNombre = p.teil.nombre;
+                    t.level = MpState.level;
+                    return t;
+                }
+            } catch {}
+        }
+        throw new Error('El modelo devolvió una tarea inválida');
+    }
+
+    // Prefetch: mientras se corrige/revisa el intento anterior, la siguiente
+    // tarea ya se genera en background (mismo patrón que escritura.html/kasus.html).
+    function prefetchKey() { return `${MpState.level}|${MpState.teilId}`; }
+
+    function startPrefetch(token) {
+        const key = prefetchKey();
+        if (MpState.prefetch && MpState.prefetch.key === key) return;
+        MpState.prefetch = { key, promise: fetchTarea(token).catch(() => null) };
+    }
+
+    async function generarTarea() {
+        if (MpState.cargando) return;
+        if (MpState.dailyUsedMs >= DAILY_LIMIT_MS) { setPracticeError('Límite diario de 60 min alcanzado. Vuelve mañana.'); return; }
+        MpState.cargando = true;
+        cancelCurrentSpeech();
+        stopVorbereitungTimer();
+        document.getElementById('mp-result').style.display = 'none';
+        document.getElementById('mp-next-btn').style.display = 'none';
+        document.getElementById('mp-practice-area').style.display = 'none';
+
+        const area = document.getElementById('mp-task-area');
+        area.innerHTML = `<div class="mp-loading">Generando tarea de nivel ${escHtml(MpState.level)}…</div>`;
+
+        try {
+            const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+            if (!token) throw new Error('AUTH');
+
+            let tarea = null;
+            if (MpState.prefetch && MpState.prefetch.key === prefetchKey()) {
+                tarea = await MpState.prefetch.promise;
+            }
+            MpState.prefetch = null;
+            if (!tarea) tarea = await fetchTarea(token);
+
+            MpState.tarea = tarea;
+            MpState.turnos = [];
+            MpState.turnoCount = 0;
+            renderTarea(tarea);
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('mundliche', 'task_generated', { level: MpState.level, teil: tarea.teilId });
+            }
+            startPrefetch(token);
+        } catch (err) {
+            if (err.message === 'AUTH') {
+                area.innerHTML = `<div class="mp-error">Inicia sesión para practicar el examen oral.</div>`;
+            } else {
+                area.innerHTML = `<div class="mp-error">Error: ${escHtml(err.message)}. <button class="mp-gen-btn" onclick="generarTarea()" style="margin-top:12px;">Reintentar</button></div>`;
+            }
+        } finally {
+            MpState.cargando = false;
+        }
+    }
+
+    function renderTarea(t) {
+        const teil = currentTeil();
+        const area = document.getElementById('mp-task-area');
+        area.innerHTML = `
+            <div class="mp-task">
+                <div class="mp-task-meta">
+                    <span class="mp-badge">${escHtml(t.level || MpState.level)}</span>
+                    <span class="mp-badge mp-badge-teil">${escHtml(t.teilNombre)}</span>
+                    <span class="mp-badge mp-badge-modo">${teil.modo === 'dialogo' ? '🗨️ Diálogo' : '🎙️ Monólogo'}</span>
+                    <button class="mp-pill mp-pill-sm mp-retask-btn" onclick="generarTarea()" title="Genera otra tarea con el nivel y Teil seleccionados">🔄 Otra tarea</button>
+                </div>
+                <h2 class="mp-task-title">${escHtml(t.titulo)}</h2>
+                <p class="mp-task-situacion">${escHtml(t.situacion)}</p>
+                <ul class="mp-task-puntos">
+                    ${t.puntos.map(p => `<li>${escHtml(p)}</li>`).join('')}
+                </ul>
+                <button class="mp-gen-btn" onclick="startVorbereitung()">Empezar preparación</button>
+            </div>`;
+    }
+
+    // ── Vorbereitung (countdown corto de preparación) ──
+    let _vorbInterval = null;
+
+    function stopVorbereitungTimer() {
+        clearInterval(_vorbInterval);
+        _vorbInterval = null;
+    }
+
+    function startVorbereitung() {
+        const teil = currentTeil();
+        const area = document.getElementById('mp-practice-area');
+        area.style.display = 'block';
+        document.getElementById('mp-task-area').querySelector('.mp-gen-btn')?.remove();
+
+        if (!teil.vorbereitung_seg) { startPart(); return; }
+
+        let remaining = teil.vorbereitung_seg;
+        area.innerHTML = `
+            <div class="mp-vorb">
+                <p class="mp-vorb-label">🕐 Preparación</p>
+                <div class="mp-vorb-time" id="mp-vorb-time">${remaining}s</div>
+                <p class="mp-vorb-hint">Piensa qué vas a decir. La grabación empezará automáticamente.</p>
+                <button class="mp-pill mp-pill-sm" onclick="skipVorbereitung()">Saltar preparación →</button>
+            </div>`;
+
+        _vorbInterval = setInterval(() => {
+            remaining--;
+            const el = document.getElementById('mp-vorb-time');
+            if (el) el.textContent = `${Math.max(0, remaining)}s`;
+            if (remaining <= 0) {
+                stopVorbereitungTimer();
+                startPart();
+            }
+        }, 1000);
+    }
+
+    function skipVorbereitung() {
+        stopVorbereitungTimer();
+        startPart();
+    }
+
+    // ── Dispatch por modo ───────────────────────────────
+    function startPart() {
+        const teil = currentTeil();
+        if (teil.modo === 'dialogo') startDialogo();
+        else startMonologoUI();
+    }
+
+    function setPracticeError(msg) {
+        document.getElementById('mp-practice-area').style.display = 'block';
+        document.getElementById('mp-practice-area').innerHTML = `<div class="mp-error">${escHtml(msg)}</div>`;
+    }
+
+    // ══════════════════════ MONÓLOGO ══════════════════════
+    function startMonologoUI() {
+        const teil = currentTeil();
+        const area = document.getElementById('mp-practice-area');
+        area.innerHTML = `
+            <div class="mp-record-zone">
+                <div class="mp-timer" id="mp-rec-timer" style="display:none">
+                    <div class="mp-timer-bar-wrap"><div class="mp-timer-bar" id="mp-rec-timer-bar"></div></div>
+                    <span id="mp-rec-timer-text">0:00</span>
+                </div>
+                <button class="mp-record-btn" id="mp-record-btn" onclick="startMonologoRecording()">🎙️ Grabar respuesta</button>
+                <button class="mp-send-btn" id="mp-send-btn" style="display:none" onclick="stopMonologoRecording()">⏹ Enviar</button>
+                <p class="mp-hint" id="mp-hint">Presiona "Grabar respuesta" y habla en alemán (máx. ${Math.round(teil.duracion_seg / 60 * 10) / 10} min).</p>
+            </div>`;
+    }
+
+    async function startMonologoRecording() {
+        if (MpState.isRecording) return;
+        if (MpState.dailyUsedMs >= DAILY_LIMIT_MS) { setHint('Límite diario de 60 min alcanzado.'); return; }
+        const teil = currentTeil();
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            MpState.audioChunks = [];
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+            MpState.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            MpState.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) MpState.audioChunks.push(e.data); };
+            MpState.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(MpState.audioChunks, { type: MpState.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeMonologo(blob);
+            };
+            MpState.mediaRecorder.start(100);
+            MpState.isRecording = true;
+            MpState.recSeconds = 0;
+
+            document.getElementById('mp-rec-timer').style.display = 'flex';
+            document.getElementById('mp-record-btn').style.display = 'none';
+            document.getElementById('mp-send-btn').style.display = 'inline-flex';
+            updateRecTimer(teil.duracion_seg);
+
+            MpState.recTimerInterval = setInterval(() => {
+                MpState.recSeconds++;
+                updateRecTimer(teil.duracion_seg);
+                if (MpState.recSeconds >= teil.duracion_seg) stopMonologoRecording();
+            }, 1000);
+
+            setHint('Grabando... presiona Enviar cuando termines');
+        } catch {
+            setHint('Error: no se pudo acceder al micrófono');
+        }
+    }
+
+    function updateRecTimer(maxSeconds) {
+        const s = MpState.recSeconds;
+        const textEl = document.getElementById('mp-rec-timer-text');
+        if (!textEl) return;
+        textEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+        const pct = Math.min(1, s / maxSeconds);
+        const hue = Math.round(35 - 35 * pct + (pct > 0.85 ? -20 : 0)); // marrón cálido → rojo cerca del límite
+        const color = `hsl(${hue}, 65%, 42%)`;
+        const bar = document.getElementById('mp-rec-timer-bar');
+        bar.style.width = `${pct * 100}%`;
+        bar.style.background = color;
+        textEl.style.color = color;
+    }
+
+    function stopMonologoRecording() {
+        if (!MpState.isRecording) return;
+        MpState.isRecording = false;
+        clearInterval(MpState.recTimerInterval);
+        document.getElementById('mp-rec-timer').style.display = 'none';
+        document.getElementById('mp-send-btn').style.display = 'none';
+        setHint('Transcribiendo...');
+        if (MpState.mediaRecorder && MpState.mediaRecorder.state !== 'inactive') {
+            MpState.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeMonologo(audioBlob) {
+        const durationMs = MpState.recSeconds * 1000;
+        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
+        MpState.dailyUsedMs += durationMs;
+        updateDailyUI();
+
+        const text = await transcribeBlob(audioBlob);
+        if (text === null) return; // error already shown
+        if (!text) { setHint('No se detectó voz. Intenta de nuevo.'); startMonologoUI(); return; }
+
+        await evaluarOral(text, false);
+    }
+
+    // ══════════════════════ DIÁLOGO ══════════════════════
+    function dialogoSystemPrompt() {
+        const teil = currentTeil();
+        const t = MpState.tarea;
+        const guides = {
+            A1: 'Verwende sehr einfaches Deutsch (max. 8 Wörter pro Satz, nur Präsens).',
+            A2: 'Verwende einfaches Deutsch (kurze Sätze, Präsens/Perfekt).',
+            B1: 'Verwende mittleres Deutsch (Alltagswortschatz, verschiedene Zeitformen).',
+            B2: 'Verwende fortgeschrittenes Deutsch (reicher Wortschatz, Konjunktiv).',
+            C1: 'Verwende anspruchsvolles Deutsch (breiter Wortschatz, idiomatische Ausdrücke).',
+            C2: 'Verwende vollständig natürliches, idiomatisches Deutsch.',
+        };
+        return `${teil.persona}
+Situation: ${t.titulo} — ${t.situacion}
+Punkte: ${t.puntos.join(' | ')}
+${guides[MpState.level]}
+Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf Deutsch (1-3 Sätze)","turno_final":false}
+"turno_final": true nur, wenn das Gespräch aus deiner Sicht einen natürlichen Abschluss erreicht hat.`;
+    }
+
+    function startDialogo() {
+        MpState.turnos = [];
+        MpState.turnoCount = 0;
+        MpState.dialogoActivo = true;
+        const area = document.getElementById('mp-practice-area');
+        area.innerHTML = `
+            <div class="mp-dialogo-zone">
+                <div class="mp-dialogo-transcript" id="mp-dialogo-transcript"></div>
+                <div class="mp-timer" id="mp-rec-timer" style="display:none">
+                    <div class="mp-timer-bar-wrap"><div class="mp-timer-bar" id="mp-rec-timer-bar"></div></div>
+                    <span id="mp-rec-timer-text">0:00</span>
+                </div>
+                <button class="mp-record-btn" id="mp-record-btn" style="display:none" onclick="startDialogoRecording()">🎙️ Responder</button>
+                <button class="mp-send-btn" id="mp-send-btn" style="display:none" onclick="stopDialogoRecording()">⏹ Enviar</button>
+                <p class="mp-hint" id="mp-hint">La IA va a empezar la conversación...</p>
+            </div>`;
+        dialogoAiTurn(null);
+    }
+
+    function addDialogoBubble(role, text) {
+        const wrap = document.getElementById('mp-dialogo-transcript');
+        const div = document.createElement('div');
+        div.className = `mp-bubble mp-bubble-${role}`;
+        div.textContent = text;
+        wrap.appendChild(div);
+        wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    async function dialogoAiTurn(userText) {
+        const teil = currentTeil();
+        if (userText) {
+            MpState.turnos.push({ role: 'user', text: userText });
+            addDialogoBubble('user', userText);
+        }
+        setHint('IA pensando...');
+        document.getElementById('mp-record-btn').style.display = 'none';
+
+        try {
+            const token = await window.getAuthToken?.();
+            if (!token) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
+            const history = MpState.turnos.map(t => ({ role: t.role === 'ai' ? 'assistant' : 'user', content: t.text }));
+            const messages = history.length
+                ? history.slice(-10)
+                : [{ role: 'user', content: 'Beginne das Gespräch passend zur Situation.' }];
+            const reply = await apiChat(token, dialogoSystemPrompt(), messages[messages.length - 1].content, { json: true, messages });
+
+            let antwort = reply, turnoFinal = false;
+            try {
+                const parsed = JSON.parse(stripFences(reply));
+                antwort = parsed.antwort || reply;
+                turnoFinal = parsed.turno_final === true;
+            } catch {}
+
+            MpState.turnos.push({ role: 'ai', text: antwort });
+            addDialogoBubble('ai', antwort);
+            MpState.turnoCount++;
+
+            const maxTurnos = teil.turnos_max || 6;
+            if (turnoFinal || MpState.turnoCount >= maxTurnos) {
+                setHint('Diálogo terminado. Evaluando...');
+                const transcript = MpState.turnos.map(t => `${t.role === 'ai' ? 'Prüfer' : 'Kandidat'}: ${t.text}`).join('\n');
+                await evaluarOral(transcript, true);
+                return;
+            }
+
+            speak(antwort, () => {
+                setHint('Presiona "Responder" para hablar');
+                document.getElementById('mp-record-btn').style.display = 'inline-flex';
+            });
+        } catch (e) {
+            setHint(`Error: ${e.message}`);
+        }
+    }
+
+    async function startDialogoRecording() {
+        if (MpState.isRecording) return;
+        if (MpState.dailyUsedMs >= DAILY_LIMIT_MS) { setHint('Límite diario de 60 min alcanzado.'); return; }
+        const teil = currentTeil();
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            MpState.audioChunks = [];
+            const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
+                .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
+            MpState.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            MpState.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) MpState.audioChunks.push(e.data); };
+            MpState.mediaRecorder.onstop = async () => {
+                stream.getTracks().forEach(t => t.stop());
+                const blob = new Blob(MpState.audioChunks, { type: MpState.mediaRecorder.mimeType || 'audio/webm' });
+                await transcribeDialogoTurn(blob);
+            };
+            MpState.mediaRecorder.start(100);
+            MpState.isRecording = true;
+            MpState.recSeconds = 0;
+
+            document.getElementById('mp-rec-timer').style.display = 'flex';
+            document.getElementById('mp-record-btn').style.display = 'none';
+            document.getElementById('mp-send-btn').style.display = 'inline-flex';
+            updateRecTimer(teil.duracion_seg);
+
+            MpState.recTimerInterval = setInterval(() => {
+                MpState.recSeconds++;
+                updateRecTimer(teil.duracion_seg);
+                if (MpState.recSeconds >= teil.duracion_seg) stopDialogoRecording();
+            }, 1000);
+
+            setHint('Grabando... presiona Enviar cuando termines');
+        } catch {
+            setHint('Error: no se pudo acceder al micrófono');
+        }
+    }
+
+    function stopDialogoRecording() {
+        if (!MpState.isRecording) return;
+        MpState.isRecording = false;
+        clearInterval(MpState.recTimerInterval);
+        document.getElementById('mp-rec-timer').style.display = 'none';
+        document.getElementById('mp-send-btn').style.display = 'none';
+        setHint('Transcribiendo...');
+        if (MpState.mediaRecorder && MpState.mediaRecorder.state !== 'inactive') {
+            MpState.mediaRecorder.stop();
+        }
+    }
+
+    async function transcribeDialogoTurn(audioBlob) {
+        const durationMs = MpState.recSeconds * 1000;
+        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
+        MpState.dailyUsedMs += durationMs;
+        updateDailyUI();
+
+        const text = await transcribeBlob(audioBlob);
+        if (text === null) return;
+        if (!text) {
+            setHint('No se detectó voz. Intenta de nuevo.');
+            document.getElementById('mp-record-btn').style.display = 'inline-flex';
+            return;
+        }
+        await dialogoAiTurn(text);
+    }
+
+    // ── Whisper (compartido monólogo/diálogo) ──────────
+    async function transcribeBlob(audioBlob) {
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('model', 'whisper-1');
+        formData.append('language', 'de');
+        try {
+            const token = await window.getAuthToken?.();
+            const resp = await fetch('/api/whisper', {
+                method: 'POST',
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+                body: formData,
+            });
+            if (resp.status === 401) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+            return (data.text || '').trim();
+        } catch (e) {
+            setHint(`Error: ${e.message}`);
+            return null;
+        }
+    }
+
+    function setHint(text) {
+        const el = document.getElementById('mp-hint');
+        if (el) el.textContent = text;
+    }
+
+    // ── TTS (mismo patrón que chat-voz.html, solo navegador) ──
+    function loadVoices() {
+        const all = speechSynthesis.getVoices();
+        MpState.voices = all.filter(v => v.lang.startsWith('de'));
+        if (!MpState.voices.length) MpState.voices = all;
+        MpState.selectedVoice = MpState.voices[0] || null;
+    }
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    function cancelCurrentSpeech() {
+        speechSynthesis.cancel();
+        if (MpState.currentAudio) { MpState.currentAudio.pause(); MpState.currentAudio = null; }
+    }
+
+    function speak(text, onDone) {
+        cancelCurrentSpeech();
+        MpState.isSpeaking = true;
+        const done = () => { MpState.isSpeaking = false; onDone?.(); };
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'de-DE';
+        utter.rate = 1.05;
+        if (MpState.selectedVoice) utter.voice = MpState.selectedVoice;
+        utter.onend = done;
+        utter.onerror = done;
+        speechSynthesis.speak(utter);
+    }
+
+    // ── Evaluación oral ─────────────────────────────────
+    async function evaluarOral(transcript, esDialogo) {
+        const t = MpState.tarea;
+        const teil = currentTeil();
+        if (!t || MpState.evaluando) return;
+        MpState.evaluando = true;
+
+        const result = document.getElementById('mp-result');
+        result.style.display = 'block';
+        result.innerHTML = `<div class="mp-card"><div class="mp-loading">Evaluando tu respuesta oral…</div></div>`;
+        document.getElementById('mp-practice-area').style.display = 'none';
+
+        try {
+            const token = await window.getAuthToken?.();
+            if (!token) throw new Error('Inicia sesión para evaluar tu respuesta');
+
+            const system = `Eres un examinador oficial de alemán (Goethe-Institut) que evalúa una parte de la Mündliche Prüfung de nivel ${MpState.level} a partir de la TRANSCRIPCIÓN de la respuesta oral del estudiante. Evalúa contenido/cumplimiento de la tarea, fluidez (proxy desde el texto: muletillas, frases incompletas, repeticiones), gramática, vocabulario${esDialogo ? ' e interacción' : ''}. No puedes evaluar pronunciación ni acento porque solo tienes la transcripción: dilo explícitamente si corresponde. Sé exigente pero pedagógico; las explicaciones van en español.
+Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
+{"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, mismo orden], "fluidez": {"nivel":"baja|media|alta","comentario":"español"}, "gramatica_y_lexico": {"errores":[{"original":"fragmento","correccion":"fragmento corregido","explicacion":"español"}], "registro_adecuado": true|false}, "interaccion": {"adecuada": true|false, "comentario":"español"}, "duracion_evaluacion": {"cumplida": true|false, "comentario":"español"}, "comentario_general":"valoración global en español (2-4 frases)"}
+Si es monólogo, "interaccion" puede ser {"adecuada":true,"comentario":"No aplica (tarea de monólogo)."}.`;
+
+            const userMsg = `TAREA (nivel ${MpState.level}, ${t.teilNombre}):
+${t.titulo}
+${t.situacion}
+Puntos guía: ${t.puntos.join(' | ')}
+
+TRANSCRIPCIÓN DE LA RESPUESTA DEL ESTUDIANTE (${esDialogo ? 'diálogo completo' : 'monólogo'}):
+${transcript}`;
+
+            let ev = null;
+            for (let intento = 0; intento < 2 && !ev; intento++) {
+                const reply = await apiChat(token, system, userMsg, { json: true, max_tokens: 3000 });
+                try {
+                    const parsed = JSON.parse(stripFences(reply));
+                    if (typeof parsed.puntuacion === 'number' && Array.isArray(parsed.puntos_cubiertos)) ev = parsed;
+                } catch {}
+            }
+            if (!ev) throw new Error('La evaluación llegó en un formato inválido. Inténtalo de nuevo.');
+
+            renderEvaluacion(ev, t, teil);
+            document.getElementById('mp-next-btn').style.display = 'block';
+            saveToHistory(t, teil, transcript, ev);
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('mundliche', 'attempt_evaluated', { level: MpState.level, teil: t.teilId, score: ev.puntuacion });
+            }
+            startPrefetch(token);
+        } catch (err) {
+            result.innerHTML = `<div class="mp-card"><div class="mp-error">Error: ${escHtml(err.message)}</div></div>`;
+        } finally {
+            MpState.evaluando = false;
+        }
+    }
+
+    function renderEvaluacion(ev, t, teil) {
+        const score = Math.max(0, Math.min(100, Math.round(ev.puntuacion)));
+        const scoreClass = score >= 75 ? 'mp-score-good' : score >= 50 ? 'mp-score-mid' : 'mp-score-low';
+        const cubiertos = Array.isArray(ev.puntos_cubiertos) ? ev.puntos_cubiertos : [];
+
+        const checklist = t.puntos.map((p, i) => {
+            const ok = cubiertos[i] === true;
+            return `<li class="${ok ? 'ok' : 'miss'}">${ok ? '✅' : '❌'} ${escHtml(p)}</li>`;
+        }).join('');
+
+        const errores = (ev.gramatica_y_lexico?.errores || []);
+        const erroresHtml = errores.length === 0
+            ? `<p class="mp-no-errors">🎉 Sin errores destacados.</p>`
+            : errores.map(e => `
+                <div class="mp-error-card">
+                    <p class="mp-error-line"><del>${escHtml(e.original || '')}</del> → <strong>${escHtml(e.correccion || '')}</strong></p>
+                    <p class="mp-error-exp">${escHtml(e.explicacion || '')}</p>
+                </div>`).join('');
+
+        document.getElementById('mp-result').innerHTML = `
+            <div class="mp-card">
+                <div class="mp-eval-head">
+                    <div class="mp-score ${scoreClass}">${score}</div>
+                    <div class="mp-eval-summary">
+                        <p class="mp-comment">${escHtml(ev.comentario_general || '')}</p>
+                        ${ev.gramatica_y_lexico?.registro_adecuado === false ? '<p class="mp-reg-warn">⚠️ El registro no es el adecuado para esta parte del examen.</p>' : ''}
+                    </div>
+                </div>
+                <h3 class="mp-section-title">Puntos guía</h3>
+                <ul class="mp-checklist">${checklist}</ul>
+                <h3 class="mp-section-title">Fluidez</h3>
+                <p class="mp-subeval">${escHtml(ev.fluidez?.nivel || '')} — ${escHtml(ev.fluidez?.comentario || '')}</p>
+                ${teil.modo === 'dialogo' ? `
+                <h3 class="mp-section-title">Interacción</h3>
+                <p class="mp-subeval">${ev.interaccion?.adecuada === false ? '⚠️ ' : '✅ '}${escHtml(ev.interaccion?.comentario || '')}</p>` : ''}
+                <h3 class="mp-section-title">Gramática y vocabulario (${errores.length})</h3>
+                ${erroresHtml}
+                <p class="mp-pron-note">🎧 Esta evaluación se basa en la transcripción de tu voz: no incluye pronunciación ni acento.</p>
+            </div>`;
+        document.getElementById('mp-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // ── Tope de uso diario (mismo patrón que chat-voz.html) ──
+    async function loadDailyUsage() {
+        if (!window.currentUser || !window.sb) return;
+        const startOfDay = new Date();
+        startOfDay.setHours(0, 0, 0, 0);
+        const { data } = await window.sb
+            .from('usage_events')
+            .select('payload')
+            .eq('app', 'mundliche')
+            .eq('event_type', 'audio_sent')
+            .eq('user_id', window.currentUser.id)
+            .gte('created_at', startOfDay.toISOString());
+        if (data) MpState.dailyUsedMs = data.reduce((sum, e) => sum + (e.payload?.duration_ms || 0), 0);
+        updateDailyUI();
+    }
+
+    function updateDailyUI() {
+        const info = document.getElementById('mp-daily-info');
+        if (!info) return;
+        if (!window.currentUser) { info.textContent = ''; return; }
+        const remaining = Math.max(0, DAILY_LIMIT_MS - MpState.dailyUsedMs);
+        const usedMins = Math.floor(MpState.dailyUsedMs / 60000);
+        const usedSecs = Math.floor((MpState.dailyUsedMs % 60000) / 1000);
+        const totalMins = Math.floor(DAILY_LIMIT_MS / 60000);
+        const fmt = (m, s) => `${String(m).padStart(2, '0')}.${String(s).padStart(2, '0')}`;
+        if (remaining === 0) {
+            info.textContent = 'Límite diario de 60 min alcanzado. Vuelve mañana.';
+            info.className = 'mp-daily-info mp-daily-blocked';
+        } else {
+            info.textContent = `Tiempo usado hoy: ${fmt(usedMins, usedSecs)}/${fmt(totalMins, 0)}`;
+            info.className = 'mp-daily-info';
+        }
+    }
+
+    // ── Historial (IndexedDB, mismo patrón que escritura.html) ──
+    const HIST_MAX = 20;
+    let _histCache = [];
+
+    function histOpen() {
+        return new Promise((resolve, reject) => {
+            const req = indexedDB.open('mundliche-db', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    function histTx(db, mode, fn) {
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('history', mode);
+            const result = fn(tx.objectStore('history'));
+            tx.oncomplete = () => resolve(result);
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+
+    function histGetAll(db) {
+        return new Promise((resolve, reject) => {
+            const req = db.transaction('history', 'readonly').objectStore('history').getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => reject(req.error);
+        });
+    }
+
+    async function saveToHistory(tarea, teil, transcript, evaluacion) {
+        try {
+            const entry = { ts: Date.now(), level: tarea.level || MpState.level, teilNombre: tarea.teilNombre || '', modo: teil.modo, transcript, tarea, evaluacion };
+            const db = await histOpen();
+            await histTx(db, 'readwrite', st => st.add(entry));
+            const all = await histGetAll(db);
+            if (all.length > HIST_MAX) {
+                const extra = all.slice(0, all.length - HIST_MAX);
+                await histTx(db, 'readwrite', st => extra.forEach(e => st.delete(e.id)));
+            }
+            await renderHistory(db);
+        } catch {}
+    }
+
+    async function renderHistory(db) {
+        try {
+            db = db || await histOpen();
+            const all = (await histGetAll(db)).reverse();
+            _histCache = all;
+            const wrap = document.getElementById('mp-historial');
+            const list = document.getElementById('mp-hist-list');
+            if (all.length === 0) { wrap.style.display = 'none'; list.innerHTML = ''; return; }
+            list.innerHTML = all.map(e => {
+                const date = new Date(e.ts).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+                const score = typeof e.evaluacion?.puntuacion === 'number' ? Math.round(e.evaluacion.puntuacion) : '–';
+                return `
+                <button class="mp-hist-item" data-id="${e.id}">
+                    <span class="mp-hist-meta">${e.modo === 'dialogo' ? '🗨️' : '🎙️'} ${escHtml(e.level)} · ${escHtml(e.teilNombre)} · ${date} · <strong>${score}</strong>/100</span>
+                </button>`;
+            }).join('');
+            list.querySelectorAll('.mp-hist-item').forEach(btn => {
+                btn.addEventListener('click', () => loadHistEntry(+btn.dataset.id));
+            });
+            wrap.style.display = 'block';
+        } catch {}
+    }
+
+    function loadHistEntry(id) {
+        const e = _histCache.find(x => x.id === id);
+        if (!e || !e.tarea) return;
+        cancelCurrentSpeech();
+        stopVorbereitungTimer();
+        MpState.tarea = e.tarea;
+        MpState.teilId = e.tarea.teilId;
+        document.getElementById('mp-practice-area').style.display = 'none';
+        renderTarea(e.tarea);
+        document.getElementById('mp-result').style.display = 'block';
+        renderEvaluacion(e.evaluacion, e.tarea, currentTeil());
+        document.getElementById('mp-next-btn').style.display = 'block';
+    }
+
+    document.getElementById('mp-hist-clear').addEventListener('click', async () => {
+        try {
+            const db = await histOpen();
+            await histTx(db, 'readwrite', st => st.clear());
+            await renderHistory(db);
+        } catch {}
+    });
+
+    // ── Init ──────────────────────────────────────────
+    window.onAuthSignedIn = () => { loadDailyUsage(); };
+    renderHistory();
+    </script>
+</body>
+</html>

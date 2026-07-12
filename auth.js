@@ -613,6 +613,11 @@
     if (activeDropdownLink) {
       const menuBtn = document.querySelector('.nav-menu-btn');
       if (menuBtn) menuBtn.classList.add('active');
+      const submenu = activeDropdownLink.closest('.nav-submenu');
+      if (submenu) {
+        const submenuBtn = submenu.querySelector('.nav-submenu-btn');
+        if (submenuBtn) submenuBtn.classList.add('active');
+      }
     }
   });
 })();

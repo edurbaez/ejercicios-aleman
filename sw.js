@@ -1,10 +1,13 @@
-const CACHE = "palabrasb2-v4";
+const CACHE = "palabrasb2-v5";
 const ASSETS = [
   "/palabrasB2.html",
   "/styles.css",
   "/manifest.json",
   "/icon.svg",
-  "/DataB2.json"
+  "/DataB2.json",
+  "/config.js",
+  "/auth.js",
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
 ];
 
 // Instalación: guarda todos los recursos en caché

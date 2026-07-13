@@ -286,6 +286,79 @@
     { id: 'nav-finanzas-link', href: '/finance/finanzas-dashboard.html', text: 'Dashboard Financiero →', color: '#0F172A' }
   ];
 
+  const NAV_ITEMS = [
+    { href: 'plan.html', label: 'Plan 30 días', bodyId: 'page-plan' },
+    { type: 'submenu', label: 'Vocabulario ▸', items: [
+        { href: 'A1.html', label: 'A1', bodyId: 'page-a1' },
+        { href: 'A2.html', label: 'A2', bodyId: 'page-a2' },
+        { href: 'B1.html', label: 'B1', bodyId: 'page-b1' },
+        { href: 'palabrasB2.html', label: 'B2', bodyId: 'page-b2' },
+        { href: 'C1.html', label: 'C1', bodyId: 'page-c1' },
+        { href: 'C2.html', label: 'C2', bodyId: 'page-c2' },
+    ] },
+    { href: 'gramatica.html', label: 'Gramática', bodyId: 'page-gram' },
+    { href: 'lectura veloz.html', label: 'Entrenamiento de lectura', bodyId: 'page-lv' },
+    { href: 'escritura.html', label: 'Escritura', bodyId: 'page-esc' },
+    { href: 'chat-reformulaciones.html', label: 'Reformulaciones', bodyId: 'page-cr' },
+    { href: 'kasus.html', label: 'Kasus-Trainer', bodyId: 'page-kas' },
+    { href: 'chat-voz.html', label: 'Chat de Voz', bodyId: 'page-cv' },
+    { href: 'mundliche.html', label: 'Mündliche Prüfung', bodyId: 'page-mp' },
+    { href: 'diccionario.html', label: 'Diccionario', bodyId: 'page-dic' },
+    { href: 'corrector.html', label: 'Corrector', bodyId: 'page-cor' },
+  ];
+
+  function _renderNavMenu() {
+    const menu = document.querySelector('.nav-dropdown-menu');
+    if (!menu) return;
+    const bodyId = document.body.id;
+    let anyActive = false;
+
+    NAV_ITEMS.forEach(function (item) {
+      if (item.type === 'submenu') {
+        const wrap = document.createElement('div');
+        wrap.className = 'nav-submenu';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'nav-submenu-btn';
+        btn.textContent = item.label;
+        btn.onclick = function (e) {
+          this.closest('.nav-submenu').classList.toggle('open');
+          e.stopPropagation();
+        };
+        const sub = document.createElement('div');
+        sub.className = 'nav-submenu-menu';
+        item.items.forEach(function (subItem) {
+          const a = document.createElement('a');
+          a.href = subItem.href;
+          a.textContent = subItem.label;
+          if (subItem.bodyId === bodyId) {
+            a.classList.add('active');
+            btn.classList.add('active');
+            anyActive = true;
+          }
+          sub.appendChild(a);
+        });
+        wrap.appendChild(btn);
+        wrap.appendChild(sub);
+        menu.appendChild(wrap);
+      } else {
+        const a = document.createElement('a');
+        a.href = item.href;
+        a.textContent = item.label;
+        if (item.bodyId === bodyId) {
+          a.classList.add('active');
+          anyActive = true;
+        }
+        menu.appendChild(a);
+      }
+    });
+
+    if (anyActive) {
+      const menuBtn = document.querySelector('.nav-menu-btn');
+      if (menuBtn) menuBtn.classList.add('active');
+    }
+  }
+
   function _toggleAdminOnlyEls(show) {
     document.querySelectorAll('[data-admin-only]').forEach(function (el) {
       el.style.display = show ? '' : 'none';
@@ -608,19 +681,10 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    _renderNavMenu();
     window.updateAuthUI();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
-    }
-    const activeDropdownLink = document.querySelector('.nav-dropdown-menu a.active');
-    if (activeDropdownLink) {
-      const menuBtn = document.querySelector('.nav-menu-btn');
-      if (menuBtn) menuBtn.classList.add('active');
-      const submenu = activeDropdownLink.closest('.nav-submenu');
-      if (submenu) {
-        const submenuBtn = submenu.querySelector('.nav-submenu-btn');
-        if (submenuBtn) submenuBtn.classList.add('active');
-      }
     }
   });
 })();

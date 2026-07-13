@@ -1,10 +1,13 @@
-const CACHE = "palabrasb1-v1";
+const CACHE = "palabrasb1-v2";
 const ASSETS = [
   "/B1.html",
   "/styles.css",
   "/manifest-b1.json",
   "/icon-b1.svg",
-  "/DataB1.json"
+  "/DataB1.json",
+  "/config.js",
+  "/auth.js",
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
 ];
 
 // Instalacion: guarda todos los recursos en cache

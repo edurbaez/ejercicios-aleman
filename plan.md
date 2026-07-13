@@ -140,3 +140,54 @@ Total: ~35-45 min/día (5-6 tareas).
 
 ### C1 — pendiente
 ### C2 — pendiente
+
+---
+
+## Escalabilidad y deuda técnica (auditoría 2026-07-13)
+
+> Nota: `plan-mejoras.md` ya trackea deuda técnica de nivel código (duplicación, accesibilidad, paginación admin, timeouts OpenAI). Esta sección cubre lo que ese archivo no cubre: **límites de infraestructura** (Vercel Hobby, base de datos en Supabase) y **drift de documentación** encontrados al revisar el proyecto completo, incluyendo consulta directa a los Advisors de Supabase (performance + security) sobre el proyecto real.
+
+### 🔴 Escalabilidad — infraestructura
+
+1. **Límite de 12 funciones serverless (Vercel Hobby) ya está al límite.**
+   El proyecto ya fusiona endpoints por `action` en el body (`admin.js`, `finanzas.js`) precisamente para no exceder las 12 funciones. Cualquier feature nueva que necesite un endpoint propio obliga a fusionar otro existente o a subir a plan Pro.
+   **Propuesta:** decidir de antemano — si se prevén ≥2 features nuevas con backend este año, evaluar upgrade a Vercel Pro (elimina el límite) en vez de seguir comprimiendo endpoints, que ya está degradando la cohesión de `admin.js`/`finanzas.js`.
+
+2. **Rate limiting in-memory por instancia (`api/_lib.js`) sin `KV_REST_API_URL` configurado.**
+   `createRateLimiter()` cae a un `Map` en memoria si no hay Vercel KV. Con cold starts frecuentes cada instancia tiene su propio contador — el límite real bajo tráfico repartido entre instancias es mucho más laxo que el nominal (20/min, 10/min, etc.). No es un problema con el tráfico actual, pero se vuelve inconsistente en cuanto haya picos de uso real (varios alumnos a la vez).
+   **Propuesta:** activar Vercel KV (`KV_REST_API_URL`/`KV_REST_API_TOKEN`) — el código ya soporta ambos modos, es solo configuración.
+
+3. **RLS re-evalúa `auth.uid()` por fila en casi todas las tablas** (confirmado por Supabase Performance Advisor: `word_lists`, `srs_progress`, `usage_events`, `profiles`, `user_data`, `daily_stats`, `exam_results`, `grammar_state`, `push_subscriptions`, `marketing_posts`, `diccionario_cache`, etc.). Con pocas filas no se nota; con miles de usuarios cada query paga ese costo por fila.
+   **Propuesta:** migración que reemplace `auth.uid()` por `(select auth.uid())` en las políticas RLS existentes (fix mecánico, sin cambiar semántica — patrón documentado por Supabase).
+
+4. **Políticas RLS permisivas duplicadas** en `daily_stats`, `exam_results`, `profiles`, `usage_events`, `user_data` (política "propia fila" + política "admin" se apilan y ambas se evalúan por rol). Mismo fix que el punto 3 (consolidar en una sola policy con `OR`) — bajo impacto ahora, crece con el volumen de datos.
+
+5. **Foreign keys sin índice:** `exam_results.user_id`, `portfolio_positions.user_id`, `price_alerts.user_id`, `user_reading_seen.text_id`. No bloquean nada hoy (tablas pequeñas) pero cualquier `JOIN`/`DELETE CASCADE` sobre esas FKs escaneará tabla completa según crezca.
+   **Propuesta:** una migración corta añadiendo los 4 índices — barato de aplicar ahora, caro de diagnosticar después.
+
+6. **`usage_events` es la tabla de mayor crecimiento del proyecto** (cada respuesta de quiz, cada audio enviado, cada evento de app inserta una fila — 3 750 filas ya con uso reducido) y no tiene ninguna estrategia de retención. `api/vocab-refresh.js` y varias vistas de marketing (`005_marketing_views.sql`) la consultan sin límite de rango en varios casos.
+   **Propuesta:** job de purga periódico (ya existe una función `purge_old_events` detectada por el Advisor de seguridad — confirmar que está en un cron activo; si no lo está, es el punto más barato de resolver aquí) y considerar particionar o archivar filas > 6 meses si el volumen crece 100x.
+
+7. **Datos de vocabulario duplicados en dos fuentes de verdad:** `Data{LEVEL}.json` (estático, servido por Vercel) y las mismas listas sembradas como filas `is_system=true` en `word_lists` (Supabase). `loadSystemLists()` prioriza Supabase pero cae al JSON si falla — mantener ambos sincronizados es manual (`scripts/seed-word-lists.js` no se re-ejecuta automáticamente si se edita un `Data{LEVEL}.json`).
+   **Propuesta:** documentar explícitamente en `CLAUDE.md` que tras editar cualquier `Data{LEVEL}.json` hay que re-ejecutar `seed-word-lists.js`, o eliminar la duplicación migrando `shared-game.js` a leer siempre desde Supabase con el JSON solo como fallback de emergencia (ya casi es así, falta forzar la sincronización).
+
+### 🟡 Deuda técnica — drift de documentación
+
+8. **`finance/` es un proyecto completo y no aparece en `CLAUDE.md`.** `finance/finanzas-dashboard.html`, `finanzas-styles.css`, `schema.sql` y los endpoints `api/finanzas.js` están terminados (`finance/plan.md` los marca ✅ Completo) pero violan la regla de mantenimiento del propio `CLAUDE.md` ("actualizar Active Files al añadir un archivo activo"). Es deliberadamente independiente del navbar de alemán, pero comparte `auth.js`/`config.js` y ocupa una de las 12 funciones serverless del mismo proyecto Vercel — por eso sí es relevante para quien mantenga la app de alemán.
+   **Propuesta:** añadir una fila en `CLAUDE.md` (sección Apps o una nueva sección "Otros proyectos en este repo") señalando que `finance/` es independiente pero comparte infraestructura (auth, Vercel, cupo de 12 funciones).
+
+9. **Tablas de Supabase activamente usadas y ausentes de la sección "Supabase table" de `CLAUDE.md`:** `usage_events` (la más consultada de todo el proyecto — analítica, cap de voz, vistas de marketing), `profiles`, `daily_stats`, `exam_results`, `grammar_state`, `diccionario_cache` (usadas en `auth.js`, `diccionario.js`, `gramatica.js`, `admin/index.html`). Ninguna tiene migración trackeada en `supabase/migrations/` — se crearon directamente en el editor SQL de Supabase, así que el historial de `git log` no refleja el esquema real de la base de datos.
+   **Propuesta:** generar migraciones "de captura" (`CREATE TABLE IF NOT EXISTS` reflejando el estado actual) para estas 6 tablas y documentarlas en `CLAUDE.md` igual que las demás — cierra el hueco entre "lo que dice el repo" y "lo que hay en producción", que hoy solo se puede verificar consultando Supabase directamente.
+
+### Orden sugerido
+| # | Tarea | Esfuerzo | Impacto |
+|---|-------|----------|---------|
+| 5 | Índices en FKs sin indexar | Bajo | Escalabilidad |
+| 3 | `(select auth.uid())` en policies RLS | Bajo-medio | Escalabilidad |
+| 6 | Confirmar/activar `purge_old_events` en cron | Bajo | Escalabilidad |
+| 2 | Activar Vercel KV para rate limiting | Bajo | Confiabilidad |
+| 9 | Migraciones de captura + doc de las 6 tablas faltantes | Medio | Mantenibilidad |
+| 8 | Documentar `finance/` en `CLAUDE.md` | Bajo | Mantenibilidad |
+| 4 | Consolidar policies RLS duplicadas | Medio | Escalabilidad |
+| 7 | Resolver duplicación Data{LEVEL}.json / word_lists | Medio | Mantenibilidad |
+| 1 | Decidir sobre upgrade a Vercel Pro | — (decisión) | Escalabilidad |

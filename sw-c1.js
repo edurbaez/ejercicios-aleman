@@ -1,5 +1,5 @@
-const CACHE = "palabrasc1-v1";
-const ASSETS = ["/C1.html", "/styles.css", "/manifest-c1.json", "/icon-c1.svg", "/DataC1.json"];
+const CACHE = "palabrasc1-v2";
+const ASSETS = ["/C1.html", "/styles.css", "/manifest-c1.json", "/icon-c1.svg", "/DataC1.json", "/config.js", "/auth.js", "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));

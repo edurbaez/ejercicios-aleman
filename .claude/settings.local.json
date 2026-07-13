@@ -28,7 +28,9 @@
       "Bash(node --check \"c:\\\\Users\\\\edurb\\\\Desktop\\\\ejercicios aleman\\\\gramatica.js\")",
       "Skill(claude-in-chrome)",
       "Skill(fewer-permission-prompts)",
-      "PowerShell(head *)"
+      "PowerShell(head *)",
+      "mcp__supabase__list_projects",
+      "mcp__supabase__get_advisors"
     ],
     "additionalDirectories": [
       "\\mnt\\c\\Users\\edurb\\.claude",

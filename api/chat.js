@@ -1,4 +1,5 @@
 import { verifyJWT, createRateLimiter } from './_lib.js';
+import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
 
@@ -97,7 +98,26 @@ async function generateReading(req, res) {
         return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
     }
 
-    const prompt = `Genera un texto en alemán de nivel ${level} sobre un tema cotidiano (100-150 palabras) con título. Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
+    const tema      = pick(TEMAS[level]);
+    const personas  = pick(PERSONAS);
+    const lugar     = pick(LUGARES);
+    const tono      = pick(TONOS);
+    const momento   = pick(MOMENTOS);
+    const conflicto = pick(CONFLICTOS);
+
+    let recentTitles = [];
+    try {
+        const recentRes = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/reading_texts?level=eq.${level}&select=title&order=created_at.desc&limit=8`,
+            { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+        );
+        if (recentRes.ok) recentTitles = (await recentRes.json()).map(r => r.title);
+    } catch { /* best-effort — a failed lookup shouldn't block generation */ }
+
+    const prompt = `Genera un texto en alemán de nivel ${level} (100-150 palabras) con título.
+Tema: ${tema}.
+La situación debe involucrar a ${personas} en ${lugar}, ${momento}, contada como ${tono}. En la historia, ${conflicto}.${recentTitles.length ? `\nNo repitas estos títulos ni sus situaciones: ${recentTitles.join(', ')}.` : ''}
+Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
 
     try {
         const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {

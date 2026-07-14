@@ -1286,7 +1286,48 @@ window.TEACHER_CLASES = {
         ]
       }
     },
-    { day: 15, semana: 3, focus: 'Consolidación: Präteritum + Konjunktiv II', ruleIds: ['b1-01', 'b1-02'], esClaseEnVivo: false, contenido: { reglas: [] } },
+    { day: 15, semana: 3, focus: 'Consolidación: Präteritum + Konjunktiv II', ruleIds: ['b1-01', 'b1-02'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-01',
+        intro: 'Repaso del día 1: el Präteritum ya se presentó como el pasado de la lengua escrita. Hoy no se explica de nuevo desde cero — se detectan y corrigen los errores que persisten después de dos semanas de práctica: mezcla de Perfekt y Präteritum en la misma frase, y formas irregulares mal recordadas.',
+        practica: [
+          { incorrecto: 'Gestern ich bin gegangen ins Kino und ich sah einen Film.', correcto: 'Gestern bin ich ins Kino gegangen und habe einen Film gesehen.' },
+          { incorrecto: 'Als Kind, ich hatte Angst vor Hunden und ich habe geweint oft.', correcto: 'Als Kind hatte ich Angst vor Hunden und weinte oft.' },
+          { incorrecto: 'Sie schreibte einen Brief an ihre Oma.', correcto: 'Sie schrieb einen Brief an ihre Oma.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Error típico: mezclar registros', texto: 'El fallo más común a estas alturas es empezar una frase en Perfekt y terminarla en Präteritum (o viceversa) dentro del mismo texto. Regla de consolidación: un mismo relato debe mantener un solo registro — si es un cuento o una biografía escrita, Präteritum de principio a fin (salvo diálogos citados).' },
+          { titulo: '🟩 2. Error típico: "-te" en verbos fuertes', texto: 'Alumnos que ya dominan la regla regular tienden a aplicarla también a irregulares: *schreibte, *fahrte. Recordatorio: los verbos fuertes cambian la vocal, no añaden "-te". Conviene repasar la lista de los 10 irregulares más usados: war, hatte, kam, ging, sah, gab, nahm, fand, wusste, wurde.' },
+          {
+            titulo: '🟧 3. Autocorrección rápida',
+            texto: 'Ejercicio de consolidación en clase: dictar 6 frases cotidianas en presente y pedir que las transformen oralmente a Präteritum, alternando regulares e irregulares, para automatizar el cambio.',
+            tabla: { headers: ['Presente', 'Präteritum'], rows: [['er geht', 'er ging'], ['sie hat', 'sie hatte'], ['wir sehen', 'wir sahen'], ['ich weiß', 'ich wusste']] }
+          },
+          { titulo: '🟨 4. Recordatorio de uso', texto: 'Fuera de sein/haben/modales, si el alumno está hablando (no escribiendo un texto formal), el Perfekt sigue siendo la opción natural. El objetivo de hoy es reconocer las formas de Präteritum al leerlas, no forzar su uso oral constante.' }
+        ],
+        resumen: 'Repaso enfocado en dos errores persistentes: mezclar Perfekt y Präteritum en un mismo texto, y aplicar la terminación regular "-te" a verbos fuertes. Se refuerza la lista de irregulares más frecuentes con ejercicio oral de transformación presente → Präteritum.'
+      },
+      {
+        ruleId: 'b1-02',
+        intro: 'Repaso del día 1: el Konjunktiv II ya se introdujo con el comodín "würde + Infinitivo" y las formas propias de sein/haben/modales. Hoy se trabaja el error más frecuente después de dos semanas: usar "würde" también con sein y haben, y confundir Konjunktiv II con el simple condicional español mal traducido.',
+        practica: [
+          { incorrecto: 'Wenn ich reich würde sein, ich würde nicht arbeiten.', correcto: 'Wenn ich reich wäre, würde ich nicht arbeiten.' },
+          { incorrecto: 'Ich würde haben gern mehr Zeit.', correcto: 'Ich hätte gern mehr Zeit.' },
+          { incorrecto: 'Wenn du mir helfen würdest, ich wäre glücklich sein.', correcto: 'Wenn du mir helfen würdest, wäre ich glücklich.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Error típico: "würde sein" / "würde haben"', texto: 'Aunque "würde + Infinitivo" es el comodín general, sein y haben NUNCA lo usan en la práctica — siempre wäre / hätte. Es la excepción que más cuesta automatizar porque el alumno ya confía en el comodín.' },
+          { titulo: '🟩 2. Error típico: orden en frases con "wenn"', texto: 'En la oración con "wenn" el verbo va al final; en la oración principal, el verbo conjugado (würde/wäre/hätte) va en segunda posición. Practicar el par completo como bloque fijo: "Wenn ich Zeit hätte, würde ich reisen" — no traducir palabra por palabra desde el español.' },
+          {
+            titulo: '🟧 3. Repaso rápido de formas propias',
+            texto: 'Encuesta oral en clase: cada alumno responde con una forma propia distinta a "¿Qué harías si tuvieras un día libre?".',
+            tabla: { headers: ['Verbo', 'Konj. II', 'Ejemplo'], rows: [['sein', 'wäre', 'Ich wäre zu Hause.'], ['haben', 'hätte', 'Ich hätte mehr Zeit.'], ['können', 'könnte', 'Ich könnte lesen.'], ['mögen', 'möchte', 'Ich möchte ausschlafen.']] }
+          },
+          { titulo: '🟨 4. Cortesía en contexto real', texto: 'Simular un diálogo breve en una tienda o restaurante usando solo peticiones corteses: "Könnten Sie…?", "Hätten Sie…?", "Würden Sie…?" — refuerza la forma propia de haben en contexto natural.' }
+        ],
+        resumen: 'Repaso enfocado en el error de usar "würde" con sein/haben (en vez de wäre/hätte) y en fijar el orden fijo de las frases con "wenn". Práctica oral con formas propias y diálogos de cortesía.'
+      }
+    ] } },
     {
       day: 16,
       semana: 3,
@@ -1369,7 +1410,60 @@ window.TEACHER_CLASES = {
         ]
       }
     },
-    { day: 17, semana: 3, focus: 'Genitiv (kasus.html) + repaso n-Deklination', ruleIds: ['b1-04', 'b1-17'], esClaseEnVivo: false, contenido: { reglas: [] } },
+    { day: 17, semana: 3, focus: 'Genitiv (kasus.html) + repaso n-Deklination', ruleIds: ['b1-04', 'b1-17'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-04',
+        intro: 'Hoy toca practicar el genitivo con más ejercicios en kasus.html (modo Genitiv). Recuerda la idea central: posesión ("el jardín DEL vecino") o después de wegen/trotz/während/statt — masculino y neutro con des+(-e)s, femenino y plural con der sin cambios.',
+        practica: [
+          { incorrecto: 'Das ist der Garten der Nachbar.', correcto: 'Das ist der Garten des Nachbarn.' },
+          { incorrecto: 'Während der Sommer arbeite ich viel.', correcto: 'Während des Sommers arbeite ich viel.' },
+          { incorrecto: 'Statt der Bus nehme ich das Fahrrad.', correcto: 'Statt des Busses nehme ich das Fahrrad.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Repaso rápido', texto: 'Genitivo = posesión o detrás de wegen, trotz, während, statt, innerhalb, außerhalb, aufgrund. Artículo des (masc./neutro) o der (fem./plural).' },
+          {
+            titulo: '🟩 2. El sustantivo también cambia',
+            texto: 'No basta con cambiar el artículo: masculino y neutro añaden -s o -es al sustantivo (der Garten → des Gartens, der Bus → des Busses). Femenino y plural quedan igual.',
+            tabla: { headers: ['', 'Masc.', 'Fem.', 'Neutro', 'Plural'], rows: [['Art. def.', 'des', 'der', 'des', 'der'], ['Sustantivo', '+(-e)s', 'sin cambio', '+(-e)s', 'sin cambio']] }
+          },
+          {
+            titulo: '🟧 3. Práctica en kasus.html',
+            texto: 'En el selector "Kasus" elige Genitiv: el trainer genera frases con espacios para completar artículo + terminación del sustantivo, y corrige cada intento al momento.'
+          },
+          {
+            titulo: '🟨 4. Error típico a vigilar',
+            texto: 'Olvidar la -s/-es del sustantivo aunque el artículo esté bien (decir "des Garten" en vez de "des Gartens"). El artículo y la terminación del sustantivo van siempre juntos.'
+          }
+        ],
+        resumen: 'Genitivo: des+(-e)s para masc./neutro, der sin cambios para fem./plural. Practicar en kasus.html (modo Genitiv) hasta que la terminación del sustantivo salga automática, no solo el artículo.'
+      },
+      {
+        ruleId: 'b1-17',
+        intro: 'Repaso de la n-Deklination, vista en la semana 2 (día 6): ese grupo cerrado de masculinos (personas en -e, en -ent/-ist, y algún irregular) que añade -n/-en en todos los casos menos el Nominativ singular. Hoy con ejemplos nuevos.',
+        practica: [
+          { incorrecto: 'Ich vertraue dem Präsident.', correcto: 'Ich vertraue dem Präsidenten.' },
+          { incorrecto: 'Sie kennt den Assistent gut.', correcto: 'Sie kennt den Assistenten gut.' },
+          { incorrecto: 'Das ist die Meinung des Experte.', correcto: 'Das ist die Meinung des Experten.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Recordatorio de la regla', texto: 'Sustantivos como der Präsident, der Experte, der Assistent añaden -n/-en en Akkusativ, Dativ y Genitiv singular. Solo el Nominativ singular queda sin terminación.' },
+          {
+            titulo: '🟩 2. Nuevos ejemplos del grupo',
+            texto: '',
+            tabla: { headers: ['', 'Nom.', 'Akk.', 'Dat.', 'Gen.'], rows: [['der Präsident', 'der Präsident', 'den Präsidenten', 'dem Präsidenten', 'des Präsidenten'], ['der Experte', 'der Experte', 'den Experten', 'dem Experten', 'des Experten'], ['der Assistent', 'der Assistent', 'den Assistenten', 'dem Assistenten', 'des Assistenten']] }
+          },
+          {
+            titulo: '🟧 3. Combinación con el genitivo de hoy',
+            texto: 'Ojo al combinar con b1-04: "des Präsidenten" (n-Deklination) NO lleva la -s del genitivo regular ("des Mannes"). El genitivo de estos sustantivos se forma igual que el resto de sus casos, con -n/-en.'
+          },
+          {
+            titulo: '🟨 4. Truco para no olvidarlo',
+            texto: 'Si un sustantivo masculino nuevo termina en -e, -ent, -ist o -and y designa una persona/profesión, revisa siempre si pertenece a este grupo antes de usarlo en Akkusativ, Dativ o Genitiv.'
+          }
+        ],
+        resumen: 'Repaso: der Präsident, der Experte, der Assistent y sustantivos similares añaden -n/-en en todos los casos excepto Nominativ singular — incluido el Genitiv, donde NO llevan la -s del genitivo regular.'
+      }
+    ] } },
     {
       day: 18,
       semana: 3,
@@ -1449,10 +1543,163 @@ window.TEACHER_CLASES = {
         ]
       }
     },
-    { day: 19, semana: 3, focus: 'Contraste: infinitivo con zu vs. sin zu', ruleIds: ['b1-08', 'b1-14'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 20, semana: 3, focus: 'Pasiva básica + funciones de werden', ruleIds: ['b1-09', 'b1-22'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 21, semana: 3, focus: 'Conectores subordinantes + wenn vs. als (ampliado)', ruleIds: ['b1-06', 'b1-12'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 22, semana: 4, focus: 'Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv', ruleIds: ['b1-19', 'b1-20'], esClaseEnVivo: false, contenido: { reglas: [] } },
+    { day: 19, semana: 3, focus: 'Contraste: infinitivo con zu vs. sin zu', ruleIds: ['b1-08', 'b1-14'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-08',
+        intro: 'Repaso de contraste: hoy no se presenta la regla como algo nuevo, sino codo con codo con su opuesto (b1-14). El objetivo es que el alumno, al ver un verbo, decida en un segundo si necesita "zu" o no — la duda constante entre ambos es el error más persistente en este nivel.',
+        practica: [
+          { incorrecto: 'Ich vergesse zu nicht anrufen dich.', correcto: 'Ich vergesse nicht, dich anzurufen.' },
+          { incorrecto: 'Er hat vor zu einkaufen gehen.', correcto: 'Er hat vor, einkaufen zu gehen.' },
+          { incorrecto: 'Es macht Spaß tanzen.', correcto: 'Es macht Spaß, zu tanzen.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. La pregunta de un segundo', texto: 'Ante cualquier verbo en infinitivo al final de la frase, pregúntate: ¿el verbo principal está en la "lista cerrada sin zu" (b1-14)? Si NO está en esa lista, casi seguro lleva zu.' },
+          {
+            titulo: '🟩 2. Pares gemelos para practicar el contraste',
+            texto: 'Mismos verbos de acción, un compañero con zu y otro sin zu — ideal para dictado o pizarra dividida en dos columnas.',
+            tabla: { headers: ['CON zu (b1-08)', 'SIN zu (b1-14)'], rows: [['Ich habe vor, schwimmen zu gehen.', 'Ich gehe schwimmen.'], ['Er versucht, das Auto zu reparieren.', 'Er lässt das Auto reparieren.'], ['Sie hofft, ihn bald zu sehen.', 'Sie sieht ihn kommen.']] }
+          },
+          { titulo: '🟧 3. Separable + zu: el error que reaparece bajo presión', texto: 'En repaso oral, muchos alumnos vuelven a decir "zu einkaufen gehen" en vez de "einkaufen zu gehen" (aquí "gehen" es el verbo que rige, no separable en este uso) — corrige señalando cuál es el infinitivo que realmente necesita el zu.' }
+        ],
+        resumen: 'Ante un infinitivo, primero descarta si el verbo principal pertenece al grupo cerrado sin zu (b1-14); si no pertenece, lleva zu. Practicar pares gemelos (mismo contexto, con y sin zu) fija la frontera mejor que repasar cada regla por separado.'
+      },
+      {
+        ruleId: 'b1-14',
+        intro: 'Contrapartida de b1-08: hoy se refuerza la lista cerrada de verbos sin zu comparándola directamente, frase a frase, con sus equivalentes que sí llevan zu, para que el contraste quede fijado por asociación en vez de por memorización aislada.',
+        practica: [
+          { incorrecto: 'Ich sehe ihn zu kommen.', correcto: 'Ich sehe ihn kommen.' },
+          { incorrecto: 'Wir gehen zu einkaufen.', correcto: 'Wir gehen einkaufen.' },
+          { incorrecto: 'Sie lässt zu reparieren das Fahrrad.', correcto: 'Sie lässt das Fahrrad reparieren.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Repaso rápido de la lista cerrada', texto: 'Modales, lassen, sehen/hören/fühlen y gehen/kommen/fahren + actividad: siempre infinitivo directo, nunca zu. Es un grupo fijo y pequeño — se memoriza entero, no regla por regla.' },
+          {
+            titulo: '🟩 2. Mismo verbo, dos construcciones distintas',
+            texto: '"sehen" y "hören" pueden llevar zu cuando NO son verbos de percepción con infinitivo, sino que rigen otra estructura (p. ej. sustantivo + zu): compara para no generalizar de más.',
+            tabla: { headers: ['Sin zu (percepción directa)', 'Con zu (otro régimen)'], rows: [['Ich höre die Vögel singen.', 'Ich habe keine Zeit, dich zu hören.'], ['Ich sehe ihn kommen.', 'Es ist schön, dich zu sehen.']] }
+          },
+          { titulo: '🟧 3. Diagnóstico de error frecuente en repaso', texto: 'Bajo presión (dictado, examen oral), el error típico ya no es olvidar la regla, sino aplicarla de más: añadir zu a un modal recién visto en la misma frase que un verbo con zu (b1-08). Practicar frases mixtas ayuda a distinguir cuál rige cuál.' }
+        ],
+        resumen: 'El grupo cerrado (modales, lassen, sehen/hören/fühlen, gehen/kommen/fahren+actividad) va siempre sin zu; el mismo verbo (sehen, hören) puede llevar zu cuando actúa con otro régimen distinto al de percepción directa + infinitivo. El contraste con b1-08 se fija mejor con pares gemelos que con listas aisladas.'
+      }
+    ] } },
+    { day: 20, semana: 3, focus: 'Pasiva básica + funciones de werden', ruleIds: ['b1-09', 'b1-22'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-09',
+        intro: 'Repaso de la pasiva (día 3): "werden" (conjugado) + Partizip II al final. El error que más persiste a estas alturas es el Perfekt — confundir "worden" (auxiliar de pasiva, sin ge-) con "geworden" (werden como verbo pleno). Hoy se repasa justo esa distinción, de la mano de la regla b1-22.',
+        practica: [
+          { incorrecto: 'Der Brief ist geschrieben geworden.', correcto: 'Der Brief ist geschrieben worden.' },
+          { incorrecto: 'Das Auto wird reparieren.', correcto: 'Das Auto wird repariert.' },
+          { incorrecto: 'Die Fenster wurden geputzt von der Putzfrau letzte Woche.', correcto: 'Die Fenster wurden letzte Woche von der Putzfrau geputzt.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Repaso rápido de la estructura', texto: '"werden" conjugado en el tiempo que haga falta + Partizip II al final. El agente, si aparece, va con "von + Dativo" y suele omitirse.' },
+          {
+            titulo: '🟩 2. Werden en cada tiempo',
+            texto: 'Solo cambia la forma de "werden"; el Partizip II se queda fijo al final.',
+            tabla: { headers: ['Tiempo', 'Estructura', 'Ejemplo'], rows: [['Präsens', 'wird + P.II', 'Das Haus wird gebaut.'], ['Präteritum', 'wurde + P.II', 'Das Haus wurde gebaut.'], ['Perfekt', 'ist + P.II + worden', 'Das Haus ist gebaut worden.']] }
+          },
+          { titulo: '🟧 3. El error persistente: worden vs. geworden', texto: '"worden" (sin ge-) es el único Partizip II válido de "werden" como auxiliar de pasiva en Perfekt. "geworden" pertenece a otra frase distinta: "werden" como verbo pleno ("Sie ist Ärztin geworden" = se hizo médica). Nunca coexisten los dos "worden/geworden" en una misma pasiva.' },
+          { titulo: '🟨 4. Práctica de corrección', texto: 'Dales frases con el error mezclado y pídeles que digan en voz alta si es pasiva (worden) o cambio de estado (geworden) antes de corregir — la pausa de identificar la función es lo que fija la regla.' }
+        ],
+        resumen: 'Pasiva: werden (conjugado) + Partizip II al final; agente opcional con "von + Dativo". Perfekt: "ist … worden" (sin ge-) — nunca "geworden", que es el Partizip II de werden como verbo pleno.'
+      },
+      {
+        ruleId: 'b1-22',
+        intro: 'Repaso de las tres funciones de "werden" (día 8), aprovechando que hoy también se repasa la pasiva (b1-09): "werden" es verbo pleno (convertirse en), auxiliar de futuro/suposición (b1-10) o auxiliar de pasiva (b1-09) — y la única pista fiable para distinguirlas es mirar qué palabra viene justo después.',
+        practica: [
+          { incorrecto: 'Sie wird eine Ärztin werden.', correcto: 'Sie wird Ärztin. / Sie wird Ärztin werden.' },
+          { incorrecto: 'Es wird regnen morgen kalt.', correcto: 'Es wird morgen kalt. (verbo pleno) / Es wird morgen regnen. (futuro)' },
+          { incorrecto: 'Ich bin Ärztin worden.', correcto: 'Ich bin Ärztin geworden.' }
+        ],
+        pasos: [
+          {
+            titulo: '🟦 1. La pregunta clave: ¿qué sigue a werden?',
+            texto: 'Nominativ/Adjektiv → verbo pleno (cambio de estado). Infinitivo → futuro o suposición (b1-10). Partizip II → pasiva (b1-09). Es el mismo verbo cambiando de función según su acompañante.',
+            tabla: { headers: ['¿Qué sigue a werden?', 'Función', 'Ejemplo'], rows: [['Nominativ / Adjektiv', 'verbo pleno', 'Sie wird Ärztin. / Es wird kalt.'], ['Infinitiv', 'futuro / suposición', 'Ich werde dich morgen anrufen.'], ['Partizip II', 'pasiva', 'Das Auto wird repariert.']] }
+          },
+          { titulo: '🟧 2. El puente con la pasiva: geworden vs. worden', texto: 'Aquí es donde las dos reglas de hoy se tocan directamente: en Perfekt, "geworden" (sin worden) es el verbo pleno — "Sie ist Ärztin geworden". "worden" (sin ge-) es el auxiliar de pasiva — "Das Auto ist repariert worden". Confundirlos produce frases sin sentido, como "Ich bin Ärztin worden" o "Der Brief ist geschrieben geworden": ambas mezclan las dos funciones.' },
+          { titulo: '🟨 3. Truco combinado para hoy', texto: 'Primero identifica la función con la pregunta "¿qué sigue a werden?" (paso 1); si el resultado es pasiva y estás en Perfekt, aplica automáticamente "worden" sin ge- (regla b1-09). Encadenar ambos pasos evita el 90% de los errores de esta pareja de reglas.' }
+        ],
+        resumen: '"werden" cambia de función según lo que sigue: + Nominativ/Adjektiv = verbo pleno; + Infinitivo = futuro; + Partizip II = pasiva. En Perfekt, "geworden" (verbo pleno) vs. "worden" sin ge- (auxiliar de pasiva, b1-09) son las dos caras que más se confunden.'
+      }
+    ] } },
+    { day: 21, semana: 3, focus: 'Conectores subordinantes + wenn vs. als (ampliado)', ruleIds: ['b1-06', 'b1-12'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-06',
+        intro: 'Repaso: a estas alturas los alumnos ya han usado weil/dass/obwohl/wenn/als/bevor/nachdem en varias tareas, pero el orden de palabras dentro de la subordinada sigue fallando bajo presión (al hablar espontáneamente vuelven al orden V2 del español). Hoy no se reintroduce la regla desde cero — se ataca el error persistente con producción rápida.',
+        practica: [
+          { incorrecto: 'Ich bin müde, weil ich habe schlecht geschlafen.', correcto: 'Ich bin müde, weil ich schlecht geschlafen habe.' },
+          { incorrecto: 'Obwohl er ist krank, er arbeitet weiter.', correcto: 'Obwohl er krank ist, arbeitet er weiter.' },
+          { incorrecto: 'Ich weiß, dass sie wird morgen kommen.', correcto: 'Ich weiß, dass sie morgen kommen wird.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. El error que persiste', texto: 'No es que no sepan la regla — es que bajo presión (hablando rápido) el cerebro vuelve al orden español. El síntoma típico: el verbo conjugado se queda en segunda posición dentro de la subordinada en vez de irse al final.' },
+          { titulo: '🟩 2. Con verbos compuestos (Perfekt, Futur, modal+Inf.)', texto: 'Cuando la subordinada tiene un verbo compuesto, TODO el bloque verbal se va al final, en el orden auxiliar/modal al final del todo: "..., weil ich schlecht geschlafen HABE." / "..., dass sie morgen kommen WIRD." Es el punto donde más fallan a este nivel.' },
+          { titulo: '🟧 3. Producción oral cronometrada', texto: 'Ejercicio de clase: dar una frase principal + conector y pedir que completen en menos de 5 segundos, en voz alta, sin escribir primero. El objetivo es automatizar el orden, no razonarlo.' },
+          { titulo: '🟨 4. Tabla-resumen rápida', texto: 'Recordatorio visual de los 7 conectores y su matiz:', tabla: { headers: ['Conector', 'Significado', 'Uso'], rows: [['weil / da', 'porque', 'causa'], ['dass', 'que', 'contenido indirecto'], ['obwohl', 'aunque', 'concesión'], ['wenn', 'cuando / si', 'condición o hábito'], ['als', 'cuando', 'momento único pasado'], ['bevor', 'antes de que', 'temporal'], ['nachdem', 'después de que', 'temporal']] } }
+        ],
+        resumen: 'El verbo conjugado (o todo el bloque verbal, si es compuesto) va al final de la subordinada. El error persistente en B1 no es de conocimiento sino de automatismo bajo presión oral — se corrige con práctica cronometrada, no con más teoría.'
+      },
+      {
+        ruleId: 'b1-12',
+        intro: 'Repaso ampliado de wenn vs. als: no se trata solo de repetir la regla, sino de blindarla contra las frases-trampa que más fallan — sobre todo cuando "immer" u otro adverbio de repetición aparece lejos del conector, o cuando la frase mezcla un momento único con una descripción de fondo repetida.',
+        practica: [
+          { incorrecto: 'Jedes Mal, als ich ihn traf, hatte er schlechte Laune.', correcto: 'Jedes Mal, wenn ich ihn traf, hatte er schlechte Laune.' },
+          { incorrecto: 'Wenn ich zum ersten Mal nach Deutschland kam, konnte ich kein Wort Deutsch.', correcto: 'Als ich zum ersten Mal nach Deutschland kam, konnte ich kein Wort Deutsch.' },
+          { incorrecto: 'Als ich klein war, hatte ich oft Angst im Dunkeln.', correcto: 'Wenn ich klein war, hatte ich oft Angst im Dunkeln.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Frases-trampa: señales de repetición escondidas', texto: '"Jedes Mal", "immer", "oft", "jeden Tag", "damals immer" son marcadores de repetición aunque estén lejos del conector o al principio de la frase — cualquiera de ellos exige "wenn", nunca "als", por muy pasado que suene el resto de la frase.' },
+          { titulo: '🟩 2. "Zum ersten Mal" es la señal contraria', texto: '"Zum ersten Mal" (por primera vez), "einmal" (una vez), "an jenem Tag" (aquel día) marcan un evento único e irrepetible → siempre "als", aunque describan un estado o proceso más largo.' },
+          { titulo: '🟧 3. Micro-dictado de corrección', texto: 'Ejercicio de clase: leer en voz alta 6-8 frases con wenn/als mezclados (algunas correctas, otras no) y que los alumnos solo digan "correcto" o corrijan en el acto — fuerza el reconocimiento auditivo rápido, no solo la producción escrita.' },
+          { titulo: '🟨 4. Diferencia con el "wenn" condicional', texto: 'No confundir con el "wenn" de condición pura (Wenn es regnet, bleibe ich zu Hause) — ese no compite nunca con "als", porque "als" jamás se usa para condiciones, solo para pasado. La confusión wenn/als solo existe dentro del terreno del pasado.' }
+        ],
+        resumen: 'Blindaje del criterio único vs. repetido: marcadores como "jedes Mal", "immer", "oft" exigen wenn aunque estén lejos del conector; "zum ersten Mal", "einmal", "an jenem Tag" exigen als. El "wenn" condicional (presente/futuro) nunca compite con "als" — la duda solo existe en pasado.'
+      }
+    ] } },
+    { day: 22, semana: 4, focus: 'Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv', ruleIds: ['b1-19', 'b1-20'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-19',
+        intro: 'Ya vimos en la semana 1 que las preposiciones nunca se combinan con "es" o "das" cuando se refieren a una cosa/idea: se fusionan en da(r)-/wo(r)-. Sigue siendo el error más persistente en producción libre, así que hoy toca cazarlo en frases propias, no solo reconocerlo.',
+        practica: [
+          { incorrecto: 'Ich interessiere mich für es.', correcto: 'Ich interessiere mich dafür.' },
+          { incorrecto: 'Für was interessierst du dich?', correcto: 'Wofür interessierst du dich?' },
+          { incorrecto: 'Ich habe keine Ahnung, für was er sich interessiert.', correcto: 'Ich habe keine Ahnung, wofür er sich interessiert.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Diagnóstico rápido', texto: 'Antes de hablar, pregúntate: ¿la preposición va con una cosa/idea o con una persona? Si es cosa/idea → nunca "es"/"das" sueltos, siempre da(r)-/wo(r)-. Si es persona → pronombre normal o "wer".' },
+          {
+            titulo: '🟩 2. Verbos con preposición fija más usados (repaso de b1-07)',
+            texto: 'Estos verbos son los que más generan da-/wo- en la práctica real: sich interessieren für, sich freuen auf/über, warten auf, denken an, sich erinnern an, sprechen über.',
+            tabla: { headers: ['Verbo + Präp.', 'da-Form', 'wo-Form'], rows: [['sich interessieren für', 'dafür', 'wofür'], ['sich freuen über', 'darüber', 'worüber'], ['sprechen über', 'darüber', 'worüber'], ['sich erinnern an', 'daran', 'woran']] }
+          },
+          { titulo: '🟧 3. Error típico: usar "es" en vez de fusionar', texto: 'El calco del español ("pienso en ello" → "ich denke an es") es el fallo número uno. La corrección automática: cada vez que quieras decir "en/con/de/por... eso", revisa si esa preposición existe con da(r)-.' },
+          { titulo: '🟪 5. Autocorrección en subordinadas', texto: 'En "Ich weiß nicht, worüber sie sprechen" recuerda dos cosas a la vez: wo(r)- por ser cosa/idea, Y el verbo al final por ser subordinada (repaso de b1-06/b1-13). Practica diciendo la frase completa, no solo el conector.' }
+        ],
+        resumen: 'Repaso: da(r)+preposición sustituye "preposición + cosa/idea"; wo(r)+preposición pregunta o subordina por esa cosa/idea. El error más común sigue siendo usar "es"/"das" sueltos en vez de fusionar — revisa siempre verbo+preposición fija (b1-07) antes de hablar.'
+      },
+      {
+        ruleId: 'b1-20',
+        intro: 'También repasamos wegen/trotz/während/innerhalb/außerhalb + Genitiv (visto junto con da-/wo- en la semana 1). El error persistente no es olvidar la preposición, sino olvidar la terminación -(e)s del sustantivo o usar Dativ por costumbre del habla coloquial.',
+        practica: [
+          { incorrecto: 'Wegen der Verkehr komme ich zu spät.', correcto: 'Wegen des Verkehrs komme ich zu spät.' },
+          { incorrecto: 'Trotz das schlechte Wetter gehen wir raus.', correcto: 'Trotz des schlechten Wetters gehen wir raus.' },
+          { incorrecto: 'Innerhalb der Prüfung darf man nicht sprechen.', correcto: 'Während der Prüfung darf man nicht sprechen.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. El bloque completo de memoria', texto: 'während, wegen, trotz, innerhalb, außerhalb — las cinco rigen Genitiv. Si no recuerdas alguna, repite el bloque en voz alta hasta que salga automático, no lo pienses palabra por palabra.' },
+          {
+            titulo: '🟩 2. La terminación es lo que más se olvida',
+            texto: 'No basta con poner des/der: en masculino y neutro singular el propio sustantivo añade -(e)s. Es el detalle que más puntos resta en el examen.',
+            tabla: { headers: ['Género', 'Artículo', 'Sustantivo', 'Ejemplo completo'], rows: [['masc./neutro sg.', 'des', '+ -(e)s', 'wegen des Wetters'], ['femenino sg.', 'der', 'sin cambio', 'während der Prüfung'], ['plural', 'der', 'sin cambio', 'trotz der Kosten']] }
+          },
+          { titulo: '🟧 3. während vs. innerhalb: no son intercambiables', texto: '"während" = simultaneidad pura (durante X, al mismo tiempo que X). "innerhalb" = dentro de un plazo o límite (antes de que termine X). "Während der Prüfung" (mientras dura el examen) ≠ "innerhalb einer Woche" (en algún momento antes de que pase una semana).' },
+          { titulo: '🟨 4. El Dativ coloquial sigue siendo un error en el examen', texto: 'Aunque en la calle se oiga "wegen dem Wetter", en producción escrita/oral evaluada siempre Genitiv: wegen des Wetters. Corrígete a ti mismo si te sale el Dativ por costumbre.' }
+        ],
+        resumen: 'Repaso: während, wegen, trotz, innerhalb, außerhalb rigen Genitiv (des/-(e)s en masc./neutro sg., der sin cambios en fem./plural). Cuidado con dos errores típicos: olvidar la -(e)s del sustantivo y usar Dativ coloquial (wegen dem) en vez de Genitiv.'
+      }
+    ] } },
     {
       day: 23,
       semana: 4,
@@ -1539,7 +1786,85 @@ window.TEACHER_CLASES = {
         ]
       }
     },
-    { day: 24, semana: 4, focus: 'Repaso: verbos separables/inseparables + reflexivos ampliado', ruleIds: ['b1-23', 'b1-24'], esClaseEnVivo: false, contenido: { reglas: [] } },
+    {
+      day: 24,
+      semana: 4,
+      focus: 'Repaso: verbos separables/inseparables + reflexivos ampliado',
+      ruleIds: ['b1-23', 'b1-24'],
+      esClaseEnVivo: false,
+      contenido: {
+        reglas: [
+          {
+            ruleId: 'b1-23',
+            intro: 'Repaso: el error que más persiste con los verbos de prefijo no es identificar el prefijo, sino olvidar aplicarlo en el orden de la oración — separarlo en Präsens/Präteritum y colocar el "ge-" en el lugar correcto del Partizip II. Antes de cada frase con estos verbos conviene preguntarse: ¿este prefijo es de los 8 fijos inseparables o de los demás (probablemente separables)?',
+            practica: [
+              { incorrecto: 'Ich nehme morgen an dem Kurs.', correcto: 'Ich nehme morgen an dem Kurs teil.' },
+              { incorrecto: 'Ich habe das Auto gerepariert.', correcto: 'Ich habe das Auto repariert.' },
+              { incorrecto: 'Er erklärt das Problem und dann klärt er es auf.', correcto: 'Er erklärt das Problem und klärt es dann auf.' }
+            ],
+            pasos: [
+              {
+                titulo: '🟦 1. El atajo de los 8 prefijos cerrados',
+                texto: 'Si el verbo empieza por be-, emp-, ent-, er-, ge-, miss-, ver- o zer-, es inseparable: nunca se rompe y nunca lleva "ge-" en Partizip II. Con cualquier otro prefijo (ab-, an-, auf-, aus-, ein-, mit-, teil-, vor-, zu-…) asume que es separable hasta que un diccionario te diga lo contrario.'
+              },
+              {
+                titulo: '🟩 2. Verbos que suelen fallar en B1',
+                texto: 'Algunos verbos separables llevan prefijos poco intuitivos porque en español no tienen un equivalente "de un solo golpe": teilnehmen (participar), aufklären (aclarar), stattfinden (tener lugar). El truco sigue siendo el mismo: raíz conjugada en 2ª posición, prefijo al final.',
+                tabla: {
+                  headers: ['Verbo', 'Präsens', 'Partizip II'],
+                  rows: [
+                    ['teilnehmen (an + Dat.)', 'Ich nehme an dem Kurs teil.', 'teilgenommen'],
+                    ['aufklären', 'Er klärt das Missverständnis auf.', 'aufgeklärt'],
+                    ['stattfinden', 'Die Prüfung findet morgen statt.', 'stattgefunden'],
+                    ['sich verabreden (inseparable)', 'Wir verabreden uns für Samstag.', 'verabredet']
+                  ]
+                }
+              },
+              {
+                titulo: '🟧 4. Frase con dos verbos: no mezclar los bloques',
+                texto: 'Cuando hay un verbo separable y uno inseparable en la misma oración conectados por "und", cada uno se comporta según su propia regla — el separable manda su prefijo al final de SU cláusula, el inseparable se queda intacto. No hay que "igualar" el comportamiento de ambos.'
+              }
+            ],
+            resumen: 'Reconoce primero si el prefijo pertenece al bloque cerrado de 8 inseparables (be-, emp-, ent-, er-, ge-, miss-, ver-, zer-); si no, trátalo como separable: prefijo al final en Präsens/Präteritum, "ge-" insertado antes de la raíz en Partizip II.'
+          },
+          {
+            ruleId: 'b1-24',
+            intro: 'Repaso: el fallo típico ya no es olvidar el reflexivo (eso se domina desde A2), sino olvidar la preposición fija que lo acompaña o confundir "auf" con "über" en "sich freuen", además de seguir usando "sich" donde el sentido pide claramente "einander".',
+            practica: [
+              { incorrecto: 'Ich freue mich das Konzert nächste Woche.', correcto: 'Ich freue mich auf das Konzert nächste Woche.' },
+              { incorrecto: 'Ich freue mich auf das Geschenk, das ich schon bekommen habe.', correcto: 'Ich freue mich über das Geschenk, das ich schon bekommen habe.' },
+              { incorrecto: 'Die zwei Freunde kennen sich seit der Kindheit.', correcto: 'Die zwei Freunde kennen einander seit der Kindheit.' }
+            ],
+            pasos: [
+              {
+                titulo: '🟦 1. Memoriza el bloque verbo+preposición+caso',
+                texto: 'Igual que con b1-07, cada reflexivo con preposición fija se aprende como una unidad: sich interessieren FÜR (+Akk.), sich freuen AUF/ÜBER (+Akk.), sich verlieben IN (+Akk.), sich treffen MIT (+Dat.). No es cuestión de lógica, es memorización de bloque.'
+              },
+              {
+                titulo: '🟩 2. El matiz auf vs. über, otra vez',
+                texto: '"auf" mira hacia adelante (algo que todavía no ha pasado): "Ich freue mich auf die Ferien". "über" mira hacia lo ya ocurrido o presente: "Ich freue mich über das Geschenk". Pista rápida: si puedes decir "tengo ganas de…" en español, es "auf"; si dices "me alegro por/de algo que ya tengo", es "über".',
+                tabla: {
+                  headers: ['Situación', 'Preposición', 'Ejemplo'],
+                  rows: [
+                    ['algo futuro, con ilusión', 'auf (+Akk.)', 'Ich freue mich auf den Urlaub.'],
+                    ['algo ya ocurrido/presente', 'über (+Akk.)', 'Ich freue mich über die gute Note.']
+                  ]
+                }
+              },
+              {
+                titulo: '🟧 3. "einander" cuando el reflexivo es ambiguo',
+                texto: 'Con sujetos plurales (wir, sie, die Kollegen…) y verbos como helfen, kennen, sehen, lieben, pregúntate si "sich" podría entenderse como "a sí mismos" en vez de "entre ellos". Si hay duda real, usa "einander" para eliminarla: "Sie kennen einander seit der Schule" es inequívoco; "Sie kennen sich" podría (aunque raramente) sonar reflexivo puro.'
+              },
+              {
+                titulo: '🟨 4. Combinación con preposición',
+                texto: '"einander" se pega directamente a la preposición sin espacio: miteinander, füreinander, voneinander, gegeneinander. Practica reformulando frases con reflexivo + preposición mutua: "Sie sprechen mit sich" (raro, reflexivo puro) vs. "Sie sprechen miteinander" (hablan entre ellos, lo habitual).'
+              }
+            ],
+            resumen: 'Repasa el bloque cerrado verbo+preposición+caso de los reflexivos frecuentes (für/auf-über/in/mit), afina el matiz auf (futuro) vs. über (ya ocurrido) en "sich freuen", y usa "einander" —invariable, combinable con preposición— cuando "sich" resultaría ambiguo entre reflexivo y recíproco.'
+          }
+        ]
+      }
+    },
     {
       day: 25,
       semana: 4,
@@ -1616,9 +1941,161 @@ window.TEACHER_CLASES = {
         ]
       }
     },
-    { day: 26, semana: 4, focus: 'Repaso: Finalsätze um…zu/damit + Doppelkonnektoren', ruleIds: ['b1-29', 'b1-30'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 27, semana: 4, focus: 'Repaso general: Plusquamperfekt + Partizip I als Adjektiv', ruleIds: ['b1-11', 'b1-31'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 28, semana: 4, focus: 'Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv', ruleIds: ['b1-13', 'b1-16', 'b1-20'], esClaseEnVivo: false, contenido: { reglas: [] } },
+    { day: 26, semana: 4, focus: 'Repaso: Finalsätze um…zu/damit + Doppelkonnektoren', ruleIds: ['b1-29', 'b1-30'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-29',
+        intro: 'Repaso de "um…zu" vs. "damit" (visto en el día 10). El error que más se repite no es elegir el conector equivocado, sino mezclar las dos estructuras: poner un sujeto propio dentro de "um…zu", o dejar el verbo sin conjugar después de "damit".',
+        practica: [
+          { incorrecto: 'Ich rufe dich an, um wir treffen uns morgen.', correcto: 'Ich rufe dich an, damit wir uns morgen treffen.' },
+          { incorrecto: 'Sie spart Geld, damit zu reisen.', correcto: 'Sie spart Geld, um zu reisen.' },
+          { incorrecto: 'Er öffnet das Fenster, um die Luft ist frischer.', correcto: 'Er öffnet das Fenster, damit die Luft frischer wird.' }
+        ],
+        pasos: [
+          {
+            titulo: '🟦 1. El chequeo rápido de un segundo',
+            texto: 'Antes de escribir el conector, pregunta en voz alta: "¿quién hace la acción número dos?" Si la respuesta es la misma persona que la acción número uno → "um…zu". Si es otra persona (o cosa) distinta → "damit". Este chequeo evita el 90% de los errores.'
+          },
+          {
+            titulo: '🟩 2. Señal de alarma: un sujeto after "um"',
+            texto: 'Si después de "um" aparece un pronombre o sustantivo con función de sujeto ("um ich…", "um wir…", "um die Luft…"), la frase ya está mal — "um…zu" jamás lleva sujeto propio, solo el infinitivo al final.',
+            tabla: {
+              headers: ['Señal de error', 'Ejemplo incorrecto', 'Corrección'],
+              rows: [
+                ['sujeto tras "um"', 'um wir treffen uns', 'damit wir uns treffen'],
+                ['"damit" + infinitivo sin sujeto', 'damit zu reisen', 'um zu reisen'],
+                ['"um" + verbo conjugado', 'um die Luft ist frischer', 'damit die Luft frischer wird']
+              ]
+            }
+          },
+          {
+            titulo: '🟧 3. Ejemplos nuevos para practicar en pareja',
+            texto: 'Uno propone la primera parte de la frase, el otro decide "um…zu" o "damit" según quién hace la segunda acción: "Ich mache das Licht aus, …" (mismo sujeto → um…zu schlafen) / "Der Lehrer spricht langsam, …" (sujetos distintos → damit die Schüler verstehen).'
+          }
+        ],
+        resumen: 'Repaso: mismo sujeto → "um…zu" + infinitivo sin sujeto propio; sujetos distintos → "damit" + subordinada completa con verbo conjugado al final. El error persistente es mezclar ambas estructuras (sujeto dentro de "um…zu", o infinitivo tras "damit").'
+      },
+      {
+        ruleId: 'b1-30',
+        intro: 'Repaso de los tres Doppelkonnektoren (entweder…oder, weder…noch, sowohl…als auch). El error persistente ya no suele ser cruzar las mitades, sino olvidar que "weder…noch" ya niega por sí solo y añadir un "nicht" de más, por transferencia directa del español.',
+        practica: [
+          { incorrecto: 'Ich habe nicht weder Zeit noch Lust.', correcto: 'Ich habe weder Zeit noch Lust.' },
+          { incorrecto: 'Entweder du kommst mit, noch du bleibst hier.', correcto: 'Entweder du kommst mit, oder du bleibst hier.' },
+          { incorrecto: 'Das Restaurant ist sowohl teuer und gut.', correcto: 'Das Restaurant ist sowohl teuer als auch gut.' }
+        ],
+        pasos: [
+          {
+            titulo: '🟦 1. Repaso relámpago de los tres pares',
+            texto: 'entweder…oder (alternativa: o…o), weder…noch (doble negación: ni…ni, sin "nicht" extra), sowohl…als auch (suma con énfasis: tanto…como, nunca "und" a secas).'
+          },
+          {
+            titulo: '🟩 2. El error típico en esta fase: doble negación',
+            texto: 'Como en español decimos "no tengo ni tiempo ni ganas" con un "no" delante, muchos alumnos añaden "nicht" antes de "weder": "Ich habe nicht weder Zeit noch Lust" — incorrecto. La negación ya está en "weder…noch"; añadir "nicht" es redundante y agramatical.',
+            tabla: {
+              headers: ['Par', 'Error frecuente', 'Forma correcta'],
+              rows: [
+                ['weder…noch', '+ "nicht" extra', 'sin "nicht": Ich habe weder Zeit noch Lust.'],
+                ['entweder…oder', 'mezclar con "noch"', 'Entweder…, oder… (nunca entweder…noch)'],
+                ['sowohl…als auch', 'usar solo "und"', 'sowohl…als auch (no "sowohl…und")']
+              ]
+            }
+          },
+          {
+            titulo: '🟧 3. Práctica con ejemplos nuevos',
+            texto: 'Transformar frases sueltas en Doppelkonnektoren: "Er kann kochen. Er kann backen." → "Er kann sowohl kochen als auch backen." / "Wir fahren nicht mit dem Auto. Wir fahren nicht mit dem Bus." → "Wir fahren weder mit dem Auto noch mit dem Bus."'
+          }
+        ],
+        resumen: 'Repaso: tres pares fijos que no se mezclan (entweder…oder, weder…noch, sowohl…als auch). "Weder…noch" ya niega por sí mismo — nunca se añade "nicht" delante. "Sowohl…als auch" no se reduce a un simple "und".'
+      }
+    ] } },
+    { day: 27, semana: 4, focus: 'Repaso general: Plusquamperfekt + Partizip I als Adjektiv', ruleIds: ['b1-11', 'b1-31'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-11',
+        intro: 'Repaso del Plusquamperfekt visto en la semana 1. El error que más persiste no es el concepto (los alumnos entienden bien "el pasado del pasado"), sino dos detalles mecánicos: elegir el auxiliar correcto (hatte/war) y mandar el verbo al final en la subordinada con "nachdem".',
+        practica: [
+          { incorrecto: 'Nachdem er hatte gefrühstückt, verließ er das Haus.', correcto: 'Nachdem er gefrühstückt hatte, verließ er das Haus.' },
+          { incorrecto: 'Sie hatte nach Hamburg gezogen, bevor sie den Job fand.', correcto: 'Sie war nach Hamburg gezogen, bevor sie den Job fand.' },
+          { incorrecto: 'Ich hatte das Geld schon ausgegeben gehabt.', correcto: 'Ich hatte das Geld schon ausgegeben.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Recordatorio rápido', texto: 'Plusquamperfekt = hatte/war + Partizip II. Se usa para una acción ya terminada antes de otra acción pasada, casi siempre con "nachdem".' },
+          {
+            titulo: '🟩 2. Los dos errores típicos que corregimos hoy',
+            texto: 'a) Verbo en el sitio equivocado dentro de la subordinada con "nachdem" — el auxiliar conjugado va al FINAL, no después del sujeto. b) Auxiliar equivocado — verbos de movimiento/cambio de estado (gehen, fahren, ziehen, aufwachen…) usan "war", no "hatte".',
+            tabla: { headers: ['Verbo', 'Perfekt', 'Plusquamperfekt'], rows: [['frühstücken', 'hat gefrühstückt', 'hatte gefrühstückt'], ['ziehen', 'ist gezogen', 'war gezogen'], ['aufwachen', 'ist aufgewacht', 'war aufgewacht']] }
+          },
+          { titulo: '🟧 3. Práctica dirigida', texto: 'Da frases sueltas en Perfekt con "nachdem" y pide reescribirlas: la acción de "nachdem" pasa a Plusquamperfekt, la principal se queda en Präteritum. Ej.: "Nachdem sie aufgewacht ist, hat sie geduscht" → "Nachdem sie aufgewacht war, duschte sie."' },
+          { titulo: '🟨 4. Contraste final', texto: 'Pregunta de control: ¿hay dos acciones pasadas y una es claramente anterior a la otra? Si sí, la más antigua va en Plusquamperfekt. Si solo hay una acción pasada, no hace falta — con Perfekt o Präteritum basta.' }
+        ],
+        resumen: 'Plusquamperfekt = hatte/war + Partizip II, casi siempre con "nachdem". Los dos fallos que persisten: verbo al final en la subordinada, y usar "war" (no "hatte") con verbos de movimiento/cambio de estado.'
+      },
+      {
+        ruleId: 'b1-31',
+        intro: 'Repaso del Partizip I als Adjektiv visto en la semana 2. El error que más se repite es tratarlo como si fuera el gerundio español ("el niño durmiendo") en vez de un adjetivo que se declina — y olvidar la terminación de caso/género.',
+        practica: [
+          { incorrecto: 'Die Kinder, die singen, stehen auf der Bühne.', correcto: 'Die singenden Kinder stehen auf der Bühne.' },
+          { incorrecto: 'Ich habe ein weinend Baby gehört.', correcto: 'Ich habe ein weinendes Baby gehört.' },
+          { incorrecto: 'Der Mann beim Wartend ist mein Chef.', correcto: 'Der wartende Mann ist mein Chef.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Recordatorio rápido', texto: 'Infinitivo + "-d" (singen → singend, warten → wartend) funciona como adjetivo delante de un sustantivo y se declina igual que cualquier otro adjetivo (b1-05).' },
+          {
+            titulo: '🟩 2. El error persistente: olvidar la declinación',
+            texto: 'Formar "-d" está automatizado, pero muchos se olvidan de añadir la terminación de adjetivo después. No existe "ein weinend Baby" — hace falta "-es" porque es neutro + artículo indefinido en Nominativ/Akkusativ.',
+            tabla: { headers: ['Artículo', 'Terminación', 'Ejemplo'], rows: [['der/die/das', '-e (Nom. sing.)', 'die singende Frau'], ['ein/eine (neutro)', '-es', 'ein weinendes Baby'], ['sin artículo (plural)', '-e', 'singende Kinder']] }
+          },
+          { titulo: '🟧 3. Nunca "beim + Partizip I"', texto: 'El calco más común del español ("el hombre esperando" → *"der Mann beim Wartend") no existe en alemán. El Partizip I nunca lleva preposición: es directamente adjetivo delante del sustantivo, "der wartende Mann".' },
+          { titulo: '🟨 4. Práctica dirigida', texto: 'Da oraciones de relativo simples (visto en b1-03) y pide transformarlas a Partizip I: "der Mann, der arbeitet" → "der arbeitende Mann"; "die Frau, die lächelt" → "die lächelnde Frau". Refuerza que es una alternativa más elegante, no una estructura nueva.' }
+        ],
+        resumen: 'Partizip I = infinitivo + "-d", declinado como cualquier adjetivo. Los dos fallos que persisten: olvidar la terminación de declinación, y calcar el gerundio español con "beim + Partizip I", que no existe en alemán.'
+      }
+    ] } },
+    { day: 28, semana: 4, focus: 'Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv', ruleIds: ['b1-13', 'b1-16', 'b1-20'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-13',
+        intro: 'Repaso: las preguntas indirectas sirven para preguntar o reportar algo con más cortesía o dentro de otra frase ("Ich weiß nicht, ob…", "Können Sie mir sagen, wo…"). Hoy toca practicar la mezcla de "ob" y W-Wort en contexto libre, no solo frases sueltas.',
+        practica: [
+          { incorrecto: 'Ich weiß nicht, ist der Laden offen.', correcto: 'Ich weiß nicht, ob der Laden offen ist.' },
+          { incorrecto: 'Können Sie mir sagen, wann kommt der Zug?', correcto: 'Können Sie mir sagen, wann der Zug kommt?' },
+          { incorrecto: 'Ich frage mich, hat sie das schon gehört.', correcto: 'Ich frage mich, ob sie das schon gehört hat.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Primer filtro: ¿sí/no o W-Wort?', texto: 'Si la pregunta original se contesta con sí/no → "ob". Si tenía was, wo, wann, warum, wie… → se conserva esa misma palabra.' },
+          { titulo: '🟩 2. El verbo siempre al final', texto: 'Da igual si es "ob" o un W-Wort: la estructura es de subordinada, así que el verbo conjugado va al final del bloque, nunca en 2ª posición.' },
+          { titulo: '🟧 3. Práctica cruzada con Perfekt', texto: 'Cuando la pregunta indirecta está en Perfekt, el orden es: sujeto + resto + Partizip II + auxiliar al final. Ej.: "Ich weiß nicht, ob sie angerufen hat."', tabla: { headers: ['Directa', 'Indirecta'], rows: [['Hat sie angerufen?', 'Ich weiß nicht, ob sie angerufen hat.'], ['Wo warst du gestern?', 'Sag mir, wo du gestern warst.']] } }
+        ],
+        resumen: 'Repaso: "ob" para preguntas de sí/no, W-Wort para preguntas con palabra interrogativa; en ambos casos el verbo va al final, incluso en Perfekt (Partizip II + auxiliar).'
+      },
+      {
+        ruleId: 'b1-16',
+        intro: 'Repaso de "je…, desto…": compara dos cosas que cambian en paralelo ("cuanto más…, tanto más…"). Hoy se practica combinándolo con vocabulario de otras semanas (comparativos ya vistos, verbos con preposición) para que suene natural y no memorizado.',
+        practica: [
+          { incorrecto: 'Je mehr du übst, desto du wirst besser.', correcto: 'Je mehr du übst, desto besser wirst du.' },
+          { incorrecto: 'Je die Wohnung ist größer, desto teurer ist sie.', correcto: 'Je größer die Wohnung ist, desto teurer ist sie.' },
+          { incorrecto: 'Je mehr Geld er verdient, desto mehr er gibt aus.', correcto: 'Je mehr Geld er verdient, desto mehr gibt er aus.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Dos mitades, dos órdenes distintos', texto: '"je" abre una subordinada (verbo al final); "desto"/"umso" abre la principal (verbo en 2ª posición, justo tras "desto + comparativo").' },
+          { titulo: '🟩 2. Siempre comparativo en ambas partes', texto: 'Ni "je" ni "desto" van nunca con la forma base del adjetivo: "je größer… desto teurer…", nunca "je groß… desto teuer…".' },
+          { titulo: '🟧 3. Combínalo con vocabulario ya visto', texto: 'Practica con adjetivos y verbos de otras semanas para reforzar retención: "Je öfter wir Deutsch sprechen, desto sicherer werden wir." "Je länger die Reise dauert, desto müder sind wir."' }
+        ],
+        resumen: 'Repaso: "je" + comparativo + verbo final (subordinada), "desto"/"umso" + comparativo + verbo en 2ª posición (principal). Ambas partes siempre en comparativo.'
+      },
+      {
+        ruleId: 'b1-20',
+        intro: 'Repaso de las preposiciones de Genitiv (während, wegen, trotz, innerhalb, außerhalb). Hoy se insiste en el uso correcto del artículo en Genitiv y en distinguirlas de sus preposiciones "primas" ya vistas (nach/durch temporales, obwohl concesivo).',
+        practica: [
+          { incorrecto: 'Wegen dem Regen bleiben wir zu Hause.', correcto: 'Wegen des Regens bleiben wir zu Hause.' },
+          { incorrecto: 'Trotz der Kälte er ist rausgegangen.', correcto: 'Trotz der Kälte ist er rausgegangen.' },
+          { incorrecto: 'Innerhalb eine Woche bekommst du Antwort.', correcto: 'Innerhalb einer Woche bekommst du Antwort.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. El bloque completo', texto: 'während (durante), wegen (a causa de), trotz (a pesar de), innerhalb / außerhalb (dentro de / fuera de) — las cinco rigen Genitiv: des/der + -(e)s en masc./neutro singular.' },
+          { titulo: '🟩 2. Trotz como versión nominal de obwohl', texto: 'Compárese con la subordinada concesiva "obwohl" (`b1-06`): "Obwohl es regnet, gehen wir raus" = "Trotz des Regens gehen wir raus". Misma idea, dos estructuras distintas.' },
+          { titulo: '🟧 3. El error más común en el examen', texto: 'Evitar "wegen dem/trotz dem" (Dativ coloquial): en el registro estándar y en el examen se exige Genitiv siempre.', tabla: { headers: ['Preposición', 'Ejemplo correcto'], rows: [['während', 'während des Kurses'], ['wegen', 'wegen des Wetters'], ['trotz', 'trotz des Regens'], ['innerhalb', 'innerhalb einer Woche'], ['außerhalb', 'außerhalb der Stadt']] } }
+        ],
+        resumen: 'Repaso: während/wegen/trotz/innerhalb/außerhalb rigen siempre Genitiv (des/der + -(e)s). Evitar en el examen la forma coloquial con Dativ ("wegen dem", "trotz dem").'
+      }
+    ] } },
     { day: 29, semana: 4, focus: 'Simulacro final (1/2): escritura evaluada + repaso ligero', ruleIds: ['b1-02', 'b1-06'], esClaseEnVivo: false, contenido: { reglas: [] } },
     { day: 30, semana: 4, focus: 'Simulacro final (2/2): mündliche evaluada, los 3 Teile', ruleIds: ['b1-09'], esClaseEnVivo: false, contenido: { reglas: [] } }
   ]

@@ -41,8 +41,13 @@
 
     .class-col { border: 1px solid #eef0f5; border-radius: 10px; padding: 14px 16px; }
     body.dark .class-col { border-color: #2a2d45; }
+    .class-header { cursor: pointer; user-select: none; }
     .class-day-label { font-size: 12px; font-weight: 700; color: #444; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     body.dark .class-day-label { color: #9aa0c0; }
+    .toggle-arrow { display: inline-block; transition: transform .15s; margin-left: auto; color: #aaa; }
+    .class-col.expanded .toggle-arrow { transform: rotate(90deg); }
+    .class-detail { display: none; margin-top: 10px; }
+    .class-col.expanded .class-detail { display: block; }
 
     .clase-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .3px; }
     .clase-badge-vivo { background: #e0f2f1; color: #00695C; }
@@ -214,10 +219,14 @@
       ? `<span class="clase-badge clase-badge-vivo">🟢 Clase en vivo</span>`
       : `<span class="clase-badge clase-badge-auto">📖 Autoestudio</span>`;
     return `<div class="class-col">
-      <div class="class-day-label">Día ${cls.day} ${badge}</div>
-      <div class="class-focus">${esc(cls.focus)}</div>
-      ${cls.ruleIds.map(renderRule).join('')}
-      ${renderContenido(cls.contenido)}
+      <div class="class-header" onclick="this.closest('.class-col').classList.toggle('expanded')">
+        <div class="class-day-label">Día ${cls.day} ${badge}<span class="toggle-arrow">▸</span></div>
+        <div class="class-focus">${esc(cls.focus)}</div>
+      </div>
+      <div class="class-detail">
+        ${cls.ruleIds.map(renderRule).join('')}
+        ${renderContenido(cls.contenido)}
+      </div>
     </div>`;
   }
 

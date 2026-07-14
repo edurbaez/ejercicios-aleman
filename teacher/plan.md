@@ -70,16 +70,16 @@ RuleIds obtenidos cruzando el `focus`/tasks de cada día en `plan.js` (`PLANS.b1
 - [x] **17. Día 12** (repaso) — focus "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos" — ruleIds b1-03, b1-04, b1-05
 - [x] **18. Día 13** (repaso) — focus "Repaso: conectores subordinantes + verbos con preposición fija + infinitivo con zu" — ruleIds b1-06, b1-07, b1-08
 - [x] **19. Día 14** (repaso) — focus "Repaso: pasiva básica + futuro" — ruleIds b1-09, b1-10
-- [ ] **20. Día 15** (repaso) — focus "Consolidación: Präteritum + Konjunktiv II" — ruleIds b1-01, b1-02
-- [ ] **21. Día 17** — focus "Genitiv (kasus.html) + repaso n-Deklination" — ruleIds b1-04, b1-17 (repaso)
-- [ ] **22. Día 19** (repaso) — focus "Contraste: infinitivo con zu vs. sin zu" — ruleIds b1-08, b1-14
-- [ ] **23. Día 20** (repaso) — focus "Pasiva básica + funciones de werden" — ruleIds b1-09, b1-22
-- [ ] **24. Día 21** (repaso) — focus "Conectores subordinantes + wenn vs. als (ampliado)" — ruleIds b1-06, b1-12
-- [ ] **25. Día 22** (repaso) — focus "Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv" — ruleIds b1-19, b1-20
-- [ ] **26. Día 24** (repaso) — focus "Repaso: verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-23, b1-24
-- [ ] **27. Día 26** (repaso) — focus "Repaso: Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-29, b1-30
-- [ ] **28. Día 27** (repaso) — focus "Repaso general: Plusquamperfekt + Partizip I als Adjektiv" — ruleIds b1-11, b1-31
-- [ ] **29. Día 28** (repaso libre) — focus "Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv" — ruleIds b1-13, b1-16, b1-20
+- [x] **20. Día 15** (repaso) — focus "Consolidación: Präteritum + Konjunktiv II" — ruleIds b1-01, b1-02
+- [x] **21. Día 17** — focus "Genitiv (kasus.html) + repaso n-Deklination" — ruleIds b1-04, b1-17 (repaso)
+- [x] **22. Día 19** (repaso) — focus "Contraste: infinitivo con zu vs. sin zu" — ruleIds b1-08, b1-14
+- [x] **23. Día 20** (repaso) — focus "Pasiva básica + funciones de werden" — ruleIds b1-09, b1-22
+- [x] **24. Día 21** (repaso) — focus "Conectores subordinantes + wenn vs. als (ampliado)" — ruleIds b1-06, b1-12
+- [x] **25. Día 22** (repaso) — focus "Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv" — ruleIds b1-19, b1-20
+- [x] **26. Día 24** (repaso) — focus "Repaso: verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-23, b1-24
+- [x] **27. Día 26** (repaso) — focus "Repaso: Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-29, b1-30
+- [x] **28. Día 27** (repaso) — focus "Repaso general: Plusquamperfekt + Partizip I als Adjektiv" — ruleIds b1-11, b1-31
+- [x] **29. Día 28** (repaso libre) — focus "Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv" — ruleIds b1-13, b1-16, b1-20
 - [ ] **30. Día 29** (repaso ligero, simulacro) — focus "Simulacro final (1/2): escritura evaluada + repaso ligero" — ruleId b1-02
 - [ ] **31. Día 30** (repaso ligero, simulacro) — focus "Simulacro final (2/2): mündliche evaluada, los 3 Teile" — ruleId b1-09
 

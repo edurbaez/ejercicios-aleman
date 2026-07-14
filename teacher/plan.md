@@ -60,16 +60,16 @@ Días ya cubiertos (no repetir): 2, 4, 9, 11, 16, 18, 23, 25.
 
 RuleIds obtenidos cruzando el `focus`/tasks de cada día en `plan.js` (`PLANS.b1`) con los títulos de `GRAMMAR_DATA.B1` en `grammar-data.js`. Días marcados "repaso" en `plan.js` deben tratarse igual que las tareas 1-8 que ya fueron repaso (ej. Tarea 2 con b1-12, Tarea 7/8): intro más breve reconociendo que es repaso, práctica enfocada en errores persistentes, ejemplos nuevos (no reutilizar los del día en que la regla se presentó por primera vez).
 
-- [ ] **10. Día 1** — focus "Präteritum + Konjunktiv II + oraciones de relativo" — ruleIds b1-01, b1-02, b1-03
-- [ ] **11. Día 3** — focus "Verbos con preposición fija + infinitivo con zu + pasiva básica" — ruleIds b1-07, b1-08, b1-09
-- [ ] **12. Día 5** — focus "Preguntas indirectas + infinitivo sin zu + relativas con preposición" — ruleIds b1-13, b1-14, b1-15
-- [ ] **13. Día 6** — focus "je…desto + n-Deklination + Adjektive als Nomen" — ruleIds b1-16, b1-17, b1-18
-- [ ] **14. Día 7** — focus "da-/wo-Präpositionaladverbien + preposiciones con Genitiv + preposiciones temporales" — ruleIds b1-19, b1-20, b1-21
-- [ ] **15. Día 8** — focus "Funciones de werden + verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-22, b1-23, b1-24
-- [ ] **16. Día 10** — focus "lassen + Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-28, b1-29, b1-30
-- [ ] **17. Día 12** (repaso) — focus "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos" — ruleIds b1-03, b1-04, b1-05
-- [ ] **18. Día 13** (repaso) — focus "Repaso: conectores subordinantes + verbos con preposición fija + infinitivo con zu" — ruleIds b1-06, b1-07, b1-08
-- [ ] **19. Día 14** (repaso) — focus "Repaso: pasiva básica + futuro" — ruleIds b1-09, b1-10
+- [x] **10. Día 1** — focus "Präteritum + Konjunktiv II + oraciones de relativo" — ruleIds b1-01, b1-02, b1-03
+- [x] **11. Día 3** — focus "Verbos con preposición fija + infinitivo con zu + pasiva básica" — ruleIds b1-07, b1-08, b1-09
+- [x] **12. Día 5** — focus "Preguntas indirectas + infinitivo sin zu + relativas con preposición" — ruleIds b1-13, b1-14, b1-15
+- [x] **13. Día 6** — focus "je…desto + n-Deklination + Adjektive als Nomen" — ruleIds b1-16, b1-17, b1-18
+- [x] **14. Día 7** — focus "da-/wo-Präpositionaladverbien + preposiciones con Genitiv + preposiciones temporales" — ruleIds b1-19, b1-20, b1-21
+- [x] **15. Día 8** — focus "Funciones de werden + verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-22, b1-23, b1-24
+- [x] **16. Día 10** — focus "lassen + Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-28, b1-29, b1-30
+- [x] **17. Día 12** (repaso) — focus "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos" — ruleIds b1-03, b1-04, b1-05
+- [x] **18. Día 13** (repaso) — focus "Repaso: conectores subordinantes + verbos con preposición fija + infinitivo con zu" — ruleIds b1-06, b1-07, b1-08
+- [x] **19. Día 14** (repaso) — focus "Repaso: pasiva básica + futuro" — ruleIds b1-09, b1-10
 - [ ] **20. Día 15** (repaso) — focus "Consolidación: Präteritum + Konjunktiv II" — ruleIds b1-01, b1-02
 - [ ] **21. Día 17** — focus "Genitiv (kasus.html) + repaso n-Deklination" — ruleIds b1-04, b1-17 (repaso)
 - [ ] **22. Día 19** (repaso) — focus "Contraste: infinitivo con zu vs. sin zu" — ruleIds b1-08, b1-14

@@ -80,7 +80,7 @@ RuleIds obtenidos cruzando el `focus`/tasks de cada día en `plan.js` (`PLANS.b1
 - [x] **27. Día 26** (repaso) — focus "Repaso: Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-29, b1-30
 - [x] **28. Día 27** (repaso) — focus "Repaso general: Plusquamperfekt + Partizip I als Adjektiv" — ruleIds b1-11, b1-31
 - [x] **29. Día 28** (repaso libre) — focus "Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv" — ruleIds b1-13, b1-16, b1-20
-- [ ] **30. Día 29** (repaso ligero, simulacro) — focus "Simulacro final (1/2): escritura evaluada + repaso ligero" — ruleId b1-02
-- [ ] **31. Día 30** (repaso ligero, simulacro) — focus "Simulacro final (2/2): mündliche evaluada, los 3 Teile" — ruleId b1-09
+- [x] **30. Día 29** (repaso ligero, simulacro) — focus "Simulacro final (1/2): escritura evaluada + repaso ligero" — ruleId b1-02
+- [x] **31. Día 30** (repaso ligero, simulacro) — focus "Simulacro final (2/2): mündliche evaluada, los 3 Teile" — ruleId b1-09
 
 Nota: el listado de ruleIds por día se hizo cruzando manualmente `focus`/`tasks` de `plan.js` (`PLANS.b1`) con `GRAMMAR_DATA.B1` — verificar contra `plan.js` al ejecutar cada tarea por si hay algún desfase menor.

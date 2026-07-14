@@ -27,9 +27,9 @@
     <h1>Entrenamiento de lectura</h1>
 
     <div id="activity-tabs">
-        <button class="activity-tab active" data-activity="sprint" onclick="switchActivity('sprint')">⚡ Sprint</button>
+        <button class="activity-tab" data-activity="sprint" onclick="switchActivity('sprint')">⚡ Sprint</button>
         <button class="activity-tab" data-activity="lectura" onclick="switchActivity('lectura')">📚 Lectura veloz</button>
-        <button class="activity-tab" data-activity="comprension" onclick="switchActivity('comprension')">📖 Comprensión</button>
+        <button class="activity-tab active" data-activity="comprension" onclick="switchActivity('comprension')">📖 Comprensión</button>
     </div>
 
     <div id="hint-lv" style="display:none; background:#E3F2FD; border-left:4px solid #1976D2; border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
@@ -102,18 +102,18 @@
         <div id="textosguardados"></div>
     </div>
 
-    <div id="comprension-panel" style="display:none">
+    <div id="comprension-panel">
         <div id="comp-mode-tabs">
-            <button class="comp-tab active" data-mode="A" onclick="compSwitchMode('A')">Mi texto</button>
-            <button class="comp-tab" data-mode="B" onclick="compSwitchMode('B')">Por nivel</button>
+            <button class="comp-tab" data-mode="A" onclick="compSwitchMode('A')">Mi texto</button>
+            <button class="comp-tab active" data-mode="B" onclick="compSwitchMode('B')">Por nivel</button>
         </div>
 
-        <div id="comp-mode-A" class="comp-mode-section">
+        <div id="comp-mode-A" class="comp-mode-section" style="display:none">
             <textarea id="comp-texto-input" placeholder="Pega aquí un texto en alemán..."></textarea>
             <button class="btn comp-action-btn" id="comp-generar-btn">Generar preguntas</button>
         </div>
 
-        <div id="comp-mode-B" class="comp-mode-section" style="display:none">
+        <div id="comp-mode-B" class="comp-mode-section">
             <div id="comp-level-pills">
                 <button class="comp-level-pill active" data-level="A1">A1</button>
                 <button class="comp-level-pill" data-level="A2">A2</button>
@@ -142,7 +142,7 @@
         </div>
     </div>
 
-    <div id="sprint-panel">
+    <div id="sprint-panel" style="display:none">
         <h3 class="sprint-title">⚡ Sprint de vocabulario</h3>
         <p class="sprint-desc">Palabras que ya conoces, flasheadas a ritmo creciente: cada 10 palabras hay una pregunta sorpresa. Si aciertas, el ritmo sube; si fallas, baja. Entrena el reconocimiento directo sin traducir mentalmente.</p>
         <div class="sprint-row">
@@ -777,7 +777,7 @@
 
         /* ========================= ACTIVIDADES (tabs excluyentes) ========================= */
         const LECTURA_IDS = ['text', 'controls', 'progress-container', 'display-container', 'saved-section'];
-        let currentActivity = 'sprint';
+        let currentActivity = 'comprension';
 
         function switchActivity(name) {
             if (name === currentActivity) return;
@@ -795,7 +795,7 @@
         }
 
         /* ========================= COMPRENSIÓN ========================= */
-        let _compActiveMode = 'A'; // 'A' o 'B' — controla qué hace el botón "Intentar otro"
+        let _compActiveMode = 'B'; // 'A' o 'B' — controla qué hace el botón "Intentar otro"
 
         function compSwitchMode(mode) {
             _compActiveMode = mode;

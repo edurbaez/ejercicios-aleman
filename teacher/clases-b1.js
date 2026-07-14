@@ -2096,7 +2096,57 @@ window.TEACHER_CLASES = {
         resumen: 'Repaso: während/wegen/trotz/innerhalb/außerhalb rigen siempre Genitiv (des/der + -(e)s). Evitar en el examen la forma coloquial con Dativ ("wegen dem", "trotz dem").'
       }
     ] } },
-    { day: 29, semana: 4, focus: 'Simulacro final (1/2): escritura evaluada + repaso ligero', ruleIds: ['b1-02', 'b1-06'], esClaseEnVivo: false, contenido: { reglas: [] } },
-    { day: 30, semana: 4, focus: 'Simulacro final (2/2): mündliche evaluada, los 3 Teile', ruleIds: ['b1-09'], esClaseEnVivo: false, contenido: { reglas: [] } }
+    { day: 29, semana: 4, focus: 'Simulacro final (1/2): escritura evaluada + repaso ligero', ruleIds: ['b1-02', 'b1-06'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-02',
+        intro: 'Último repaso antes del simulacro de escritura: el Konjunktiv II es casi obligatorio en una carta o redacción B1 (sugerencias, hipótesis, peticiones corteses) — revisarlo hoy con la mira puesta en usarlo mañana bajo presión de tiempo.',
+        practica: [
+          { incorrecto: 'Ich würde vorschlagen dass wir treffen uns am Samstag.', correcto: 'Ich würde vorschlagen, dass wir uns am Samstag treffen.' },
+          { incorrecto: 'Wenn ich mehr Geld haben würde, ich würde reisen mehr.', correcto: 'Wenn ich mehr Geld hätte, würde ich mehr reisen.' },
+          { incorrecto: 'Es wäre besser wenn du kommst früher.', correcto: 'Es wäre besser, wenn du früher kommen würdest.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Dónde aparece en un examen de escritura', texto: 'Cartas formales (peticiones: "Ich würde mich freuen, wenn Sie…"), sugerencias en un email a un amigo ("An deiner Stelle würde ich…"), y la típica frase de cierre cortés ("Ich wäre Ihnen dankbar, wenn…").' },
+          { titulo: '🟩 2. Chequeo rápido antes de escribir', texto: 'Repasa mentalmente los 4 imprescindibles sin würde: wäre, hätte, könnte, müsste. Si al escribir te sale "würde sein/haben/können", detente y corrige — es el error que más puntos resta.' },
+          { titulo: '🟧 3. Estructura de subordinada con wenn', texto: 'En "wenn + Konjunktiv II, ... würde + Infinitiv" el verbo conjugado de la subordinada va al final: "Wenn ich Zeit hätte, würde ich kommen." — no "ich hätte Zeit" suelto sin el verbo al final.' },
+          { titulo: '🟨 4. Frase-plantilla para el simulacro', texto: 'Memoriza una plantilla de cierre de carta: "Ich wäre Ihnen sehr dankbar, wenn Sie mir antworten würden." Sirve para casi cualquier carta formal B1 y usa correctamente hätte/wäre + würde.' }
+        ],
+        resumen: 'Antes del simulacro: revisa que wäre/hätte/könnte/müsste salgan automáticos (sin würde) y que "wenn + Konj. II, würde + Infinitiv" mantenga el verbo al final de cada bloque.'
+      },
+      {
+        ruleId: 'b1-06',
+        intro: 'Segundo repaso ligero: los conectores subordinantes son la columna vertebral de cualquier texto B1 bien conectado — sin ellos, la escritura suena a lista de frases sueltas, algo que penalizan los criterios de evaluación.',
+        practica: [
+          { incorrecto: 'Ich bin froh, weil ich habe die Prüfung bestanden.', correcto: 'Ich bin froh, weil ich die Prüfung bestanden habe.' },
+          { incorrecto: 'Als ich war Kind, ich wohnte in Madrid.', correcto: 'Als ich Kind war, wohnte ich in Madrid.' },
+          { incorrecto: 'Obwohl es regnet viel, gehen wir spazieren.', correcto: 'Obwohl es viel regnet, gehen wir spazieren.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Antes de escribir: elige 3 conectores variados', texto: 'Un texto que solo usa "und" y "aber" pierde nota. Plan mínimo para el simulacro: un conector causal (weil), uno concesivo (obwohl) y uno temporal (nachdem/bevor) repartidos en el texto.' },
+          { titulo: '🟩 2. El chequeo del verbo al final', texto: 'Después de escribir cada frase con conector, relee solo esa frase: ¿el verbo conjugado quedó al final del bloque subordinado? Si no, es el error número uno que se comete escribiendo con prisa.' },
+          { titulo: '🟧 3. wenn vs. als, la trampa de siempre', texto: 'Para anécdotas del pasado (un solo evento) usa als; para costumbres o condiciones (en cualquier tiempo) usa wenn. En un simulacro de escritura sobre experiencias personales, als suele ser el correcto casi siempre.' },
+          { titulo: '🟨 4. Conectar dos frases cortas en una compleja', texto: 'Truco de examen: si tienes dos frases simples relacionadas, únelas con un conector — sube automáticamente la variedad gramatical evaluada. "Ich war müde. Ich bin früh eingeschlafen." → "Weil ich müde war, bin ich früh eingeschlafen."' }
+        ],
+        resumen: 'Repaso final: usa al menos 3 conectores subordinantes distintos, revisa que el verbo quede al final de cada subordinada, y recuerda als = un solo momento pasado, wenn = condición o hábito.'
+      }
+    ] } },
+    { day: 30, semana: 4, focus: 'Simulacro final (2/2): mündliche evaluada, los 3 Teile', ruleIds: ['b1-09'], esClaseEnVivo: false, contenido: { reglas: [
+      {
+        ruleId: 'b1-09',
+        intro: 'Repaso ligero antes del simulacro oral: la pasiva aparece menos en el habla espontánea que en la escritura, pero suele salir en el Teil de presentación o discusión de B1 ("wird gemacht", "wurde gebaut") — tenerla fresca ayuda a sonar más natural y variado en los 3 Teile.',
+        practica: [
+          { incorrecto: 'In meiner Stadt viele neue Wohnungen bauen.', correcto: 'In meiner Stadt werden viele neue Wohnungen gebaut.' },
+          { incorrecto: 'Das Projekt ist geworden letztes Jahr fertig.', correcto: 'Das Projekt ist letztes Jahr fertig geworden. / Das Projekt wurde letztes Jahr fertiggestellt.' },
+          { incorrecto: 'Diese Sprache wird sprechen in vielen Ländern.', correcto: 'Diese Sprache wird in vielen Ländern gesprochen.' }
+        ],
+        pasos: [
+          { titulo: '🟦 1. Dónde suele salir en el examen oral', texto: 'Presentaciones sobre un tema social ("Heutzutage wird viel über... diskutiert"), descripción de procesos o costumbres ("In Deutschland wird das Frühstück oft spät gegessen") y discusión de opiniones generales despersonalizadas.' },
+          { titulo: '🟩 2. Frase-comodín para el Teil de presentación', texto: '"In meinem Land wird oft [Partizip II]..." es una estructura reutilizable para casi cualquier tema de presentación B1 (comida, transporte, fiestas, trabajo).' },
+          { titulo: '🟧 3. El error que hay que evitar hablando', texto: 'Bajo presión de tiempo es fácil decir "ist geworden" en vez de "ist … worden" para la pasiva en Perfekt. Si dudas en el momento, usa mejor el Präsens o Präteritum de pasiva — son más simples y sin ese riesgo.' },
+          { titulo: '🟨 4. Simulacro mental de 30 segundos', texto: 'Antes del examen, practica decir en voz alta 3 frases pasivas sobre tu propio tema de presentación. Repetirlas en voz alta reduce el riesgo de bloquearse al construir la estructura werden + Partizip II en tiempo real.' }
+        ],
+        resumen: 'Para el oral: werden + Partizip II al final sirve para describir procesos/costumbres sin mencionar quién lo hace ("wird gemacht"). En Perfekt, cuidado con decir "geworden" en vez de "worden" — si hay duda, usa Präsens o Präteritum de pasiva.'
+      }
+    ] } }
   ]
 };

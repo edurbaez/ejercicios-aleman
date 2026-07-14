@@ -283,7 +283,8 @@
     { id: 'nav-dashboard-link', href: '/admin/', text: 'Dashboard →', color: '#1976D2' },
     { id: 'nav-marketing-link', href: '/marketing/', text: 'Marketing →', color: '#6A1B9A' },
     { id: 'nav-chatvoz2-link', href: '/chatvoz2/', text: 'Chat de Voz 2 →', color: '#1565C0' },
-    { id: 'nav-finanzas-link', href: '/finance/finanzas-dashboard.html', text: 'Dashboard Financiero →', color: '#0F172A' }
+    { id: 'nav-finanzas-link', href: '/finance/finanzas-dashboard.html', text: 'Dashboard Financiero →', color: '#0F172A' },
+    { id: 'nav-teacher-link', href: '/teacher/', text: 'Clases →', color: '#00695C' }
   ];
 
   const NAV_ITEMS = [

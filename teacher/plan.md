@@ -38,11 +38,11 @@ Tips docentes, curiosidades del idioma y ejemplos de aula ya no van en arrays se
 ### Tareas 1-8 — una por día de clase (rellenar el campo `contenido.reglas` de esa entrada)
 - [x] **1. Semana 1 · Martes (día 2)** — ruleIds b1-04, b1-05, b1-06
 - [x] **2. Semana 1 · Jueves (día 4)** — ruleIds b1-10, b1-11, b1-12
-- [ ] **3. Semana 2 · Martes (día 9)** — ruleIds b1-25, b1-26, b1-27
-- [ ] **4. Semana 2 · Jueves (día 11)** — ruleIds b1-31, b1-01, b1-02
-- [ ] **5. Semana 3 · Martes (día 16)** — ruleIds b1-03, b1-07
-- [ ] **6. Semana 3 · Jueves (día 18)** — ruleIds b1-05, b1-18
-- [ ] **7. Semana 4 · Martes (día 23)** — ruleIds b1-21, b1-27
-- [ ] **8. Semana 4 · Jueves (día 25)** — ruleIds b1-25, b1-28
+- [x] **3. Semana 2 · Martes (día 9)** — ruleIds b1-25, b1-26, b1-27
+- [x] **4. Semana 2 · Jueves (día 11)** — ruleIds b1-31, b1-01, b1-02
+- [x] **5. Semana 3 · Martes (día 16)** — ruleIds b1-03, b1-07
+- [x] **6. Semana 3 · Jueves (día 18)** — ruleIds b1-05, b1-18
+- [x] **7. Semana 4 · Martes (día 23)** — ruleIds b1-21, b1-27
+- [x] **8. Semana 4 · Jueves (día 25)** — ruleIds b1-25, b1-28
 
 Cada tarea 1-8 debe producir, para cada `ruleId` de esa entrada, un objeto completo siguiendo el esquema de arriba (ver `clases-b1.js` semana 1 martes como referencia de tono y estructura).

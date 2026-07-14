@@ -147,13 +147,137 @@ window.TEACHER_CLASES = {
         day: 9,
         focus: "Negationswörter + adverbios locales + verbos de posición/dirección",
         ruleIds: ['b1-25', 'b1-26', 'b1-27'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-25',
+              intro: 'En español decimos simplemente "ya no" o "todavía no" y el verbo no cambia de forma. En alemán, en cambio, hay cuatro partículas distintas según la dirección del cambio en el tiempo — y elegir la incorrecta cambia completamente el sentido de la frase, así que vale la pena pararse a pensarlo un segundo antes de hablar.',
+              practica: [
+                { incorrecto: 'Ich habe nicht mehr Lust auf Pizza.', correcto: 'Ich habe keine Lust mehr auf Pizza.' },
+                { incorrecto: 'Sie ist nicht mehr mit dem Studium fertig.', correcto: 'Sie ist noch nicht mit dem Studium fertig.' },
+                { incorrecto: 'Ich fahre nie mehr Ski.', correcto: 'Ich bin noch nie Ski gefahren.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Las cuatro direcciones del tiempo', texto: 'Pregúntate: ¿la cosa YA pasó y se acabó, o AÚN no ha pasado pero se espera? Eso decide entre el par "mehr" (algo que era) y el par "nie" (algo que nunca ha sido).' },
+                {
+                  titulo: '🟩 2. Las cuatro fórmulas',
+                  texto: 'Compáralas en bloque para no mezclarlas.',
+                  tabla: { headers: ['Partícula', 'Significado', 'Ejemplo'], rows: [['nicht mehr', 'ya no (algo terminó)', 'nicht mehr müde'], ['noch nicht', 'todavía no (se espera)', 'noch nicht fertig'], ['noch nie', 'nunca (hasta ahora)', 'noch nie Sushi gegessen'], ['nie mehr', 'nunca más (decisión)', 'nie mehr lügen']] }
+                },
+                { titulo: '🟧 3. Cuidado con el sustantivo', texto: 'Cuando "nicht mehr" acompaña a un sustantivo contable/incontable, "nicht" se convierte en "kein": no se dice "nicht mehr Zeit" sino "keine Zeit mehr". El "mehr" siempre se queda al final del bloque.' },
+                { titulo: '🟨 4. nie mehr vs. noch nie — el error más común', texto: '"nie mehr" es una decisión hacia el futuro ("no lo vuelvo a hacer nunca más"); "noch nie" habla de tu experiencia hasta hoy ("nunca lo he hecho"). Muchos alumnos usan "nie mehr" cuando en realidad quieren contar que algo nunca les ha pasado.' }
+              ],
+              resumen: 'nicht mehr = ya no; noch nicht = todavía no; noch nie = nunca (hasta ahora); nie mehr = nunca más. Con sustantivo, "nicht mehr" pasa a ser "kein... mehr".'
+            },
+            {
+              ruleId: 'b1-26',
+              intro: 'En español "aquí" y "allí" sirven tanto para decir dónde está algo como hacia dónde te mueves ("estoy aquí" / "ven aquí"). El alemán es más estricto: separa la posición (wo?) de la dirección (wohin?) con formas distintas, algo que también pasa con las preposiciones de Akkusativ/Dativ que ya conoces.',
+              practica: [
+                { incorrecto: 'Ich fahre morgen dort.', correcto: 'Ich fahre morgen dorthin.' },
+                { incorrecto: 'Komm bitte hier!', correcto: 'Komm bitte hierher!' },
+                { incorrecto: 'Wo fährst du in den Ferien?', correcto: 'Wohin fährst du in den Ferien?' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Pregunta primero', texto: 'Si la pregunta es "wo?" (¿dónde está?), usa hier/dort/da. Si la pregunta es "wohin?" (¿hacia dónde va?), necesitas la forma con -hin o -her.' },
+                {
+                  titulo: '🟩 2. Las dos series',
+                  texto: 'La serie de posición no cambia; la de dirección añade -hin (alejándose del hablante) o -her (acercándose).',
+                  tabla: { headers: ['Posición (wo?)', 'Dirección (wohin?)'], rows: [['hier', 'hierher (hacia aquí)'], ['dort', 'dorthin (hacia allí)'], ['da', 'dahin (hacia ahí)']] }
+                },
+                { titulo: '🟧 3. La forma coloquial', texto: 'En el alemán hablado casi nadie junta la palabra: en vez de "dorthin" se dice "da hin" o "dort hin", separando el "hin"/"her" al final de la frase — igual que con los verbos separables.' },
+                { titulo: '🟨 4. Truco rápido', texto: 'Si tu frase en español lleva un verbo de movimiento (ir, venir, viajar), casi seguro necesitas "wohin" y la forma con -hin/-her, aunque en español "dónde" se use por costumbre ("¿dónde vas?").' }
+              ],
+              resumen: 'hier/dort/da responden a "wo?" (posición); hierhin/dorthin/dahin (o hier her/dort hin) responden a "wohin?" (dirección). En el habla diaria el -hin/-her suele ir separado al final.'
+            },
+            {
+              ruleId: 'b1-27',
+              intro: 'En español "estar" y "poner" ya distinguen posición y acción, así que la idea no es nueva — lo nuevo es que el alemán tiene un verbo distinto para cada postura del objeto (de pie, sentado, tumbado, colgado) y además marca la diferencia con el caso: Dativ si no hay movimiento, Akkusativ si lo colocas tú.',
+              practica: [
+                { incorrecto: 'Ich stehe die Tasche neben die Tür.', correcto: 'Ich stelle die Tasche neben die Tür.' },
+                { incorrecto: 'Er legt das Handy auf dem Tisch.', correcto: 'Er legt das Handy auf den Tisch.' },
+                { incorrecto: 'Das Handy liegt auf den Tisch.', correcto: 'Das Handy liegt auf dem Tisch.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Elige el verbo por la postura', texto: 'stehen/stellen = de pie; sitzen/setzen = sentado; liegen/legen = tumbado/plano; hängen = colgado. Piensa primero en cómo queda el objeto, no en el objeto en sí.' },
+                {
+                  titulo: '🟩 2. Pareja intransitiva vs. transitiva',
+                  texto: 'La forma corta (sin movimiento, Dativ) describe un estado; la forma con -en/-en (con movimiento, Akkusativ) describe la acción de colocar algo ahí.',
+                  tabla: { headers: ['Estado (wo? + Dativ)', 'Acción (wohin? + Akkusativ)'], rows: [['stehen', 'stellen'], ['sitzen', 'setzen'], ['liegen', 'legen'], ['hängen (fuerte)', 'hängen (regular)']] }
+                },
+                { titulo: '🟧 3. El caso es la clave, no solo el verbo', texto: 'Aunque elijas bien el verbo, si te equivocas de caso la frase suena mal igual: "liegt auf dem Tisch" (Dativ, ya está ahí) frente a "legt auf den Tisch" (Akkusativ, lo estás poniendo).' },
+                { titulo: '🟨 4. El caso especial de hängen', texto: '"hängen" se escribe igual en las dos versiones, pero conjuga distinto: intransitivo fuerte (hängt/hing/ist gehangen) para el estado, transitivo regular (hängt/hängte/hat gehängt) para la acción de colgar algo.' }
+              ],
+              resumen: 'Postura del objeto → verbo: stehen/stellen, sitzen/setzen, liegen/legen, hängen. Sin movimiento (wo?) = forma intransitiva + Dativ; con movimiento (wohin?) = forma transitiva + Akkusativ.'
+            }
+          ]
+        }
       },
       jueves: {
         day: 11,
         focus: "Partizip I als Adjektiv + repaso Präteritum/Konjunktiv II",
         ruleIds: ['b1-31', 'b1-01', 'b1-02'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-31',
+              intro: 'En español para describir una acción simultánea usamos el gerundio ("el niño durmiendo") o una oración de relativo ("el niño que duerme"). El alemán tiene un adjetivo hecho a partir del verbo: el Partizip I (infinitivo + -d), que se coloca delante del sustantivo y se declina exactamente igual que cualquier otro adjetivo. Es muy típico en alemán escrito, mucho más que en español hablado.',
+              practica: [
+                { incorrecto: 'Der Junge, der lacht, sitzt dort.', correcto: 'Der lachende Junge sitzt dort.' },
+                { incorrecto: 'Ich sehe ein spielend Kind im Garten.', correcto: 'Ich sehe ein spielendes Kind im Garten.' },
+                { incorrecto: 'Das Kind, das beim Schlafen ist, ist ruhig.', correcto: 'Das schlafende Kind ist ruhig.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Qué es', texto: 'El Partizip I describe una acción que ocurre al mismo tiempo que la acción principal, y funciona como un adjetivo normal: va delante del sustantivo, no forma un tiempo verbal.' },
+                { titulo: '🟩 2. Formación', texto: 'Infinitivo completo + "-d" (schlafen → schlafend, lachen → lachend). A partir de ahí se comporta como cualquier adjetivo: necesita la terminación según artículo, género, caso y número.' },
+                {
+                  titulo: '🟧 3. Se declina como cualquier adjetivo',
+                  texto: 'No hay reglas nuevas que aprender aquí — usa exactamente la declinación de adjetivos que ya conoces (fuerte, débil o mixta según el artículo).',
+                  tabla: { headers: ['Artículo', 'Partizip I + terminación', 'Ejemplo (Nominativ)'], rows: [['der', '-e', 'der lachende Mann'], ['die', '-e', 'die lachende Frau'], ['das', '-e', 'das lachende Kind'], ['ein/eine (das)', '-es', 'ein lachendes Kind'], ['plural (die)', '-en', 'die lachenden Kinder']] }
+                },
+                { titulo: '🟨 4. Cuándo usarlo', texto: 'Es una alternativa elegante y muy común en textos escritos a una oración de relativo ("der Mann, der lacht" → "der lachende Mann"). No lo traduzcas mentalmente como gerundio español: nunca aparece con "beim" ni describe una frase verbal, es solo un adjetivo.' }
+              ],
+              resumen: 'Partizip I = infinitivo + "-d", funciona como adjetivo normal y se declina igual que cualquier otro adjetivo: describe algo que pasa "al mismo tiempo", como forma corta de "que + verbo".'
+            },
+            {
+              ruleId: 'b1-01',
+              intro: 'Repaso del Präteritum: ya vimos que es el pasado narrativo/escrito y que los irregulares cambian de vocal. Los errores que más persisten a estas alturas no son de formación, sino de cuándo usarlo (mezclarlo con el Perfekt en conversación) y de terminaciones que se olvidan en 2ª persona.',
+              practica: [
+                { incorrecto: 'Ich fahrte letztes Jahr nach Italien.', correcto: 'Ich fuhr letztes Jahr nach Italien.' },
+                { incorrecto: 'Gestern kaufte ich Brot und dann ich ging ins Kino.', correcto: 'Gestern habe ich Brot gekauft und bin dann ins Kino gegangen.' },
+                { incorrecto: 'Du warst gestern nicht da, aber du hattet keine Zeit.', correcto: 'Du warst gestern nicht da, aber du hattest keine Zeit.' }
+              ],
+              pasos: [
+                {
+                  titulo: '🟦 1. Recordatorio rápido',
+                  texto: 'Regulares: raíz + "-te" (kaufen → kaufte). Irregulares: cambio de vocal, sin terminación en ich/er (fahren → fuhr, gehen → ging).',
+                  tabla: { headers: ['Infinitiv', 'Präteritum (ich/er)'], rows: [['fahren', 'fuhr'], ['gehen', 'ging'], ['sprechen', 'sprach'], ['kaufen', 'kaufte']] }
+                },
+                { titulo: '🟩 2. El error que más se repite', texto: 'En conversación cotidiana, casi todos los verbos "normales" van en Perfekt, no en Präteritum — el Präteritum ahí queda casi solo para sein, haben y los modales. Contar una anécdota entera en Präteritum suena a libro, no a charla.' },
+                { titulo: '🟧 3. Terminaciones que se olvidan', texto: 'La forma de "du" siempre lleva "-st" (warst, hattest, kauftest), aunque en la cabeza suene raro comparado con "er/es/sie" que no lleva nada.' }
+              ],
+              resumen: 'Repaso: el Präteritum se forma bien casi siempre, el problema es usarlo donde no toca — en una conversación, todo excepto sein/haben/modales va en Perfekt.'
+            },
+            {
+              ruleId: 'b1-02',
+              intro: 'Repaso del Konjunktiv II: recordamos que "würde + Infinitiv" es el comodín universal, pero sein, haben y los modales tienen su propia forma (más elegante y más usada) y no deberían ir con würde. Ese es justo el error que más se repite.',
+              practica: [
+                { incorrecto: 'Wenn ich Zeit würde haben, würde ich kommen.', correcto: 'Wenn ich Zeit hätte, würde ich kommen.' },
+                { incorrecto: 'Er würde froh sein, wenn du kämst.', correcto: 'Er wäre froh, wenn du kämst.' },
+                { incorrecto: 'Würdest du können mir helfen?', correcto: 'Könntest du mir helfen?' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Recordatorio', texto: '"würde + Infinitiv" funciona para casi cualquier verbo, pero suena forzado (y es un error frecuente) con sein, haben y los modales, que tienen forma propia.' },
+                {
+                  titulo: '🟩 2. Las formas que hay que memorizar sí o sí',
+                  texto: 'Estas cinco son las que más aparecen y las que sustituyen a "würde + Infinitiv" en la práctica.',
+                  tabla: { headers: ['Infinitiv', 'Konjunktiv II'], rows: [['sein', 'wäre'], ['haben', 'hätte'], ['können', 'könnte'], ['müssen', 'müsste'], ['dürfen', 'dürfte']] }
+                },
+                { titulo: '🟧 3. Peticiones corteses', texto: 'Para pedir algo con educación, las fórmulas fijas más usadas son "Könnten Sie…?", "Würden Sie…?" y "Dürfte ich…?" — conviene memorizarlas como bloque, no construirlas cada vez desde cero.' }
+              ],
+              resumen: 'Repaso: würde+Infinitiv es el comodín, pero con sein/haben/modales usa siempre su forma propia (wäre, hätte, könnte…) — nunca "er würde sein" o "würdest du können".'
+            }
+          ]
+        }
       }
     },
     {
@@ -162,13 +286,99 @@ window.TEACHER_CLASES = {
         day: 16,
         focus: "Consolidación: oraciones de relativo + verbos con preposición fija",
         ruleIds: ['b1-03', 'b1-07'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-03',
+              intro: 'Hoy toca consolidar las oraciones de relativo: ya sabes que el pronombre relativo copia género y número del antecedente, pero el CASO lo decide el verbo o la preposición de la subordinada — igual que en español "el hombre AL QUE llamé" no es lo mismo que "el hombre QUE me llamó". El error más típico de hispanohablantes es dejar el pronombre en nominativo sin fijarse en qué papel juega dentro de la frase secundaria.',
+              practica: [
+                { incorrecto: 'Das ist der Lehrer, der ich gestern getroffen habe.', correcto: 'Das ist der Lehrer, den ich gestern getroffen habe.' },
+                { incorrecto: 'Das ist der Kollege, den ich vertraue.', correcto: 'Das ist der Kollege, dem ich vertraue.' },
+                { incorrecto: 'Das ist das Projekt, an dem wir uns oft erinnern.', correcto: 'Das ist das Projekt, an das wir uns oft erinnern.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. El género no cambia, el caso sí', texto: 'El pronombre relativo siempre concuerda en género y número con la palabra a la que se refiere (der Lehrer → masculino), pero su caso depende solo de la función que cumple dentro de la oración de relativo, no de la principal.' },
+                {
+                  titulo: '🟩 2. La tabla de casos',
+                  texto: 'Es casi idéntica al artículo definido, con solo dos excepciones que hay que memorizar aparte.',
+                  tabla: { headers: ['', 'Masc.', 'Fem.', 'Neutro', 'Plural'], rows: [['Nom.', 'der', 'die', 'das', 'die'], ['Akk.', 'den', 'die', 'das', 'die'], ['Dat.', 'dem', 'der', 'dem', 'denen'], ['Gen.', 'dessen', 'deren', 'dessen', 'deren']] }
+                },
+                { titulo: '🟧 3. Pregúntate: ¿quién hace qué a quién?', texto: 'Antes de escribir el pronombre, aísla mentalmente la subordinada y pregúntate qué caso pide el verbo: "ich habe ihn getroffen" (Akk.) → den; "ich vertraue ihm" (Dat., porque vertrauen rige dativo) → dem. Si hay una preposición fija de por medio (an, über, auf...), esa preposición manda su caso habitual, como en b1-07.' },
+                { titulo: '🟨 4. Consolidando: verbo siempre al final', texto: 'No lo olvides nunca: en la subordinada de relativo el verbo conjugado se va al final. Es el mismo orden que ya practicaste con weil o dass — la relativa es solo una subordinada más.' }
+              ],
+              resumen: 'El pronombre relativo copia género/número del antecedente, pero el caso lo marca el verbo (o la preposición) de la subordinada: mira qué necesita ese verbo (Akk./Dat./mit preposición) y elige el pronombre correspondiente. Ojo con las dos excepciones: denen (Dat. plural) y dessen/deren (Genitivo). Verbo siempre al final.'
+            },
+            {
+              ruleId: 'b1-07',
+              intro: 'Segunda parada de la consolidación de hoy: los verbos con preposición fija. En español "esperar" va con POR o PARA según contexto, pero en alemán cada verbo tiene UNA sola preposición pegada que no se puede cambiar por lógica ni traducir literalmente — warten auf (no für), sich erinnern an, sprechen über. Hay que aprenderlos como bloques cerrados, verbo+preposición+caso, tal como memorizaste ayer los pronombres relativos como bloques de caso.',
+              practica: [
+                { incorrecto: 'Ich warte für den Bus.', correcto: 'Ich warte auf den Bus.' },
+                { incorrecto: 'Wir sprechen über der Termin.', correcto: 'Wir sprechen über den Termin.' },
+                { incorrecto: 'Erinnerst du dich an der Lehrerin, die uns Deutsch unterrichtet hat?', correcto: 'Erinnerst du dich an die Lehrerin, die uns Deutsch unterrichtet hat?' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Verbo y preposición son un paquete', texto: 'No traduzcas la preposición desde el español: "esperar POR" no da "warten für", da "warten AUF". Cada verbo trae su propia preposición fija, y esa preposición además exige un caso concreto (casi siempre Akkusativ en los verbos más frecuentes de B1).' },
+                {
+                  titulo: '🟩 2. Los verbos más usados',
+                  texto: 'Memorízalos en bloque junto con su da(r)-Ersatz, la forma que se usa para sustituir cosas o ideas (nunca personas).',
+                  tabla: { headers: ['Verbo', 'Prep. + Caso', 'da(r)-Ersatz'], rows: [['warten', 'auf + Akk.', 'darauf'], ['denken', 'an + Akk.', 'daran'], ['sprechen', 'über + Akk.', 'darüber'], ['sich freuen', 'auf/über + Akk.', 'darauf/darüber'], ['sich erinnern', 'an + Akk.', 'daran'], ['sich kümmern', 'um + Akk.', 'darum']] }
+                },
+                { titulo: '🟧 3. Personas vs. cosas', texto: 'Si lo que sustituyes es una persona, usa preposición + pronombre personal ("Ich denke an sie"); si es una cosa o idea, usa da(r)+preposición ("Ich denke daran"). Confundir esto es un error clásico, así que revísalo siempre antes de hablar.' },
+                { titulo: '🟨 4. Consolidando con la relativa', texto: 'Cuando este tipo de verbo aparece dentro de una oración de relativo, la preposición se coloca justo antes del pronombre relativo y el caso lo sigue marcando el verbo, no el antecedente: "die Lehrerin, an die ich mich erinnere" — exactamente la lógica que acabas de repasar en b1-03.' }
+              ],
+              resumen: 'Cada verbo lleva pegada una preposición fija y un caso que no se deducen del español, hay que memorizarlos como bloque (warten AUF + Akk., sich erinnern AN + Akk., sprechen ÜBER + Akk.). Para sustituir cosas usa da(r)+preposición (darauf, daran); para personas, preposición+pronombre (auf ihn, an sie). Dentro de una relativa, esa misma preposición se coloca delante del pronombre relativo.'
+            }
+          ]
+        }
       },
       jueves: {
         day: 18,
         focus: "Declinación de adjetivos (kasus.html) + repaso Adjektive als Nomen",
         ruleIds: ['b1-05', 'b1-18'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-05',
+              intro: 'Ya vimos cómo se declina el adjetivo en Nominativ — hoy toca repasarlo mezclado con Akkusativ y, sobre todo, Dativ, que es donde más fallan los hispanohablantes porque en español no existe ese caso. Buena noticia: el Dativ es el caso "más fácil" de memorizar porque casi todo termina en -en.',
+              practica: [
+                { incorrecto: 'Ich habe den neu Computer gekauft.', correcto: 'Ich habe den neuen Computer gekauft.' },
+                { incorrecto: 'Er hilft einer alt Frau über die Straße.', correcto: 'Er hilft einer alten Frau über die Straße.' },
+                { incorrecto: 'Nach lang Diskussion haben wir uns geeinigt.', correcto: 'Nach langer Diskussion haben wir uns geeinigt.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Repaso relámpago', texto: 'Tres patrones: con artículo definido (der/die/das) el adjetivo va "débil" (-e/-en), con artículo indefinido (ein/kein/mein) va "mixto", y sin artículo va "fuerte" (el adjetivo carga la marca de género y caso porque no hay artículo que la lleve).' },
+                {
+                  titulo: '🟩 2. El Dativ, el caso "todo -en"',
+                  texto: 'Con artículo definido o indefinido (dem/der/dem, einem/einer/einem) el adjetivo SIEMPRE termina en -en, sin importar el género. Solo cuando no hay artículo el adjetivo recupera las terminaciones fuertes.',
+                  tabla: { headers: ['', 'Masc. Dat.', 'Fem. Dat.', 'Neutro Dat.', 'Plural Dat.'], rows: [['Def. (dem/der/dem/den)', '-en', '-en', '-en', '-en'], ['Indef./Poses. (einem/einer)', '-en', '-en', '-en', '-en'], ['Sin artículo', '-em', '-er', '-em', '-en']] }
+                },
+                { titulo: '🟧 3. Conecta con kasus.html', texto: 'En el trainer de casos vas a ver frases con preposiciones de Dativ (mit, bei, nach, aus, von, zu) y de Akkusativ (für, ohne, durch, gegen). Antes de pensar en la terminación del adjetivo, identifica primero el caso que pide la preposición — la terminación viene después, casi automática.' },
+                { titulo: '🟨 4. Truco para no bloquearse', texto: 'Si ves un artículo definido o indefinido delante del adjetivo y estás en Dativ, no lo pienses: es -en. La única vez que hay que memorizar tabla de verdad es cuando NO hay artículo (ahí sí cambia según el género).' }
+              ],
+              resumen: 'En Dativ, si hay artículo (definido o indefinido) el adjetivo siempre lleva -en. Sin artículo, la terminación fuerte marca el género: -em (masc./neutro), -er (fem.), -en (plural). El Akkusativ ya lo conoces del nominativo: solo cambia el masculino singular, que pasa a -en.'
+            },
+            {
+              ruleId: 'b1-18',
+              intro: 'En alemán muchos adjetivos funcionan también como sustantivos: "der Deutsche" (el alemán), "die Kranke" (la enferma), "das Gute" (lo bueno). Se escriben con mayúscula como cualquier sustantivo, pero ojo: no son sustantivos con una declinación propia que haya que memorizar — se declinan EXACTAMENTE como el adjetivo que son, siguiendo la misma tabla que acabas de repasar en b1-05.',
+              practica: [
+                { incorrecto: 'Die deutsche hat mir geholfen, den Antrag auszufüllen.', correcto: 'Die Deutsche hat mir geholfen, den Antrag auszufüllen.' },
+                { incorrecto: 'Ich wünsche dir alles gut für die Prüfung.', correcto: 'Ich wünsche dir alles Gute für die Prüfung.' },
+                { incorrecto: 'Ich habe mit einem Deutscher gesprochen, der auch Spanisch kann.', correcto: 'Ich habe mit einem Deutschen gesprochen, der auch Spanisch kann.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Mayúscula sí, declinación propia no', texto: 'El primer error típico es escribirlo en minúscula pensando que "sigue siendo adjetivo". Se escribe con mayúscula como sustantivo, pero mentalmente sigue comportándose como adjetivo: pregúntate "¿qué terminación llevaría este adjetivo aquí?" y esa es la respuesta.' },
+                {
+                  titulo: '🟩 2. La misma tabla de siempre, con "Deutsche" como ejemplo',
+                  texto: 'Con artículo definido: débil (-e en Nominativ). Con artículo indefinido: mixta. Sin artículo (plural genérico): fuerte.',
+                  tabla: { headers: ['Artículo', 'Ejemplo (Nominativ)', 'Terminación'], rows: [['definido (der/die)', 'der Deutsche / die Deutsche', 'débil -e'], ['indefinido (ein)', 'ein Deutscher / eine Deutsche', 'mixta -er/-e'], ['sin artículo (plural)', 'Deutsche kommen oft hierher', 'fuerte -e']] }
+                },
+                { titulo: '🟧 3. El caso especial de alles/etwas/nichts/viel/wenig', texto: 'Con "etwas", "nichts", "viel" y "wenig" el adjetivo sustantivado neutro lleva terminación fuerte -es: "etwas Neues", "nichts Besonderes". Pero con "alles" es la excepción de la excepción: lleva -e, no -es ("alles Gute", "alles Beste") — trátalo como una expresión fija que hay que memorizar aparte.' },
+                { titulo: '🟨 4. Truco para no memorizar de más', texto: 'No aprendas "der Deutsche", "die Kranke", "das Gute" como palabras sueltas con su propia lista de terminaciones: son el mismo adjetivo (deutsch, krank, gut) que ya declinas todos los días, solo que ahora hace de sustantivo.' }
+              ],
+              resumen: 'Los adjetivos sustantivados (der/die Deutsche, das Gute) llevan mayúscula pero se declinan como adjetivos normales según lleven artículo definido, indefinido o ninguno. Excepción a memorizar aparte: tras etwas/nichts/viel/wenig va -es (etwas Neues), pero tras alles va -e (alles Gute).'
+            }
+          ]
+        }
       }
     },
     {
@@ -177,13 +387,99 @@ window.TEACHER_CLASES = {
         day: 23,
         focus: "Repaso: preposiciones temporales + verbos de posición/dirección",
         ruleIds: ['b1-21', 'b1-27'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-21',
+              intro: 'En español usamos "desde", "hace", "en", "a partir de" y "hasta" casi sin pensar en el caso gramatical que exigen. En alemán, en cambio, seit, vor, in, ab y bis rigen Dativ (bis es la única excepción, que normalmente aparece como "bis zum/zur + Dativ" o sola sin artículo). El error más típico de un hispanohablante es olvidar la terminación -n/-r del Dativ en el sustantivo o el artículo que sigue a la preposición.',
+              practica: [
+                { incorrecto: 'Ich habe seit drei Jahren in Berlin gewohnt.', correcto: 'Ich wohne seit drei Jahren in Berlin.' },
+                { incorrecto: 'In drei Tage fahre ich nach Wien.', correcto: 'In drei Tagen fahre ich nach Wien.' },
+                { incorrecto: 'Ich arbeite ab nächste Woche hier.', correcto: 'Ich arbeite ab nächster Woche hier.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Todas van con Dativ (casi todas)', texto: 'seit, vor, in y ab exigen Dativ siempre. Solo "bis" se comporta distinto: aparece sola ("bis Freitag") o combinada con "zu + Dativ" ("bis zum Freitag").' },
+                {
+                  titulo: '🟩 2. Cuadro rápido',
+                  texto: '',
+                  tabla: { headers: ['Preposición', 'Significado', 'Ejemplo'], rows: [['seit', 'desde (acción que sigue)', 'seit drei Jahren'], ['vor', 'hace (pasado cerrado)', 'vor einem Monat'], ['in', 'dentro de / en (futuro)', 'in drei Tagen'], ['ab', 'a partir de', 'ab nächster Woche'], ['bis (zu)', 'hasta', 'bis Freitag / bis zum Freitag']] }
+                },
+                { titulo: '🟧 3. El caso especial de "seit"', texto: 'Si la acción empezó en el pasado pero sigue ahora, en español usamos pretérito perfecto o "llevo + gerundio" ("he vivido", "llevo viviendo"), pero en alemán va en Präsens: "Ich wohne seit drei Jahren in Berlin" — nunca "Ich habe seit... gewohnt".' },
+                { titulo: '🟨 4. Truco de examen', texto: 'Antes de escribir el sustantivo después de estas preposiciones, pregúntate: ¿masculino/neutro → -m o -n? ¿femenino/plural → -r o -n? Si dudas, di la frase con "dem/der/den" y comprueba que la terminación del sustantivo (si es plural o débil) concuerde.' }
+              ],
+              resumen: 'seit, vor, in, ab siempre van con Dativ; bis casi siempre va sola o con "zu + Dativ". Y ojo: "seit" con acción que continúa se dice en Präsens, nunca en Perfekt.'
+            },
+            {
+              ruleId: 'b1-27',
+              intro: 'Repaso: recordemos la diferencia entre los verbos de posición (stehen, sitzen, liegen, hängen — responden a "wo?" y van con Dativ) y los verbos de dirección (stellen, setzen, legen, hängen — responden a "wohin?" y van con Akkusativ). El error más persistente de los alumnos hispanohablantes no es tanto elegir el verbo equivocado, sino mezclar el caso: usar Akkusativ donde el objeto ya está quieto, o Dativ cuando alguien está colocando algo.',
+              practica: [
+                { incorrecto: 'Der Schlüssel liegt auf den Tisch.', correcto: 'Der Schlüssel liegt auf dem Tisch.' },
+                { incorrecto: 'Ich stelle die Vase in dem Regal.', correcto: 'Ich stelle die Vase in das Regal.' },
+                { incorrecto: 'Seit einer Woche hängt das Bild an die Wand.', correcto: 'Seit einer Woche hängt das Bild an der Wand.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. La pregunta clave: wo o wohin', texto: '"Wo?" (¿dónde está?, sin movimiento) → Dativ. "Wohin?" (¿hacia dónde se mueve/coloca?) → Akkusativ. Si el sujeto ya está en su sitio, es wo; si alguien lo está poniendo ahí, es wohin.' },
+                {
+                  titulo: '🟩 2. Los pares verbo por verbo',
+                  texto: '',
+                  tabla: { headers: ['Posición (wo, Dativ)', 'Dirección (wohin, Akkusativ)', 'Ejemplo dirección'], rows: [['stehen', 'stellen', 'Ich stelle die Vase in das Regal.'], ['sitzen', 'setzen', 'Er setzt das Kind auf den Stuhl.'], ['liegen', 'legen', 'Sie legt den Schlüssel auf den Tisch.'], ['hängen (Dativ)', 'hängen (Akkusativ)', 'Ich hänge das Bild an die Wand.']] }
+                },
+                { titulo: '🟧 3. "hängen" es especial', texto: 'Es el único verbo con la misma forma para ambos casos, pero conjuga distinto según el sentido: intransitivo fuerte (hängt / hing / ist gehangen) para posición, y transitivo regular (hängt / hängte / hat gehängt) para dirección.' },
+                { titulo: '🟨 4. Repaso integrado', texto: 'Combina esto con las preposiciones temporales: "Seit einer Woche hängt das Bild an der Wand" — el cuadro ya está colgado (wo, Dativ) desde hace una semana (seit + Dativ). Si en cambio alguien lo está colgando ahora, sería "wohin": "Ich hänge das Bild an die Wand."' }
+              ],
+              resumen: 'Pregúntate siempre wo o wohin: sin movimiento va Dativ (stehen, sitzen, liegen, hängen), con movimiento va Akkusativ (stellen, setzen, legen, hängen). "hängen" comparte forma pero cambia de conjugación según el sentido.'
+            }
+          ]
+        }
       },
       jueves: {
         day: 25,
         focus: "Repaso: Negationswörter + lassen",
         ruleIds: ['b1-25', 'b1-28'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-25',
+              intro: 'Retomamos las Negationswörter para consolidar el punto que más falla: cuando la negación va delante de un sustantivo, "nicht mehr" se convierte en "kein… mehr". Es un error muy típico en hispanohablantes porque en español simplemente decimos "ya no tengo dinero", sin ese ajuste gramatical.',
+              practica: [
+                { incorrecto: 'Ich habe nicht mehr Geduld mit ihm.', correcto: 'Ich habe keine Geduld mehr mit ihm.' },
+                { incorrecto: 'Wir haben nicht mehr Milch im Kühlschrank.', correcto: 'Wir haben keine Milch mehr im Kühlschrank.' },
+                { incorrecto: 'Er hat nicht mehr Lust, ins Fitnessstudio zu gehen.', correcto: 'Er hat keine Lust mehr, ins Fitnessstudio zu gehen.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. La regla base (repaso rápido)', texto: '"nicht mehr" niega un verbo o adjetivo (algo que era y ya no es); "noch nicht" es "todavía no"; "noch nie" es "nunca hasta ahora"; "nie mehr" es "nunca más".' },
+                {
+                  titulo: '🟩 2. El punto que más falla: sustantivos',
+                  texto: 'Cuando lo que se niega es un sustantivo, no se usa "nicht mehr" sino "kein… mehr", con "kein" declinado según género y caso del sustantivo, y "mehr" se coloca después.',
+                  tabla: { headers: ['Frase con verbo/adjetivo', 'Frase con sustantivo'], rows: [['Ich arbeite nicht mehr.', 'Ich habe keine Arbeit mehr.'], ['Er raucht nicht mehr.', 'Er hat keine Zigaretten mehr.'], ['Wir wohnen nicht mehr hier.', 'Wir haben keine Wohnung mehr hier.']] }
+                },
+                { titulo: '🟧 3. Por qué se equivocan los hispanohablantes', texto: 'En español "ya no tengo tiempo" no cambia de estructura al meter un sustantivo, pero en alemán "Zeit" es un sustantivo y necesita "keine Zeit mehr" — no "nicht mehr Zeit".' },
+                { titulo: '🟨 4. Truco para no fallar', texto: 'Antes de decir "nicht mehr", pregúntate: ¿lo que sigue es un sustantivo? Si sí, cambia automáticamente a "kein/keine/keinen… mehr".' }
+              ],
+              resumen: 'Con verbos o adjetivos: nicht mehr. Con sustantivos: kein/keine/keinen… mehr. "Ich habe keine Zeit mehr" — nunca "Ich habe nicht mehr Zeit".'
+            },
+            {
+              ruleId: 'b1-28',
+              intro: 'El verbo "lassen" seguido de un infinitivo (sin "zu") sirve para decir que alguien manda hacer algo o permite que algo ocurra, sin hacerlo él mismo. En español usamos "mandar/hacer que" o "dejar", pero la estructura alemana es más compacta: sujeto + lassen + persona/cosa en Akkusativ + infinitivo al final.',
+              practica: [
+                { incorrecto: 'Ich repariere meinen Computer bei dem Techniker.', correcto: 'Ich lasse meinen Computer bei dem Techniker reparieren.' },
+                { incorrecto: 'Meine Mutter erlaubt mir zu spät nach Hause kommen.', correcto: 'Meine Mutter lässt mich spät nach Hause kommen.' },
+                { incorrecto: 'Lass wir zusammen kochen!', correcto: 'Lass uns zusammen kochen!' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. La estructura básica', texto: '"lassen" + persona/cosa en Akkusativ + infinitivo al final de la frase. El infinitivo nunca lleva "zu" — a diferencia de otros verbos que sí lo exigen.' },
+                {
+                  titulo: '🟩 2. Dos sentidos: encargar o permitir',
+                  texto: 'Con una cosa suele significar "mandar hacer algo" (lo hace un tercero); con una persona puede significar "encargarle algo" o directamente "permitirle algo".',
+                  tabla: { headers: ['Estructura', 'Sentido', 'Ejemplo'], rows: [['lassen + Sache + Inf.', 'mandar hacer algo (a un tercero)', 'Ich lasse meine Haare schneiden.'], ['lassen + Person + Inf.', 'encargar a alguien que haga algo', 'Der Chef lässt die Sekretärin die E-Mails schreiben.'], ['lassen + Person + Inf.', 'permitir a alguien', 'Meine Eltern lassen mich lange feiern.']] }
+                },
+                { titulo: '🟧 3. "Lass uns…" para proponer planes', texto: '"Lass uns + Infinitivo" es una fórmula fija muy usada para proponer hacer algo juntos, equivalente a "vamos a…" — no confundir con "Lass wir", que no existe.' },
+                { titulo: '🟨 4. No confundir con "sich lassen" (más adelante)', texto: '"Ich lasse mein Auto reparieren" no significa que yo lo repare, sino que encargo a otro que lo haga. Distinto es "lassen + sich" (nivel C1), que expresa que algo se puede hacer, como "Das Problem lässt sich lösen" (el problema se puede resolver) — eso lo veremos más adelante, hoy solo el uso básico.' }
+              ],
+              resumen: 'lassen + persona/cosa + infinitivo (sin zu) = mandar hacer algo o permitir que pase. "Ich lasse mein Auto reparieren" (lo manda reparar), "Lass uns kochen!" (propuesta conjunta). No confundir con "sich lassen" (posibilidad), que es otro tema más avanzado.'
+            }
+          ]
+        }
       }
     }
   ]

@@ -59,16 +59,35 @@
 
     .extra-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid #f5f6fa; }
     body.dark .extra-section { border-top-color: #252842; }
-    .extra-section-title { font-size: 11px; font-weight: 700; color: #00695C; text-transform: uppercase; letter-spacing: .4px; margin: 0 0 6px; }
-    body.dark .extra-section-title { color: #4db6ac; }
-    .extra-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
-    .extra-list li { font-size: 12px; color: #444; line-height: 1.4; }
-    body.dark .extra-list li { color: #ccd1e8; }
-    .extra-ejemplo { font-size: 12px; padding: 5px 0; }
-    .extra-ejemplo .de { color: #222; font-weight: 500; }
-    body.dark .extra-ejemplo .de { color: #dde1ec; }
-    .extra-ejemplo .es { color: #888; }
-    body.dark .extra-ejemplo .es { color: #6a7090; }
+
+    .clase-regla { margin-top: 14px; padding-top: 12px; border-top: 1px solid #f5f6fa; }
+    body.dark .clase-regla { border-top-color: #252842; }
+    .clase-regla:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+    .clase-regla-titulo { font-size: 12px; font-weight: 700; color: #00695C; text-transform: uppercase; letter-spacing: .4px; margin: 0 0 6px; }
+    body.dark .clase-regla-titulo { color: #4db6ac; }
+    .clase-intro { font-size: 12px; color: #444; line-height: 1.5; margin: 0 0 8px; }
+    body.dark .clase-intro { color: #ccd1e8; }
+
+    .clase-practica { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; }
+    .clase-practica-item { display: flex; flex-direction: column; font-size: 12px; line-height: 1.4; gap: 1px; }
+    .clase-practica-item .incorrecto { color: #c0392b; text-decoration: line-through; }
+    body.dark .clase-practica-item .incorrecto { color: #e57373; }
+    .clase-practica-item .correcto { color: #00695C; font-weight: 500; }
+    body.dark .clase-practica-item .correcto { color: #4db6ac; }
+
+    .clase-paso { margin: 0 0 8px; }
+    .clase-paso-titulo { font-size: 12px; font-weight: 700; margin: 0 0 3px; }
+    .clase-paso-texto { font-size: 12px; color: #444; line-height: 1.5; margin: 0 0 6px; }
+    body.dark .clase-paso-texto { color: #ccd1e8; }
+
+    .clase-tabla { width: 100%; border-collapse: collapse; font-size: 11px; margin: 0 0 6px; }
+    .clase-tabla th, .clase-tabla td { border: 1px solid #eef0f5; padding: 4px 6px; text-align: left; }
+    body.dark .clase-tabla th, body.dark .clase-tabla td { border-color: #2a2d45; }
+    .clase-tabla th { background: #f5f6fa; font-weight: 600; }
+    body.dark .clase-tabla th { background: #252842; }
+
+    .clase-resumen { font-size: 12px; background: #e0f2f1; color: #00695C; padding: 6px 10px; border-radius: 6px; margin: 6px 0 0; line-height: 1.4; }
+    body.dark .clase-resumen { background: #00302b; color: #4db6ac; }
   </style>
 </head>
 <body>
@@ -136,29 +155,52 @@
     </div>`;
   }
 
-  function renderContenido(contenido) {
-    if (!contenido) return '';
-    const { tips = [], curiosidades = [], ejemplos = [] } = contenido;
-    let html = '';
-    if (tips.length) {
-      html += `<div class="extra-section">
-        <p class="extra-section-title">💡 Tips docentes</p>
-        <ul class="extra-list">${tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+  function renderTabla(tabla) {
+    if (!tabla) return '';
+    return `<table class="clase-tabla">
+      <thead><tr>${tabla.headers.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${tabla.rows.map(row => `<tr>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>`;
+  }
+
+  function renderReglaContenido(regla) {
+    const r = ruleById(regla.ruleId);
+    const titulo = r ? r.titulo : regla.ruleId;
+    let html = `<div class="clase-regla">
+      <p class="clase-regla-titulo">${esc(titulo)}</p>`;
+
+    if (regla.intro) {
+      html += `<p class="clase-intro">${esc(regla.intro)}</p>`;
+    }
+
+    if (regla.practica && regla.practica.length) {
+      html += `<div class="clase-practica">
+        ${regla.practica.map(p => `<div class="clase-practica-item">
+          <span class="incorrecto">✗ ${esc(p.incorrecto)}</span>
+          <span class="correcto">✓ ${esc(p.correcto)}</span>
+        </div>`).join('')}
       </div>`;
     }
-    if (curiosidades.length) {
-      html += `<div class="extra-section">
-        <p class="extra-section-title">🌍 Curiosidades</p>
-        <ul class="extra-list">${curiosidades.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
-      </div>`;
+
+    if (regla.pasos && regla.pasos.length) {
+      html += regla.pasos.map(paso => `<div class="clase-paso">
+        <p class="clase-paso-titulo">${esc(paso.titulo)}</p>
+        ${paso.texto ? `<p class="clase-paso-texto">${esc(paso.texto)}</p>` : ''}
+        ${renderTabla(paso.tabla)}
+      </div>`).join('');
     }
-    if (ejemplos.length) {
-      html += `<div class="extra-section">
-        <p class="extra-section-title">✏️ Ejemplos de aula</p>
-        ${ejemplos.map(e => `<div class="extra-ejemplo"><span class="de">${esc(e.de)}</span> — <span class="es">${esc(e.es)}</span></div>`).join('')}
-      </div>`;
+
+    if (regla.resumen) {
+      html += `<p class="clase-resumen">📌 ${esc(regla.resumen)}</p>`;
     }
+
+    html += `</div>`;
     return html;
+  }
+
+  function renderContenido(contenido) {
+    if (!contenido || !contenido.reglas || !contenido.reglas.length) return '';
+    return `<div class="extra-section">${contenido.reglas.map(renderReglaContenido).join('')}</div>`;
   }
 
   function renderClassCol(label, cls) {

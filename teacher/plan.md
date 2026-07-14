@@ -20,10 +20,22 @@ Se ejecuta en sesiones separadas — una por tarea. No completar varias tareas e
 Después de cada tarea completada (0-8), revisar el cambio realizado y actualizar este `plan.md` marcando la tarea como hecha (`[x]`) antes de dar por cerrada la sesión.
 
 ### Tarea 0 — Infraestructura (previa a las tareas de contenido)
-- [x] En `teacher/clases-b1.js`: agregar a cada entrada `martes`/`jueves` un campo `contenido: { tips: [], curiosidades: [], ejemplos: [] }` (array de strings para `tips`/`curiosidades`, array de `{ de, es }` para `ejemplos`).
-- [x] En `teacher/index.html`: actualizar `renderClassCol()` para mostrar las 3 secciones nuevas debajo de `focus`/`ruleIds`, solo si el array correspondiente no está vacío.
+- [x] En `teacher/clases-b1.js`: agregar a cada entrada `martes`/`jueves` un campo `contenido: { reglas: [] }`.
+- [x] En `teacher/index.html`: actualizar el render (`renderContenido`/`renderReglaContenido`/`renderTabla`) para mostrar, por cada regla del día, el bloque narrativo completo debajo de `focus`/`ruleIds`.
 
-### Tareas 1-8 — una por día de clase (rellenar el campo `contenido` de esa entrada)
+**Esquema de `contenido.reglas[]`** (uno por cada `ruleId` del día, en orden lógico — no separar en listas sueltas de tips/curiosidades/ejemplos):
+```js
+{
+  ruleId: 'b1-XX',
+  intro: 'string — contextualiza la regla, comparación con español si aplica',
+  practica: [ { incorrecto: 'frase con error típico de alumno', correcto: 'frase corregida' } ],  // 2-3
+  pasos: [ { titulo: '🟦 1. ...', texto: 'explicación', tabla?: { headers: [], rows: [[]] } } ],   // 3-5, con emoji secuencial (🟦🟩🟧🟨🟪)
+  resumen: 'string — versión simple para explicar en clase, una sola frase/párrafo corto'
+}
+```
+Tips docentes, curiosidades del idioma y ejemplos de aula ya no van en arrays separados: se integran dentro de `intro`/`pasos`/`resumen` en el punto donde tengan sentido narrativo (p. ej. una curiosidad histórica cabe en la `intro` o en un paso; un tip práctico cabe como paso o dentro del `resumen`).
+
+### Tareas 1-8 — una por día de clase (rellenar el campo `contenido.reglas` de esa entrada)
 - [x] **1. Semana 1 · Martes (día 2)** — ruleIds b1-04, b1-05, b1-06
 - [ ] **2. Semana 1 · Jueves (día 4)** — ruleIds b1-10, b1-11, b1-12
 - [ ] **3. Semana 2 · Martes (día 9)** — ruleIds b1-25, b1-26, b1-27
@@ -33,7 +45,4 @@ Después de cada tarea completada (0-8), revisar el cambio realizado y actualiza
 - [ ] **7. Semana 4 · Martes (día 23)** — ruleIds b1-21, b1-27
 - [ ] **8. Semana 4 · Jueves (día 25)** — ruleIds b1-25, b1-28
 
-Cada tarea 1-8 debe producir, para esa entrada específica:
-- 3-5 **tips docentes**: sugerencias prácticas para explicar/practicar esas reglas en clase en vivo (distintos del `tip` ya existente por regla en `grammar-data.js`).
-- 1-3 **curiosidades del idioma alemán** relacionadas con las reglas del día (origen histórico, comparación con el español, peculiaridad léxica) — omitir si no hay nada genuinamente interesante para esa regla puntual.
-- 3-5 **ejemplos** adicionales `{ de, es }` de uso en contexto de aula, distintos a los de `grammar-data.js`, preferentemente conversacionales/situacionales.
+Cada tarea 1-8 debe producir, para cada `ruleId` de esa entrada, un objeto completo siguiendo el esquema de arriba (ver `clases-b1.js` semana 1 martes como referencia de tono y estructura).

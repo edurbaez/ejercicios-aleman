@@ -56,6 +56,19 @@
     body.dark .rule-base { color: #ccd1e8; }
     .rule-tip { font-size: 12px; background: #e0f2f1; color: #00695C; padding: 6px 10px; border-radius: 6px; margin: 0; line-height: 1.4; }
     body.dark .rule-tip { background: #00302b; color: #4db6ac; }
+
+    .extra-section { margin-top: 12px; padding-top: 10px; border-top: 1px solid #f5f6fa; }
+    body.dark .extra-section { border-top-color: #252842; }
+    .extra-section-title { font-size: 11px; font-weight: 700; color: #00695C; text-transform: uppercase; letter-spacing: .4px; margin: 0 0 6px; }
+    body.dark .extra-section-title { color: #4db6ac; }
+    .extra-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+    .extra-list li { font-size: 12px; color: #444; line-height: 1.4; }
+    body.dark .extra-list li { color: #ccd1e8; }
+    .extra-ejemplo { font-size: 12px; padding: 5px 0; }
+    .extra-ejemplo .de { color: #222; font-weight: 500; }
+    body.dark .extra-ejemplo .de { color: #dde1ec; }
+    .extra-ejemplo .es { color: #888; }
+    body.dark .extra-ejemplo .es { color: #6a7090; }
   </style>
 </head>
 <body>
@@ -123,11 +136,37 @@
     </div>`;
   }
 
+  function renderContenido(contenido) {
+    if (!contenido) return '';
+    const { tips = [], curiosidades = [], ejemplos = [] } = contenido;
+    let html = '';
+    if (tips.length) {
+      html += `<div class="extra-section">
+        <p class="extra-section-title">💡 Tips docentes</p>
+        <ul class="extra-list">${tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+      </div>`;
+    }
+    if (curiosidades.length) {
+      html += `<div class="extra-section">
+        <p class="extra-section-title">🌍 Curiosidades</p>
+        <ul class="extra-list">${curiosidades.map(c => `<li>${esc(c)}</li>`).join('')}</ul>
+      </div>`;
+    }
+    if (ejemplos.length) {
+      html += `<div class="extra-section">
+        <p class="extra-section-title">✏️ Ejemplos de aula</p>
+        ${ejemplos.map(e => `<div class="extra-ejemplo"><span class="de">${esc(e.de)}</span> — <span class="es">${esc(e.es)}</span></div>`).join('')}
+      </div>`;
+    }
+    return html;
+  }
+
   function renderClassCol(label, cls) {
     return `<div class="class-col">
       <div class="class-day-label">${esc(label)} — día ${cls.day}</div>
       <div class="class-focus">${esc(cls.focus)}</div>
       ${cls.ruleIds.map(renderRule).join('')}
+      ${renderContenido(cls.contenido)}
     </div>`;
   }
 

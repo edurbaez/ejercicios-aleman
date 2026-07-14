@@ -46,3 +46,41 @@ Tips docentes, curiosidades del idioma y ejemplos de aula ya no van en arrays se
 - [x] **8. Semana 4 · Jueves (día 25)** — ruleIds b1-25, b1-28
 
 Cada tarea 1-8 debe producir, para cada `ruleId` de esa entrada, un objeto completo siguiendo el esquema de arriba (ver `clases-b1.js` semana 1 martes como referencia de tono y estructura).
+
+## Pendiente: Ampliación a los 30 días del plan (no solo martes/jueves)
+
+Motivo: aunque el profesor solo da clase en vivo martes/jueves, el alumno puede preguntar por cualquier día del plan de 30 días (`plan.js` → `PLANS.b1`). Hoy, fuera de martes/jueves, el único contenido es el genérico de `gramatica.html` (sin tips de aula, práctica con errores típicos ni resumen docente). Objetivo: tener el mismo tipo de contenido narrativo (`contenido.reglas[]`, esquema de la Tarea 0) preparado para los 22 días restantes, como material de apoyo del profesor — no implica que haya clase en vivo esos días.
+
+### Tarea 9 — Infraestructura para 30 días (previa a las tareas de contenido 10-31)
+- [x] Migrada la estructura de `clases-b1.js`: `TEACHER_CLASES.b1` pasó de un array de semanas con `martes`/`jueves` a un array plano de 30 entradas `{ day, semana, focus, ruleIds, esClaseEnVivo, contenido }`, uno por cada día 1-30. Los 8 días ya completados (2, 4, 9, 11, 16, 18, 23, 25) conservan su `contenido.reglas` intacto y llevan `esClaseEnVivo: true`; los 22 restantes llevan `focus`/`ruleIds` ya resueltos (cruzados con `plan.js`/`grammar-data.js`) y `contenido: { reglas: [] }` pendiente, `esClaseEnVivo: false`.
+- [x] Actualizado `teacher/index.html` (`renderWeeks`/`renderClassCol`): agrupa los 30 días por `semana` y renderiza cada día con un badge (🟢 Clase en vivo / 📖 Autoestudio) según `esClaseEnVivo`. `class-grid` ahora usa columnas flexibles (`auto-fill, minmax(260px, 1fr)`) para acomodar hasta 7 días por semana en vez de 2.
+
+### Tareas 10-31 — una por día restante del plan de 30 días (rellenar `contenido.reglas` de cada día)
+Días ya cubiertos (no repetir): 2, 4, 9, 11, 16, 18, 23, 25.
+
+RuleIds obtenidos cruzando el `focus`/tasks de cada día en `plan.js` (`PLANS.b1`) con los títulos de `GRAMMAR_DATA.B1` en `grammar-data.js`. Días marcados "repaso" en `plan.js` deben tratarse igual que las tareas 1-8 que ya fueron repaso (ej. Tarea 2 con b1-12, Tarea 7/8): intro más breve reconociendo que es repaso, práctica enfocada en errores persistentes, ejemplos nuevos (no reutilizar los del día en que la regla se presentó por primera vez).
+
+- [ ] **10. Día 1** — focus "Präteritum + Konjunktiv II + oraciones de relativo" — ruleIds b1-01, b1-02, b1-03
+- [ ] **11. Día 3** — focus "Verbos con preposición fija + infinitivo con zu + pasiva básica" — ruleIds b1-07, b1-08, b1-09
+- [ ] **12. Día 5** — focus "Preguntas indirectas + infinitivo sin zu + relativas con preposición" — ruleIds b1-13, b1-14, b1-15
+- [ ] **13. Día 6** — focus "je…desto + n-Deklination + Adjektive als Nomen" — ruleIds b1-16, b1-17, b1-18
+- [ ] **14. Día 7** — focus "da-/wo-Präpositionaladverbien + preposiciones con Genitiv + preposiciones temporales" — ruleIds b1-19, b1-20, b1-21
+- [ ] **15. Día 8** — focus "Funciones de werden + verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-22, b1-23, b1-24
+- [ ] **16. Día 10** — focus "lassen + Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-28, b1-29, b1-30
+- [ ] **17. Día 12** (repaso) — focus "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos" — ruleIds b1-03, b1-04, b1-05
+- [ ] **18. Día 13** (repaso) — focus "Repaso: conectores subordinantes + verbos con preposición fija + infinitivo con zu" — ruleIds b1-06, b1-07, b1-08
+- [ ] **19. Día 14** (repaso) — focus "Repaso: pasiva básica + futuro" — ruleIds b1-09, b1-10
+- [ ] **20. Día 15** (repaso) — focus "Consolidación: Präteritum + Konjunktiv II" — ruleIds b1-01, b1-02
+- [ ] **21. Día 17** — focus "Genitiv (kasus.html) + repaso n-Deklination" — ruleIds b1-04, b1-17 (repaso)
+- [ ] **22. Día 19** (repaso) — focus "Contraste: infinitivo con zu vs. sin zu" — ruleIds b1-08, b1-14
+- [ ] **23. Día 20** (repaso) — focus "Pasiva básica + funciones de werden" — ruleIds b1-09, b1-22
+- [ ] **24. Día 21** (repaso) — focus "Conectores subordinantes + wenn vs. als (ampliado)" — ruleIds b1-06, b1-12
+- [ ] **25. Día 22** (repaso) — focus "Repaso: da-/wo-Präpositionaladverbien + preposiciones con Genitiv" — ruleIds b1-19, b1-20
+- [ ] **26. Día 24** (repaso) — focus "Repaso: verbos separables/inseparables + reflexivos ampliado" — ruleIds b1-23, b1-24
+- [ ] **27. Día 26** (repaso) — focus "Repaso: Finalsätze um…zu/damit + Doppelkonnektoren" — ruleIds b1-29, b1-30
+- [ ] **28. Día 27** (repaso) — focus "Repaso general: Plusquamperfekt + Partizip I als Adjektiv" — ruleIds b1-11, b1-31
+- [ ] **29. Día 28** (repaso libre) — focus "Repaso libre: preguntas indirectas + je…desto + preposiciones con Genitiv" — ruleIds b1-13, b1-16, b1-20
+- [ ] **30. Día 29** (repaso ligero, simulacro) — focus "Simulacro final (1/2): escritura evaluada + repaso ligero" — ruleId b1-02
+- [ ] **31. Día 30** (repaso ligero, simulacro) — focus "Simulacro final (2/2): mündliche evaluada, los 3 Teile" — ruleId b1-09
+
+Nota: el listado de ruleIds por día se hizo cruzando manualmente `focus`/`tasks` de `plan.js` (`PLANS.b1`) con `GRAMMAR_DATA.B1` — verificar contra `plan.js` al ejecutar cada tarea por si hay algún desfase menor.

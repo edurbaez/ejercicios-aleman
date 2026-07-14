@@ -36,13 +36,19 @@
     .week-title { font-size: 13px; font-weight: 700; color: #00695C; text-transform: uppercase; letter-spacing: .5px; margin: 0 0 14px; }
     body.dark .week-title { color: #4db6ac; }
 
-    .class-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
     @media (max-width: 700px) { .class-grid { grid-template-columns: 1fr; } }
 
     .class-col { border: 1px solid #eef0f5; border-radius: 10px; padding: 14px 16px; }
     body.dark .class-col { border-color: #2a2d45; }
-    .class-day-label { font-size: 12px; font-weight: 700; color: #444; margin-bottom: 4px; }
+    .class-day-label { font-size: 12px; font-weight: 700; color: #444; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     body.dark .class-day-label { color: #9aa0c0; }
+
+    .clase-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .3px; }
+    .clase-badge-vivo { background: #e0f2f1; color: #00695C; }
+    body.dark .clase-badge-vivo { background: #00302b; color: #4db6ac; }
+    .clase-badge-auto { background: #f0f2f7; color: #888; }
+    body.dark .clase-badge-auto { background: #252842; color: #6a7090; }
     .class-focus { font-size: 12px; color: #888; margin-bottom: 12px; }
     body.dark .class-focus { color: #6a7090; }
 
@@ -115,7 +121,7 @@
   </div>
 
   <div class="adm-main">
-    <p class="level-note">Nivel B1 — martes = día 2 de cada semana del plan, jueves = día 4. Alumno que empieza el lunes llega a la primera clase con el día 2 ya estudiado.</p>
+    <p class="level-note">Nivel B1 — los 30 días del plan de autoestudio. Los días marcados 🟢 Clase en vivo son martes/jueves (mapeo fijo: martes = día 2 de cada semana, jueves = día 4); el resto son días de autoestudio (📖) para los que igual conviene tener contenido de apoyo preparado.</p>
     <div id="weeks-container"></div>
   </div>
 </div>
@@ -203,9 +209,12 @@
     return `<div class="extra-section">${contenido.reglas.map(renderReglaContenido).join('')}</div>`;
   }
 
-  function renderClassCol(label, cls) {
+  function renderClassCol(cls) {
+    const badge = cls.esClaseEnVivo
+      ? `<span class="clase-badge clase-badge-vivo">🟢 Clase en vivo</span>`
+      : `<span class="clase-badge clase-badge-auto">📖 Autoestudio</span>`;
     return `<div class="class-col">
-      <div class="class-day-label">${esc(label)} — día ${cls.day}</div>
+      <div class="class-day-label">Día ${cls.day} ${badge}</div>
       <div class="class-focus">${esc(cls.focus)}</div>
       ${cls.ruleIds.map(renderRule).join('')}
       ${renderContenido(cls.contenido)}
@@ -213,13 +222,17 @@
   }
 
   function renderWeeks() {
-    const weeks = (window.TEACHER_CLASES && window.TEACHER_CLASES.b1) || [];
-    document.getElementById('weeks-container').innerHTML = weeks.map(w => `
+    const days = (window.TEACHER_CLASES && window.TEACHER_CLASES.b1) || [];
+    const bySemana = {};
+    days.forEach(d => {
+      (bySemana[d.semana] = bySemana[d.semana] || []).push(d);
+    });
+    const semanas = Object.keys(bySemana).map(Number).sort((a, b) => a - b);
+    document.getElementById('weeks-container').innerHTML = semanas.map(semana => `
       <div class="week-card">
-        <p class="week-title">Semana ${w.semana}</p>
+        <p class="week-title">Semana ${semana}</p>
         <div class="class-grid">
-          ${renderClassCol('Martes', w.martes)}
-          ${renderClassCol('Jueves', w.jueves)}
+          ${bySemana[semana].map(renderClassCol).join('')}
         </div>
       </div>
     `).join('');

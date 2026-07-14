@@ -37,7 +37,7 @@ Tips docentes, curiosidades del idioma y ejemplos de aula ya no van en arrays se
 
 ### Tareas 1-8 — una por día de clase (rellenar el campo `contenido.reglas` de esa entrada)
 - [x] **1. Semana 1 · Martes (día 2)** — ruleIds b1-04, b1-05, b1-06
-- [ ] **2. Semana 1 · Jueves (día 4)** — ruleIds b1-10, b1-11, b1-12
+- [x] **2. Semana 1 · Jueves (día 4)** — ruleIds b1-10, b1-11, b1-12
 - [ ] **3. Semana 2 · Martes (día 9)** — ruleIds b1-25, b1-26, b1-27
 - [ ] **4. Semana 2 · Jueves (día 11)** — ruleIds b1-31, b1-01, b1-02
 - [ ] **5. Semana 3 · Martes (día 16)** — ruleIds b1-03, b1-07

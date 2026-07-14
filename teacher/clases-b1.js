@@ -75,7 +75,70 @@ window.TEACHER_CLASES = {
         day: 4,
         focus: "Futuro + Plusquamperfekt + wenn vs. als",
         ruleIds: ['b1-10', 'b1-11', 'b1-12'],
-        contenido: { reglas: [] }
+        contenido: {
+          reglas: [
+            {
+              ruleId: 'b1-10',
+              intro: 'En español el futuro es una conjugación propia ("trabajaré"). En alemán, para planes cotidianos casi nunca se usa "werden + Infinitivo" — se prefiere el Präsens con un marcador temporal (morgen, bald, nächste Woche). "Werden" se reserva para predicciones, promesas o suposiciones.',
+              practica: [
+                { incorrecto: 'Ich werde morgen arbeite.', correcto: 'Ich werde morgen arbeiten.' },
+                { incorrecto: 'Morgen ich fahre nach München.', correcto: 'Morgen fahre ich nach München.' },
+                { incorrecto: 'Er wird schon zu Hause.', correcto: 'Er wird schon zu Hause sein.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Dos formas de futuro', texto: '"Werden + Infinitivo" (predicciones, promesas solemnes) y "Präsens + marcador temporal" (planes concretos, más natural en el habla cotidiana).' },
+                {
+                  titulo: '🟩 2. Cuándo usar cada una',
+                  texto: '',
+                  tabla: { headers: ['Situación', 'Forma', 'Ejemplo'], rows: [['Plan concreto', 'Präsens + marcador', 'Morgen fahre ich nach München.'], ['Predicción', 'werden + Inf.', 'Es wird regnen.'], ['Suposición sobre el presente', 'werden + Inf. + schon/wohl', 'Er wird schon zu Hause sein.']] }
+                },
+                { titulo: '🟧 3. Uso especial: suposición', texto: '"Werden + Inf." también sirve para suponer algo sobre el presente, no solo el futuro: "Das wird teuer sein" = "Eso debe de ser caro". Suele ir acompañado de "schon" o "wohl".' },
+                { titulo: '🟨 4. Truco', texto: 'Para hablar de planes propios (lo más frecuente en clase), usa presente + marcador temporal. Reserva "werden" para cuando realmente quieras predecir o suponer algo.' }
+              ],
+              resumen: 'Para planes usa Präsens + marcador temporal (morgen, bald…) — es lo más natural. "Werden + Infinitivo" es para predicciones, promesas o suposiciones (a menudo con schon/wohl).'
+            },
+            {
+              ruleId: 'b1-11',
+              intro: 'El pluscuamperfecto también existe en español ("había comido"), así que la idea es intuitiva. La dificultad en alemán está en elegir el auxiliar correcto (hatte o war) y en el orden de palabras dentro de la subordinada.',
+              practica: [
+                { incorrecto: 'Nachdem ich hatte gegessen, ging ich ins Bett.', correcto: 'Nachdem ich gegessen hatte, ging ich ins Bett.' },
+                { incorrecto: 'Sie hatte schon weggefahren, als ich ankam.', correcto: 'Sie war schon weggefahren, als ich ankam.' },
+                { incorrecto: 'Wir haben das Buch schon gelesen gehabt.', correcto: 'Wir hatten das Buch schon gelesen.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. Qué es', texto: 'El "pasado del pasado": una acción que ya había terminado antes de que ocurriera otra acción pasada.' },
+                {
+                  titulo: '🟩 2. Formación',
+                  texto: 'Igual que el Perfekt, pero con el auxiliar en Präteritum en vez de Präsens: hatte/war + Partizip II.',
+                  tabla: { headers: ['', 'mit haben', 'mit sein'], rows: [['ich/er', 'hatte gelernt', 'war gefahren'], ['du', 'hattest gelernt', 'warst gefahren'], ['wir/sie', 'hatten gelernt', 'waren gefahren']] }
+                },
+                { titulo: '🟧 3. El auxiliar no cambia', texto: 'Se usa el mismo verbo auxiliar que en el Perfekt de ese verbo: si "fahren" hace su Perfekt con sein (ist gefahren), su Plusquamperfekt también usa war (war gefahren).' },
+                { titulo: '🟨 4. Casi siempre con "nachdem"', texto: 'Aparece muy frecuentemente junto al conector "nachdem" (visto el martes en b1-06), que exige que la subordinada sea anterior a la principal: primero Plusquamperfekt, después Präteritum.' }
+              ],
+              resumen: 'El Plusquamperfekt es "un paso más atrás" que el Präteritum: si la frase principal ya está en pasado, la acción anterior necesita hatte/war + Partizip II — casi siempre con "nachdem".'
+            },
+            {
+              ruleId: 'b1-12',
+              intro: 'Esta clase amplía lo visto el martes con "wenn" y "als" (b1-06): el criterio real no es el tiempo verbal, sino si el evento fue único o repetido. Es la trampa más frecuente en B1 para hispanohablantes.',
+              practica: [
+                { incorrecto: 'Als ich Kind war, spielte ich jeden Tag draußen.', correcto: 'Wenn ich Kind war, spielte ich jeden Tag draußen.' },
+                { incorrecto: 'Wenn ich sie kennenlernte, war ich 20.', correcto: 'Als ich sie kennenlernte, war ich 20.' },
+                { incorrecto: 'Immer als es regnete, blieben wir zu Hause.', correcto: 'Immer wenn es regnete, blieben wir zu Hause.' }
+              ],
+              pasos: [
+                { titulo: '🟦 1. El criterio real', texto: 'No es si la frase está en pasado o no — es si el evento fue único e irrepetible, o si se repitió / es una condición.' },
+                { titulo: '🟩 2. Als = evento único en pasado', texto: '"Als ich sie kennenlernte…" — el día en que la conoció, ocurrió una sola vez.' },
+                {
+                  titulo: '🟧 3. Wenn = condición o repetición',
+                  texto: 'Cubre condiciones en cualquier tiempo y acciones repetidas, incluso en pasado.',
+                  tabla: { headers: ['Situación', 'Conector', 'Ejemplo'], rows: [['Condición (presente/futuro)', 'wenn', 'Wenn es regnet, bleibe ich zu Hause.'], ['Repetición en pasado', 'wenn', 'Wenn ich Kind war, spielte ich viel.'], ['Momento único en pasado', 'als', 'Als ich 18 war, zog ich um.']] }
+                },
+                { titulo: '🟨 4. Señal clara', texto: '"Immer wenn…" (siempre que…) nunca lleva "als" — si hay repetición explícita, es garantía de "wenn".' }
+              ],
+              resumen: 'La pregunta clave es: ¿pasó una sola vez en el pasado? → als. ¿Se repitió, o no es pasado? → wenn. "Immer wenn" es la señal más clara de que toca "wenn".'
+            }
+          ]
+        }
       }
     },
     {

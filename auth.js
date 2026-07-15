@@ -293,7 +293,7 @@
         { href: 'A1.html', label: 'A1', bodyId: 'page-a1' },
         { href: 'A2.html', label: 'A2', bodyId: 'page-a2' },
         { href: 'B1.html', label: 'B1', bodyId: 'page-b1' },
-        { href: 'palabrasB2.html', label: 'B2', bodyId: 'page-b2' },
+        { href: 'B2.html', label: 'B2', bodyId: 'page-b2' },
         { href: 'C1.html', label: 'C1', bodyId: 'page-c1' },
         { href: 'C2.html', label: 'C2', bodyId: 'page-c2' },
     ] },

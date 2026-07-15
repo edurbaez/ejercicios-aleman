@@ -8,7 +8,7 @@ Five browser-based tools for learning German vocabulary, improving reading speed
 
 ## Apps
 
-### Palabras B2 ([palabrasB2.html](palabrasB2.html))
+### Palabras B2 ([B2.html](B2.html))
 
 Multiple-choice vocabulary quiz targeting B2-level German words.
 
@@ -219,7 +219,7 @@ All pages share a fixed navbar. **Inicio** is always visible as a standalone lin
 
 ## Deployment
 
-`palabrasB2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/palabrasB2.html`. Each PWA has its own Service Worker: `sw.js` (B2) and `sw-b1.js` (B1), each scoped to its own cache namespace so they don't interfere with each other.
+`B2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/B2.html`. Each PWA has its own Service Worker: `sw.js` (B2) and `sw-b1.js` (B1), each scoped to its own cache namespace so they don't interfere with each other.
 
 Push to `main` → Vercel redeploys automatically.
 
@@ -242,7 +242,7 @@ Shared authentication module. Injects the login modal (OTP + Google OAuth) and e
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.
 
 ### `shared-game.js`
-Game engine shared between `palabrasB2.html` and `B1.html`. Contains state management, multiple-choice quiz logic, TTS loop, timer, personal lists (IndexedDB), wake lock, and PWA registration. Each page declares `window.APP_CONFIG` with page-specific values (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) before loading this script. Exposes `window.toggleDarkMode`, `window.toggleModoInverso`, `window.copiarErrores`, `window.guardarNuevaLista`.
+Game engine shared between `B2.html` and `B1.html`. Contains state management, multiple-choice quiz logic, TTS loop, timer, personal lists (IndexedDB), wake lock, and PWA registration. Each page declares `window.APP_CONFIG` with page-specific values (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) before loading this script. Exposes `window.toggleDarkMode`, `window.toggleModoInverso`, `window.copiarErrores`, `window.guardarNuevaLista`.
 
 ### `styles.css`
 Shared stylesheet for all pages. Starts with a `:root` block that centralises the brand colours as CSS variables: `--color-b2` (#1976D2), `--color-b2-dark` (#1565C0), `--color-b1` (#388E3C), `--color-b1-dark` (#2E7D32), `--color-danger` (#D32F2F), `--color-danger-dark` (#B71C1C), `--radius` (8px), `--gap` (12px). Changing a colour in one place propagates across all components automatically.

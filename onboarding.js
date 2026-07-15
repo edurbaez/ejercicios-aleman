@@ -8,7 +8,7 @@
 
   const LEVEL_PAGES = {
     a1: 'A1.html', a2: 'A2.html', b1: 'B1.html',
-    b2: 'palabrasB2.html', c1: 'C1.html', c2: 'C2.html',
+    b2: 'B2.html', c1: 'C1.html', c2: 'C2.html',
   };
 
   let stepIndex = 0;

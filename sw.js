@@ -1,6 +1,6 @@
 const CACHE = "palabrasb2-v5";
 const ASSETS = [
-  "/palabrasB2.html",
+  "/B2.html",
   "/styles.css",
   "/manifest.json",
   "/icon.svg",
@@ -83,7 +83,7 @@ self.addEventListener("periodicsync", (e) => {
           badge: "/icon.svg",
           tag: "recordatorio-b2",
           renotify: true,
-          data: { url: "/palabrasB2.html" }
+          data: { url: "/B2.html" }
         });
         await setMeta(db, "lastNotified-b2", hoy);
       })()
@@ -101,7 +101,7 @@ self.addEventListener("push", (e) => {
       badge: "/icon.svg",
       tag: "recordatorio-push",
       renotify: true,
-      data: { url: data.url || "/palabrasB2.html" },
+      data: { url: data.url || "/B2.html" },
     })
   );
 });
@@ -111,8 +111,8 @@ self.addEventListener("notificationclick", (e) => {
   e.notification.close();
   e.waitUntil(
     clients.matchAll({ type: "window" }).then((cs) => {
-      const url = (e.notification.data && e.notification.data.url) || "/palabrasB2.html";
-      const open = cs.find((c) => c.url.includes("palabrasB2") && "focus" in c);
+      const url = (e.notification.data && e.notification.data.url) || "/B2.html";
+      const open = cs.find((c) => c.url.includes("B2.html") && "focus" in c);
       if (open) return open.focus();
       return clients.openWindow(url);
     })

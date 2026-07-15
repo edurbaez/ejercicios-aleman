@@ -1,4 +1,4 @@
-// shared-game.js — lógica compartida entre palabrasB2.html y B1.html
+// shared-game.js — lógica compartida entre B2.html y B1.html
 // Define window.APP_CONFIG antes de cargar este script:
 //   { appId, dataFile, limitKey, darkKey, swFile, syncId, accent }
 

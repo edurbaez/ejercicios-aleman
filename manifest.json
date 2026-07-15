@@ -2,7 +2,7 @@
   "name": "Palabras B2",
   "short_name": "B2",
   "description": "Practica de vocabulario aleman nivel B2",
-  "start_url": "/palabrasB2.html",
+  "start_url": "/B2.html",
   "display": "standalone",
   "background_color": "#1976D2",
   "theme_color": "#1976D2",

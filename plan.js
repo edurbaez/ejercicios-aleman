@@ -879,7 +879,7 @@ window.PLANS = {
       focus: "Konjunktiv II en el pasado (Plusquamperfekt)",
       tasks: [
         { app: "gramatica.html", label: "Gramática: hätte / wäre + Partizip II", minutes: 15 },
-        { app: "palabrasB2.html", label: "Vocabulario B2 esenciales", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario B2 esenciales", minutes: 15 }
       ]
     },
     {
@@ -896,7 +896,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html", label: "Gramática: Relativpronomen Dativ/Genitiv", minutes: 10 },
         { app: "kasus.html", label: "Entrenador: pronombres relativos", minutes: 15 },
-        { app: "palabrasB2.html", label: "Vocabulario: expresiones complejas", minutes: 10 }
+        { app: "B2.html", label: "Vocabulario: expresiones complejas", minutes: 10 }
       ]
     },
     {
@@ -912,7 +912,7 @@ window.PLANS = {
       focus: "Conectores causales y consecutivos",
       tasks: [
         { app: "gramatica.html", label: "Gramática: weil/da/deshalb/daher", minutes: 10 },
-        { app: "palabrasB2.html", label: "Vocabulario: argumentación B2", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: argumentación B2", minutes: 15 },
         { app: "chat-voz.html", label: "Conversación: argumentar una postura", minutes: 10 }
       ]
     },
@@ -928,7 +928,7 @@ window.PLANS = {
       day: 7, week: 1,
       focus: "Repaso estructuras complejas semana 1",
       tasks: [
-        { app: "palabrasB2.html", label: "Repaso vocabulario semana 1", minutes: 20 },
+        { app: "B2.html", label: "Repaso vocabulario semana 1", minutes: 20 },
         { app: "chat-voz.html", label: "Conversación libre B2", minutes: 15 }
       ]
     },
@@ -938,7 +938,7 @@ window.PLANS = {
       focus: "Estructura de un texto argumentativo",
       tasks: [
         { app: "gramatica.html", label: "Gramática: cohesión y coherencia textual", minutes: 10 },
-        { app: "palabrasB2.html", label: "Vocabulario: conectores argumentativos", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: conectores argumentativos", minutes: 15 },
         { app: "corrector.html", label: "Corrección: introducción de ensayo B2", minutes: 15 }
       ]
     },
@@ -947,7 +947,7 @@ window.PLANS = {
       focus: "Presentar y refutar argumentos",
       tasks: [
         { app: "chat-reformulaciones.html", label: "Reformulación: tesis y antítesis", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario: debate y opinión", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario: debate y opinión", minutes: 15 }
       ]
     },
     {
@@ -956,7 +956,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html", label: "Gramática: zum Beispiel, zusammenfassend…", minutes: 10 },
         { app: "corrector.html", label: "Corrección: conclusión de ensayo", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario: recursos discursivos", minutes: 10 }
+        { app: "B2.html", label: "Vocabulario: recursos discursivos", minutes: 10 }
       ]
     },
     {
@@ -964,14 +964,14 @@ window.PLANS = {
       focus: "Lectura crítica de textos B2",
       tasks: [
         { app: "lectura veloz.html", label: "Lectura RSVP: artículo de opinión", minutes: 15 },
-        { app: "palabrasB2.html", label: "Vocabulario del texto", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario del texto", minutes: 15 }
       ]
     },
     {
       day: 12, week: 2,
       focus: "Economía y mundo laboral",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario: economía y trabajo", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: economía y trabajo", minutes: 15 },
         { app: "chat-voz.html", label: "Conversación: entrevista de trabajo", minutes: 20 }
       ]
     },
@@ -979,7 +979,7 @@ window.PLANS = {
       day: 13, week: 2,
       focus: "Teknología y digitalización",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario: tecnología y redes", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: tecnología y redes", minutes: 15 },
         { app: "chat-reformulaciones.html", label: "Reformulación: texto sobre tecnología", minutes: 20 }
       ]
     },
@@ -988,7 +988,7 @@ window.PLANS = {
       focus: "Repaso texto argumentativo semana 2",
       tasks: [
         { app: "corrector.html", label: "Corrección: ensayo completo B2", minutes: 20 },
-        { app: "palabrasB2.html", label: "Repaso vocabulario semana 2", minutes: 15 }
+        { app: "B2.html", label: "Repaso vocabulario semana 2", minutes: 15 }
       ]
     },
     // Semana 3: Registro formal
@@ -997,7 +997,7 @@ window.PLANS = {
       focus: "Registro formal vs. coloquial",
       tasks: [
         { app: "gramatica.html", label: "Gramática: registro formal en alemán", minutes: 15 },
-        { app: "palabrasB2.html", label: "Vocabulario: expresiones formales", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario: expresiones formales", minutes: 15 }
       ]
     },
     {
@@ -1005,7 +1005,7 @@ window.PLANS = {
       focus: "Cartas y emails formales",
       tasks: [
         { app: "corrector.html", label: "Corrección: carta de reclamación", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario: fórmulas de cortesía", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario: fórmulas de cortesía", minutes: 15 }
       ]
     },
     {
@@ -1021,14 +1021,14 @@ window.PLANS = {
       focus: "Participialkonstruktionen",
       tasks: [
         { app: "gramatica.html", label: "Gramática: participio extendido como adjetivo", minutes: 15 },
-        { app: "palabrasB2.html", label: "Vocabulario: sustantivos y adjetivos", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario: sustantivos y adjetivos", minutes: 15 }
       ]
     },
     {
       day: 19, week: 3,
       focus: "Política y sociedad",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario: política y democracia", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: política y democracia", minutes: 15 },
         { app: "chat-voz.html", label: "Conversación: debate político B2", minutes: 20 }
       ]
     },
@@ -1036,7 +1036,7 @@ window.PLANS = {
       day: 20, week: 3,
       focus: "Medios de comunicación y prensa",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario: medios y periodismo", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: medios y periodismo", minutes: 15 },
         { app: "corrector.html", label: "Corrección: artículo periodístico", minutes: 20 }
       ]
     },
@@ -1044,7 +1044,7 @@ window.PLANS = {
       day: 21, week: 3,
       focus: "Repaso registro formal semana 3",
       tasks: [
-        { app: "palabrasB2.html", label: "Repaso vocabulario semana 3", minutes: 20 },
+        { app: "B2.html", label: "Repaso vocabulario semana 3", minutes: 20 },
         { app: "chat-voz.html", label: "Conversación libre B2", minutes: 15 }
       ]
     },
@@ -1054,7 +1054,7 @@ window.PLANS = {
       focus: "Simulacro: comprensión auditiva B2",
       tasks: [
         { app: "chat-voz.html", label: "Simulacro: comprensión y respuesta B2", minutes: 25 },
-        { app: "palabrasB2.html", label: "Vocabulario para el examen", minutes: 10 }
+        { app: "B2.html", label: "Vocabulario para el examen", minutes: 10 }
       ]
     },
     {
@@ -1062,7 +1062,7 @@ window.PLANS = {
       focus: "Simulacro: producción escrita extendida",
       tasks: [
         { app: "corrector.html", label: "Corrección: ensayo argumentativo B2", minutes: 25 },
-        { app: "palabrasB2.html", label: "Vocabulario de repaso", minutes: 10 }
+        { app: "B2.html", label: "Vocabulario de repaso", minutes: 10 }
       ]
     },
     {
@@ -1070,7 +1070,7 @@ window.PLANS = {
       focus: "Reformulación avanzada B2",
       tasks: [
         { app: "chat-reformulaciones.html", label: "Reformulación: estructuras B2 complejas", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario temático B2", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario temático B2", minutes: 15 }
       ]
     },
     {
@@ -1078,7 +1078,7 @@ window.PLANS = {
       focus: "Simulacro: expresión oral B2",
       tasks: [
         { app: "chat-voz.html", label: "Monólogo argumentado B2", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario complementario", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario complementario", minutes: 15 }
       ]
     },
     {
@@ -1086,7 +1086,7 @@ window.PLANS = {
       focus: "Lectura intensiva B2",
       tasks: [
         { app: "lectura veloz.html", label: "Lectura RSVP: texto complejo B2", minutes: 20 },
-        { app: "palabrasB2.html", label: "Vocabulario del texto", minutes: 15 }
+        { app: "B2.html", label: "Vocabulario del texto", minutes: 15 }
       ]
     },
     {
@@ -1101,7 +1101,7 @@ window.PLANS = {
       day: 28, week: 4,
       focus: "Cultura alemana: arte y literatura",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario: cultura y arte", minutes: 15 },
+        { app: "B2.html", label: "Vocabulario: cultura y arte", minutes: 15 },
         { app: "chat-voz.html", label: "Conversación: cultura alemana", minutes: 20 }
       ]
     },
@@ -1109,7 +1109,7 @@ window.PLANS = {
       day: 29, week: 4,
       focus: "Repaso integral B2",
       tasks: [
-        { app: "palabrasB2.html", label: "Vocabulario completo B2", minutes: 20 },
+        { app: "B2.html", label: "Vocabulario completo B2", minutes: 20 },
         { app: "corrector.html", label: "Corrección: texto libre B2", minutes: 15 }
       ]
     },

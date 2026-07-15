@@ -500,6 +500,7 @@
     data.filter(e => e.event_type === 'audio_sent').forEach(e => {
       const day = localDay(e);
       if (audiosByDay[day] !== undefined) audiosByDay[day]++;
+      if (countByDay[day] !== undefined) countByDay[day]++;
     });
     const counts   = days30.map(d => countByDay[d]);
     const maxCount = Math.max(...counts, 1);

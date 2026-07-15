@@ -570,16 +570,17 @@
     }
 
     const bars = days30.map((day, i) => {
-      const count   = counts[i];
-      const audDay  = audiosByDay[day];
-      const hPct    = Math.round(count / maxCount * 100);
-      const isToday = day === todayStr;
-      const bg      = isToday ? '#1976D2' : count > 0 ? '#90CAF9' : '#e8e8e8';
-      const label   = day.slice(5).replace('-', '/'); // MM/DD
-      const tip     = `${label}\n📝 ${count} palabra${count !== 1 ? 's' : ''}\n🎙 ${audDay} audio${audDay !== 1 ? 's' : ''}`;
+      const count    = counts[i];
+      const audDay   = audiosByDay[day];
+      const hasAct   = activityByDay[day] > 0;
+      const hPct     = Math.round(count / maxCount * 100);
+      const isToday  = day === todayStr;
+      const bg       = isToday ? '#1976D2' : hasAct ? '#90CAF9' : '#e8e8e8';
+      const label    = day.slice(5).replace('-', '/'); // MM/DD
+      const tip      = `${label}\n📝 ${count} palabra${count !== 1 ? 's' : ''}\n🎙 ${audDay} audio${audDay !== 1 ? 's' : ''}`;
       return `<div title="${tip}"
         style="flex:1;height:70px;display:flex;flex-direction:column;justify-content:flex-end;cursor:default;">
-        <div style="width:100%;height:${Math.max(hPct,count>0?5:2)}%;background:${bg};border-radius:2px 2px 0 0;min-height:${count>0?'3px':'2px'};"></div>
+        <div style="width:100%;height:${Math.max(hPct,hasAct?5:2)}%;background:${bg};border-radius:2px 2px 0 0;min-height:${hasAct?'3px':'2px'};"></div>
       </div>`;
     }).join('');
 

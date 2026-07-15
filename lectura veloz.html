@@ -953,6 +953,7 @@
         function compMostrarResultado() {
             const correctas = compRespuestas.filter((r, i) => r === compPreguntas[i].correcta).length;
             const total = compPreguntas.length;
+            window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'A' });
             const resultado = document.getElementById('comp-resultado');
             const textoEl = document.getElementById('comp-resultado-texto');
             textoEl.textContent = correctas + ' / ' + total + ' correctas';
@@ -1458,6 +1459,7 @@
         }
 
         function modoB_mostrarResultado(correctas, total) {
+            window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = `${correctas} / ${total} correctas`;

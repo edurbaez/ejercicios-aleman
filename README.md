@@ -140,6 +140,8 @@ Sentence-transformation (Umformung) practice app tied to the grammar rules in `g
 - Answer by voice (MediaRecorder → `/api/whisper`) or text (Ctrl+Enter); tasks are read aloud with browser TTS
 - Falls back to full AI generation (`/api/chat`) for rules missing from the bank
 - Session results: global score, % correct, per-rule breakdown with links to `gramatica.html`
+- **Repaso SRS de reglas** — SM-2 spaced repetition per grammar rule (IndexedDB `srs-db-reformulaciones`, synced to Supabase `grammar_rule_progress`), updated on every evaluated turn; "🔁 Repaso SRS" button starts a session from up to 5 due rules
+- **Historial** — collapsible panel listing the last 20 local sessions (date, score, per-rule detail), stored only in IndexedDB (`reformulaciones-db`), no Supabase sync
 - Purple theme (`#6A1B9A`); dark mode persisted as `darkMode_cr`
 
 ---

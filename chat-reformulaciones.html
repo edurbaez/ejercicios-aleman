@@ -43,7 +43,19 @@
             <div class="cr-setup-btns">
                 <button class="cr-btn-secondary" onclick="randomSelect()">Aleatorio (5)</button>
                 <button class="cr-btn-secondary" onclick="clearSelection()">Limpiar</button>
+                <button class="cr-btn-secondary" id="btnRuleSrs" onclick="reviewDueRules()">🔁 Repaso SRS (0)</button>
                 <button class="cr-btn-primary" onclick="startSession()">Iniciar sesión →</button>
+            </div>
+        </div>
+
+        <div class="cr-hist-section">
+            <button class="cr-btn-secondary" id="btnToggleHist" onclick="toggleHistPanel()">📚 Historial</button>
+            <div class="cr-hist-panel" id="crHistPanel" style="display:none">
+                <div class="cr-hist-header">
+                    <span id="crHistEmpty" style="display:none">Sin sesiones aún.</span>
+                    <button class="cr-btn-secondary" id="clearHistBtn" onclick="clearHistory()">Vaciar historial</button>
+                </div>
+                <div class="cr-hist-list" id="crHistList"></div>
             </div>
         </div>
     </div>
@@ -140,6 +152,7 @@ const State = {
     currentAudio: null,
     voices: [],
     selectedVoice: null,
+    _ruleSrsCache: new Map(), // rule_id → { rule_id, ease, interval, reps, due }
 };
 
 // ── GRAMMAR DATA ──────────────────────────────────────────────────────────────
@@ -305,6 +318,7 @@ async function evaluateAnswer(userText) {
     if (ex.solutions.some(sol => normalizeAnswer(sol) === norm)) {
         const feedback = `✅ ¡Correcto! ${ex.explanation}`;
         recordScore(feedback);
+        updateRuleSRS(State.currentRule.id, true);
         addFeedbackCard(feedback);
         showNextExercise();
         return;
@@ -350,6 +364,7 @@ Danach 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neu
 
         const evaluation = (data.reply || '').trim();
         recordScore(evaluation);
+        updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
         removeBubble(thinkingId);
         addFeedbackCard(evaluation);
         showNextExercise();
@@ -446,6 +461,7 @@ async function sendToAI(userText) {
             const newTask = parts[1].trim();
 
             recordScore(evaluation);
+            updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
             removeBubble(thinkingId);
             addFeedbackCard(evaluation);
 
@@ -514,7 +530,110 @@ function endSession() {
         ...State.sessionScore,
         rules: State.ruleQueue.map(r => r.id),
     });
+    saveToHistory();
     showResults();
+}
+
+// ── SESSION HISTORY (IndexedDB, read-only) ─────────────────────────────────────
+const HIST_MAX = 20;
+
+function histOpen() {
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open('reformulaciones-db', 1);
+        req.onupgradeneeded = () => req.result.createObjectStore('history', { keyPath: 'id', autoIncrement: true });
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+function histTx(db, mode, fn) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('history', mode);
+        const result = fn(tx.objectStore('history'));
+        tx.oncomplete = () => resolve(result);
+        tx.onerror = () => reject(tx.error);
+    });
+}
+
+function histGetAll(db) {
+    return new Promise((resolve, reject) => {
+        const req = db.transaction('history', 'readonly').objectStore('history').getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function saveToHistory() {
+    try {
+        const entry = {
+            ts: Date.now(),
+            sessionScore: { ...State.sessionScore },
+            rules: State.ruleQueue.map(r => ({
+                id: r.id, titulo: r.titulo, nivel: r.nivel,
+                ...(State.ruleScores[r.id] || { correct: 0, partial: 0, incorrect: 0 }),
+            })),
+        };
+        const db = await histOpen();
+        await histTx(db, 'readwrite', st => st.add(entry));
+
+        const all = await histGetAll(db);
+        if (all.length > HIST_MAX) {
+            const extra = all.slice(0, all.length - HIST_MAX);
+            await histTx(db, 'readwrite', st => extra.forEach(e => st.delete(e.id)));
+        }
+        await renderHistory(db);
+    } catch { /* history is best-effort; never block the result */ }
+}
+
+async function renderHistory(db) {
+    try {
+        db = db || await histOpen();
+        const all = (await histGetAll(db)).reverse();
+
+        const emptyEl = document.getElementById('crHistEmpty');
+        const listEl = document.getElementById('crHistList');
+        if (all.length === 0) {
+            emptyEl.style.display = 'block';
+            listEl.innerHTML = '';
+            return;
+        }
+        emptyEl.style.display = 'none';
+
+        listEl.innerHTML = all.map(e => {
+            const date = new Date(e.ts).toLocaleDateString('es', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+            const { correct, partial, incorrect } = e.sessionScore || {};
+            const rulesHtml = (e.rules || []).map(r =>
+                `<div class="cr-hist-rule">
+                    <span class="cr-nivel-badge">${r.nivel}</span>
+                    <span class="cr-hist-rule-titulo">${r.titulo}</span>
+                    <span class="cr-hist-rule-score">✅ ${r.correct} ⚠️ ${r.partial} ❌ ${r.incorrect}</span>
+                </div>`
+            ).join('');
+            return `
+            <div class="cr-hist-item">
+                <div class="cr-hist-item-header">
+                    <span class="cr-hist-date">${date}</span>
+                    <span class="cr-hist-score">✅ ${correct || 0} &nbsp; ⚠️ ${partial || 0} &nbsp; ❌ ${incorrect || 0}</span>
+                </div>
+                <div class="cr-hist-rules">${rulesHtml}</div>
+            </div>`;
+        }).join('');
+    } catch { /* ignore */ }
+}
+
+function toggleHistPanel() {
+    const panel = document.getElementById('crHistPanel');
+    const open = panel.style.display !== 'none';
+    panel.style.display = open ? 'none' : 'block';
+    if (!open) renderHistory();
+}
+
+async function clearHistory() {
+    try {
+        const db = await histOpen();
+        await histTx(db, 'readwrite', st => st.clear());
+        await renderHistory(db);
+    } catch { /* ignore */ }
 }
 
 function showResults() {
@@ -558,6 +677,7 @@ function restartSameRules() {
 function backToSetup() {
     document.getElementById('crResults').style.display = 'none';
     document.getElementById('crSetup').style.display = 'flex';
+    updateRuleSrsBtnLabel();
 }
 
 // ── HINT PANEL ────────────────────────────────────────────────────────────────
@@ -780,6 +900,127 @@ async function loadDailyUsage() {
     if (data) State.dailyUsedMs = data.reduce((sum, e) => sum + (e.payload?.duration_ms || 0), 0);
 }
 
+// ── RULE SRS (Repetición Espaciada SM-2, a nivel de regla) ─────────────────────
+const RULE_SRS_DB_NAME = 'srs-db-reformulaciones';
+const RULE_SRS_STORE   = 'rules';
+let _ruleSrsDb = null;
+
+function openRuleSRSDB() {
+    if (_ruleSrsDb) return Promise.resolve(_ruleSrsDb);
+    return new Promise((resolve, reject) => {
+        const req = indexedDB.open(RULE_SRS_DB_NAME, 1);
+        req.onupgradeneeded = e => e.target.result.createObjectStore(RULE_SRS_STORE, { keyPath: 'rule_id' });
+        req.onsuccess = e => { _ruleSrsDb = e.target.result; resolve(_ruleSrsDb); };
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function loadRuleSRSCache() {
+    try {
+        const db = await openRuleSRSDB();
+        const cards = await new Promise(resolve => {
+            const req = db.transaction(RULE_SRS_STORE).objectStore(RULE_SRS_STORE).getAll();
+            req.onsuccess = () => resolve(req.result || []);
+            req.onerror = () => resolve([]);
+        });
+        State._ruleSrsCache.clear();
+        cards.forEach(c => State._ruleSrsCache.set(c.rule_id, c));
+    } catch {}
+    await _syncRuleSRSFromSupabase();
+    updateRuleSrsBtnLabel();
+}
+
+async function _syncRuleSRSFromSupabase() {
+    try {
+        const { data: { user } } = await window.sb.auth.getUser();
+        if (!user) return;
+        const { data, error } = await window.sb
+            .from('grammar_rule_progress')
+            .select('rule_id, ease, interval, reps, due')
+            .eq('user_id', user.id);
+        if (error || !data?.length) return;
+        const db = await openRuleSRSDB();
+        const tx = db.transaction(RULE_SRS_STORE, 'readwrite');
+        const store = tx.objectStore(RULE_SRS_STORE);
+        for (const row of data) {
+            const local = State._ruleSrsCache.get(row.rule_id);
+            if (!local || row.due > local.due) {
+                const card = { rule_id: row.rule_id, ease: Number(row.ease), interval: row.interval, reps: row.reps, due: row.due };
+                State._ruleSrsCache.set(row.rule_id, card);
+                store.put(card);
+            }
+        }
+    } catch {}
+}
+
+async function updateRuleSRS(ruleId, correct) {
+    const now  = Date.now();
+    const card = State._ruleSrsCache.get(ruleId) || { rule_id: ruleId, ease: 2.5, interval: 1, reps: 0, due: now };
+    if (correct) {
+        card.reps++;
+        if (card.reps === 1)      card.interval = 1;
+        else if (card.reps === 2) card.interval = 6;
+        else                      card.interval = Math.round(card.interval * card.ease);
+    } else {
+        card.reps = 0;
+        card.interval = 1;
+        card.ease = Math.max(1.3, card.ease - 0.2);
+    }
+    card.due = now + card.interval * 86_400_000;
+    State._ruleSrsCache.set(ruleId, card);
+    try {
+        const db = await openRuleSRSDB();
+        const tx = db.transaction(RULE_SRS_STORE, 'readwrite');
+        tx.objectStore(RULE_SRS_STORE).put(card);
+    } catch {}
+    _syncRuleSRSToSupabase(card);
+    updateRuleSrsBtnLabel();
+}
+
+async function _syncRuleSRSToSupabase(card) {
+    try {
+        const { data: { user } } = await window.sb.auth.getUser();
+        if (!user) return;
+        await window.sb.from('grammar_rule_progress').upsert({
+            user_id: user.id,
+            rule_id: card.rule_id,
+            ease: card.ease,
+            interval: card.interval,
+            reps: card.reps,
+            due: card.due,
+        }, { onConflict: 'user_id,rule_id' });
+    } catch {}
+}
+
+function ruleSrsDueIds(cap = 5) {
+    const now = Date.now();
+    return State.allRules
+        .map(r => ({ id: r.id, due: State._ruleSrsCache.get(r.id)?.due ?? 0 }))
+        .filter(r => r.due <= now)
+        .sort((a, b) => a.due - b.due)
+        .slice(0, cap)
+        .map(r => r.id);
+}
+
+function updateRuleSrsBtnLabel() {
+    const btn = document.getElementById('btnRuleSrs');
+    if (!btn) return;
+    const n = ruleSrsDueIds(5).length;
+    btn.textContent = `🔁 Repaso SRS (${n})`;
+}
+
+function reviewDueRules() {
+    const ids = ruleSrsDueIds(5);
+    if (ids.length === 0) {
+        alert('No hay reglas pendientes de repaso.');
+        return;
+    }
+    State.selectedIds.clear();
+    ids.forEach(id => State.selectedIds.add(id));
+    startSession();
+}
+window.reviewDueRules = reviewDueRules;
+
 // ── UI HELPERS ────────────────────────────────────────────────────────────────
 function setHint(text) {
     document.getElementById('crHint').textContent = text;
@@ -791,7 +1032,7 @@ function toggleDarkMode() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-window.onAuthSignedIn = () => { loadDailyUsage(); };
+window.onAuthSignedIn = () => { loadDailyUsage(); loadRuleSRSCache(); };
 
 (function init() {
     if (localStorage.getItem('darkMode_cr') !== '') document.body.classList.add('dark');
@@ -803,6 +1044,8 @@ window.onAuthSignedIn = () => { loadDailyUsage(); };
     renderLevelFilter();
     renderRuleChips();
     loadVoices();
+    loadRuleSRSCache();
+    renderHistory();
 })();
 </script>
 </body>

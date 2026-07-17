@@ -205,7 +205,7 @@ Cron endpoint (requires `Authorization: Bearer <CRON_SECRET>`) that keeps vocabu
 **Security measures (`/api/chat`):**
 - Rate limiting: 20 req/min per IP (in-memory sliding window) → `429` if exceeded
 - Origin check: if `ALLOWED_ORIGIN` env var is set, blocks other origins → `403`
-- System prompt capped at 2 000 characters to prevent inflated requests
+- System prompt capped at 4 000 characters to prevent inflated requests
 
 ---
 

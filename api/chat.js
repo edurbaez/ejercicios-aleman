@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { action, messages, system, max_tokens, json } = req.body;
+    const { action, messages, system, max_tokens, json, temperature } = req.body;
 
     if (action === 'generate-reading') {
         return generateReading(req, res);
@@ -61,6 +61,7 @@ export default async function handler(req, res) {
                 : messages,
         };
         if (json === true) body.response_format = { type: 'json_object' };
+        if (typeof temperature === 'number' && temperature >= 0 && temperature <= 2) body.temperature = temperature;
 
         const response = await fetch('https://api.openai.com/v1/chat/completions', {
             method: 'POST',

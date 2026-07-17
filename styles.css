@@ -6519,6 +6519,10 @@ body.dark .cr-results-title { color: #ce93d8; }
 /* Redemittel */
 .mp-redemittel { margin-bottom: 14px; }
 
+/* Musterlösung */
+.mp-musterloesung { margin-bottom: 14px; }
+.mp-musterloesung-text { line-height: 1.5; }
+
 .mp-rm-group { margin-bottom: 6px; }
 
 .mp-rm-chips {

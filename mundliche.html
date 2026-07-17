@@ -892,7 +892,7 @@ ${esLeniente ? 'Regla especial: para los puntos de "deletrear el apellido" y "de
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta (en este orden):
 {"puntos_cubiertos": [true|false por cada punto guía, mismo orden], "fluidez": {"nivel":"baja|media|alta","comentario":"español"}, "gramatica_y_lexico": {"errores":[{"original":"fragmento","correccion":"fragmento corregido","explicacion":"español"}], "registro_adecuado": true|false}, "interaccion": {"adecuada": true|false, "comentario":"español"}, ${rmSchema}"subscores": {"cumplimiento": 0-100, "gramatica_vocabulario": 0-100, "fluidez": 0-100, "interaccion_o_estructura": 0-100}, "veredicto": "bestanden"|"nicht bestanden", "comentario_general":"valoración global en español (2-4 frases)", "puntuacion": número 0-100 calculado con los pesos indicados}
 Si es monólogo, "interaccion" puede ser {"adecuada":true,"comentario":"No aplica (tarea de monólogo)."} y "interaccion_o_estructura" evalúa la estructura del discurso en su lugar.`;
-
+ 
             const userMsg = `TAREA (nivel ${MpState.level}, ${t.teilNombre}):
 ${t.titulo}
 ${t.situacion}

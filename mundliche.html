@@ -46,6 +46,8 @@
         <!-- Selector de Teil (se llena según nivel) -->
         <div class="mp-selector" id="mp-teil-btns"></div>
 
+        <label class="mp-exam-toggle"><input type="checkbox" id="mp-exam-check"> 📝 Modo examen (preparación real + notas)</label>
+
         <!-- Área de tarea -->
         <div class="mp-card" id="mp-task-area">
             <div class="mp-idle">
@@ -88,6 +90,8 @@
         evaluando: false,
         prefetch: null,
         dailyUsedMs: 0,
+        examMode: localStorage.getItem('mp_exam') === '1',
+        notizen: '',
         // grabación
         isRecording: false,
         mediaRecorder: null,
@@ -127,13 +131,21 @@
               persona: 'Eres el compañero de examen del Teil 3. Da tu opinión, propone alternativas y ayuda a llegar a un acuerdo sobre lo que hay que planificar, en alemán simple (nivel A2).' },
         ]},
         B1: { teile: [
-            { id: 'vorstellung', nombre: 'Teil 1: Sich kurz vorstellen', modo: 'monologo', duracion_seg: 50, vorbereitung_seg: 20,
-              guia: 'Nivel B1 Teil 1: presentación personal breve y fluida (nombre, origen, formación, motivaciones). Genera 4 palabras clave en alemán nivel B1.' },
-            { id: 'praesentation', nombre: 'Teil 2: Ein Thema präsentieren', modo: 'monologo', duracion_seg: 120, vorbereitung_seg: 60,
-              guia: 'Nivel B1 (Goethe B1 Sprechen) Teil 2 - Präsentation: presentación breve y estructurada (introducción, desarrollo, cierre) de unos 2 minutos sobre un tema cotidiano. Genera un título y 3 puntos guía (Leitpunkte) en alemán nivel B1.' },
-            { id: 'gemeinsam-planen', nombre: 'Teil 3: Gemeinsam etwas planen', modo: 'dialogo', duracion_seg: 45, vorbereitung_seg: 30, turnos_max: 6,
-              guia: 'Nivel B1 Teil 3 - Gemeinsam etwas planen: el clásico ejercicio B1 de organizar algo juntos (un evento, un viaje, una celebración), discutiendo pros y contras hasta llegar a un acuerdo. Describe la situación en alemán B1 con 3 puntos a decidir.',
-              persona: 'Eres el compañero de examen del Teil 3 (Gemeinsam etwas planen). Discute con el estudiante para organizar lo propuesto: da tu opinión, sugiere alternativas, plantea algún inconveniente y busca llegar a un acuerdo final. Alemán nivel B1.' },
+            { id: 'gemeinsam-planen', nombre: 'Teil 1: Gemeinsam etwas planen', modo: 'dialogo',
+              duracion_seg: 45, vorbereitung_seg: 30, turnos_max: 9,
+              guia: 'Nivel B1 (Goethe B1 Sprechen) Teil 1 - Gemeinsam etwas planen: el clásico ejercicio B1 de organizar algo juntos (un evento, un viaje, una celebración), negociando pros y contras hasta llegar a un acuerdo. Describe la situación en alemán B1 con 3-4 puntos concretos a decidir (fecha, lugar, comida, regalo, transporte...).',
+              persona: 'Eres el compañero de examen del Teil 1 (Gemeinsam etwas planen). Negocia de verdad: da tu opinión, plantea inconvenientes realistas y propone alternativas. IMPORTANTE: no aceptes la primera propuesta del estudiante; acuerda algo SOLO después de haber hecho al menos 2 contrapropuestas y de que se hayan discutido varios de los puntos a decidir. La conversación debe cubrir todos los puntos antes de cerrar. Alemán nivel B1.' },
+            { id: 'praesentation', nombre: 'Teil 2: Ein Thema präsentieren', modo: 'monologo',
+              duracion_seg: 180, vorbereitung_seg: 60, vorbereitung_exam_seg: 900, folien: true,
+              guia: 'Nivel B1 (Goethe B1 Sprechen) Teil 2 - Präsentation: presentación de ~3 minutos sobre un tema cotidiano siguiendo la estructura canónica de 5 "Folien" del examen. Genera un título en forma de pregunta (p.ej. "Sollte man...?") y una situación breve que presente el tema.' },
+            { id: 'feedback-geben', nombre: 'Teil 3: Feedback geben', modo: 'dialogo',
+              duracion_seg: 40, vorbereitung_seg: 0, turnos_max: 4,
+              antwort_hint: '4-6 Sätze in deinem ERSTEN Beitrag (Mini-Präsentation), danach 1-2 Sätze',
+              guia: 'Nivel B1 (Goethe B1 Sprechen) Teil 3 - Feedback geben und Fragen stellen: tras la presentación del compañero, el estudiante debe darle un feedback breve y hacerle una pregunta sobre su presentación. Genera como "situacion" el anuncio de que el compañero va a presentar un tema cotidiano (indica el tema), y como "puntos" exactamente estos 2: "Stelle eine Frage zur Präsentation deines Partners" y "Gib ein kurzes Feedback (was hat dir gefallen?)".',
+              persona: 'Eres el compañero de examen en el Teil 3 (Feedback geben). En tu PRIMER turno haz una mini-presentación de 4-6 frases sobre el tema indicado en la situación (con introducción, tu experiencia, tu opinión y un cierre breve), y termina invitando al estudiante a preguntar. Después, responde brevemente (1-2 frases) a su pregunta y agradece su feedback. Marca turno_final:true solo cuando el estudiante haya hecho al menos una pregunta Y un comentario, y tú ya hayas respondido. Alemán nivel B1.' },
+            { id: 'vorstellung', nombre: 'Extra: Sich kurz vorstellen (no forma parte del examen B1)', modo: 'monologo',
+              duracion_seg: 50, vorbereitung_seg: 20,
+              guia: 'Ejercicio complementario (NO es parte del Goethe B1 real, útil como calentamiento): presentación personal breve y fluida (nombre, origen, formación, motivaciones). Genera 4 palabras clave en alemán nivel B1.' },
         ]},
         B2: { teile: [
             { id: 'praesentation', nombre: 'Teil 1: Präsentation', modo: 'monologo', duracion_seg: 150, vorbereitung_seg: 60,
@@ -172,6 +184,30 @@
         B2: ['el teletrabajo', 'el consumo y la publicidad', 'la educación digital', 'la migración y la integración', 'la movilidad y el transporte del futuro', 'la inteligencia artificial en la vida diaria', 'el turismo de masas', 'el sistema de salud'],
         C1: ['la globalización y sus efectos', 'la ética en la ciencia', 'el mercado laboral moderno', 'la protección de datos', 'el cambio climático y la política', 'la cultura y la identidad', 'la desigualdad social', 'el papel de los medios de comunicación'],
         C2: ['la bioética', 'la libertad de expresión y sus límites', 'el arte contemporáneo y su valor', 'la tecnología y la condición humana', 'la política internacional', 'la literatura y la sociedad', 'la memoria histórica', 'el futuro de la democracia'],
+    };
+
+    // ── Redemittel por nivel y Teil (estático, cero API) ──
+    const REDEMITTEL = {
+        B1: {
+            'gemeinsam-planen': [
+                { label: 'Vorschläge machen', frases: ['Wie wäre es, wenn wir …?', 'Ich schlage vor, dass …', 'Wir könnten doch …', 'Was hältst du davon, wenn …?'] },
+                { label: 'Zustimmen', frases: ['Das ist eine gute Idee!', 'Einverstanden, aber …', 'Da hast du recht.'] },
+                { label: 'Widersprechen / Alternativen', frases: ['Ich weiß nicht, ob das eine gute Idee ist …', 'Da bin ich anderer Meinung, weil …', 'Vielleicht wäre es besser, wenn …'] },
+                { label: 'Abschluss', frases: ['Also gut, dann machen wir es so.', 'Dann sind wir uns einig.'] },
+            ],
+            'praesentation': [
+                { label: 'Einleitung (Folie 1)', frases: ['Ich möchte heute über … sprechen.', 'Das Thema meiner Präsentation ist …'] },
+                { label: 'Erfahrungen (Folie 2)', frases: ['Ich habe die Erfahrung gemacht, dass …', 'Aus eigener Erfahrung kann ich sagen, …'] },
+                { label: 'Heimatland (Folie 3)', frases: ['In meinem Heimatland ist es üblich, dass …', 'Bei uns in … ist das anders: …'] },
+                { label: 'Vor-/Nachteile + Meinung (Folie 4)', frases: ['Ein Vorteil ist, dass …', 'Ein Nachteil ist, dass …', 'Meiner Meinung nach …'] },
+                { label: 'Schluss (Folie 5)', frases: ['Zusammenfassend lässt sich sagen, dass …', 'Vielen Dank für eure Aufmerksamkeit!'] },
+            ],
+            'feedback-geben': [
+                { label: 'Feedback geben', frases: ['Deine Präsentation hat mir gut gefallen, weil …', 'Besonders interessant fand ich …'] },
+                { label: 'Fragen stellen', frases: ['Ich hätte noch eine Frage: …', 'Mich würde interessieren, ob …'] },
+                { label: 'Auf Fragen antworten', frases: ['Danke für deine Frage.', 'Das ist eine gute Frage. Ich denke, …'] },
+            ],
+        },
     };
 
     // ── Dark mode ─────────────────────────────────────
@@ -245,6 +281,15 @@
         renderTeilButtons();
     })();
 
+    (function initExamMode() {
+        const check = document.getElementById('mp-exam-check');
+        check.checked = MpState.examMode;
+        check.addEventListener('change', () => {
+            MpState.examMode = check.checked;
+            localStorage.setItem('mp_exam', check.checked ? '1' : '0');
+        });
+    })();
+
     // ── API ───────────────────────────────────────────
     async function apiChat(token, system, userMsg, opts = {}) {
         const resp = await fetch('/api/chat', {
@@ -265,11 +310,16 @@
         const teil = currentTeil();
         const tema = TEMAS[MpState.level][Math.floor(Math.random() * TEMAS[MpState.level].length)];
 
+        const esquemaPuntos = teil.folien
+            ? `{"titulo":"título breve en alemán","situacion":"descripción en alemán de la situación/tarjeta/escena (2-4 frases)","puntos":["Folie 1 – Titel: Ich möchte heute über <Thema> sprechen","Folie 2 – Meine persönlichen Erfahrungen mit <Thema>","Folie 3 – Die Situation in meinem Heimatland","Folie 4 – Vor- und Nachteile von <Thema> und meine Meinung","Folie 5 – Schluss: Zusammenfassung und Dank ans Publikum"]}
+"puntos" debe ser un array de EXACTAMENTE 5 strings siguiendo esa plantilla de Folien, sustituyendo <Thema> por el tema concreto de la tarea.`
+            : `{"titulo":"título breve en alemán","situacion":"descripción en alemán de la situación/tarjeta/escena (2-4 frases)","puntos":["punto guía 1 en alemán","punto guía 2 en alemán","punto guía 3 en alemán"]}`;
+
         const system = `Eres un examinador de alemán y diseñas tareas de expresión oral al estilo de los exámenes oficiales (Goethe-Zertifikat, telc). ${teil.guia}
 Tema sugerido: "${tema}" (úsalo solo si encaja con el tipo de tarea; si no encaja, elige un tema similar apropiado).
 Toda la consigna va en ALEMÁN, con vocabulario y estructuras adecuados al nivel ${MpState.level}.
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
-{"titulo":"título breve en alemán","situacion":"descripción en alemán de la situación/tarjeta/escena (2-4 frases)","puntos":["punto guía 1 en alemán","punto guía 2 en alemán","punto guía 3 en alemán"]}`;
+${esquemaPuntos}`;
 
         const userMsg = `Genera una tarea oral nivel ${MpState.level}, ${teil.nombre}.`;
         return { system, userMsg, teil };
@@ -281,7 +331,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             const reply = await apiChat(token, p.system, p.userMsg, { json: true, max_tokens: 700 });
             try {
                 const t = JSON.parse(stripFences(reply));
-                if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 2) {
+                if (t.titulo && t.situacion && Array.isArray(t.puntos) && t.puntos.length >= 2 && (!p.teil.folien || t.puntos.length === 5)) {
                     t.teilId = p.teil.id;
                     t.teilNombre = p.teil.nombre;
                     t.level = MpState.level;
@@ -329,6 +379,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             MpState.tarea = tarea;
             MpState.turnos = [];
             MpState.turnoCount = 0;
+            MpState.notizen = '';
             renderTarea(tarea);
             if (typeof window.logEvent === 'function') {
                 window.logEvent('mundliche', 'task_generated', { level: MpState.level, teil: tarea.teilId });
@@ -343,6 +394,22 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
         } finally {
             MpState.cargando = false;
         }
+    }
+
+    function redemittelHtml(level, teilId) {
+        const grupos = (REDEMITTEL[level] || {})[teilId];
+        if (!grupos) return '';
+        return `
+            <details class="mp-theory mp-redemittel" open>
+                <summary>🗒️ Redemittel para esta parte</summary>
+                <div class="mp-theory-body">
+                    ${grupos.map(g => `
+                    <div class="mp-rm-group">
+                        <strong>${escHtml(g.label)}</strong>
+                        <div class="mp-rm-chips">${g.frases.map(f => `<span class="mp-rm-chip">${escHtml(f)}</span>`).join('')}</div>
+                    </div>`).join('')}
+                </div>
+            </details>`;
     }
 
     function renderTarea(t) {
@@ -361,6 +428,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                 <ul class="mp-task-puntos">
                     ${t.puntos.map(p => `<li>${escHtml(p)}</li>`).join('')}
                 </ul>
+                ${redemittelHtml(t.level || MpState.level, t.teilId || teil.id)}
                 <button class="mp-gen-btn" onclick="startVorbereitung()">Empezar preparación</button>
             </div>`;
     }
@@ -373,27 +441,40 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
         _vorbInterval = null;
     }
 
+    function fmtVorbTime(seconds, largo) {
+        if (!largo) return `${seconds}s`;
+        return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    }
+
+    function notizenHtml() {
+        if (!MpState.examMode) return '';
+        return `<textarea class="mp-notizen" id="mp-notizen" placeholder="Notizen (Stichwörter)..." oninput="MpState.notizen = this.value">${escHtml(MpState.notizen)}</textarea>`;
+    }
+
     function startVorbereitung() {
         const teil = currentTeil();
         const area = document.getElementById('mp-practice-area');
         area.style.display = 'block';
         document.getElementById('mp-task-area').querySelector('.mp-gen-btn')?.remove();
 
-        if (!teil.vorbereitung_seg) { startPart(); return; }
+        const vorbSeg = (MpState.examMode && teil.vorbereitung_exam_seg) ? teil.vorbereitung_exam_seg : teil.vorbereitung_seg;
+        if (!vorbSeg) { startPart(); return; }
 
-        let remaining = teil.vorbereitung_seg;
+        const largo = vorbSeg >= 120;
+        let remaining = vorbSeg;
         area.innerHTML = `
             <div class="mp-vorb">
                 <p class="mp-vorb-label">🕐 Preparación</p>
-                <div class="mp-vorb-time" id="mp-vorb-time">${remaining}s</div>
+                <div class="mp-vorb-time" id="mp-vorb-time">${fmtVorbTime(remaining, largo)}</div>
                 <p class="mp-vorb-hint">Piensa qué vas a decir. La grabación empezará automáticamente.</p>
                 <button class="mp-pill mp-pill-sm" onclick="skipVorbereitung()">Saltar preparación →</button>
+                ${notizenHtml()}
             </div>`;
 
         _vorbInterval = setInterval(() => {
             remaining--;
             const el = document.getElementById('mp-vorb-time');
-            if (el) el.textContent = `${Math.max(0, remaining)}s`;
+            if (el) el.textContent = fmtVorbTime(Math.max(0, remaining), largo);
             if (remaining <= 0) {
                 stopVorbereitungTimer();
                 startPart();
@@ -431,6 +512,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                 <button class="mp-record-btn" id="mp-record-btn" onclick="startMonologoRecording()">🎙️ Grabar respuesta</button>
                 <button class="mp-send-btn" id="mp-send-btn" style="display:none" onclick="stopMonologoRecording()">⏹ Enviar</button>
                 <p class="mp-hint" id="mp-hint">Presiona "Grabar respuesta" y habla en alemán (máx. ${Math.round(teil.duracion_seg / 60 * 10) / 10} min).</p>
+                ${notizenHtml()}
             </div>`;
     }
 
@@ -526,7 +608,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
 Situation: ${t.titulo} — ${t.situacion}
 Punkte: ${t.puntos.join(' | ')}
 ${guides[MpState.level]}
-Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf Deutsch (1-3 Sätze)","turno_final":false}
+Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf Deutsch (${teil.antwort_hint || '1-3 Sätze'})","turno_final":false}
 "turno_final": true nur, wenn das Gespräch aus deiner Sicht einen natürlichen Abschluss erreicht hat.`;
     }
 
@@ -545,6 +627,7 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
                 <button class="mp-record-btn" id="mp-record-btn" style="display:none" onclick="startDialogoRecording()">🎙️ Responder</button>
                 <button class="mp-send-btn" id="mp-send-btn" style="display:none" onclick="stopDialogoRecording()">⏹ Enviar</button>
                 <p class="mp-hint" id="mp-hint">La IA va a empezar la conversación...</p>
+                ${notizenHtml()}
             </div>`;
         dialogoAiTurn(null);
     }
@@ -572,7 +655,7 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
             if (!token) { window.openAuthModal?.(); throw new Error('Inicia sesión para continuar.'); }
             const history = MpState.turnos.map(t => ({ role: t.role === 'ai' ? 'assistant' : 'user', content: t.text }));
             const messages = history.length
-                ? history.slice(-10)
+                ? history.slice(-20)
                 : [{ role: 'user', content: 'Beginne das Gespräch passend zur Situation.' }];
             const reply = await apiChat(token, dialogoSystemPrompt(), messages[messages.length - 1].content, { json: true, messages });
 
@@ -743,16 +826,20 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
             const token = await window.getAuthToken?.();
             if (!token) throw new Error('Inicia sesión para evaluar tu respuesta');
 
+            const rmGrupos = (REDEMITTEL[MpState.level] || {})[t.teilId];
+            const rmSchema = rmGrupos ? '"redemittel": {"usados": true|false, "ejemplos": ["frases literales del estudiante que sean Redemittel/fórmulas típicas de esta parte"]}, ' : '';
+
             const system = `Eres un examinador oficial de alemán (Goethe-Institut) que evalúa una parte de la Mündliche Prüfung de nivel ${MpState.level} a partir de la TRANSCRIPCIÓN de la respuesta oral del estudiante. Evalúa contenido/cumplimiento de la tarea, fluidez (proxy desde el texto: muletillas, frases incompletas, repeticiones), gramática, vocabulario${esDialogo ? ' e interacción' : ''}. No puedes evaluar pronunciación ni acento porque solo tienes la transcripción: dilo explícitamente si corresponde. Sé exigente pero pedagógico; las explicaciones van en español.
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
-{"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, mismo orden], "fluidez": {"nivel":"baja|media|alta","comentario":"español"}, "gramatica_y_lexico": {"errores":[{"original":"fragmento","correccion":"fragmento corregido","explicacion":"español"}], "registro_adecuado": true|false}, "interaccion": {"adecuada": true|false, "comentario":"español"}, "duracion_evaluacion": {"cumplida": true|false, "comentario":"español"}, "comentario_general":"valoración global en español (2-4 frases)"}
+{"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, mismo orden], "fluidez": {"nivel":"baja|media|alta","comentario":"español"}, "gramatica_y_lexico": {"errores":[{"original":"fragmento","correccion":"fragmento corregido","explicacion":"español"}], "registro_adecuado": true|false}, "interaccion": {"adecuada": true|false, "comentario":"español"}, "duracion_evaluacion": {"cumplida": true|false, "comentario":"español"}, ${rmSchema}"comentario_general":"valoración global en español (2-4 frases)"}
 Si es monólogo, "interaccion" puede ser {"adecuada":true,"comentario":"No aplica (tarea de monólogo)."}.`;
 
             const userMsg = `TAREA (nivel ${MpState.level}, ${t.teilNombre}):
 ${t.titulo}
 ${t.situacion}
 Puntos guía: ${t.puntos.join(' | ')}
-
+${rmGrupos ? `Redemittel esperados para esta parte: ${rmGrupos.flatMap(g => g.frases).join(' | ')}
+` : ''}
 TRANSCRIPCIÓN DE LA RESPUESTA DEL ESTUDIANTE (${esDialogo ? 'diálogo completo' : 'monólogo'}):
 ${transcript}`;
 
@@ -817,6 +904,12 @@ ${transcript}`;
                 <p class="mp-subeval">${ev.interaccion?.adecuada === false ? '⚠️ ' : '✅ '}${escHtml(ev.interaccion?.comentario || '')}</p>` : ''}
                 <h3 class="mp-section-title">Gramática y vocabulario (${errores.length})</h3>
                 ${erroresHtml}
+                ${ev.redemittel ? `
+                <h3 class="mp-section-title">Redemittel</h3>
+                ${ev.redemittel.usados
+                    ? `<p class="mp-subeval">✅ Has usado fórmulas típicas del examen:</p>
+                       <div class="mp-rm-chips">${(ev.redemittel.ejemplos || []).map(f => `<span class="mp-rm-chip">${escHtml(f)}</span>`).join('')}</div>`
+                    : `<p class="mp-subeval">⚠️ No se detectaron Redemittel. Revisa el panel de fórmulas antes del próximo intento.</p>`}` : ''}
                 <p class="mp-pron-note">🎧 Esta evaluación se basa en la transcripción de tu voz: no incluye pronunciación ni acento.</p>
             </div>`;
         document.getElementById('mp-result').scrollIntoView({ behavior: 'smooth', block: 'start' });

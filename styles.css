@@ -6490,6 +6490,56 @@ body.dark .cr-results-title { color: #ce93d8; }
     gap: 10px;
 }
 
+/* Modo examen + Notizen */
+.mp-exam-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin: 4px 0 12px;
+}
+
+.mp-notizen {
+    width: 100%;
+    min-height: 90px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: inherit;
+    resize: vertical;
+    font-family: inherit;
+    font-size: inherit;
+    box-sizing: border-box;
+}
+.mp-notizen:focus { outline: none; border-color: var(--accent); }
+
+/* Redemittel */
+.mp-redemittel { margin-bottom: 14px; }
+
+.mp-rm-group { margin-bottom: 6px; }
+
+.mp-rm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.mp-rm-chip {
+    font-size: 0.85rem;
+    padding: 3px 10px;
+    border-radius: 8px;
+    background: rgba(141, 110, 99, 0.12);
+    border: 1px solid rgba(141, 110, 99, 0.4);
+}
+#page-mp.dark .mp-rm-chip {
+    background: rgba(141, 110, 99, 0.28);
+    border-color: rgba(188, 170, 164, 0.45);
+}
+
 @media (max-width: 600px) {
     .mp-eval-head { flex-direction: column; text-align: center; }
 }

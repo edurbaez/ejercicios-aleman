@@ -336,11 +336,12 @@ Anweisung: ${ex.instruction}
 Musterlösungen:
 ${ex.solutions.map(s => `  • ${s}`).join('\n')}
 
-Bewerte NUR die Antwort des Studenten. Beginne mit genau einem Symbol:
+Bewerte NUR die Antwort des Studenten. Antworte als JSON-Objekt mit genau diesen Feldern:
+{ "symbol": "✅" | "⚠️" | "❌", "explicacion": string }
 ✅ = Zielstruktur korrekt angewendet und Satz grammatisch richtig (auch wenn er von den Musterlösungen abweicht)
 ⚠️ = Zielstruktur versucht, aber mit Fehlern
 ❌ = Zielstruktur nicht angewendet oder unverständlich
-Danach 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neue Aufgabe.`;
+"explicacion": 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neue Aufgabe.`;
 
     try {
         const token = await window.getAuthToken?.();
@@ -350,7 +351,7 @@ Danach 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neu
                 'Content-Type': 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ system, messages: [{ role: 'user', content: userText }] }),
+            body: JSON.stringify({ system, messages: [{ role: 'user', content: userText }], json: true }),
         });
         if (resp.status === 401) {
             window.openAuthModal?.();
@@ -362,7 +363,14 @@ Danach 1–2 Sätze Erklärung auf Spanisch und die korrekte Variante. Keine neu
         catch { throw new Error(`Respuesta inválida: ${raw.slice(0, 120)}`); }
         if (!resp.ok) throw new Error(data.error || 'Error de red');
 
-        const evaluation = (data.reply || '').trim();
+        let payload;
+        try { payload = JSON.parse(data.reply || ''); }
+        catch { throw new Error('La IA devolvió un formato inesperado'); }
+        if (!['✅', '⚠️', '❌'].includes(payload.symbol)) {
+            throw new Error('La IA devolvió un formato inesperado');
+        }
+
+        const evaluation = `${payload.symbol} ${payload.explicacion || ''}`.trim();
         recordScore(evaluation);
         updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
         removeBubble(thinkingId);
@@ -390,22 +398,24 @@ TIPP: ${rule.tip || ''}
 BEISPIELE:
 ${ejemplos}
 
-AUFGABENFORMAT (exakt zwei Zeilen, nichts anderes):
-Reformuliere: [Ausgangssatz auf Deutsch, 8–15 Wörter, Niveau ${rule.nivel}]
-Anweisung: [instrucción en español que dice exactamente qué transformación aplicar, p. ej. "Reescribe la frase en Perfekt"]
+Antworte IMMER als JSON-Objekt mit genau diesen Feldern:
+{
+  "evaluacion": "✅" | "⚠️" | "❌" | null,
+  "explicacion": string | null,
+  "tarea_source": string,
+  "tarea_instruction": string
+}
 
-REGELN für den Ausgangssatz:
-- Er darf die Zielstruktur NICHT enthalten; er benutzt eine alternative Form (z. B. Regel = Perfekt → Satz im Präsens; Regel = Passiv → Aktivsatz; Regel = Konnektor → zwei getrennte Hauptsätze).
+REGELN:
+- "evaluacion" und "explicacion" sind null NUR beim allerersten Aufruf (keine vorherige Antwort zu bewerten). Sonst bewerte ob der Student die ZIELSTRUKTUR angewendet hat:
+  ✅ = Zielstruktur korrekt angewendet und Satz grammatisch richtig
+  ⚠️ = Zielstruktur versucht, aber mit Fehlern
+  ❌ = Zielstruktur nicht angewendet (auch wenn der Satz korrekt ist) oder unverständlich
+  "explicacion": 1–2 Sätze auf Spanisch mit der korrekten Umformung.
+- "tarea_source": neuer Ausgangssatz auf Deutsch, 8–15 Wörter, Niveau ${rule.nivel}. Er darf die Zielstruktur NICHT enthalten; er benutzt eine alternative Form (z. B. Regel = Perfekt → Satz im Präsens; Regel = Passiv → Aktivsatz; Regel = Konnektor → zwei getrennte Hauptsätze).
+- "tarea_instruction": instrucción en español que dice exactamente qué transformación aplicar, p. ej. "Reescribe la frase en Perfekt".
 - Die verlangte Umformung muss die Zielregel zwingend erfordern.
-
-ABLAUF:
-1. Beim ersten Aufruf: schreibe NUR die Aufgabe im obigen Format. Keine Bewertung, keine Begrüßung.
-2. Wenn der Student antwortet, bewerte ob er die ZIELSTRUKTUR angewendet hat:
-   ✅ = Zielstruktur korrekt angewendet und Satz grammatisch richtig
-   ⚠️ = Zielstruktur versucht, aber mit Fehlern
-   ❌ = Zielstruktur nicht angewendet (auch wenn der Satz korrekt ist) oder unverständlich
-   Erkläre kurz auf Spanisch (1–2 Sätze) und zeige die korrekte Umformung. Trenne dann mit "---NUEVA---" auf einer eigenen Zeile und schreibe die nächste Aufgabe im gleichen Format.
-3. Variiere die Sätze und steigere die Schwierigkeit leicht.`;
+- Variiere die Sätze und steigere die Schwierigkeit leicht.`;
 }
 
 // ── AI CALL ───────────────────────────────────────────────────────────────────
@@ -434,7 +444,7 @@ async function sendToAI(userText) {
                 'Content-Type': 'application/json',
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ system: buildSystemPrompt(rule), messages: msgs }),
+            body: JSON.stringify({ system: buildSystemPrompt(rule), messages: msgs, json: true }),
         });
 
         if (resp.status === 401) {
@@ -448,28 +458,29 @@ async function sendToAI(userText) {
         catch { throw new Error(`Respuesta inválida: ${raw.slice(0, 120)}`); }
         if (!resp.ok) throw new Error(data.error || 'Error de red');
 
-        const reply = data.reply || '';
-        const parts = reply.split('---NUEVA---');
+        let payload;
+        try { payload = JSON.parse(data.reply || ''); }
+        catch { throw new Error('La IA devolvió un formato inesperado'); }
+        if (!payload.tarea_source || !payload.tarea_instruction) {
+            throw new Error('La IA devolvió un formato inesperado');
+        }
 
-        if (parts.length === 1) {
-            const task = parts[0].trim();
-            State.messages.push({ role: 'assistant', content: task });
+        const task = `Reformuliere: ${payload.tarea_source}\nAnweisung: ${payload.tarea_instruction}`;
+        State.messages.push({ role: 'assistant', content: JSON.stringify(payload) });
+
+        if (!payload.evaluacion) {
             updateBubble(thinkingId, task);
             speakTask(task);
         } else {
-            const evaluation = parts[0].trim();
-            const newTask = parts[1].trim();
+            const evaluation = `${payload.evaluacion} ${payload.explicacion || ''}`.trim();
 
             recordScore(evaluation);
             updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
             removeBubble(thinkingId);
             addFeedbackCard(evaluation);
 
-            if (newTask) {
-                State.messages.push({ role: 'assistant', content: newTask });
-                addBubble('ai', newTask);
-                speakTask(newTask);
-            }
+            addBubble('ai', task);
+            speakTask(task);
         }
 
         const empty = document.getElementById('chatEmpty');

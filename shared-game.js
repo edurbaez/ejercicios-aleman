@@ -1076,6 +1076,9 @@
   async function initUnifiedApp() {
     await Promise.all([inyectarListasPersonales(), loadSRSCache()]);
     mountSetButtons();
+    // Deep-link support: ?set=verbos
+    const paramSet = new URLSearchParams(location.search).get('set');
+    if (paramSet && DATA[paramSet] && !State.activeSets.has(paramSet)) toggleSet(paramSet);
     mountSectionTabs();
     montarPanelMisListas();
     bindSelectionEvents();

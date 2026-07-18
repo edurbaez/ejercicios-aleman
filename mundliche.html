@@ -282,9 +282,17 @@
         });
     }
 
+    // Deep-link support: mundliche.html?level=B1&teil=praesentation
     (function initLevel() {
         const saved = localStorage.getItem('mp_level') || localStorage.getItem('onboarding_level');
         if (saved && LEVEL_SPECS[saved.toUpperCase()]) MpState.level = saved.toUpperCase();
+        const params = new URLSearchParams(location.search);
+        const paramLevel = params.get('level');
+        if (paramLevel && LEVEL_SPECS[paramLevel.toUpperCase()]) MpState.level = paramLevel.toUpperCase();
+        const paramTeil = params.get('teil');
+        if (paramTeil && LEVEL_SPECS[MpState.level].teile.some(t => t.id === paramTeil)) {
+            MpState.teilId = paramTeil;
+        }
         document.querySelectorAll('#mp-level-btns .mp-pill').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.level === MpState.level);
             btn.addEventListener('click', () => {

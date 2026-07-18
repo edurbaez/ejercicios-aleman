@@ -262,9 +262,17 @@
         });
     }
 
+    // Deep-link support: escritura.html?level=B1&tipo=email-informal
     (function initLevel() {
         const saved = localStorage.getItem('esc_level') || localStorage.getItem('onboarding_level');
         if (saved && LEVEL_SPECS[saved.toUpperCase()]) EscState.level = saved.toUpperCase();
+        const params = new URLSearchParams(location.search);
+        const paramLevel = params.get('level');
+        if (paramLevel && LEVEL_SPECS[paramLevel.toUpperCase()]) EscState.level = paramLevel.toUpperCase();
+        const paramTipo = params.get('tipo');
+        if (paramTipo && (paramTipo === 'aleatorio' || LEVEL_SPECS[EscState.level].tipos.some(t => t.id === paramTipo))) {
+            EscState.tipo = paramTipo;
+        }
         document.querySelectorAll('#esc-level-btns .esc-pill').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.level === EscState.level);
             btn.addEventListener('click', () => {

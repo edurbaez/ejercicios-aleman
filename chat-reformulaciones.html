@@ -1054,6 +1054,13 @@ window.onAuthSignedIn = () => { loadDailyUsage(); loadRuleSRSCache(); };
     State.filteredRules = State.allRules;
     renderLevelFilter();
     renderRuleChips();
+    // Deep-link support: chat-reformulaciones.html?rule=b1-01,b1-02
+    const paramRules = new URLSearchParams(location.search).get('rule');
+    if (paramRules) {
+        paramRules.split(',').forEach(id => {
+            if (State.allRules.some(r => r.id === id)) toggleRule(id);
+        });
+    }
     loadVoices();
     loadRuleSRSCache();
     renderHistory();

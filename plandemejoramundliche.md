@@ -39,6 +39,12 @@ Puntos mejorables ordenados: primero todo lo relacionado con B1, luego el resto 
 | 25 | Historial sin curva de progreso | 🔵 Baja | ⬜ Pendiente |
 | 26 | `apiChat` con spread frágil | 🔵 Baja | ⬜ Pendiente |
 | 27 | A2 Teil 1 con deriva leve | 🔵 Baja | ⬜ Pendiente |
+| 28 | Encadenar Vortrag → Diskussion (idea de mayor alcance #2) | 💡 Alto impacto | ⬜ Pendiente |
+| 29 | Modo "Examen completo" (idea #1) | 💡 Alto impacto | ⬜ Pendiente |
+| 30 | Banco de Redemittel compartido (idea #3) | 💡 Medio | ⬜ Pendiente |
+| 31 | Checklist de autoevaluación fonológica (idea #4) | 💡 Medio | ⬜ Pendiente |
+| 32 | Few-shot de 1 ejemplo en evaluación (idea #5) | 💡 Bajo (calidad) | ⬜ Pendiente |
+| 33 | Campo `justificacion_puntuacion` (idea #6) | 💡 Bajo (calidad) | ⬜ Pendiente |
 
 ---
 
@@ -177,9 +183,64 @@ Puntos mejorables ordenados: primero todo lo relacionado con B1, luego el resto 
 
 ## 💡 Ideas de mayor alcance
 
-1. **Modo "Examen completo"**: encadenar todos los Teile del nivel en una sesión continua con preparación única y evaluación global con veredicto aprobado/no aprobado estimado.
-2. **Encadenar Vortrag → Diskussion** (B1+/C1): pasar el transcript del monólogo como contexto al diálogo — "discute sobre lo que el candidato acaba de exponer". Estructura real del examen y el salto cognitivo más valioso.
-3. **Banco de Redemittel compartido** (patrón `grammar-data-*.js`): reutilizable en `mundliche.html`, `teacher/` y marketing (carruseles "5 Redemittel para el B1 Sprechen").
-4. **Checklist de autoevaluación fonológica** tras escuchar la propia grabación ("¿Diferencié ich/isch? ¿Entoné las preguntas? ¿Pausé en las comas?") — sin coste de API.
-5. **Few-shot de 1 ejemplo en la evaluación**: un mini-ejemplo (transcript de 3 líneas → JSON completo) estabiliza formato y severidad; con prompt caching el coste marginal es bajo.
-6. **Campo `justificacion_puntuacion` antes de `puntuacion`** en el esquema: forzar razonamiento antes del número reduce varianza sin segunda llamada.
+**Prioridad sugerida (revisión 2026-07-18):** #2 y #1 son las de mayor impacto pedagógico porque acercan la app a la estructura real del examen oral (hoy cada Teil se practica aislado); #3 es de bajo esfuerzo y reutilizable en varias apps; #4-6 son mejoras de calidad, no de alcance. Orden recomendado: **2 → 1 → 3 → 6 → 5 → 4**.
+
+### 1. Modo "Examen completo"
+Encadenar todos los Teile del nivel en una sesión continua con preparación única y evaluación global con veredicto aprobado/no aprobado estimado.
+
+Pasos de ejecución:
+1. Revisar compatibilidad: `MpState` guarda el estado de un único Teil por intento; hay que decidir si se extiende con un array `MpState.examenTeile[]` (uno por Teil del nivel, cada uno con su transcript/duración/notas) o si se orquesta desde fuera llamando la lógica existente de cada Teil en secuencia sin tocar `MpState` global.
+2. Nueva UI: botón "📝 Simulacro completo" en la pantalla de selección de Teil (junto al toggle "Modo examen" existente) que arranca el primer Teil del nivel (`LEVEL_SPECS[level].teile[0]`) y al terminar avanza automáticamente al siguiente, reutilizando `fetchTarea()`/`startDialogo()` sin cambios.
+3. Vorbereitung entre Teile: decidir si se da tiempo de preparación por Teil (como hoy) o una única Vorbereitung inicial — el examen real da tiempo por Teil, mantener ese comportamiento es más fiel.
+4. Evaluación global: tras el último Teil, una llamada adicional a `/api/chat json:true` que reciba los `puntuacion`/`subscores` de cada Teil ya evaluado (sin volver a mandar las transcripciones completas, para no duplicar coste) y devuelva un veredicto agregado `{ veredicto_global: 'bestanden'|'nicht bestanden', comentario_global }` ponderado igual que hace el Goethe real (suele ser media simple entre Teile).
+5. Guardar en IndexedDB `mundliche-db` como un registro de tipo `examen_completo` con los 3 sub-resultados anidados, para que el histórico (idea futura de curva de progreso, punto 25) pueda diferenciarlos de intentos sueltos de un solo Teil.
+6. Actualizar este plan marcando el punto 29 de la tabla como completado y documentar en `CLAUDE.md` la nueva entrada de `mundliche.html` si cambia su comportamiento por defecto.
+
+### 2. Encadenar Vortrag → Diskussion (B1+/C1) ⭐ prioritaria
+Pasar el transcript del monólogo como contexto al diálogo — "discute sobre lo que el candidato acaba de exponer". Es la estructura real del examen (en Goethe B2/C1/C2 la Diskussion parte del Vortrag) y el salto cognitivo más valioso que falta hoy: actualmente cada Teil genera su tema de forma independiente y sin relación entre sí.
+
+Pasos de ejecución:
+1. Revisar compatibilidad: `fetchTarea()` genera la tarea de cada Teil de forma aislada vía `/api/chat json:true`; `dialogoSystemPrompt()` construye el system del Teil de diálogo sin referencia a Teile anteriores. Verificar que `MpState` conserva el transcript del Teil de Vortrag tras avanzar al siguiente (hoy probablemente se limpia al cambiar de Teil — confirmar antes de tocar nada).
+2. Detectar cuándo aplica: solo si el Teil de diálogo (`diskussion` en B2/C1/C2) se practica inmediatamente después del `vortrag`/`praesentation` del mismo nivel en la misma sesión (no aplica si el alumno entra directo a practicar Diskussion suelta).
+3. Modificar `buildTaskPrompt()`/`fetchTarea()` para el Teil de diálogo: si existe un transcript de Vortrag reciente en `MpState`, pedir al modelo un tema de Diskussion relacionado con lo expuesto (en vez de un tema aleatorio de `TEMAS`), o directamente reusar el mismo tema.
+4. Modificar `dialogoSystemPrompt()`: inyectar un resumen o extracto del transcript del Vortrag (delimitado con `<<< >>>`, mismo patrón anti-prompt-injection del punto 8) para que la persona del examinador abra preguntando específicamente sobre lo dicho ("Du hast gerade über X gesprochen — was denkst du über…?").
+5. UI: mostrar un aviso breve antes de empezar la Diskussion ("Vas a discutir sobre lo que acabas de presentar") para que el alumno entienda por qué el tema no es libre.
+6. Fallback: si el alumno entra directo al Teil de Diskussion sin haber hecho el Vortrag antes en la sesión, mantener el comportamiento actual (tema aleatorio) — no forzar la dependencia.
+7. Probar con B1 (`gemeinsam-planen` no aplica, pero si se generaliza el patrón a B2/C1/C2 `praesentation`/`vortrag` → `diskussion` es donde tiene sentido real).
+
+### 3. Banco de Redemittel compartido
+Patrón `grammar-data-*.js`: reutilizable en `mundliche.html`, `teacher/` y marketing (carruseles "5 Redemittel para el B1 Sprechen").
+
+Pasos de ejecución:
+1. Extraer el objeto `REDEMITTEL` (hoy definido inline en `mundliche.html`) a un archivo propio `redemittel-data.js` con el mismo patrón de shim que `grammar-data.js` (o un único archivo si el volumen total es pequeño — decidir según tamaño real antes de fragmentar).
+2. `mundliche.html` pasa a cargar `redemittel-data.js` en vez de definir `REDEMITTEL` inline; verificar que el panel colapsable por Teil sigue funcionando igual.
+3. `teacher/index.html` puede referenciar `REDEMITTEL[nivel][teilId]` para mostrar las fórmulas de la clase en vivo correspondiente (útil para B1 martes/jueves con `gemeinsam-planen`/`praesentation`).
+4. `marketing/contenido.html`: nueva fuente de contenido para el nicho 🇩🇪 Alemán (junto a reglas gramaticales y vocabulario) — "5 Redemittel para el B1 Sprechen" como carrusel, sin llamada a IA para el contenido base (solo para copy/hashtags).
+5. Actualizar `CLAUDE.md` (Active Files) con la nueva entrada de datos y las referencias cruzadas desde los 3 archivos consumidores.
+
+### 4. Checklist de autoevaluación fonológica
+Tras escuchar la propia grabación ("¿Diferencié ich/isch? ¿Entoné las preguntas? ¿Pausé en las comas?") — sin coste de API. Depende del punto 24 (reproducir la propia grabación), que sigue pendiente.
+
+Pasos de ejecución:
+1. Implementar primero el punto 24 (guardar el blob de audio y añadir un `<audio controls>` antes de enviar a Whisper).
+2. Checklist estático por nivel/Teil (mismo patrón "sin coste API" que `REDEMITTEL` o la teoría de `kasus.html`): 3-5 preguntas de autoevaluación fonológica, ej. A1-A2 "¿Pronuncié correctamente ä/ö/ü?", B1+ "¿Diferencié ich/isch?", C1-C2 "¿Usé entonación natural en las subordinadas?".
+3. Mostrar el checklist junto al reproductor de audio antes de continuar al envío/evaluación; no bloquea el flujo, es opcional.
+4. Sin persistencia necesaria en esta fase (autoevaluación efímera); si se quiere trackear, añadir un campo opcional al registro de `mundliche-db`.
+
+### 5. Few-shot de 1 ejemplo en la evaluación
+Un mini-ejemplo (transcript de 3 líneas → JSON completo) estabiliza formato y severidad; con prompt caching el coste marginal es bajo.
+
+Pasos de ejecución:
+1. Escribir un ejemplo fijo por nivel (o uno genérico válido para todos) con transcript breve + JSON de salida completo siguiendo el esquema actual de `evaluarOral()` (incluye `subscores`, `veredicto`, `puntuacion` al final).
+2. Insertar el ejemplo como mensaje `user`/`assistant` previo en el array de mensajes de la llamada a `/api/chat` (antes del mensaje real de evaluación), aprovechando que `api/chat.js` ya soporta mensajes múltiples.
+3. Verificar el prompt caching de OpenAI: el ejemplo debe ir en una posición estable del prompt (mismo texto siempre) para que el prefijo se cachee entre llamadas y el coste marginal sea bajo.
+4. Comparar antes/después con un pequeño set de transcripts de prueba para confirmar que reduce la varianza de puntuación (mismo transcript, ejecutar 3 veces, medir desviación).
+
+### 6. Campo `justificacion_puntuacion` antes de `puntuacion`
+Forzar razonamiento antes del número reduce varianza sin segunda llamada.
+
+Pasos de ejecución:
+1. Añadir `justificacion_puntuacion` (string breve) al esquema JSON de `evaluarOral()`, colocado inmediatamente antes de `puntuacion` (que ya está al final por el fix del punto 7 — mantener ese orden, solo insertar el campo nuevo justo delante).
+2. Actualizar el prompt de evaluación pidiendo explícitamente 1-2 frases de justificación que resuman por qué se asignó esa banda de puntuación, referenciando los `subscores`.
+3. Renderizar el campo en la UI de resultados (`renderEvaluacion()`) como una línea corta antes del número, mismo estilo visual que `comentario_general`.
+4. No requiere cambios en `api/chat.js` ni en el esquema de guardado de `mundliche-db` más allá de incluir el campo nuevo en el objeto persistido.

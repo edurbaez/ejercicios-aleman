@@ -11,7 +11,7 @@ Objetivo: que cada día del plan de 30 días (por nivel A1–C2) referencie úni
 
 Compatibilidad revisada: `plan.js` solo define `window.PLANS`, consumido por `plan.html` para renderizar el calendario y los enlaces de tareas (`{ app, label, minutes }`). No hay otros archivos que dependan de la estructura interna de cada día, así que los cambios son seguros mientras cada `task.app` siga siendo un archivo HTML válido del proyecto.
 
-### A1 — en progreso
+### A1 — completado
 - [x] Semana 4 (días 22-30): incorporados `escritura.html` (día 24, reemplaza a `corrector.html` para la tarea de escritura estructurada con Leitpunkte y puntuación) y `mundliche.html` (día 27, simulacro oral estructurado; día 30, junto con `escritura.html`, convierte la "evaluación final" en un simulacro real de examen con puntuación 0-100 en ambas destrezas, reemplazando `chat-voz.html` + `corrector.html`).
 - [x] Semana 1 (días 1-7): corregidos temas de gramática inventados que no existen en `GRAMMAR_DATA.A1` (p. ej. "saludos y despedidas", "Woher kommst du?") por los 10 reales (`a1-01` a `a1-10`, cubiertos `a1-01`–`a1-06` en esta semana); corregidas categorías de vocabulario inventadas ("profesiones", "países y lenguas", "objetos cotidianos"...) por las reales de `DataA1.json` (`esenciales`, `verbos`, `sustantivos`, `adjetivos`, `expresiones`); añadido `kasus.html` (Akkusativ) en el día 6, coherente con "Acusativo básico"; incorporado `chat-voz.html` en los 7 días usando su Modo Repetir real (`repetirBtn`/`toggleRepetirMode()` — escuchar y repetir frase con puntaje de coincidencia) en vez de "conversación libre" genérica.
 - [x] Semana 2 (días 8-14): corregidos temas de gramática/vocabulario inventados ("números cardinales", "la hora", "adjetivos atributivos", "fechas y calendarios", "mögen y möchten"; vocab "números", "colores", "días y meses", "familia", "comida y bebida") por las 4 reglas reales restantes de `GRAMMAR_DATA.A1` (`a1-07` W-Fragen, `a1-08` Orden de palabras, `a1-09` Plurales, `a1-10` Artículo indefinido y su negación) y las categorías reales de `DataA1.json`. Incorporado `chat-reformulaciones.html` (bank `reformulaciones-data.json` cubre los 10 ids `a1-01`…`a1-10`, cero costo de API) para práctica dirigida e integrada de estas reglas en los días 9, 11, 12 y 13. Mantenido Modo Repetir de `chat-voz.html` en los días con práctica oral.
@@ -139,8 +139,100 @@ Total: ~35-45 min/día (5-6 tareas).
 
 **Siguiente paso de ejecución:** generar el array `b2: [...]` en `plan.js` (30 objetos `{ day, week, focus, tasks }`) siguiendo la plantilla y rotaciones de arriba, reemplazando el `b2` actual (que usa labels inventados como "Vorgangspassiv básico", "conversación libre B2" sin regla real asociada, y no usa `escritura.html` ni `mundliche.html`). Hacerlo en una o más sesiones separadas (p. ej. semana por semana) para preservar contexto; marcar cada semana con `[x]` aquí al terminarla, siguiendo el mismo formato de bitácora usado en A1/A2.
 
-### C1 — pendiente
-### C2 — pendiente
+**Sesiones de ejecución (una por semana, mismo patrón que A1/A2/B1):**
+- [ ] Sesión B2.1 — Semana 1 (días 1-7): escribir los 7 días siguiendo "Semana 1" de la rotación de gramática de arriba (primera pasada `b2-01`…`b2-10` con `gramatica.html`), vocabulario ciclando `esenciales→verbos→sustantivos→adjetivos→expresiones`, `escritura.html` ciclando `foro→reclamacion→email-trabajo`, `mundliche.html` ciclando `praesentation→bildbeschreibung→diskussion`. Verificar contra el `b2` actual que no queden labels inventados residuales en esos 7 días antes de sobrescribir.
+- [ ] Sesión B2.2 — Semana 2 (días 8-14): segunda pasada por parejas temáticas con `chat-reformulaciones.html` (banco `b2-01`…`b2-10` ya completo en `reformulaciones-data.json`), continuar rotación de vocab/escritura/mündliche.
+- [ ] Sesión B2.3 — Semana 3 (días 15-21): combinaciones cruzadas + 2 días de repaso libre (reglas más flojas, o `b2-02,06,09` / `b2-01,04,08` por defecto si no hay datos de errores todavía).
+- [ ] Sesión B2.4 — Semana 4 (días 22-30): ciclo final a 2 reglas/día (días 22-27), repaso general día 28, simulacro completo días 29-30 (`escritura.html` tipo `foro` + `mundliche.html` los 3 Teile, puntuación 0-100, sin gramática nueva).
+- [ ] Cierre: actualizar esta sección de `plan.md` marcando "B2 — completado" con el mismo formato de bitácora que A1/A2/B1 (resumen de lo corregido vs. el `b2` anterior) y verificar en `plan.html` que los 30 días renderizan sin errores de consola.
+
+### C1 — pendiente (diagnóstico hecho, listo para diseñar rotación)
+
+**Regla obligatoria (recordatorio):** antes de tocar `plan.js`, revisar el `c1` actual en el archivo para detectar labels/temas inventados, igual que se hizo con A1/A2/B2 antes de reescribir.
+
+**Recursos reales disponibles (verificados en código):**
+- `GRAMMAR_DATA.C1` (`grammar-data-c1.js`, 10 ids `c1-01`…`c1-10`, banco completo en `reformulaciones-data.json` para `chat-reformulaciones.html` — confirmado, los 10 ids existen como claves):
+  1. `c1-01` lassen + sich (posibilidad pasiva activa)
+  2. `c1-02` sein + zu + Infinitiv (obligación/posibilidad pasiva)
+  3. `c1-03` Atributo participial extendido (erweitertes Partizipialattribut)
+  4. `c1-04` Colocaciones verbonominales (Funktionsverbgefüge)
+  5. `c1-05` Irrealis del pasado con modales (hätte…können/müssen/sollen)
+  6. `c1-06` Ersatzinfinitiv (hat sehen/lassen/können)
+  7. `c1-07` Formación de palabras: compuestos (Komposita)
+  8. `c1-08` Partículas de evidencialidad (soll/will/dürfte/müsste)
+  9. `c1-09` Cohesión textual (referencia anafórica, elipsis, pronombres adverbiales)
+  10. `c1-10` Inversión estilística (Kaum…als, Erst wenn)
+- Categorías reales de vocabulario — `DataC1.json` (vía `C1.html`, leídas por `shared-game.js`): `esenciales`, `verbos`, `sustantivos`, `adjetivos`, `expresiones` — mismo esquema que A1/A2/B1/B2.
+- `escritura.html` nivel C1 (`LEVEL_SPECS.C1`, 200-260 palabras): 3 tipos reales — `stellungnahme` (texto argumentativo a partir de puntos guía), `informe` (interpretar/comentar datos o resultados de una encuesta), `carta-formal` (correspondencia formal compleja).
+- `mundliche.html` nivel C1 (`LEVEL_SPECS.C1.teile`): 3 Teile reales — `vortrag` (Teil 1, monólogo 210s, 3-4 puntos), `diskussion` (Teil 2, diálogo 60s×6 turnos, postura adversarial asignada al examinador), `feedback-geben` (Teil 3 "Stellung nehmen", monólogo 60s, reaccionar a una afirmación/dato dado).
+- `kasus.html` **no aplica a C1** (flexión de caso es contenido A1/A2/B1); se omite del plan salvo repaso puntual no solicitado.
+
+**Plantilla diaria (mismo patrón que B2):**
+```
+tasks: [
+  { app: "gramatica.html" | "chat-reformulaciones.html", label: "Gramática: <título regla>", minutes: 5 },  // × 2-3
+  { app: "C1.html", label: "Vocabulario: <categoría del día>", minutes: 5 },
+  { app: "escritura.html", label: "Escritura: <tipo del día>", minutes: 15 },
+  { app: "mundliche.html", label: "Mündliche: <Teil del día>", minutes: 10 }
+]
+```
+
+**Rotación de vocabulario y escritura/mündliche (ciclos fijos):**
+- Vocabulario: `esenciales→verbos→sustantivos→adjetivos→expresiones→repite` cada 5 días.
+- Escritura: `stellungnahme→informe→carta-formal→repite` cada 3 días.
+- Mündliche: `vortrag→diskussion→feedback-geben→repite` cada 3 días.
+
+**Rotación de gramática propuesta (mismo esquema 3 pasadas + repaso que B2, adaptado a temas C1):**
+- **Semana 1 (días 1-7) — primera pasada, `gramatica.html`:** día 1: `c1-01,02,03`; día 2: `c1-04,05,06`; día 3: `c1-07,08,09`; día 4: `c1-10` + repaso `c1-01,02`; días 5-7: repaso por pares con `chat-reformulaciones.html` (`c1-03+04`, `c1-05+06`, `c1-07+08`).
+- **Semana 2 (días 8-14) — consolidación temática con `chat-reformulaciones.html`:** día 8: `c1-01+05` (lassen+sich / irrealis con modales — ambas alternativas a la pasiva); día 9: `c1-02+04` (sein+zu / colocaciones formales); día 10: `c1-03+09` (atributo participial + cohesión textual, ambas típicas de comprensión lectora densa); día 11: `c1-06+05` (Ersatzinfinitiv + irrealis, familia de "verbo doble al final"); día 12: `c1-08+09` (evidencialidad + cohesión, registro periodístico/académico); día 13: `c1-07` + repaso libre; día 14: repaso mixto 3 reglas más débiles (o `c1-01,04,10` por defecto).
+- **Semana 3 (días 15-21) — combinaciones cruzadas:** día 15: `c1-01+02`; día 16: `c1-03+07`; día 17: `c1-04+08`; día 18: `c1-05+06`; día 19: `c1-09+10`; día 20: repaso 3 reglas (`c1-02,06,09`); día 21: repaso 3 reglas (`c1-01,04,08`).
+- **Semana 4 (días 22-30) — repaso final + simulacro:** días 22-27: ciclo completo a 2/día (`c1-01,02` / `c1-03,04` / `c1-05,06` / `c1-07,08` / `c1-09,10` / repaso libre 2 reglas más flojas); día 28: repaso general 3 reglas variadas; días 29-30: simulacro final (`escritura.html` tipo `stellungnahme` + `mundliche.html` los 3 Teile, puntuación 0-100), sin gramática nueva.
+
+**Siguiente paso de ejecución:** generar el array `c1: [...]` en `plan.js` siguiendo la plantilla y rotación de arriba, en sesiones separadas por semana (mismo patrón que B2 arriba); marcar cada semana con `[x]` al terminarla.
+
+### C2 — pendiente (diagnóstico hecho, listo para diseñar rotación)
+
+**Regla obligatoria (recordatorio):** revisar el `c2` actual en `plan.js` para detectar labels/temas inventados antes de reescribir.
+
+**Recursos reales disponibles (verificados en código):**
+- `GRAMMAR_DATA.C2` (`grammar-data-c2.js`, 10 ids `c2-01`…`c2-10`, banco completo en `reformulaciones-data.json`):
+  1. `c2-01` Registro y variación estilística (formal/coloquial/científico/burocrático)
+  2. `c2-02` Fraseología e idiomatismos (Redewendungen)
+  3. `c2-03` Figuras retóricas (Ironie, Euphemismus, Litotes, Hyperbel)
+  4. `c2-04` Ambigüedad pragmática (implicatura, presuposición, sobreentendido)
+  5. `c2-05` Convenciones del texto científico (pasiva impersonal, nominalizaciones, hedging)
+  6. `c2-06` Arcaísmos y registro literario (ward, sei, möge)
+  7. `c2-07` Variantes dialectales (bávaro-austriaco, alemánico/suizo, Plattdeutsch)
+  8. `c2-08` Metaidioma y fórmulas discursivas (relativizar, reformular, concluir)
+  9. `c2-09` Modalidad compleja (müsste eigentlich, dürfte wohl, hätte können)
+  10. `c2-10` Características de tipos de texto (Essay, Gutachten, Leserbrief, Protokoll)
+- Categorías reales de vocabulario — `DataC2.json` (vía `C2.html`): `esenciales`, `verbos`, `sustantivos`, `adjetivos`, `expresiones` — mismo esquema.
+- `escritura.html` nivel C2 (`LEVEL_SPECS.C2`, 300-400 palabras): 3 tipos reales — `ensayo` (artículo de opinión con estructura retórica elaborada), `resena` (reseña crítica de libro/película/exposición), `leserbrief` (carta al director reaccionando a un artículo de prensa).
+- `mundliche.html` nivel C2 (`LEVEL_SPECS.C2.teile`): 3 Teile reales — `vortrag` (Teil 1, monólogo 240s, académico con estructura retórica Aufhänger/Entfaltung/Pointe), `diskussion` (Teil 2, diálogo 60s×6 turnos, registro alto), `zusammenfassen-kommentieren` (Teil 3, monólogo 90s, resumir y comentar un texto/cita breve).
+- `kasus.html` **no aplica a C2** — se omite del plan.
+
+**Plantilla diaria (mismo patrón que C1/B2):**
+```
+tasks: [
+  { app: "gramatica.html" | "chat-reformulaciones.html", label: "Gramática: <título regla>", minutes: 5 },  // × 2-3
+  { app: "C2.html", label: "Vocabulario: <categoría del día>", minutes: 5 },
+  { app: "escritura.html", label: "Escritura: <tipo del día>", minutes: 15 },
+  { app: "mundliche.html", label: "Mündliche: <Teil del día>", minutes: 10 }
+]
+```
+
+**Rotación de vocabulario y escritura/mündliche:**
+- Vocabulario: `esenciales→verbos→sustantivos→adjetivos→expresiones→repite` cada 5 días.
+- Escritura: `ensayo→resena→leserbrief→repite` cada 3 días.
+- Mündliche: `vortrag→diskussion→zusammenfassen-kommentieren→repite` cada 3 días.
+
+**Rotación de gramática propuesta:**
+- **Semana 1 (días 1-7) — primera pasada, `gramatica.html`:** día 1: `c2-01,02,03`; día 2: `c2-04,05,06`; día 3: `c2-07,08,09`; día 4: `c2-10` + repaso `c2-01,02`; días 5-7: repaso por pares con `chat-reformulaciones.html` (`c2-03+04`, `c2-05+06`, `c2-07+08`).
+- **Semana 2 (días 8-14) — consolidación temática:** día 8: `c2-01+03` (registro + figuras retóricas, ambas sobre estilo); día 9: `c2-02+08` (idiomatismos + fórmulas discursivas, fluidez oral); día 10: `c2-05+10` (convenciones científicas + tipos de texto, escritura formal); día 11: `c2-04+08` (pragmática + metaidioma, comprensión fina); día 12: `c2-09+01` (modalidad compleja + registro); día 13: `c2-06+07` (arcaísmos + dialectos, reconocimiento pasivo); día 14: repaso mixto 3 reglas más débiles (o `c2-02,05,09` por defecto).
+- **Semana 3 (días 15-21) — combinaciones cruzadas:** día 15: `c2-01+02`; día 16: `c2-03+04`; día 17: `c2-05+09`; día 18: `c2-08+10`; día 19: `c2-06+07`; día 20: repaso 3 reglas (`c2-02,05,08`); día 21: repaso 3 reglas (`c2-01,04,09`).
+- **Semana 4 (días 22-30) — repaso final + simulacro:** días 22-27: ciclo completo a 2/día; día 28: repaso general 3 reglas variadas; días 29-30: simulacro final (`escritura.html` tipo `ensayo` + `mundliche.html` los 3 Teile, puntuación 0-100), sin gramática nueva.
+
+**Siguiente paso de ejecución:** generar el array `c2: [...]` en `plan.js` siguiendo la plantilla y rotación de arriba, en sesiones separadas por semana; marcar cada semana con `[x]` al terminarla. Ejecutar **después** de C1 (mismo orden que el resto de niveles, de menor a mayor).
 
 ---
 

@@ -80,22 +80,25 @@
 
 ---
 
-#### 5. Sin rate limit en `api/admin-invite.js`
-El endpoint de invitaciones no tiene control de frecuencia. Un admin puede spamear sin restricción.
+#### 5. Sin rate limit en `api/admin.js`
+Confirmado vigente (2026-07-18): `admin-invite.js` ya no existe — se fusionó en `api/admin.js` (dispatch por `action`: `invite` / `set-status`, ver `CLAUDE.md`). El archivo usa `verifyJWT` de `_lib.js` pero **no** llama a `createRateLimiter()` en ningún punto (verificado por grep). Un admin puede invitar sin límite de frecuencia.
 
-**Solución:** Mismo patrón de ventana deslizante que `api/chat.js`, límite de 5 invitaciones/min por IP.
+**Pasos de ejecución:**
+1. Revisar compatibilidad: `_lib.js` exporta `createRateLimiter()` con el mismo patrón usado en `chat.js`/`whisper.js`/`vision.js`/`tts.js`/`finanzas.js` — reutilizar sin modificar `_lib.js`.
+2. En `api/admin.js`, instanciar un limiter con clave por usuario (payload.sub del JWT, no IP — como es admin-only y ya hay JWT verificado, es más preciso que IP) y aplicarlo antes del `if (action === 'invite')`.
+3. Límite propuesto: 5 invitaciones/min (bajo porque es una acción administrativa poco frecuente); `set-status` puede compartir el mismo limiter o ir sin límite (es una acción interna de moderación, menor riesgo de abuso).
+4. Probar con `vercel dev`: 6 invitaciones seguidas al mismo email de prueba → la 6ª debe devolver 429.
 
 ---
 
 #### 6. Sin límite de tamaño en `api/whisper.js`
-El endpoint acepta audio sin verificar el tamaño. Un archivo muy grande puede agotar la memoria del servidor Vercel.
+Confirmado vigente (2026-07-18): sin comprobación de `content-length` en el archivo. El endpoint acepta audio sin verificar el tamaño. Un archivo muy grande puede agotar la memoria del servidor Vercel.
 
-**Solución:** Rechazar con 413 si `Content-Length` supera 10 MB antes de leer el body:
-```js
-if (parseInt(req.headers['content-length'] || '0') > 10 * 1024 * 1024) {
-  return res.status(413).json({ error: 'Archivo demasiado grande (máx 10 MB)' });
-}
-```
+**Pasos de ejecución:**
+1. Revisar compatibilidad: `whisper.js` ya hace `Promise.all` entre `verifyJWT` y la lectura del body (optimización de latencia) — el chequeo de tamaño debe ir **antes** de leer el body completo, no después, para que el ahorro de memoria sea real.
+2. Añadir el guard sobre `req.headers['content-length']` al inicio del handler, devolviendo 413 si supera el límite (10 MB es holgado para ~60s de audio comprimido; ajustar si el cap de grabación cambia).
+3. Nota: `content-length` puede faltar o ser falso en streaming — si Vercel no lo garantiza para esta función, considerar además un límite acumulado al leer el stream (defensa en profundidad), pero el chequeo de header es la mejora de bajo esfuerzo a aplicar primero.
+4. Probar con `vercel dev` enviando un archivo de prueba >10MB y confirmar 413 sin que la función procese el audio.
 
 ---
 
@@ -109,46 +112,70 @@ if (parseInt(req.headers['content-length'] || '0') > 10 * 1024 * 1024) {
 ---
 
 #### 8. Sin timeout en llamadas a OpenAI
-`api/chat.js` y `api/whisper.js` no tienen timeout. Si OpenAI se demora, la función Vercel expira a los 30 s con un error genérico para el usuario.
+Confirmado vigente (2026-07-18): ningún `AbortController`/timeout explícito en `api/chat.js` (grep sin resultados). `vercel.json` fija `maxDuration: 60` para todas las funciones, así que el margen real es 60s, no 30s — igual conviene abortar antes para dar un error claro en vez de que Vercel mate la función en seco.
 
-**Solución:**
+**Pasos de ejecución:**
+1. Añadir el patrón `AbortController` (ejemplo abajo) a las llamadas `fetch` a OpenAI en `api/chat.js`, `api/whisper.js`, `api/vision.js`, `api/tts.js` y `api/image.js` — todas comparten el mismo riesgo.
+2. Timeout propuesto: 25s para `chat.js`/`vision.js`/`tts.js` (respuestas cortas), 45s para `whisper.js`/`image.js` (audio largo / generación de imagen, más lentos), dejando margen bajo los 60s de `maxDuration`.
+3. Al abortar, devolver un error JSON claro (`504` o `503` con mensaje "El servicio de IA tardó demasiado, intenta de nuevo") en vez de dejar que el timeout de Vercel devuelva una respuesta vacía/genérica al cliente.
+4. Patrón a replicar en cada archivo:
 ```js
 const controller = new AbortController();
 const timer = setTimeout(() => controller.abort(), 25000);
-fetch(url, { signal: controller.signal, ...opts }).finally(() => clearTimeout(timer));
+try {
+  const r = await fetch(url, { signal: controller.signal, ...opts });
+} finally {
+  clearTimeout(timer);
+}
 ```
 
 ---
 
-#### 9. `escapeHtml` con tres nombres diferentes
-- `escHtml()` en `diccionario.js`
-- `escapeHtml()` en `palabrasB2.html` / `B1.html`
-- `esc()` en `admin/index.html`
+#### 9. `escapeHtml` reimplementado en 10 archivos distintos
+Confirmado y ampliado (2026-07-18) — grep sobre el repo actual encuentra la misma función reimplementada de forma independiente en: `admin/index.html` (`esc`), `corrector.js` (`escHtml`), `escritura.html` (`escHtml`), `gramatica.js` (`esc`), `kasus.html` (`escHtml`), `lectura veloz.html` (`escHtml`), `mundliche.html` (`escHtml`), `shared-game.js` (`escapeHtml`), `marketing/emails.html` (`escapeHtml`), `teacher/index.html` (`esc`). Ha crecido de 3 a 10 sitios desde la última auditoría — cada archivo nuevo que necesita escapar HTML copia la función en vez de importarla.
 
-Al crear `shared-game.js`, consolidar en una implementación con un solo nombre.
+**Pasos de ejecución:**
+1. Crear `utils.js` (o añadir a `config.js`, que ya se carga en casi todas las páginas antes que el resto de scripts) con una única `window.escapeHtml(s)` — usar la implementación de `shared-game.js` como base (ya es la más probada, usada en el motor de quizzes).
+2. Sustituir las 9 reimplementaciones restantes por llamadas a `window.escapeHtml`, eliminando las funciones locales.
+3. Verificar orden de carga: `utils.js` debe cargarse antes que cualquier script que la use — mismo `<head>` donde hoy se incluye `config.js` en las 17+ páginas que comparten navbar.
+4. Riesgo bajo pero probar manualmente 2-3 páginas representativas (una con datos de usuario renderizados sin sanitizar previamente, ej. `admin/index.html` o `corrector.html`) para confirmar que no hay regresión de XSS tras el cambio.
+5. Actualizar `CLAUDE.md` (App Scripts) con la nueva entrada `utils.js` si se crea como archivo separado.
 
 ---
 
 #### 10. Accesibilidad básica faltante
+Confirmado vigente (2026-07-18): sin `aria-label` ni `:focus-visible` en `shared-game.js` (grep sin resultados).
 - Botones de opciones del quiz sin `aria-label` (lector de pantalla no sabe qué opción es correcta).
 - No hay `:focus-visible` en modo oscuro — navegación por teclado invisible.
 - El filtro de búsqueda no anuncia resultados filtrados a lectores de pantalla.
+
+**Pasos de ejecución:**
+1. En `shared-game.js`, función que renderiza `.options-grid`: añadir `aria-label="Opción: <palabra>"` a cada botón de opción al crearlo (no afecta la lógica del quiz, solo el DOM).
+2. En `styles.css`, dentro de `body.dark`, añadir una regla `:focus-visible { outline: 2px solid var(--color-b2); outline-offset: 2px; }` (o el color de acento de cada app) — hoy el outline por defecto del navegador puede ser invisible sobre fondo oscuro.
+3. Para `#filter-lista` (input de filtro en B1/B2/etc.): añadir un `<div aria-live="polite" class="sr-only">` que se actualice con el conteo de resultados visibles tras cada filtrado (ej. "12 palabras encontradas"), clase `sr-only` visualmente oculta pero leída por lectores de pantalla.
+4. Alcance de esta tarea: solo `shared-game.js` (afecta A1-C2 de una vez). Extender el mismo patrón a otras apps (`kasus.html`, `escritura.html`, etc.) queda fuera de esta tarea puntual — evaluar por separado si se prioriza.
 
 ---
 
 ### 🟢 Baja
 
-#### 11. `api/admin-invite.js` solo soporta HS256
-`api/chat.js` soporta ES256 + HS256 para JWT. `admin-invite.js` solo HS256. Si Supabase rota algoritmo, admin-invite se rompe.
+#### ~~11. `api/admin-invite.js` solo soporta HS256~~ ✅ RESUELTO (por consolidación de endpoints)
 
-**Solución:** Copiar el verificador dual de `chat.js`.
+~~`api/chat.js` soporta ES256 + HS256 para JWT. `admin-invite.js` solo HS256. Si Supabase rota algoritmo, admin-invite se rompe.~~
+
+**Resultado:** `admin-invite.js` ya no existe — se fusionó en `api/admin.js` (dispatch por `action: 'invite'|'set-status'`, ver `CLAUDE.md`), que usa `verifyJWT()` de `_lib.js` (ES256 vía JWKS + fallback HS256), el mismo verificador dual que `chat.js`. Confirmado por código: `api/admin.js` importa y llama `verifyJWT` de `_lib.js`. Sin acción pendiente.
 
 ---
 
 #### 12. Sin paginación en el admin
-`admin/index.html` carga hasta 10 000 eventos de una vez. Con crecimiento de usuarios esto será lento.
+Confirmado vigente (2026-07-18): `admin/index.html` sigue con `.limit(10000)` sobre `usage_events`. Con crecimiento de usuarios esto será lento.
 
-**Solución:** Paginación server-side con `.range(offset, offset + pageSize - 1)` y controles de navegación en la UI.
+**Pasos de ejecución:**
+1. Revisar compatibilidad: identificar todos los puntos de `admin/index.html` que consumen ese resultado de 10 000 filas (stats por app, tabla de usuarios, detalle por usuario) — la paginación puede afectar solo a la vista "detalle de eventos" y mantener las agregaciones (stats/gráfica) con una query separada que no necesita traer filas individuales.
+2. Server-side: usar `.range(offset, offset + pageSize - 1)` de Supabase sobre `usage_events`, `pageSize` propuesto 50-100.
+3. UI: controles "Anterior/Siguiente" (o números de página) en la tabla de eventos; mantener el filtro de búsqueda existente compatible con la paginación (reiniciar a página 1 al cambiar el filtro).
+4. Si las agregaciones (stats por app, gráfico de actividad) ya usan `count`/`group by` en vez de traer todas las filas al cliente, no requieren cambios — verificar antes de tocarlas.
+5. Probar con el volumen actual (~3 750 filas en `usage_events` según la auditoría de escalabilidad en `plan.md`) para confirmar que no rompe nada aunque el impacto real se note más adelante.
 
 ---
 
@@ -156,14 +183,9 @@ Al crear `shared-game.js`, consolidar en una implementación con un solo nombre.
 
 ### 💡 Alto impacto
 
-#### A. Repetición espaciada (SRS básico)
-El quiz presenta palabras al azar. La repetición espaciada prioriza palabras con más errores, mejorando la retención significativamente.
+#### ~~A. Repetición espaciada (SRS básico)~~ ✅ COMPLETADO (ya implementado, doc desactualizada)
 
-**Implementación mínima (sin SM-2):**
-- Guardar en IndexedDB: `{ de, correcto: N, incorrecto: M, ultimaVez: timestamp }` por palabra.
-- Al elegir la siguiente palabra: ponderar por tasa de error e intervalo transcurrido.
-- No requiere algoritmo complejo — incluso una fórmula simple como `score = errores / (dias_desde_ultima + 1)` ya mejora mucho.
-- Añadir indicador visual: palabras "pendientes de repasar" destacadas en la lista.
+Confirmado por código (2026-07-18): `shared-game.js` ya implementa SRS completo con algoritmo SM-2 (no la fórmula mínima que proponía este punto), IndexedDB `srs-db-{APP}` y botón "SRS Repaso" — ver `CLAUDE.md`. Superior a lo que aquí se proponía. Sin acción pendiente.
 
 ---
 
@@ -180,55 +202,68 @@ El quiz presenta palabras al azar. La repetición espaciada prioriza palabras co
 ---
 
 #### C. Modo Escritura (producción activa)
-Los quizzes son de reconocimiento (elegir entre 4 opciones). La producción activa — escribir la traducción sin ver opciones — es más exigente y más efectiva.
+Confirmado pendiente (2026-07-18): sin toggle ni input de texto en `shared-game.js`. Los quizzes son de reconocimiento (elegir entre 4 opciones). La producción activa — escribir la traducción sin ver opciones — es más exigente y más efectiva. Sigue siendo la mejora pedagógica de mayor impacto de este archivo.
 
-**Propuesta:** Toggle "Modo Escritura" en la barra de controles que reemplaza las 4 opciones por un `<input type="text">`. La corrección puede ser exacta o fuzzy (distancia de Levenshtein ≤ 1 para tolerar un error de tipeo).
+**Pasos de ejecución:**
+1. Revisar compatibilidad: `shared-game.js` centraliza el render de `.options-grid` y la comprobación de acierto en una única función de flujo (`State` + el handler de click de opción) — el modo escritura debe ramificar ese mismo flujo, no duplicarlo, para no romper el SRS (que ya registra correcto/incorrecto por palabra) ni el modo Auto/Dual (TTS).
+2. Añadir toggle "✍️ Modo Escritura" en la barra de controles (mismo patrón visual que los toggles Auto/Dual existentes), persistido en `localStorage` por app (`escritura_mode_{appId}`).
+3. Cuando está activo: renderizar `<input type="text">` + botón "Comprobar" en vez de `.options-grid`; en modo Auto/TTS-loop, deshabilitar el modo escritura (no tiene sentido combinarlos) o pausarlo.
+4. Corrección: exacta primero (`trim().toLowerCase()`), y si falla, calcular distancia de Levenshtein contra la respuesta correcta — aceptar como correcto si distancia ≤ 1 (tolera un solo error de tipeo), mostrando la palabra correcta igualmente para que el alumno vea el matiz.
+5. Reusar el mismo camino de registro de acierto/error que ya alimenta el SRS SM-2, así el modo escritura se beneficia de la repetición espaciada existente sin tocar esa lógica.
+6. Alcance: implementar en `shared-game.js` una sola vez (afecta A1-C2 simultáneamente, igual que el resto del motor compartido).
 
 ---
 
 #### D. Integración Diccionario → Quiz
-El usuario busca una palabra en `diccionario.html` pero no puede practicarla.
+Confirmado pendiente (2026-07-18): sin botón "practicar" en `diccionario.js`. El usuario busca una palabra en `diccionario.html` pero no puede practicarla.
 
-**Propuesta:** Botón "Practicar esta palabra" que añade la palabra a una lista temporal en el quiz B2/B1 (la misma infraestructura que las listas personales ya existentes). El usuario puede cerrar el diccionario e ir directo al quiz a practicarla.
+**Pasos de ejecución:**
+1. Revisar compatibilidad: las listas personales del quiz (B1-C2, vía `shared-game.js`) se guardan en IndexedDB y sincronizan con `word_lists` en Supabase (`is_system=false`, `app_id='shared'`) — reusar exactamente ese esquema (`{ de: string[], es: string[] }`), no crear uno nuevo.
+2. En `diccionario.js` → `mostrarResultado()`: añadir botón "➕ Practicar esta palabra" en la tarjeta de resultado, con selector de nivel/app destino (A1-C2) ya que el diccionario no está atado a un nivel.
+3. Al hacer clic: upsert en una lista personal fija con nombre reservado (ej. `'mis: Diccionario'`) para el `app_id`/nivel elegido — crear la lista si no existe, o añadir la palabra si ya existe, evitando duplicados.
+4. Feedback inmediato: toast/confirmación "Añadida a tu lista de práctica en B1" con enlace directo a `B1.html` (o el nivel elegido).
+5. El quiz destino no requiere cambios — ya sabe leer listas personales de `word_lists`/IndexedDB vía `shared-game.js`; solo hay que escribir en el mismo sitio desde el diccionario.
 
 ---
 
 #### E. Guardar transcripciones en `chat-voz.html`
-Las conversaciones con el AI se pierden al recargar. El usuario no puede revisar vocabulario ni errores.
+Confirmado pendiente (2026-07-18): sin IndexedDB de historial en `chat-voz.html`. Las conversaciones con el AI se pierden al recargar. El usuario no puede revisar vocabulario ni errores.
 
-**Propuesta:**
-- Guardar historial de conversación en IndexedDB con timestamp.
-- Panel lateral "Conversaciones" con lista de sesiones anteriores.
-- Exportar conversación a `.txt` con un clic.
-- (Opcional) Resaltar palabras de nivel B1/B2 en la transcripción para conectar con el vocabulario estudiado.
+**Pasos de ejecución:**
+1. Revisar compatibilidad: `mundliche.html` y `escritura.html` ya implementan el mismo patrón de historial local (IndexedDB `mundliche-db`/`escritura-db`, panel "📚 Historial", últimos 20 registros) — replicar esa estructura tal cual en vez de diseñar una nueva.
+2. Crear IndexedDB `chatvoz-db` (store `conversaciones`): guardar por sesión `{ id, timestamp, nivel, perfil, turnos: [{rol, texto}], duracion_total }` al finalizar o cada N turnos (auto-guardado incremental para no perder la conversación si se cierra la pestaña).
+3. Panel lateral/colapsable "📚 Conversaciones" (mismo patrón visual que el historial de `escritura.html`): lista de sesiones anteriores con fecha, nivel y primeras palabras; clic para ver la transcripción completa.
+4. Botón "Exportar a .txt" por conversación (`Blob` + `URL.createObjectURL`, sin dependencias nuevas).
+5. Opcional (fase 2): resaltar en la transcripción palabras que coincidan con `Data{NIVEL}.json` del nivel activo, para conectar visualmente con el vocabulario ya estudiado — requiere cargar el JSON del nivel en cliente, coste marginal bajo.
+6. Aplicar el mismo patrón después a `chatvoz2/index.html`, que comparte arquitectura con `chat-voz.html` (ver `CLAUDE.md`) — evaluar si conviene extraer el historial a una función compartida o duplicarlo, dado que ambas apps ya duplican bastante lógica intencionalmente.
 
 ---
 
 #### F. Aviso de límite de grabación en `chat-voz.html`
-La grabación se corta automáticamente a los 60 segundos sin aviso previo.
+Confirmado pendiente (2026-07-18): sin contador regresivo visual en el código. La grabación se corta automáticamente a los 60 segundos sin aviso previo.
 
-**Fix:** En los últimos 10 segundos mostrar un contador regresivo en el botón que cambia de color (amarillo → rojo). Una línea de código añadida al intervalo existente.
+**Pasos de ejecución:**
+1. Localizar el `setInterval`/`setTimeout` que controla el corte a 60s de grabación en `chat-voz.html` (patrón MediaRecorder también usado en `mundliche.html` y `chatvoz2/index.html`).
+2. En el tick del intervalo existente, cuando `remaining <= 10`: actualizar el texto/color del botón de grabar (clase CSS `.warn`/`.danger`, amarillo a partir de 10s, rojo a partir de 5s — mismo patrón de clases que `startExamTimer()` en `escritura.html`).
+3. Aplicar el mismo fix en `chatvoz2/index.html` y `mundliche.html` si comparten el mismo límite de grabación (verificar `duracion_seg` por Teil en `mundliche.html` — algunos Teile ya usan duraciones distintas de 60s, ajustar el trigger a `teil.duracion_seg - 10`).
 
 ---
 
 #### G. Estadísticas de lectura en `lectura veloz.html`
-El lector no muestra métricas de la sesión ni progreso histórico.
+Confirmado pendiente (2026-07-18): sin popup de métricas ni comparación histórica en el código. El lector no muestra métricas de la sesión ni progreso histórico.
 
-**Propuesta:**
-- Al terminar un texto: popup con palabras leídas, WPM promedio, tiempo total.
-- Comparar con sesiones anteriores del mismo texto para visualizar mejora.
+**Pasos de ejecución:**
+1. Revisar compatibilidad: la posición de lectura ya se guarda por texto (`lv_pos_<id>` en localStorage) — la nueva métrica de sesión puede apoyarse en ese mismo id sin tocar el guardado existente.
+2. Al llegar al final del texto (RSVP o blog view): mostrar un modal/popup con palabras leídas, WPM efectivo (usar el WPM configurado más los ajustes manuales durante la sesión, o calcular tiempo total / nº palabras), y tiempo total transcurrido.
+3. Guardar un pequeño historial por texto en `localStorage` (`lv_stats_<id>`: array de `{ timestamp, wpm, duracion }`, cap a últimas 10 sesiones) — no requiere IndexedDB ni Supabase, es un dato de bajo volumen.
+4. En el popup, si existen sesiones previas del mismo texto, mostrar comparación simple ("Antes: 220 wpm → Ahora: 250 wpm ⬆️").
+5. Aplica igual al modo "⚡ Sprint de vocabulario" (ya tiene su propio WPM adaptativo persistido como `lv_sprint_wpm`) — evaluar si conviene un resumen de sesión análogo o si el ajuste adaptativo ya cumple ese rol.
 
 ---
 
-#### H. Onboarding para usuarios nuevos
-Un usuario que entra por primera vez no sabe qué hacer.
+#### ~~H. Onboarding para usuarios nuevos~~ ✅ COMPLETADO (ya implementado, doc desactualizada)
 
-**Propuesta:** Tres tooltips secuenciales en la primera visita:
-1. "Selecciona una lista de palabras"
-2. "Elige la traducción correcta"
-3. "Activa Modo Auto para escuchar las palabras en bucle"
-
-Guardado en `localStorage('onboarding_b2_done')` para no repetirlo. Tiempo de implementación: ~1 hora.
+Confirmado por código (2026-07-18): `onboarding.js` ya existe y cubre esto con un tour guiado de 6 pasos (más completo que la propuesta original de 3 tooltips) — spotlight overlay, selector de nivel CEFR, tarjeta de vocabulario, plan 30 días, menú, CTA final; persistido como `onboarding_done_v1`, relanzable con botón "?" o `window.startOnboarding()`. Ver `CLAUDE.md`. Sin acción pendiente.
 
 ---
 
@@ -237,15 +272,23 @@ Guardado en `localStorage('onboarding_b2_done')` para no repetirlo. Tiempo de im
 #### I. Barra de progreso de vocabulario total
 Mostrar "Has visto 87 de 320 palabras en B2" para dar sensación de avance y motivar completar el vocabulario.
 
+**Pasos de ejecución:** en `shared-game.js`, `State.vistos` ya cuenta palabras vistas en la sesión actual pero se resetea (`nextUnseenIndex()` lo reinicia cerca del final del ciclo) — para un contador persistente de "vistas alguna vez" hace falta un set separado guardado en IndexedDB/`srs-db-{APP}` (ya existe una fila por palabra con SRS; basta con contar cuántas tienen `reps >= 1`). Renderizar como barra fija junto a los contadores de stats existentes (`.vistos`/`.errores`/tiempo).
+
 #### J. Compartir resultado
 Botón para copiar al portapapeles: `"Hoy respondí 47 palabras correctas en alemán B2 🇩🇪"`. Fácil de implementar, útil para motivación.
+
+**Pasos de ejecución:** los datos de "hoy" ya se calculan en `openStatsPanel()` (`auth.js`) para las tarjetas HOY — añadir un botón "📋 Compartir" ahí mismo que arme el string con esos mismos totales y use `navigator.clipboard.writeText()` (fallback `document.execCommand('copy')` si no hay soporte). No requiere nueva query a Supabase.
 
 #### K. Indicador de nivel CEFR activo en navbar
 Mostrar el nivel activo (B1/B2) en el navbar al navegar entre apps para orientar al usuario.
 
+**Pasos de ejecución:** `onboarding_level` ya se persiste en localStorage (usado por `escritura.html` como fallback de `esc_level`) — leerlo en `auth.js` al renderizar el navbar (`_renderNavMenu()`) y mostrar un badge junto al logo/título. Actualizarlo cuando el usuario cambia explícitamente de nivel en cualquier app (haría falta que cada app con selector de nivel escriba a esa misma clave, no solo `escritura.html` — revisar cuáles ya lo hacen antes de asumir consistencia).
+
 ---
 
 ## Orden sugerido de implementación
+
+**Revisión 2026-07-18:** ítems 8 y 10 estaban marcados ⬜ pero ya están implementados (onboarding y SRS) — corregidos a ✅. Ítem 11 (admin-invite HS256) resuelto por la fusión en `api/admin.js`. El siguiente pendiente de mayor impacto pedagógico real es el **9 — Modo Escritura**.
 
 | # | Tarea | Esfuerzo | Impacto | Estado |
 |---|-------|----------|---------|--------|
@@ -253,18 +296,24 @@ Mostrar el nivel activo (B1/B2) en el navbar al navegar entre apps para orientar
 | 2 | Crear `config.js` con credenciales | Bajo | Mantenimiento | ✅ |
 | 3 | Fix auth duplicado en `lectura veloz.html` | Medio | Calidad | ✅ |
 | 4 | Variables CSS en `styles.css` | Bajo | Mantenimiento | ✅ |
-| 5 | Rate limit en `api/admin-invite.js` | Bajo | Seguridad | ⬜ |
-| 6 | Timeout en llamadas OpenAI | Bajo | Confiabilidad | ⬜ |
+| 5 | Rate limit en `api/admin.js` (antes `admin-invite.js`) | Bajo | Seguridad | ⬜ |
+| 6 | Timeout en llamadas OpenAI (chat/whisper/vision/tts/image) | Bajo | Confiabilidad | ⬜ |
 | 7 | Aviso 10 s antes del corte en grabación | Bajo | UX inmediato | ⬜ |
-| 8 | Onboarding primera visita | Bajo | Retención | ⬜ |
-| 9 | Modo Escritura en quiz B1/B2 | Medio | Pedagógico alto | ⬜ |
-| 10 | Repetición espaciada básica | Medio | Pedagógico alto | ⬜ |
-| 11 | Barra de progreso vocabulario total | Bajo | Motivación | ⬜ |
+| 8 | Onboarding primera visita | Bajo | Retención | ✅ |
+| 9 | Modo Escritura en quiz A1-C2 | Medio | Pedagógico alto | ⬜ |
+| 10 | Repetición espaciada (SRS) | Medio | Pedagógico alto | ✅ |
+| 11 | `api/admin-invite.js` solo HS256 | — | Seguridad | ✅ (resuelto por fusión en `admin.js`) |
 | 12 | Historial de sesiones + gráfica | Alto | Motivación | ✅ |
 | 13 | Guardar transcripciones chat-voz | Medio | Utilidad | ⬜ |
 | 14 | Integración diccionario → quiz | Medio | Pedagógico medio | ⬜ |
 | 15 | Paginación admin | Medio | Escalabilidad | ⬜ |
 | 16 | Accesibilidad (aria-label, focus-visible) | Medio | Inclusión | ⬜ |
+| 17 | Consolidar `escapeHtml` (10 sitios) | Bajo | Mantenimiento | ⬜ |
+| 18 | Barra de progreso vocabulario total | Bajo | Motivación | ⬜ |
+| 19 | Compartir resultado | Bajo | Motivación | ⬜ |
+| 20 | Indicador de nivel CEFR en navbar | Bajo | UX | ⬜ |
+| 21 | Sin límite de tamaño en `api/whisper.js` | Bajo | Seguridad | ⬜ |
+| 22 | Estadísticas de lectura en `lectura veloz.html` | Medio | Motivación | ⬜ |
 
 ---
 

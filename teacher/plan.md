@@ -6,6 +6,8 @@ Fase 2 (implementada y verificada): los 30 días de `TEACHER_CLASES.b1` tienen `
 
 ## Pendiente
 
+**Orden sugerido (revisión 2026-07-18):** la tarea de mayor impacto pedagógico es la **4** — hoy `teacher/index.html` solo sirve para dar clase de B1; extenderlo a A1/A2/B2/C1/C2 es lo que más valor aporta porque habilita el uso real de la herramienta en el resto de tus clases. Las tareas 1-2 (edición + persistencia) son mejoras de comodidad sobre lo que ya existe y pueden esperar. La 3 (mapeo por fecha de inicio del alumno) y la 5 (selector de nivel) dependen de que la 4 tenga al menos un nivel adicional. Orden recomendado: **4 → 5 → 1+2 (acopladas) → 3**.
+
 ### 1. Edición desde la UI de tips/ejemplos del profesor
 Hoy `clases-b1.js` es estático (hardcoded) y `teacher/index.html` es de solo lectura. No hay ningún campo de edición para que el profesor ajuste `intro`/`practica`/`pasos`/`resumen` sin tocar código.
 
@@ -37,9 +39,11 @@ Pasos de ejecución:
 ### 4. Extender a otros niveles (A1, A2, B2, C1, C2)
 Hoy solo existe `clases-b1.js`. `TEACHER_CLASES` ya está pensado para agregar más claves de nivel (`TEACHER_CLASES.a1`, etc.), y `PLANS`/`GRAMMAR_DATA` ya tienen datos para todos los niveles.
 
+**Dependencia con `plan.md` (raíz del repo):** el paso 2 de abajo (cruzar `focus`/`ruleIds` contra `plan.js`) solo puede hacerse de forma fiable una vez que el plan de 30 días de ese nivel esté verificado contra reglas/vocabulario reales — ver el archivo `plan.md` de la raíz. Estado actual (revisión 2026-07-18): **A1, A2 y B1 ya están verificados y listos** (se puede empezar por cualquiera de los tres); **B2 tiene el diseño de rotación listo pero `plan.js` aún no reescrito**; **C1 y C2 tienen diagnóstico y rotación de gramática recién documentados en `plan.md` pero tampoco reescritos todavía**. Orden recomendado para esta tarea: `teacher/clases-a1.js` o `clases-a2.js` primero (día a día ya son fiables hoy mismo), y dejar B2/C1/C2 para después de que su sesión correspondiente en `plan.md` quede marcada `[x]`.
+
 Pasos de ejecución (repetir por nivel, un nivel por sesión igual que se hizo con B1):
 1. Crear `teacher/clases-{nivel}.js` con la misma estructura plana de 30 entradas usada en B1 (`{ day, semana, focus, ruleIds, esClaseEnVivo, contenido }`).
-2. Cruzar `PLANS.{nivel}` (`plan.js`) con `GRAMMAR_DATA.{NIVEL}` (`grammar-data.js`) para resolver `focus`/`ruleIds` de cada día (mismo método que la Tarea 9 de B1 — ver nota final del historial abajo).
+2. Cruzar `PLANS.{nivel}` (`plan.js`) con `GRAMMAR_DATA.{NIVEL}` (`grammar-data.js` / `grammar-data-{nivel}.js`) para resolver `focus`/`ruleIds` de cada día (mismo método que la Tarea 9 de B1 — ver nota final del historial abajo). Recordar que el conteo de reglas difiere por nivel: A1/A2/B2/C1/C2 tienen 10 reglas cada uno (`{nivel}-01`…`{nivel}-10`); B1 tiene 31 (`b1-01`…`b1-31`).
 3. Marcar `esClaseEnVivo: true` en los días que correspondan a clase real martes/jueves de ese nivel (confirmar con el profesor el calendario si difiere del de B1).
 4. Rellenar `contenido.reglas[]` para los días en vivo primero (prioridad), luego los de autoestudio — mismo esquema que B1 (intro/practica/pasos/resumen), una tarea por día o agrupando varios días de bajo contenido en una sesión si el profesor lo prefiere.
 5. Actualizar CLAUDE.md (Active Files) con la nueva entrada de datos.

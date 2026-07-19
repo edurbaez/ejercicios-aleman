@@ -52,6 +52,29 @@ export async function verifyJWT(token) {
     }
 }
 
+// Checks profiles.status / access_expires_at (see supabase/migrations/009_access_control.sql)
+// for the given user. Fails open (valid: true) when SUPABASE_SERVICE_ROLE_KEY is unset or the
+// Supabase REST call errors — same "no-op if unconfigured" convention as whisper.js's daily-usage
+// check, so a Supabase hiccup doesn't take every endpoint down for every user.
+export async function checkAccess(userId) {
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!key) return { valid: true };
+    try {
+        const resp = await fetch(
+            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=status,access_expires_at`,
+            { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+        );
+        if (!resp.ok) return { valid: true };
+        const [profile] = await resp.json();
+        if (!profile) return { valid: true };
+        const valid = profile.status !== 'blocked'
+            && (!profile.access_expires_at || new Date(profile.access_expires_at) > new Date());
+        return { valid, status: profile.status, expires_at: profile.access_expires_at };
+    } catch {
+        return { valid: true };
+    }
+}
+
 // Returns an isRateLimited(userId) function.
 // Uses Vercel KV (Redis) when KV_REST_API_URL is set; falls back to in-memory Map.
 export function createRateLimiter(limit, windowMs = 60_000, namespace = 'rl') {

@@ -138,6 +138,42 @@
     body.dark .badge { background: #0d2a50; color: #64b5f6; }
     .badge.admin { background: #fff3e0; color: #e65100; }
     body.dark .badge.admin { background: #2a1000; color: #ffb74d; }
+    .badge.approved { background: #e8f5e9; color: #2e7d32; }
+    body.dark .badge.approved { background: #0a2a0c; color: #81c784; }
+    .badge.blocked { background: #ffebee; color: #c62828; }
+    body.dark .badge.blocked { background: #2a0a0a; color: #ef9a9a; }
+    .badge.pending { background: #fce4ec; color: #ad1457; }
+    body.dark .badge.pending { background: #2a0a1a; color: #f48fb1; }
+    .badge.expired { background: #eceff1; color: #455a64; }
+    body.dark .badge.expired { background: #20242e; color: #9aa4bf; }
+
+    /* ── Access control ── */
+    #det-access { background: #f7f8fc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
+    body.dark #det-access { background: #181a2e; }
+    .det-access-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .det-access-row + .det-access-row { margin-top: 10px; }
+    .det-access-label { font-size: 11px; color: #888; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+    body.dark .det-access-label { color: #6a7090; }
+    .adm-access-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #dde1ee; background: #fff; color: #1565C0; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .adm-access-btn:hover { background: #eef3fc; }
+    .adm-access-btn.ok { background: #1565C0; color: #fff; border-color: #1565C0; }
+    .adm-access-btn.ok:hover { background: #1976D2; }
+    .adm-access-btn.danger { background: #fff; color: #c62828; border-color: #ef9a9a; }
+    .adm-access-btn.danger:hover { background: #ffebee; }
+    body.dark .adm-access-btn { background: #1e2035; border-color: #333a55; color: #64b5f6; }
+    body.dark .adm-access-btn:hover { background: #252842; }
+    body.dark .adm-access-btn.ok { background: #1976D2; color: #fff; border-color: #1976D2; }
+    body.dark .adm-access-btn.danger { background: #1e2035; color: #ef9a9a; border-color: #5c2b2b; }
+    .adm-access-date { padding: 5px 8px; border-radius: 6px; border: 1px solid #dde1ee; font-size: 12px; }
+    body.dark .adm-access-date { background: #181a2e; color: #dde1ec; border-color: #2e3050; }
+    #det-access-msg { margin-top: 8px; font-size: 12px; display: none; padding: 6px 10px; border-radius: 6px; }
+    #det-access-msg.ok, #det-access-msg.err, #det-access-msg.saving { display: block; }
+    #det-access-msg.ok  { background: #e8f5e9; color: #2e7d32; }
+    #det-access-msg.err { background: #ffebee; color: #c62828; }
+    #det-access-msg.saving { background: #f0f2f7; color: #888; }
+    body.dark #det-access-msg.ok  { background: #0a2a0c; color: #81c784; }
+    body.dark #det-access-msg.err { background: #2a0a0a; color: #ef9a9a; }
+    body.dark #det-access-msg.saving { background: #181a2e; color: #6a7090; }
 
     /* ── Detail panel ── */
     #detail-panel { display: none; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 18px; border-top: 3px solid #1565C0; }
@@ -413,17 +449,18 @@
             <th onclick="sortUsers('display_name')">Nombre<span class="sort-icon"></span></th>
             <th onclick="sortUsers('email')">Email<span class="sort-icon"></span></th>
             <th class="col-hide-mobile">Rol</th>
+            <th class="col-hide-mobile">Acceso</th>
             <th class="col-hide-mobile" onclick="sortUsers('created_at')">Registro<span class="sort-icon"></span></th>
             <th>Última actividad</th>
             <th class="col-hide-mobile" onclick="sortUsers('events')">Eventos<span class="sort-icon"></span></th>
           </tr>
         </thead>
         <tbody id="users-tbody">
-          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
-          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
-          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
-          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
-          <tr><td colspan="6"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="7"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="7"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="7"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="7"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
+          <tr><td colspan="7"><div class="sk-table-row"><div class="sk" style="width:28px;height:28px;border-radius:50%;flex-shrink:0"></div><div class="sk" style="width:100px"></div><div class="sk" style="width:160px"></div><div class="sk" style="width:50px"></div></div></td></tr>
         </tbody>
       </table>
       </div>
@@ -440,6 +477,21 @@
           </div>
         </div>
         <button class="close-btn" onclick="closeDetail()">✕ Cerrar</button>
+      </div>
+      <div id="det-access">
+        <div class="det-access-row">
+          <span class="det-access-label">Acceso</span>
+          <span id="det-access-badge"></span>
+        </div>
+        <div class="det-access-row">
+          <button class="adm-access-btn ok" onclick="setAccessUnlimited()">Autorizar sin límite</button>
+          <button class="adm-access-btn" onclick="setAccessDays(15)">+15 días</button>
+          <button class="adm-access-btn" onclick="setAccessDays(30)">+30 días</button>
+          <input type="date" id="det-access-date" class="adm-access-date">
+          <button class="adm-access-btn" onclick="setAccessCustomDate()">Autorizar hasta esa fecha</button>
+          <button class="adm-access-btn danger" onclick="setAccessBlocked()">Denegar</button>
+        </div>
+        <div id="det-access-msg"></div>
       </div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
@@ -538,7 +590,7 @@
   async function loadData() {
     const [profRes, evRes, exRes] = await Promise.all([
       sb.from('profiles')
-        .select('id, email, display_name, role, created_at')
+        .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
       sb.from('usage_events')
         .select('id, user_id, app, event_type, payload, created_at')
@@ -782,7 +834,7 @@
     const todayStr = new Date().toLocaleDateString('es-ES');
 
     if (profiles.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">Sin usuarios.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="empty">Sin usuarios.</td></tr>';
       return;
     }
 
@@ -817,6 +869,8 @@
       const roleBadge = p.role === 'admin'
         ? `<span class="badge admin">admin</span>`
         : `<span class="badge">alumno</span>`;
+      const access = accessInfo(p);
+      const accessBadge = `<span class="badge ${access.cls}">${esc(access.label)}</span>`;
 
       return `<tr class="user-row" onclick="showDetail('${esc(p.id)}')">
         <td>
@@ -827,6 +881,7 @@
         </td>
         <td style="color:#777;font-size:12px">${esc(p.email || '—')}</td>
         <td class="col-hide-mobile">${roleBadge}</td>
+        <td class="col-hide-mobile">${accessBadge}</td>
         <td class="col-hide-mobile" style="color:#888;font-size:12px">${fmtDate(p.created_at)}</td>
         <td style="font-size:12px">
           <span class="active-dot ${dotClass}" title="${dotTitle}"></span>
@@ -848,7 +903,7 @@
     document.querySelectorAll('#users-table thead th').forEach(th => {
       th.classList.remove('sort-asc', 'sort-desc');
     });
-    const colMap = { display_name: 0, email: 1, created_at: 3, events: 5 };
+    const colMap = { display_name: 0, email: 1, created_at: 4, events: 6 };
     const idx = colMap[col];
     if (idx !== undefined) {
       const ths = document.querySelectorAll('#users-table thead th');
@@ -874,6 +929,13 @@
     const p    = allProfiles.find(x => x.id === userId);
     const evs  = (eventsByUser[userId] || []).slice(0, 300);
     const exms = examsByUser[userId] || [];
+
+    currentDetailUserId = userId;
+    const accessMsgEl = document.getElementById('det-access-msg');
+    accessMsgEl.textContent = '';
+    accessMsgEl.className = '';
+    document.getElementById('det-access-date').value = '';
+    renderDetailAccess(p);
 
     const color = userColor(p?.email || userId);
     const ini   = initials(p?.display_name, p?.email);
@@ -959,6 +1021,87 @@
       msg.style.display = 'block';
       btn.disabled = false;
     }
+  }
+
+  // ── Access control ────────────────────────────────────────
+  // Same rule as public.is_access_valid() in supabase/migrations/009_access_control.sql.
+  function accessInfo(p) {
+    if (!p) return { cls: 'pending', label: 'pendiente' };
+    if (p.status === 'blocked') return { cls: 'blocked', label: 'bloqueado' };
+    if (p.access_expires_at && new Date(p.access_expires_at) <= new Date()) {
+      return { cls: 'expired', label: 'expirado' };
+    }
+    if (!p.access_expires_at) return { cls: 'approved', label: p.status === 'approved' ? 'sin límite' : 'sin límite (pendiente)' };
+    return { cls: 'approved', label: `hasta ${fmtDate(p.access_expires_at)}` };
+  }
+
+  let currentDetailUserId = null;
+
+  async function setAccess(userId, status, accessExpiresAt) {
+    const msgEl = document.getElementById('det-access-msg');
+    msgEl.textContent = 'Guardando…';
+    msgEl.className = 'saving';
+    try {
+      const { data: { session } } = await sb.auth.getSession();
+      const token = session?.access_token;
+      const body = { action: 'set-status', userId, status };
+      if (accessExpiresAt !== undefined) body.access_expires_at = accessExpiresAt;
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Error al actualizar el acceso');
+
+      const p = allProfiles.find(x => x.id === userId);
+      if (p) {
+        p.status = status;
+        if (accessExpiresAt !== undefined) p.access_expires_at = accessExpiresAt;
+      }
+      msgEl.textContent = data.message || 'Acceso actualizado.';
+      msgEl.className = 'ok';
+      renderUsersTable(getFilteredProfiles(document.getElementById('user-search').value));
+      if (currentDetailUserId === userId) renderDetailAccess(p);
+    } catch (e) {
+      msgEl.textContent = e.message;
+      msgEl.className = 'err';
+    }
+  }
+
+  function setAccessUnlimited() {
+    if (!currentDetailUserId) return;
+    setAccess(currentDetailUserId, 'approved', null);
+  }
+
+  function setAccessBlocked() {
+    if (!currentDetailUserId) return;
+    setAccess(currentDetailUserId, 'blocked', undefined);
+  }
+
+  function setAccessDays(days) {
+    if (!currentDetailUserId) return;
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    setAccess(currentDetailUserId, 'approved', d.toISOString());
+  }
+
+  function setAccessCustomDate() {
+    if (!currentDetailUserId) return;
+    const input = document.getElementById('det-access-date');
+    if (!input.value) return;
+    // Grant until the end of the selected day.
+    const d = new Date(input.value + 'T23:59:59');
+    setAccess(currentDetailUserId, 'approved', d.toISOString());
+  }
+
+  function renderDetailAccess(p) {
+    const info = accessInfo(p);
+    document.getElementById('det-access-badge').innerHTML =
+      `<span class="badge ${info.cls}">${esc(info.label)}</span>`;
   }
 
   // ── Helpers ───────────────────────────────────────────────

@@ -29,12 +29,21 @@ async function handleInvite(req, res, supaUrl, serviceKey) {
 }
 
 async function handleSetStatus(req, res, supaUrl, serviceKey) {
-    const { userId, status } = req.body;
+    const { userId, status, access_expires_at } = req.body;
     if (!userId || typeof userId !== 'string') {
         return res.status(400).json({ error: 'userId requerido' });
     }
     if (!VALID_STATUSES.has(status)) {
         return res.status(400).json({ error: 'status debe ser approved, blocked o pending' });
+    }
+    // access_expires_at is optional: omit to leave it untouched, null for unlimited access,
+    // or an ISO date string to set/extend the access window (see supabase/migrations/009_access_control.sql).
+    const body = { status };
+    if (access_expires_at !== undefined) {
+        if (access_expires_at !== null && Number.isNaN(Date.parse(access_expires_at))) {
+            return res.status(400).json({ error: 'access_expires_at debe ser null o una fecha válida' });
+        }
+        body.access_expires_at = access_expires_at;
     }
 
     const updateRes = await fetch(
@@ -47,7 +56,7 @@ async function handleSetStatus(req, res, supaUrl, serviceKey) {
                 'Content-Type': 'application/json',
                 Prefer: 'return=minimal',
             },
-            body: JSON.stringify({ status }),
+            body: JSON.stringify(body),
         }
     );
 

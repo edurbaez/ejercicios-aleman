@@ -51,13 +51,13 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `api/vision.js` | Vercel serverless function — receives `{ image_base64, mime_type, type }`, calls GPT-4o with vision (`response_format: json_object`). Returns structured JSON: `{ puntuacion, resumen, errores[], texto_corregido, observaciones_generales }`. Requires JWT auth. Rate limited to 5 req/min per user. Supports types: `tarea`, `carta`, `frases`, plus `escritura` (requires a `task` object; grades handwritten text against a writing task and returns the escritura evaluation schema: `texto_transcrito`, `puntuacion` 0–100, `puntos_cubiertos[]`, `registro_adecuado`, `errores[]`, `version_mejorada`, `comentario`), plus `style-analysis` (describes the visual/graphic style of a reference image — palette, mood, decorative motifs, layout, typography — as `{ style_description }`; used by `marketing/contenido.html`'s "Publicidad de curso" tab to turn an uploaded reference image into a text fragment for an `/api/image` prompt). |
 | `api/tts.js` | Vercel serverless function — receives `{ text, voice }`, calls OpenAI `tts-1`, returns audio/mpeg binary. Requires JWT auth. Rate limited to 30 req/min per user. Default voice: `onyx`. Used by `shared-game.js` to replace browser TTS for German words. |
 | `api/image.js` | Vercel serverless function — receives `{ prompt, size, quality }`, calls OpenAI Images (`gpt-image-1-mini`; siempre devuelve b64, sin `response_format` — DALL·E fue retirado de la API en mayo 2026), returns `{ image_base64 }`. Requires JWT auth. Rate limited to 3 req/min per user. Used by `marketing/contenido.html`. |
-| `api/admin.js` | Vercel serverless function — admin actions dispatched by `action` in the body: `invite` (invites a user by email via Supabase auth admin API) or `set-status` (sets `status` = approved/blocked/pending in `profiles`). Requires JWT from an admin user (verified via `_lib.js`, ES256 + HS256). Merged from the former `admin-invite.js`/`approve-user.js` (12-function Hobby limit). Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
+| `api/admin.js` | Vercel serverless function — admin actions dispatched by `action` in the body: `invite` (invites a user by email via Supabase auth admin API) or `set-status` (sets `status` = approved/blocked/pending in `profiles`, plus an optional `access_expires_at` — omit to leave untouched, `null` for unlimited access, or an ISO date string to set/extend the access window; see "Access control" below). Requires JWT from an admin user (verified via `_lib.js`, ES256 + HS256). Merged from the former `admin-invite.js`/`approve-user.js` (12-function Hobby limit). Reads `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Vercel env vars. |
 | `api/push-subscribe.js` | Vercel serverless function — manages Web Push subscriptions. GET returns current settings; POST upserts subscription + preferences (interval_hours, window_start, window_end, utc_offset_minutes); DELETE removes subscription. Requires JWT auth. Writes to `push_subscriptions` table via `SUPABASE_SERVICE_ROLE_KEY`. |
 | `api/push-notify.js` | Vercel serverless function — sends push notifications to eligible subscribers. Called hourly by Vercel Cron (Pro) or cron-job.org (free). Requires `Authorization: Bearer <CRON_SECRET>`. Reads all `push_subscriptions`, converts UTC time to each user's local timezone, checks window and interval, sends via `web-push`. Removes stale subscriptions (HTTP 410/404). |
 | `api/vocab-refresh.js` | Vercel serverless function — cron endpoint (`Authorization: Bearer <CRON_SECRET>`) that generates ~15 current German expressions per CEFR level via GPT-4o-mini and appends them to a system `word_lists` row named `nuevas` (app_id = level, newest first, capped at 150). Level via body/query `level`, or daily rotation a1→c2 (full cycle every 6 days). Quiz apps pick the list up automatically because `loadSystemLists()` reads Supabase before the static JSON. |
 | `api/deepseek-chat.js` | Vercel serverless function — proxies requests to DeepSeek (`deepseek-chat`). Same structure as `chat.js`. Requires `DEEPSEEK_API_KEY`. Rate limited to 20 req/min per user. |
 | `api/finanzas.js` | Vercel serverless function — dispatches by `action` in the body: `price` (real-time crypto via CoinGecko + indices via Yahoo Finance, 5 min cache) or `history` (historical prices, 30 min cache). Merged from the former `finanzas-price.js`/`finanzas-history.js` to stay within the 12-function Hobby limit. Rate limited to 10 req/min per user. No external API key required. |
-| `api/_lib.js` | Shared utilities for all serverless functions: `verifyJWT()` (ES256 via JWKS + HS256 via `SUPABASE_JWT_SECRET`) and `createRateLimiter()` (Vercel KV when available, in-memory Map fallback). Pre-warms JWKS cache at module load. |
+| `api/_lib.js` | Shared utilities for all serverless functions: `verifyJWT()` (ES256 via JWKS + HS256 via `SUPABASE_JWT_SECRET`), `createRateLimiter()` (Vercel KV when available, in-memory Map fallback), and `checkAccess()` (reads `profiles.status`/`access_expires_at` with the service role key and mirrors `is_access_valid()`; see "Access control" below). Pre-warms JWKS cache at module load. |
 
 ### Data
 
@@ -95,6 +95,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `supabase/migrations/006_reading_texts_insert.sql` | `DROP POLICY IF EXISTS` de la antigua policy de INSERT cliente en `reading_texts` — los textos generados por IA ahora se insertan server-side vía `/api/chat` (action `generate-reading`). Solo necesaria si se aplicó la versión anterior de esta migración. |
 | `supabase/migrations/007_marketing_posts_kind_curso_ad.sql` | Amplía el `CHECK` de `kind` en `marketing_posts` para incluir `infografia` (faltaba desde 004) y `curso_ad` (pestaña "Publicidad de curso" de `marketing/contenido.html`). |
 | `supabase/migrations/008_grammar_rule_progress.sql` | Crea `grammar_rule_progress` (estado SM-2 por usuario/regla gramatical, PK `(user_id, rule_id)`, con RLS). Usada por el SRS de reglas de `chat-reformulaciones.html`. |
+| `supabase/migrations/009_access_control.sql` | Añade `profiles.access_expires_at` (timestamptz, NULL = sin límite) y la función `public.is_access_valid(user_id)` (`status <> 'blocked' AND (access_expires_at IS NULL OR access_expires_at > now())`), única fuente de verdad reusada por `api/_lib.js` (`checkAccess`) y `auth.js` (`_isAccessValid`). `handle_new_user()` ahora fija `access_expires_at = now() + 15 días` en cada signup (trial automático). Refuerza como defensa en profundidad las policies de INSERT/UPDATE de `word_lists`, `srs_progress`, `grammar_rule_progress`, `user_reading_seen` y `user_data` con `is_access_valid(auth.uid())` (deja SELECT/DELETE sin tocar). También elimina una policy `"own data" FOR ALL` en `user_data` no rastreada en el repo (creada directamente en Supabase) que habría hecho bypass del gate por ser permissive. |
 
 ### PWA & Deploy
 
@@ -277,6 +278,23 @@ Toggled by a fixed button; persisted in `localStorage` as `darkMode`.
 - `mammoth 1.6.0` — `.docx` parsing.
 
 ---
+
+## Access control
+
+Time-limited access per user, admin-controlled (migration `supabase/migrations/009_access_control.sql`). Single rule, re-implemented identically in three places:
+
+```
+is_access_valid := profiles.status <> 'blocked'
+  AND (profiles.access_expires_at IS NULL OR profiles.access_expires_at > now())
+```
+
+- **New signups**: `handle_new_user()` sets `status = 'pending'` and `access_expires_at = now() + 15 days` — a 15-day trial with no admin action needed.
+- **Admin control** (`admin/index.html` user detail panel → `api/admin.js` `set-status`): "Autorizar sin límite" (`status='approved'`, `access_expires_at=NULL`), "+15/+30 días" or a custom date (`status='approved'`, `access_expires_at=<date>`), "Denegar" (`status='blocked'`, does not touch the expiry). The same action restores access after either an expiry or a block.
+- **Enforcement, defense in depth**:
+  1. Postgres function `public.is_access_valid(user_id)` — used by the RLS `WITH CHECK`/`USING` on INSERT/UPDATE (not SELECT/DELETE) of `word_lists`, `srs_progress`, `grammar_rule_progress`, `user_reading_seen`, `user_data`.
+  2. `api/_lib.js` `checkAccess(userId)` — called right after `verifyJWT()` in every endpoint that costs money (`chat.js`, `whisper.js`, `vision.js`, `tts.js`, `image.js`, `deepseek-chat.js`, `finanzas.js`); returns `403` if invalid. Fails open (allows the request) if `SUPABASE_SERVICE_ROLE_KEY` is unset or the Supabase REST call errors — same convention as `whisper.js`'s daily-usage check.
+  3. `auth.js` `_isAccessValid()` — the universal gate: on every auth state change, `updateAuthUI()` shows a non-dismissable modal (`#access-blocked-modal`) blocking the whole page if the current user's profile fails the check. This is the only layer that covers apps with no serverless calls (B1–C2, `gramatica.html`, `plan.html`, …). Admins are always exempt, even from a stale row.
+- **Gotcha**: `profiles` was created directly in Supabase, not tracked in this repo's migrations (same as its `status` column, added by `migrations/add_user_status.sql`). Before adding new RLS policies on tables owned by a user, check `pg_policies` for pre-existing untracked policies — migration 009 found and removed one on `user_data` (`"own data" FOR ALL`, permissive with no access check) that would have silently bypassed the new gate.
 
 ## Voice-STT daily usage cap
 

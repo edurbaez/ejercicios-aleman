@@ -273,11 +273,48 @@
     await window.sb.auth.signOut();
   };
 
-  async function _getRole() {
+  async function _getAccessProfile() {
     if (!window.currentUser) return null;
-    const { data } = await window.sb.from('profiles').select('role').eq('id', window.currentUser.id).maybeSingle();
-    return data ? data.role : null;
+    const { data } = await window.sb.from('profiles').select('role, status, access_expires_at').eq('id', window.currentUser.id).maybeSingle();
+    return data;
   }
+
+  // See supabase/migrations/009_access_control.sql `is_access_valid()` — same rule, client-side.
+  // A missing profile row (should not happen — handle_new_user() always creates one) fails open,
+  // matching the fail-open convention of api/_lib.js's checkAccess().
+  function _isAccessValid(profile) {
+    if (!profile) return true;
+    return profile.status !== 'blocked'
+      && (!profile.access_expires_at || new Date(profile.access_expires_at) > new Date());
+  }
+
+  function _injectBlockedModal() {
+    if (document.getElementById('access-blocked-modal')) return;
+    const el = document.createElement('div');
+    el.id = 'access-blocked-modal';
+    el.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:10000;align-items:center;justify-content:center;';
+    el.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:28px;min-width:280px;max-width:360px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.3);text-align:center;">
+        <h3 id="access-blocked-title" style="margin:0 0 12px;color:#c62828;">Acceso restringido</h3>
+        <p id="access-blocked-msg" style="margin:0 0 18px;color:#444;font-size:14px;line-height:1.5;"></p>
+        <button onclick="window.logout()" style="padding:9px 16px;background:#455a64;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cerrar sesión</button>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  window.showAccessBlockedModal = function (reason, expiresAt) {
+    _injectBlockedModal();
+    const msgEl = document.getElementById('access-blocked-msg');
+    msgEl.textContent = reason === 'blocked'
+      ? 'Tu acceso fue restringido por un administrador. Contacta al administrador si crees que es un error.'
+      : 'Tu periodo de acceso terminó' + (expiresAt ? ' el ' + new Date(expiresAt).toLocaleDateString() : '') + '. Contacta al administrador para reactivarlo.';
+    document.getElementById('access-blocked-modal').style.display = 'flex';
+  };
+
+  window.hideAccessBlockedModal = function () {
+    const m = document.getElementById('access-blocked-modal');
+    if (m) m.style.display = 'none';
+  };
 
   const ADMIN_LINKS = [
     { id: 'nav-dashboard-link', href: '/admin/', text: 'Dashboard →', color: '#1976D2' },
@@ -398,13 +435,22 @@
       btn.textContent = name;
       btn.title = 'Ver mi progreso';
       btn.onclick = window.openStatsPanel;
-      const role = await _getRole();
+      const profile = await _getAccessProfile();
+      const role = profile ? profile.role : null;
       if (role === 'admin') _addDashboardLink();
+      // Admins are never gated, even if their own row somehow had a stale status/expiry.
+      if (role !== 'admin' && profile && !_isAccessValid(profile)) {
+        window.logEvent('auth', 'access_blocked_attempt', { status: profile.status, expires_at: profile.access_expires_at });
+        window.showAccessBlockedModal(profile.status === 'blocked' ? 'blocked' : 'expired', profile.access_expires_at);
+      } else {
+        window.hideAccessBlockedModal();
+      }
     } else {
       btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
       btn.title = 'Iniciar sesión';
       btn.onclick = window.openAuthModal;
       _removeDashboardLink();
+      window.hideAccessBlockedModal();
     }
   };
 

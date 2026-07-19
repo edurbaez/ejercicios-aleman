@@ -1,4 +1,4 @@
-import { verifyJWT, createRateLimiter } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
 
 const isRateLimited = createRateLimiter(5, 60_000, 'rl:vision');
 
@@ -76,6 +76,11 @@ export default async function handler(req, res) {
 
     const jwtPayload = await verifyJWT(token);
     if (!jwtPayload) return res.status(401).json({ error: 'Token inválido o expirado' });
+
+    const access = await checkAccess(jwtPayload.sub);
+    if (!access.valid) {
+        return res.status(403).json({ error: 'Acceso restringido', status: access.status, expires_at: access.expires_at });
+    }
 
     if (await isRateLimited(jwtPayload.sub)) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Máximo 5 revisiones por minuto.' });

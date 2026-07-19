@@ -45,6 +45,19 @@ function getRead() { try { return JSON.parse(localStorage.getItem('gram_read') |
 function markRead(id) { const r = getRead(); r[id] = true; localStorage.setItem('gram_read', JSON.stringify(r)); syncToSupabase(); }
 function isFav(id) { return getFavs().includes(id); }
 
+function saveLastPosition(level, ruleId) {
+  localStorage.setItem('gram_last_level', level);
+  localStorage.setItem('gram_last_rule', ruleId || '');
+}
+
+function loadLastPosition() {
+  const level = localStorage.getItem('gram_last_level');
+  const validLevel = LEVELS.includes(level) ? level : 'A1';
+  const ruleId = localStorage.getItem('gram_last_rule');
+  const validRule = ruleId && GRAMMAR_DATA[validLevel].some(r => r.id === ruleId) ? ruleId : null;
+  return { level: validLevel, ruleId: validRule };
+}
+
 function toggleFav(id, e) {
   e.stopPropagation();
   const favs = getFavs();
@@ -175,7 +188,7 @@ function parseHash() {
     const rule = GRAMMAR_DATA[lvl].find(r => r.id === h);
     if (rule) return { level: lvl, ruleId: rule.id };
   }
-  return { level: 'A1', ruleId: null };
+  return loadLastPosition();
 }
 
 function setLevel(level, pushState = true) {
@@ -185,6 +198,7 @@ function setLevel(level, pushState = true) {
   const btn = document.getElementById('fav-filter-btn');
   if (btn) btn.classList.remove('active');
   if (pushState) history.pushState(null, '', '#' + level.toLowerCase());
+  saveLastPosition(level, null);
   renderAll();
 }
 
@@ -402,6 +416,7 @@ function renderRuleCard(rule, i, read, showLevel) {
 function toggleRule(id) {
   openRuleId = openRuleId === id ? null : id;
   if (openRuleId) markRead(id);
+  saveLastPosition(currentLevel, openRuleId);
   renderAll();
   if (openRuleId) {
     var el = document.getElementById('rule-' + openRuleId);

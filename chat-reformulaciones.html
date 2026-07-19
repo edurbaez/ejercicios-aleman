@@ -167,19 +167,24 @@ function renderLevelFilter() {
     const el = document.getElementById('levelFilter');
     const pills = [{ label: 'Todos', value: 'all' }, ...LEVELS.map(l => ({ label: l, value: l }))];
     el.innerHTML = pills.map(p =>
-        `<button class="cr-level-pill${p.value === 'all' ? ' active' : ''}"
+        `<button class="cr-level-pill${p.value === State.activeFilter ? ' active' : ''}"
             data-level="${p.value}" onclick="setLevelFilter('${p.value}')">${p.label}</button>`
     ).join('');
 }
 
-function setLevelFilter(level) {
+function applyLevelFilter(level) {
     State.activeFilter = level;
-    document.querySelectorAll('.cr-level-pill').forEach(b =>
-        b.classList.toggle('active', b.dataset.level === level)
-    );
     State.filteredRules = level === 'all'
         ? State.allRules
         : State.allRules.filter(r => r.nivel === level);
+}
+
+function setLevelFilter(level) {
+    applyLevelFilter(level);
+    localStorage.setItem('cr_level_filter', level);
+    document.querySelectorAll('.cr-level-pill').forEach(b =>
+        b.classList.toggle('active', b.dataset.level === level)
+    );
     renderRuleChips();
 }
 
@@ -1051,7 +1056,8 @@ window.onAuthSignedIn = () => { loadDailyUsage(); loadRuleSRSCache(); };
         .then(r => r.ok ? r.json() : null)
         .catch(() => null);
     State.allRules = buildAllRules();
-    State.filteredRules = State.allRules;
+    const savedFilter = localStorage.getItem('cr_level_filter');
+    applyLevelFilter(savedFilter === 'all' || LEVELS.includes(savedFilter) ? savedFilter : 'all');
     renderLevelFilter();
     renderRuleChips();
     // Deep-link support: chat-reformulaciones.html?rule=b1-01,b1-02

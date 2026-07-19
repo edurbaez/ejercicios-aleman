@@ -80,6 +80,20 @@
             return first === -1 ? 29 : first;
         }
 
+        function getLastDayKey(level) {
+            return 'plan_lastday_' + level;
+        }
+
+        function loadLastDay(level) {
+            const raw = localStorage.getItem(getLastDayKey(level));
+            const idx = raw === null ? NaN : parseInt(raw, 10);
+            return (idx >= 0 && idx <= 29) ? idx : null;
+        }
+
+        function saveLastDay(level, index) {
+            localStorage.setItem(getLastDayKey(level), String(index));
+        }
+
         function renderProgressBar(progress) {
             const done = progress.filter(Boolean).length;
             document.getElementById('plan-progress-label').textContent = done + ' / 30 días completados';
@@ -111,6 +125,7 @@
 
         function selectDay(index) {
             selectedDay = index;
+            saveLastDay(activeLevel, index);
             const plan = window.PLANS[activeLevel];
             const progress = loadProgress(activeLevel);
             const dayObj = plan[index];
@@ -176,8 +191,8 @@
             renderProgressBar(progress);
             renderCalendar(level, progress);
 
-            const currentIdx = getCurrentDayIndex(progress);
-            selectDay(currentIdx);
+            const lastDay = loadLastDay(level);
+            selectDay(lastDay !== null ? lastDay : getCurrentDayIndex(progress));
 
             document.getElementById('plan-detail').style.display = 'block';
         }

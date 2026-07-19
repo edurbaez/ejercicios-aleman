@@ -182,6 +182,7 @@
         function switchLevel(level) {
             activeLevel = level;
             selectedDay = null;
+            localStorage.setItem('plan_last_level', level);
 
             document.querySelectorAll('.plan-level-btn').forEach(function(btn) {
                 btn.classList.toggle('active', btn.dataset.level === level);
@@ -213,7 +214,7 @@
             document.body.classList.add('dark');
         }
 
-        switchLevel('a1');
+        switchLevel(localStorage.getItem('plan_last_level') || 'a1');
     </script>
 </body>
 </html>

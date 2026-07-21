@@ -3,520 +3,720 @@ window.PLANS = {
     // Semana 1: Saludos + artículos
     {
       day: 1, week: 1,
-      focus: "Artículos definidos: der, die, das",
+      focus: "Artículos definidos + Pronombres personales + Verbos sein y haben",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Artículos definidos", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con der/die/das", minutes: 10 }
+        { app: "gramatica.html#a1-01", label: "Gramática: Artículos definidos", minutes: 5 },
+        { app: "gramatica.html#a1-02", label: "Gramática: Pronombres personales", minutes: 5 },
+        { app: "gramatica.html#a1-03", label: "Gramática: Verbos sein y haben", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Pronombres personales",
+      focus: "Presente verbos regulares + Negación: nicht y kein + Acusativo básico",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Pronombres personales", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con pronombres", minutes: 10 }
+        { app: "gramatica.html#a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
+        { app: "gramatica.html#a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
+        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "Verbos sein y haben",
+      focus: "W-Fragen + Orden de palabras + Plurales",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Verbos sein y haben", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con sein y haben", minutes: 10 }
+        { app: "gramatica.html#a1-07", label: "Gramática: W-Fragen", minutes: 5 },
+        { app: "gramatica.html#a1-08", label: "Gramática: Orden de palabras", minutes: 5 },
+        { app: "gramatica.html#a1-09", label: "Gramática: Plurales", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
-      focus: "Presente de verbos regulares",
+      focus: "Artículo indefinido y su negación + Verben mit Vokalwechsel + Possessivartikel",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Presente verbos regulares", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con verbos regulares", minutes: 10 }
+        { app: "gramatica.html#a1-10", label: "Gramática: Artículo indefinido y su negación", minutes: 5 },
+        { app: "gramatica.html#a1-11", label: "Gramática: Verben mit Vokalwechsel", minutes: 5 },
+        { app: "gramatica.html#a1-12", label: "Gramática: Possessivartikel", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 5, week: 1,
-      focus: "Negación: nicht y kein",
+      focus: "Artikel interrogativ und demonstrativ + Personalpronomen: Akkusativ und Dativ + Temporale Präpositionen",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Negación: nicht y kein", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con nicht/kein", minutes: 10 }
+        { app: "gramatica.html#a1-13", label: "Gramática: Artikel interrogativ und demonstrativ", minutes: 5 },
+        { app: "gramatica.html#a1-14", label: "Gramática: Personalpronomen: Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a1-15", label: "Gramática: Temporale Präpositionen", minutes: 5 },
+        { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 6, week: 1,
-      focus: "Acusativo básico",
+      focus: "Hauptsätze verbinden: Position 0 + Komposita + Zusammengesetzte Verben",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Acusativo básico", minutes: 10 },
-        { app: "kasus.html", label: "Entrenador de casos: Akkusativ", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 10 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases en Akkusativ", minutes: 10 }
+        { app: "gramatica.html#a1-16", label: "Gramática: Hauptsätze verbinden: Position 0", minutes: 5 },
+        { app: "gramatica.html#a1-17", label: "Gramática: Komposita", minutes: 5 },
+        { app: "gramatica.html#a1-18", label: "Gramática: Zusammengesetzte Verben", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 7, week: 1,
-      focus: "Repaso: artículos, pronombres, sein/haben y negación",
+      focus: "Genusregeln + Verbos separables + Imperativo",
       tasks: [
-        { app: "A1.html", label: "Repaso vocabulario semana 1", minutes: 20 },
-        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
+        { app: "gramatica.html#a1-19", label: "Gramática: Genusregeln", minutes: 5 },
+        { app: "gramatica.html#a1-20", label: "Gramática: Verbos separables", minutes: 5 },
+        { app: "gramatica.html#a1-21", label: "Gramática: Imperativo", minutes: 5 },
+        { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
-    // Semana 2: W-Fragen, orden de palabras, plurales, artículo indefinido
+    // Semana 2: consolidación temática (familias de reglas relacionadas)
     {
       day: 8, week: 2,
-      focus: "W-Fragen: palabras interrogativas",
+      focus: "Artículos definidos + Artículo indefinido y su negación + Genusregeln",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: W-Fragen", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: preguntas con W-Fragen", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a1-01", label: "Gramática: Artículos definidos", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-10", label: "Gramática: Artículo indefinido y su negación", minutes: 5 },
+        { app: "gramatica.html#a1-19", label: "Gramática: Genusregeln", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 9, week: 2,
-      focus: "Orden de palabras: el verbo en posición 2",
+      focus: "Pronombres personales + Possessivartikel + Personalpronomen: Akkusativ und Dativ",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Orden de palabras", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: orden de palabras", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a1-02", label: "Gramática: Pronombres personales", minutes: 5 },
+        { app: "gramatica.html#a1-12", label: "Gramática: Possessivartikel", minutes: 5 },
+        { app: "gramatica.html#a1-14", label: "Gramática: Personalpronomen: Akkusativ und Dativ", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 10, week: 2,
-      focus: "Plurales: los 5 patrones frecuentes",
+      focus: "Verbos sein y haben + Presente verbos regulares + Verben mit Vokalwechsel",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Plurales", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: plurales frecuentes", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a1-03", label: "Gramática: Verbos sein y haben", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
+        { app: "gramatica.html#a1-11", label: "Gramática: Verben mit Vokalwechsel", minutes: 5 },
+        { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 11, week: 2,
-      focus: "Artículo indefinido y su negación",
+      focus: "Negación: nicht y kein + Acusativo básico + Artikel interrogativ und demonstrativ",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Artículo indefinido y su negación", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: ein/eine – kein/keine", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
+        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "gramatica.html#a1-13", label: "Gramática: Artikel interrogativ und demonstrativ", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 12, week: 2,
-      focus: "Práctica integrada: W-Fragen y orden de palabras",
+      focus: "W-Fragen + Orden de palabras + Hauptsätze verbinden: Position 0",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: preguntas y orden de palabras", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-07", label: "Gramática: W-Fragen", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-08", label: "Gramática: Orden de palabras", minutes: 5 },
+        { app: "gramatica.html#a1-16", label: "Gramática: Hauptsätze verbinden: Position 0", minutes: 5 },
+        { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 13, week: 2,
-      focus: "Práctica integrada: plurales y artículo indefinido",
+      focus: "Plurales + Temporale Präpositionen + Komposita",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: plurales y artículos", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-09", label: "Gramática: Plurales", minutes: 5 },
+        { app: "gramatica.html#a1-15", label: "Gramática: Temporale Präpositionen", minutes: 5 },
+        { app: "gramatica.html#a1-17", label: "Gramática: Komposita", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 14, week: 2,
-      focus: "Repaso: W-Fragen, orden de palabras, plurales y artículo indefinido",
+      focus: "Zusammengesetzte Verben + Verbos separables + Imperativo",
       tasks: [
-        { app: "A1.html", label: "Repaso vocabulario semana 2", minutes: 20 },
-        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
+        { app: "gramatica.html#a1-18", label: "Gramática: Zusammengesetzte Verben", minutes: 5 },
+        { app: "gramatica.html#a1-20", label: "Gramática: Verbos separables", minutes: 5 },
+        { app: "gramatica.html#a1-21", label: "Gramática: Imperativo", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     // Semana 3: consolidación de los 10 puntos gramaticales de A1
     {
       day: 15, week: 3,
-      focus: "Repaso combinado: artículos, pronombres y sein/haben",
+      focus: "Acusativo aplicado: artículos, artículo indefinido negado y pronombres",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: artículos, pronombres y sein/haben", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: esenciales", minutes: 15 }
+        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-10", label: "Gramática: Artículo indefinido y su negación", minutes: 5 },
+        { app: "gramatica.html#a1-14", label: "Gramática: Personalpronomen: Akkusativ und Dativ", minutes: 5 },
+        { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Repaso combinado: verbos regulares y negación",
+      focus: "El marco verbal (Satzklammer): orden de palabras, Position 0 y verbos separables",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: verbos regulares y negación", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: verbos", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-08", label: "Gramática: Orden de palabras", minutes: 5 },
+        { app: "gramatica.html#a1-16", label: "Gramática: Hauptsätze verbinden: Position 0", minutes: 5 },
+        { app: "gramatica.html#a1-20", label: "Gramática: Verbos separables", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Casos en contexto: Nominativ y Akkusativ combinados",
+      focus: "Presente regular vs. cambio vocálico vs. imperativo",
       tasks: [
-        { app: "kasus.html", label: "Entrenador de casos: Nominativ vs Akkusativ", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: sustantivos", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
+        { app: "gramatica.html#a1-11", label: "Gramática: Verben mit Vokalwechsel", minutes: 5 },
+        { app: "gramatica.html#a1-21", label: "Gramática: Imperativo", minutes: 5 },
+        { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 18, week: 3,
-      focus: "Repaso combinado: W-Fragen y orden de palabras",
+      focus: "Negación, posesivos y género gramatical",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: W-Fragen y orden de palabras", minutes: 20 },
-        { app: "chat-voz.html", label: "🔁 Repetir: preguntas y frases en orden correcto", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
+        { app: "gramatica.html#a1-12", label: "Gramática: Possessivartikel", minutes: 5 },
+        { app: "gramatica.html#a1-19", label: "Gramática: Genusregeln", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Repaso combinado: plurales y artículo indefinido",
+      focus: "Pronombres interrogativos: wer, wo, welcher y dieser",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: plurales y artículo indefinido", minutes: 20 },
-        { app: "A1.html", label: "Vocabulario: adjetivos", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-02", label: "Gramática: Pronombres personales", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-07", label: "Gramática: W-Fragen", minutes: 5 },
+        { app: "gramatica.html#a1-13", label: "Gramática: Artikel interrogativ und demonstrativ", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Primera práctica de escritura guiada A1",
+      focus: "Repaso libre: preposiciones temporales, compuestos y verbos compuestos",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: expresiones", minutes: 15 },
-        { app: "corrector.html", label: "Corrección: frases sueltas A1", minutes: 15 }
+        { app: "gramatica.html#a1-15", label: "Gramática: Temporale Präpositionen", minutes: 5 },
+        { app: "gramatica.html#a1-17", label: "Gramática: Komposita", minutes: 5 },
+        { app: "gramatica.html#a1-18", label: "Gramática: Zusammengesetzte Verben", minutes: 5 },
+        { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Repaso: los 10 puntos gramaticales de A1",
+      focus: "Repaso general de cierre de semana: artículos, sein/haben y plurales",
       tasks: [
-        { app: "A1.html", label: "Repaso vocabulario semana 3", minutes: 20 },
-        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a1-01", label: "Gramática: Artículos definidos", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-03", label: "Gramática: Verbos sein y haben", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a1-09", label: "Gramática: Plurales", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
-    // Semana 4: Repaso general
+    // Semana 4: repaso final secuencial + simulacro
     {
       day: 22, week: 4,
-      focus: "Repaso: presentación personal completa",
+      focus: "Repaso final: artículos definidos, pronombres personales y acusativo básico",
       tasks: [
-        { app: "A1.html", label: "Vocabulario mixto A1", minutes: 15 },
-        { app: "chat-voz.html", label: "Presentación personal extendida", minutes: 20 }
+        { app: "gramatica.html#a1-01", label: "Gramática: Artículos definidos", minutes: 5 },
+        { app: "gramatica.html#a1-02", label: "Gramática: Pronombres personales", minutes: 5 },
+        { app: "gramatica.html#a1-03", label: "Gramática: Verbos sein y haben", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 23, week: 4,
-      focus: "Repaso de gramática: artículos y casos",
+      focus: "Repaso final: presente regular, negación y acusativo básico",
       tasks: [
-        { app: "gramatica.html", label: "Repaso: artículos y nominativo", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Nominativ", minutes: 15 }
+        { app: "gramatica.html#a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
+        { app: "gramatica.html#a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
+        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 24, week: 4,
-      focus: "Escritura: describir una imagen sencilla",
+      focus: "Repaso final: W-Fragen, orden de palabras y plurales",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: vocabulario descriptivo", minutes: 15 },
-        { app: "escritura.html", label: "Tarea de escritura A1", minutes: 20 }
+        { app: "gramatica.html#a1-07", label: "Gramática: W-Fragen", minutes: 5 },
+        { app: "gramatica.html#a1-08", label: "Gramática: Orden de palabras", minutes: 5 },
+        { app: "gramatica.html#a1-09", label: "Gramática: Plurales", minutes: 5 },
+        { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 25, week: 4,
-      focus: "Conversación: situaciones cotidianas",
+      focus: "Repaso final: artículo indefinido negado, Vokalwechsel y Possessivartikel",
       tasks: [
-        { app: "chat-voz.html", label: "Simulacro: en el supermercado", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario repaso final", minutes: 15 }
+        { app: "gramatica.html#a1-10", label: "Gramática: Artículo indefinido y su negación", minutes: 5 },
+        { app: "gramatica.html#a1-11", label: "Gramática: Verben mit Vokalwechsel", minutes: 5 },
+        { app: "gramatica.html#a1-12", label: "Gramática: Possessivartikel", minutes: 5 },
+        { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 26, week: 4,
-      focus: "Lectura de textos sencillos",
+      focus: "Repaso final: artículos interrogativos/demostrativos, Akkusativ und Dativ y preposiciones temporales",
       tasks: [
-        { app: "lectura veloz.html", label: "Lectura rápida de texto A1", minutes: 15 },
-        { app: "A1.html", label: "Vocabulario de la lectura", minutes: 15 }
+        { app: "gramatica.html#a1-13", label: "Gramática: Artikel interrogativ und demonstrativ", minutes: 5 },
+        { app: "gramatica.html#a1-14", label: "Gramática: Personalpronomen: Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a1-15", label: "Gramática: Temporale Präpositionen", minutes: 5 },
+        { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
       ]
     },
     {
       day: 27, week: 4,
-      focus: "Repaso oral y escrito",
+      focus: "Repaso final: Position 0, Komposita y verbos compuestos",
       tasks: [
-        { app: "mundliche.html", label: "Simulacro oral estructurado A1", minutes: 15 },
-        { app: "corrector.html", label: "Corrección: frases sueltas A1", minutes: 15 }
+        { app: "gramatica.html#a1-16", label: "Gramática: Hauptsätze verbinden: Position 0", minutes: 5 },
+        { app: "gramatica.html#a1-17", label: "Gramática: Komposita", minutes: 5 },
+        { app: "gramatica.html#a1-18", label: "Gramática: Zusammengesetzte Verben", minutes: 5 },
+        { app: "A1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=email", label: "Escritura: E-Mail", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "Mündliche: Bitte formulieren", minutes: 10 }
       ]
     },
     {
       day: 28, week: 4,
-      focus: "Vocabulario temático: transporte y ciudad",
+      focus: "Repaso libre: reglas de género, verbos separables e imperativo",
       tasks: [
-        { app: "A1.html", label: "Vocabulario: ciudad y transporte", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: pedir direcciones", minutes: 15 }
+        { app: "gramatica.html#a1-19", label: "Gramática: Genusregeln", minutes: 5 },
+        { app: "gramatica.html#a1-20", label: "Gramática: Verbos separables", minutes: 5 },
+        { app: "gramatica.html#a1-21", label: "Gramática: Imperativo", minutes: 5 },
+        { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=sms", label: "Escritura: SMS", minutes: 15 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 29, week: 4,
-      focus: "Repaso integral con juego de palabras",
+      focus: "Simulacro final A1 (día 1/2): escritura evaluada + Teil 1 oral",
       tasks: [
-        { app: "A1.html", label: "Repaso vocabulario completo A1", minutes: 20 },
-        { app: "gramatica.html", label: "Repaso gramática A1", minutes: 15 }
+        { app: "gramatica.html#a1-06", label: "Repaso: Acusativo básico", minutes: 5 },
+        { app: "escritura.html?level=A1&tipo=aleatorio", label: "📝 Simulacro: tarea de escritura completa evaluada", minutes: 20 },
+        { app: "mundliche.html?level=A1&teil=vorstellung", label: "🎤 Simulacro oral: Teil 1 Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 30, week: 4,
-      focus: "Evaluación final A1",
+      focus: "Simulacro final A1 (día 2/2): los 3 Teile orales completos, puntuación 0-100",
       tasks: [
-        { app: "mundliche.html", label: "Simulacro examen oral A1", minutes: 20 },
-        { app: "escritura.html", label: "Simulacro examen escrito A1", minutes: 15 }
+        { app: "gramatica.html#a1-20", label: "Repaso: Verbos separables", minutes: 5 },
+        { app: "mundliche.html?level=A1&teil=frage-antwort", label: "🎤 Simulacro oral: Teil 2 Fragen und Antworten", minutes: 10 },
+        { app: "mundliche.html?level=A1&teil=bitte-formulieren", label: "🎤 Simulacro oral: Teil 3 Bitte formulieren", minutes: 10 }
       ]
     }
   ],
 
   a2: [
-    // Semana 1: Dativ + Wechselpräpositionen (con repaso A1 intercalado)
+    // Semana 1: primera pasada secuencial de gramática A2 (3 reglas/día)
     {
       day: 1, week: 1,
-      focus: "Dativo: objeto indirecto",
+      focus: "Verbos modales, Perfekt y Dativo",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Dativo", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Dativ", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 }
+        { app: "gramatica.html#a2-01", label: "Gramática: Verbos modales", minutes: 5 },
+        { app: "gramatica.html#a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
+        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Dativo en la práctica",
+      focus: "Preposiciones + Acusativo/Dativo y Wechselpräpositionen",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: Dativo", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Artículos definidos", minutes: 10 }
+        { app: "gramatica.html#a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
+        { app: "gramatica.html#a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
+        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "Wechselpräpositionen: ¿wohin? vs. ¿wo?",
+      focus: "Comparativo/superlativo, reflexivos y posiciones en la oración",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Wechselpräpositionen", minutes: 15 },
-        { app: "kasus.html", label: "Entrenador de casos: Wechselpräpositionen", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 }
+        { app: "gramatica.html#a2-09", label: "Gramática: Comparativo y superlativo", minutes: 5 },
+        { app: "gramatica.html#a2-10", label: "Gramática: Verbos reflexivos", minutes: 5 },
+        { app: "gramatica.html#a2-11", label: "Gramática: Zwei feste Positionen im Satz", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
-      focus: "Wechselpräpositionen en la práctica",
+      focus: "Verbos con Akkusativ/Dativ y preguntas por personas/cosas",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: Wechselpräpositionen", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Pronombres personales", minutes: 10 }
+        { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-14", label: "Gramática: Frage nach Personen und Sachen", minutes: 5 },
+        { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 5, week: 1,
-      focus: "Práctica integrada: Dativ y Wechselpräpositionen",
+      focus: "Präteritum de sein/haben, modales y uso de tiempos",
       tasks: [
-        { app: "kasus.html", label: "Práctica combinada: Dativ y Wechselpräpositionen", minutes: 20 },
-        { app: "chat-voz.html", label: "🔁 Repetir: frases con Dativ y preposiciones mixtas", minutes: 10 },
-        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 10 }
+        { app: "gramatica.html#a2-15", label: "Gramática: Präteritum: sein und haben", minutes: 5 },
+        { app: "gramatica.html#a2-16", label: "Gramática: Präteritum: Modalverben", minutes: 5 },
+        { app: "gramatica.html#a2-17", label: "Gramática: Zeitgebrauch", minutes: 5 },
+        { app: "A2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 6, week: 1,
-      focus: "Repaso oral: casos de la semana",
+      focus: "Preposiciones locales: Wohin, Wo y Woher",
       tasks: [
-        { app: "chat-voz.html", label: "🔁 Repetir: repaso Dativ y Wechselpräpositionen", minutes: 15 },
-        { app: "gramatica.html", label: "Repaso A1: Verbos sein y haben", minutes: 10 }
+        { app: "gramatica.html#a2-18", label: "Gramática: Lokale Präpositionen: Wohin?", minutes: 5 },
+        { app: "gramatica.html#a2-19", label: "Gramática: Lokale Präpositionen: Wo?", minutes: 5 },
+        { app: "gramatica.html#a2-20", label: "Gramática: Lokale Präpositionen: Woher?", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 7, week: 1,
-      focus: "Repaso semana 1: Dativo y Wechselpräpositionen",
+      focus: "Conectores, Nebensätze (weil/wenn/dass) y partículas",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario semana 1", minutes: 15 },
-        { app: "kasus.html", label: "Repaso casos semana 1", minutes: 15 },
-        { app: "gramatica.html", label: "Repaso A1: Presente verbos regulares", minutes: 10 }
+        { app: "gramatica.html#a2-21", label: "Gramática: Hauptsätze verbinden: Position 1", minutes: 5 },
+        { app: "gramatica.html#a2-22", label: "Gramática: Nebensätze mit weil, wenn und dass", minutes: 5 },
+        { app: "gramatica.html#a2-23", label: "Gramática: Partikeln und Wortbildung", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
-    // Semana 2: modales, Perfekt, separables, imperativo (con repaso A1 intercalado)
+    // Semana 2: consolidación temática (mismas 21 reglas, agrupadas por familia)
     {
       day: 8, week: 2,
-      focus: "Verbos modales",
+      focus: "Dativo: caso, verbos con doble objeto y verbos de Dativo",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Verbos modales", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: pedir permiso y expresar obligación", minutes: 10 }
+        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 9, week: 2,
-      focus: "Verbos modales en la práctica",
+      focus: "Preposiciones de caso fijo y Wechselpräpositionen",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: verbos modales", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Negación: nicht y kein", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
+        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 10, week: 2,
-      focus: "Pretérito perfecto (Perfekt)",
+      focus: "Verbos modales y Präteritum de sein/haben/modales",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 },
-        { app: "chat-voz.html", label: "Conversación: ¿qué hiciste ayer?", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-01", label: "Gramática: Verbos modales", minutes: 5 },
+        { app: "gramatica.html#a2-15", label: "Gramática: Präteritum: sein und haben", minutes: 5 },
+        { app: "gramatica.html#a2-16", label: "Gramática: Präteritum: Modalverben", minutes: 5 },
+        { app: "A2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 11, week: 2,
-      focus: "Perfekt en la práctica",
+      focus: "Perfekt, uso de tiempos pasados y estructura de la oración",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: Perfekt", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Acusativo básico", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
+        { app: "gramatica.html#a2-17", label: "Gramática: Zeitgebrauch", minutes: 5 },
+        { app: "gramatica.html#a2-11", label: "Gramática: Zwei feste Positionen im Satz", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 12, week: 2,
-      focus: "Verbos separables",
+      focus: "Preposiciones locales: Wohin, Wo y Woher",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Verbos separables", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 10 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: verbos separables", minutes: 15 }
+        { app: "gramatica.html#a2-18", label: "Gramática: Lokale Präpositionen: Wohin?", minutes: 5 },
+        { app: "gramatica.html#a2-19", label: "Gramática: Lokale Präpositionen: Wo?", minutes: 5 },
+        { app: "gramatica.html#a2-20", label: "Gramática: Lokale Präpositionen: Woher?", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 13, week: 2,
-      focus: "Imperativo: du, ihr, Sie",
+      focus: "Conectores, Nebensätze (weil/wenn/dass) y partículas",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Imperativo", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: dar instrucciones y órdenes", minutes: 15 },
-        { app: "gramatica.html", label: "Repaso A1: W-Fragen", minutes: 10 }
+        { app: "gramatica.html#a2-21", label: "Gramática: Hauptsätze verbinden: Position 1", minutes: 5 },
+        { app: "gramatica.html#a2-22", label: "Gramática: Nebensätze mit weil, wenn und dass", minutes: 5 },
+        { app: "gramatica.html#a2-23", label: "Gramática: Partikeln und Wortbildung", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 14, week: 2,
-      focus: "Repaso semana 2: modales, Perfekt, separables e imperativo",
+      focus: "Comparativo/superlativo, reflexivos y preguntas por personas/cosas",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario semana 2", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: repaso combinado semana 2", minutes: 20 },
-        { app: "gramatica.html", label: "Repaso A1: Orden de palabras", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-09", label: "Gramática: Comparativo y superlativo", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a2-10", label: "Gramática: Verbos reflexivos", minutes: 5 },
+        { app: "gramatica.html#a2-14", label: "Gramática: Frage nach Personen und Sachen", minutes: 5 },
+        { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
-    // Semana 3: preposiciones Akk./Dat., comparativo/superlativo, reflexivos (con repaso A1 intercalado)
+    // Semana 3: repaso cruzado de reglas A2 combinando temas ya vistos
     {
       day: 15, week: 3,
-      focus: "Preposiciones + Acusativo (durch, für, gegen, ohne, um)",
+      focus: "Repaso: verbos modales + pasado hablado de sein/haben y modales",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Preposiciones + Acusativo", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: esenciales", minutes: 10 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: preposiciones + Acusativo", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a2-01", label: "Gramática: Verbos modales", minutes: 5 },
+        { app: "gramatica.html#a2-15", label: "Gramática: Präteritum sein und haben", minutes: 5 },
+        { app: "gramatica.html#a2-16", label: "Gramática: Präteritum Modalverben", minutes: 5 },
+        { app: "A2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Preposiciones + Dativo (aus, bei, mit, nach, seit, von, zu…)",
+      focus: "Repaso: Perfekt, estructura de dos posiciones y uso de tiempos pasados",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Preposiciones + Dativo", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: verbos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Plurales", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
+        { app: "gramatica.html#a2-11", label: "Gramática: Zwei feste Positionen im Satz", minutes: 5 },
+        { app: "gramatica.html#a2-17", label: "Gramática: Zeitgebrauch (¿Präteritum o Perfekt?)", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Comparativo y superlativo",
+      focus: "Repaso: Dativo (artículos, verbos con Akk./Dativ y verbos de Dativo)",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Comparativo y superlativo", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: adjetivos", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación: comparar personas y cosas", minutes: 10 }
+        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 18, week: 3,
-      focus: "Verbos reflexivos",
+      focus: "Repaso: preposiciones + Acusativo, + Dativo y Wechselpräpositionen",
       tasks: [
-        { app: "gramatica.html", label: "Gramática: Verbos reflexivos", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario: sustantivos", minutes: 10 },
-        { app: "gramatica.html", label: "Repaso A1: Artículo indefinido y su negación", minutes: 10 }
+        { app: "chat-reformulaciones.html?rule=a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
+        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Práctica integrada: preposiciones de Acusativo y Dativo",
+      focus: "Repaso: preposiciones locales (wohin, wo, woher)",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: preposiciones Akk. y Dat. combinadas", minutes: 20 },
-        { app: "A2.html", label: "Vocabulario: expresiones", minutes: 15 }
+        { app: "gramatica.html#a2-18", label: "Gramática: Lokale Präpositionen: Wohin?", minutes: 5 },
+        { app: "gramatica.html#a2-19", label: "Gramática: Lokale Präpositionen: Wo?", minutes: 5 },
+        { app: "gramatica.html#a2-20", label: "Gramática: Lokale Präpositionen: Woher?", minutes: 5 },
+        { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Primera práctica de escritura guiada A2",
+      focus: "Repaso: comparativo/superlativo, verbos reflexivos y preguntas por personas/cosas",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
-        { app: "corrector.html", label: "Corrección: frases sueltas A2", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=a2-09", label: "Gramática: Comparativo y superlativo", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=a2-10", label: "Gramática: Verbos reflexivos", minutes: 5 },
+        { app: "gramatica.html#a2-14", label: "Gramática: Frage nach Personen und Sachen", minutes: 5 },
+        { app: "A2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Repaso semana 3: preposiciones, comparativo y reflexivos",
+      focus: "Repaso: conectores en posición 1, subordinadas (weil/wenn/dass) y partículas",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario semana 3", minutes: 15 },
-        { app: "chat-voz.html", label: "🔁 Repetir: repaso de frases de la semana", minutes: 15 }
+        { app: "gramatica.html#a2-21", label: "Gramática: Hauptsätze verbinden: Position 1", minutes: 5 },
+        { app: "gramatica.html#a2-22", label: "Gramática: Nebensätze mit weil, wenn und dass", minutes: 5 },
+        { app: "gramatica.html#a2-23", label: "Gramática: Partikeln und Wortbildung", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
-    // Semana 4: escritura.html, mundliche.html y evaluación final
+    // Semana 4: repaso final secuencial + simulacro
     {
       day: 22, week: 4,
-      focus: "Repaso integral: los 10 puntos gramaticales de A2",
+      focus: "Repaso final: verbos modales, Perfekt y Dativo",
       tasks: [
-        { app: "kasus.html", label: "Repaso integral de casos A2", minutes: 15 },
-        { app: "chat-reformulaciones.html", label: "Reformulación: repaso general A2", minutes: 20 }
+        { app: "gramatica.html#a2-01", label: "Gramática: Verbos modales", minutes: 5 },
+        { app: "gramatica.html#a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
+        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
       ]
     },
     {
       day: 23, week: 4,
-      focus: "Escritura: describir una experiencia pasada",
+      focus: "Repaso final: preposiciones + Acusativo/Dativo y Wechselpräpositionen",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
-        { app: "escritura.html", label: "Tarea de escritura A2", minutes: 20 }
+        { app: "gramatica.html#a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
+        { app: "gramatica.html#a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
+        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 24, week: 4,
-      focus: "Lectura de textos A2",
+      focus: "Repaso final: Zwei feste Positionen, Verben mit Akkusativ und Dativ y Verben mit Dativ",
       tasks: [
-        { app: "lectura veloz.html", label: "Lectura RSVP de texto A2", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario de la lectura", minutes: 15 }
+        { app: "gramatica.html#a2-09", label: "Gramática: Comparativo y superlativo", minutes: 5 },
+        { app: "gramatica.html#a2-10", label: "Gramática: Verbos reflexivos", minutes: 5 },
+        { app: "gramatica.html#a2-11", label: "Gramática: Zwei feste Positionen im Satz", minutes: 5 },
+        { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 25, week: 4,
-      focus: "Conversación: situaciones cotidianas A2",
+      focus: "Repaso final: Verben mit Akkusativ und Dativ, Verben mit Dativ y Frage nach Personen und Sachen",
       tasks: [
-        { app: "chat-voz.html", label: "Simulacro: planes de fin de semana", minutes: 15 },
-        { app: "A2.html", label: "Vocabulario repaso final", minutes: 15 }
+        { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
+        { app: "gramatica.html#a2-14", label: "Gramática: Frage nach Personen und Sachen", minutes: 5 },
+        { app: "A2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
       ]
     },
     {
       day: 26, week: 4,
-      focus: "Reformulación general A2",
+      focus: "Repaso final: Präteritum sein/haben, Präteritum Modalverben y Zeitgebrauch",
       tasks: [
-        { app: "chat-reformulaciones.html", label: "Reformulación: consolidación A2", minutes: 20 },
-        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 }
+        { app: "gramatica.html#a2-15", label: "Gramática: Präteritum sein und haben", minutes: 5 },
+        { app: "gramatica.html#a2-16", label: "Gramática: Präteritum Modalverben", minutes: 5 },
+        { app: "gramatica.html#a2-17", label: "Gramática: Zeitgebrauch (¿Präteritum o Perfekt?)", minutes: 5 },
+        { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
       ]
     },
     {
       day: 27, week: 4,
-      focus: "Repaso oral y escrito",
+      focus: "Repaso final: preposiciones locales wohin, wo y woher",
       tasks: [
-        { app: "mundliche.html", label: "Simulacro oral estructurado A2", minutes: 15 },
-        { app: "corrector.html", label: "Corrección: frases sueltas A2", minutes: 15 }
+        { app: "gramatica.html#a2-18", label: "Gramática: Lokale Präpositionen: Wohin?", minutes: 5 },
+        { app: "gramatica.html#a2-19", label: "Gramática: Lokale Präpositionen: Wo?", minutes: 5 },
+        { app: "gramatica.html#a2-20", label: "Gramática: Lokale Präpositionen: Woher?", minutes: 5 },
+        { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
       ]
     },
     {
       day: 28, week: 4,
-      focus: "Vocabulario temático: repaso semanal",
+      focus: "Repaso libre: conectores en posición 1, subordinadas (weil/wenn/dass) y partículas",
       tasks: [
-        { app: "A2.html", label: "Vocabulario: repaso mixto", minutes: 15 },
-        { app: "chat-voz.html", label: "Conversación libre A2", minutes: 15 }
+        { app: "gramatica.html#a2-21", label: "Gramática: Hauptsätze verbinden: Position 1", minutes: 5 },
+        { app: "gramatica.html#a2-22", label: "Gramática: Nebensätze mit weil, wenn und dass", minutes: 5 },
+        { app: "gramatica.html#a2-23", label: "Gramática: Partikeln und Wortbildung", minutes: 5 },
+        { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
       ]
     },
     {
       day: 29, week: 4,
-      focus: "Repaso integral con juego de palabras",
+      focus: "Simulacro final A2 (día 1/2): escritura evaluada + Teil 1 oral",
       tasks: [
-        { app: "A2.html", label: "Repaso vocabulario completo A2", minutes: 20 },
-        { app: "gramatica.html", label: "Repaso gramática A2", minutes: 15 }
+        { app: "gramatica.html#a2-03", label: "Repaso: Dativo", minutes: 5 },
+        { app: "escritura.html?level=A2&tipo=aleatorio", label: "📝 Simulacro: tarea de escritura completa evaluada", minutes: 20 },
+        { app: "mundliche.html?level=A2&teil=vorstellung", label: "🎤 Simulacro oral: Teil 1 Sich vorstellen", minutes: 10 }
       ]
     },
     {
       day: 30, week: 4,
-      focus: "Evaluación final A2",
+      focus: "Simulacro final A2 (día 2/2): los 3 Teile orales completos, puntuación 0-100",
       tasks: [
-        { app: "mundliche.html", label: "Simulacro examen oral A2", minutes: 20 },
-        { app: "escritura.html", label: "Simulacro examen escrito A2", minutes: 15 }
+        { app: "gramatica.html#a2-06", label: "Repaso: Wechselpräpositionen", minutes: 5 },
+        { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "🎤 Simulacro oral: Teil 2 Über ein Thema sprechen", minutes: 10 },
+        { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "🎤 Simulacro oral: Teil 3 Etwas gemeinsam planen", minutes: 10 }
       ]
     }
   ],

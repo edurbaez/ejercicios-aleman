@@ -12,6 +12,9 @@
   const SYNC_ID   = CFG.syncId    || ('recordatorio-aleman-' + APP);
   const ACCENT    = CFG.accent    || '#1976D2';
 
+  const ALL_LEVEL_IDS = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
+  const LEVEL_LABELS  = { a1: 'A1', a2: 'A2', b1: 'B1', b2: 'B2', c1: 'C1', c2: 'C2' };
+
   let DATA = {};
 
   const State = {
@@ -906,6 +909,49 @@
     return r.json();
   }
 
+  /* ── Chequeo de duplicados contra listas del sistema (todos los niveles) ── */
+
+  let _sysWordIndexCache = null; // Map<palabra_de_lowercase, [{level, listName}]>
+
+  async function buildSystemWordIndex() {
+    if (_sysWordIndexCache) return _sysWordIndexCache;
+    const index = new Map();
+    const results = await Promise.all(
+      ALL_LEVEL_IDS.map(lvl => loadSystemLists(lvl).then(
+        lists => ({ lvl, lists }),
+        () => ({ lvl, lists: null })
+      ))
+    );
+    for (const { lvl, lists } of results) {
+      if (!lists) continue;
+      for (const [listName, words] of Object.entries(lists)) {
+        const deWords = words?.de || [];
+        deWords.forEach(w => {
+          const key = String(w).trim().toLowerCase();
+          if (!key) return;
+          if (!index.has(key)) index.set(key, []);
+          index.get(key).push({ level: LEVEL_LABELS[lvl] || lvl, listName });
+        });
+      }
+    }
+    _sysWordIndexCache = index;
+    return index;
+  }
+
+  async function checkDuplicatesAgainstSystem(deArr) {
+    try {
+      const index = await buildSystemWordIndex();
+      const matches = [];
+      deArr.forEach((w, i) => {
+        const key = String(w).trim().toLowerCase();
+        if (index.has(key)) matches.push({ word: w, index: i, hits: index.get(key) });
+      });
+      return matches;
+    } catch {
+      return [];
+    }
+  }
+
   function parsearPalabras(str) { return str.split(',').map(w => w.trim()).filter(w => w.length > 0); }
 
   async function traducirPalabra(palabra, src, tgt) {
@@ -948,6 +994,18 @@
       status.textContent = `Diferente cantidad de palabras (${esArr.length} ES vs ${deArr.length} DE).`;
       btnGuardar.disabled = false; return;
     }
+    status.textContent = 'Comprobando palabras repetidas...';
+    const dupes = await checkDuplicatesAgainstSystem(deArr);
+    if (dupes.length > 0) {
+      status.textContent = '';
+      mostrarRevisionDuplicados(dupes, nombre, esArr, deArr, status, btnGuardar);
+      return;
+    }
+    await _finalizeGuardarLista(nombre, esArr, deArr, status, btnGuardar);
+  }
+  window.guardarNuevaLista = guardarNuevaLista;
+
+  async function _finalizeGuardarLista(nombre, esArr, deArr, status, btnGuardar) {
     const lista = { id: Date.now(), nombre, es: esArr, de: deArr };
     await guardarListaP(lista);
     DATA['mis: ' + nombre] = { es: esArr, de: deArr };
@@ -959,7 +1017,54 @@
     btnGuardar.disabled = false;
     refreshMisListas();
   }
-  window.guardarNuevaLista = guardarNuevaLista;
+
+  function mostrarRevisionDuplicados(dupes, nombre, esArr, deArr, status, btnGuardar) {
+    let box = document.getElementById('lp-dup-review');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'lp-dup-review';
+      box.style.cssText = 'margin-top:10px;padding:10px;border:1px solid #f0ad4e;border-radius:6px;background:#fffbf0;';
+      document.getElementById('lp-body').insertBefore(box, document.getElementById('lp-lista-guardadas'));
+    }
+    const rows = dupes.map(d => {
+      const detail = d.hits.map(h => `${h.level} · ${h.listName}`).join(', ');
+      return `
+        <label style="display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:13px;">
+          <input type="checkbox" class="lp-dup-exclude" data-index="${d.index}" checked style="margin-top:3px;">
+          <span><strong>${escapeHtml(d.word)}</strong> ya existe en: ${escapeHtml(detail)}<br>
+          <span style="color:#999;">(marcado = se excluirá de la nueva lista)</span></span>
+        </label>`;
+    }).join('');
+    box.innerHTML = `
+      <div style="font-size:13px;color:#8a6d3b;margin-bottom:6px;">
+        ${dupes.length} palabra(s) ya existen en listas del sistema:
+      </div>
+      ${rows}
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <button id="lp-dup-confirmar" style="padding:6px 14px;background:${ACCENT};color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Confirmar y guardar</button>
+        <button id="lp-dup-cancelar" style="padding:6px 14px;background:none;border:1px solid #888;color:#555;border-radius:6px;cursor:pointer;font-size:13px;">Cancelar</button>
+      </div>`;
+
+    document.getElementById('lp-dup-cancelar').onclick = () => {
+      box.remove();
+      status.textContent = '';
+      btnGuardar.disabled = false;
+    };
+    document.getElementById('lp-dup-confirmar').onclick = async () => {
+      const excluded = new Set(
+        [...box.querySelectorAll('.lp-dup-exclude:checked')].map(cb => Number(cb.dataset.index))
+      );
+      const filteredEs = esArr.filter((_, i) => !excluded.has(i));
+      const filteredDe = deArr.filter((_, i) => !excluded.has(i));
+      box.remove();
+      if (filteredEs.length === 0) {
+        status.textContent = 'Todas las palabras eran duplicadas; no se guardó ninguna.';
+        btnGuardar.disabled = false;
+        return;
+      }
+      await _finalizeGuardarLista(nombre, filteredEs, filteredDe, status, btnGuardar);
+    };
+  }
 
   async function refreshMisListas() {
     const container = document.getElementById('lp-lista-guardadas');

@@ -201,8 +201,11 @@ Confirmado por código (2026-07-18): `shared-game.js` ya implementa SRS completo
 
 ---
 
-#### C. Modo Escritura (producción activa)
-Confirmado pendiente (2026-07-18): sin toggle ni input de texto en `shared-game.js`. Los quizzes son de reconocimiento (elegir entre 4 opciones). La producción activa — escribir la traducción sin ver opciones — es más exigente y más efectiva. Sigue siendo la mejora pedagógica de mayor impacto de este archivo.
+#### C. Modo Escritura (producción activa) ✅ COMPLETADO (2026-07-22)
+
+Implementado en `shared-game.js`: toggle "✍️ Escritura" junto a `btn-inverso`, persistido por app (`escritura_mode_{appId}`). Sustituye `.options-grid` por un `<input>` + "Comprobar"; corrección exacta o con distancia de Levenshtein ≤ 1 (tolera un tipeo). Se refactorizó la lógica de acierto/error de `handleSelectionPick` a una función común `processAnswer()`, reutilizada por ambos modos, para que el modo escritura alimente el mismo SRS SM-2 y las mismas estadísticas sin duplicar código. No se combina con Auto/Dual porque esos toggles viven en la sección Repetición (`#repeticion-palabras`), una sección distinta a la del quiz — no hacía falta deshabilitarlos entre sí. Afecta A1–C2 de una vez (motor compartido).
+
+~~Confirmado pendiente (2026-07-18): sin toggle ni input de texto en `shared-game.js`. Los quizzes son de reconocimiento (elegir entre 4 opciones). La producción activa — escribir la traducción sin ver opciones — es más exigente y más efectiva. Sigue siendo la mejora pedagógica de mayor impacto de este archivo.~~
 
 **Pasos de ejecución:**
 1. Revisar compatibilidad: `shared-game.js` centraliza el render de `.options-grid` y la comprobación de acierto en una única función de flujo (`State` + el handler de click de opción) — el modo escritura debe ramificar ese mismo flujo, no duplicarlo, para no romper el SRS (que ya registra correcto/incorrecto por palabra) ni el modo Auto/Dual (TTS).
@@ -300,7 +303,7 @@ Mostrar el nivel activo (B1/B2) en el navbar al navegar entre apps para orientar
 | 6 | Timeout en llamadas OpenAI (chat/whisper/vision/tts/image) | Bajo | Confiabilidad | ⬜ |
 | 7 | Aviso 10 s antes del corte en grabación | Bajo | UX inmediato | ⬜ |
 | 8 | Onboarding primera visita | Bajo | Retención | ✅ |
-| 9 | Modo Escritura en quiz A1-C2 | Medio | Pedagógico alto | ⬜ |
+| 9 | Modo Escritura en quiz A1-C2 | Medio | Pedagógico alto | ✅ |
 | 10 | Repetición espaciada (SRS) | Medio | Pedagógico alto | ✅ |
 | 11 | `api/admin-invite.js` solo HS256 | — | Seguridad | ✅ (resuelto por fusión en `admin.js`) |
 | 12 | Historial de sesiones + gráfica | Alto | Motivación | ✅ |

@@ -8,6 +8,7 @@
   const DATA_FILE = CFG.dataFile  || 'DATA.json';
   const LIMIT_KEY = CFG.limitKey  || 'b2_palabras_limite';
   const DARK_KEY  = CFG.darkKey   || 'darkMode_b2';
+  const ESCRITURA_KEY = 'escritura_mode_' + APP;
   const SW_FILE   = CFG.swFile    || '/sw.js';
   const SYNC_ID   = CFG.syncId    || ('recordatorio-aleman-' + APP);
   const ACCENT    = CFG.accent    || '#1976D2';
@@ -43,6 +44,7 @@
     selectionLock:    false,
     roundToken:       0,
     modoSRS:          false,
+    modoEscritura:    localStorage.getItem(ESCRITURA_KEY) === '1',
   };
 
   const $ = id => document.getElementById(id);
@@ -253,15 +255,20 @@
   function renderSelectionNext() {
     if (!State.es.length || !State.de.length) {
       safeText($('palabra'), 'Seleccione al menos una lista');
-      ['op1', 'op2', 'op3', 'op4'].forEach(id => safeText($(id), '-'));
+      if (State.modoEscritura) resetWritingInput();
+      else ['op1', 'op2', 'op3', 'op4'].forEach(id => safeText($(id), '-'));
       return;
     }
     State.selectionLock = false;
     State.roundToken++;
     const idx = nextUnseenIndex();
     State.currentIndex = idx;
-    State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
     safeText($('palabra'), State.modoInverso ? State.de[idx] : State.es[idx]);
+    if (State.modoEscritura) {
+      resetWritingInput();
+      return;
+    }
+    State.optionIdxs = shuffleUniqueIndexes(State.de.length, 4, idx);
     ['op1', 'op2', 'op3', 'op4'].forEach((id, slot) => {
       const el = $(id);
       if (!el) return;
@@ -279,12 +286,9 @@
     setTimeout(() => (cont.style.background = ''), 200);
   }
 
-  function handleSelectionPick(chosenWordIndex, token) {
-    if (State.currentIndex === null || State.selectionLock) return;
-    if (String(token) !== String(State.roundToken)) return;
-    State.selectionLock = true;
-    if (!State.timerStarted) startTimer();
-    const correct = chosenWordIndex === State.currentIndex;
+  // Lógica común de registro de acierto/error (usada por selección múltiple y modo escritura)
+  // para que ambos modos alimenten el mismo SRS y las mismas estadísticas.
+  function processAnswer(correct) {
     const wordDe = State.de[State.currentIndex];
     State.quizTotal++;
     State.quizBatchTotal++;
@@ -300,19 +304,136 @@
     }
     updateSRSCard(wordDe, correct);
     if (correct) {
-      markOptionsBackground('green');
       const acEl = $('aciertos');
       if (acEl) acEl.textContent = String(parseInt(acEl.textContent || '0', 10) + 1);
     } else {
-      markOptionsBackground('red');
       if (!State.erroresSet.has(State.currentIndex)) {
         State.erroresSet.add(State.currentIndex);
         const erEl = $('errores');
         if (erEl) erEl.textContent = String(parseInt(erEl.textContent || '0', 10) + 1);
       }
     }
-    renderSelectionNext();
     updateSRSBtnUI();
+  }
+
+  function handleSelectionPick(chosenWordIndex, token) {
+    if (State.currentIndex === null || State.selectionLock) return;
+    if (String(token) !== String(State.roundToken)) return;
+    State.selectionLock = true;
+    if (!State.timerStarted) startTimer();
+    const correct = chosenWordIndex === State.currentIndex;
+    processAnswer(correct);
+    markOptionsBackground(correct ? 'green' : 'red');
+    renderSelectionNext();
+  }
+
+  /* ── Modo Escritura (producción activa) ─────────────── */
+
+  function normalizeAnswer(s) {
+    return String(s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  }
+
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    const dp = new Array(n + 1);
+    for (let j = 0; j <= n; j++) dp[j] = j;
+    for (let i = 1; i <= m; i++) {
+      let prev = dp[0];
+      dp[0] = i;
+      for (let j = 1; j <= n; j++) {
+        const tmp = dp[j];
+        dp[j] = a[i - 1] === b[j - 1] ? prev : 1 + Math.min(prev, dp[j], dp[j - 1]);
+        prev = tmp;
+      }
+    }
+    return dp[n];
+  }
+
+  function resetWritingInput() {
+    const input = $('escritura-input');
+    const fb = $('escritura-feedback');
+    if (input) { input.disabled = false; input.value = ''; input.style.borderColor = ''; input.focus(); }
+    if (fb) fb.textContent = '';
+  }
+
+  function handleWritingSubmit() {
+    if (State.currentIndex === null || State.selectionLock) return;
+    const input = $('escritura-input');
+    if (!input) return;
+    const normUser = normalizeAnswer(input.value);
+    if (!normUser) return;
+    const correctWord = State.modoInverso ? State.es[State.currentIndex] : State.de[State.currentIndex];
+    const normCorrect = normalizeAnswer(correctWord);
+    let correct = normUser === normCorrect;
+    if (!correct) correct = levenshtein(normUser, normCorrect) <= 1;
+
+    State.selectionLock = true;
+    if (!State.timerStarted) startTimer();
+    processAnswer(correct);
+
+    input.disabled = true;
+    input.style.borderColor = correct ? '#43a047' : '#e53935';
+    const fb = $('escritura-feedback');
+    if (fb) {
+      fb.style.color = correct ? '#43a047' : '#e53935';
+      fb.textContent = correct ? '✓ Correcto' : `✗ Correcto: ${correctWord}`;
+    }
+    setTimeout(renderSelectionNext, correct ? 500 : 1800);
+  }
+
+  function mountWritingUI() {
+    if ($('escritura-box')) return;
+    const grid = document.querySelector('#seleccion-multiple .options-grid');
+    if (!grid) return;
+    const box = document.createElement('div');
+    box.id = 'escritura-box';
+    box.style.cssText = 'display:none;flex-direction:column;align-items:center;gap:10px;margin-top:16px;';
+    box.innerHTML = `
+      <input id="escritura-input" type="text" autocomplete="off" spellcheck="false"
+        placeholder="Escribe la traducción..."
+        style="width:min(100%,320px);padding:10px 14px;font-size:16px;border:2px solid #ccc;border-radius:8px;text-align:center;box-sizing:border-box;background:var(--card-bg,#fff);color:var(--text,#333);">
+      <button id="escritura-btn" class="btn btn-secondary">Comprobar</button>
+      <div id="escritura-feedback" style="min-height:20px;font-size:14px;font-weight:bold;"></div>
+    `;
+    grid.insertAdjacentElement('afterend', box);
+    $('escritura-btn').addEventListener('click', handleWritingSubmit);
+    $('escritura-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); handleWritingSubmit(); }
+    });
+  }
+
+  function applyEscrituraVisibility() {
+    const grid = document.querySelector('#seleccion-multiple .options-grid');
+    const box = $('escritura-box');
+    if (grid) grid.style.display = State.modoEscritura ? 'none' : '';
+    if (box)  box.style.display  = State.modoEscritura ? 'flex' : 'none';
+  }
+
+  function updateEscrituraToggleUI() {
+    const btn = $('btn-escritura');
+    if (!btn) return;
+    btn.textContent = State.modoEscritura ? '✍️ Escritura: ON' : '✍️ Escritura: OFF';
+    btn.className = State.modoEscritura ? 'btn btn-secondary' : 'btn';
+  }
+
+  function mountEscrituraToggle() {
+    if ($('btn-escritura')) { updateEscrituraToggleUI(); return; }
+    const btnInverso = $('btn-inverso');
+    if (!btnInverso) return;
+    const btn = document.createElement('button');
+    btn.id = 'btn-escritura';
+    btn.addEventListener('click', () => {
+      State.modoEscritura = !State.modoEscritura;
+      localStorage.setItem(ESCRITURA_KEY, State.modoEscritura ? '1' : '0');
+      updateEscrituraToggleUI();
+      applyEscrituraVisibility();
+      renderSelectionNext();
+    });
+    btnInverso.insertAdjacentElement('afterend', btn);
+    updateEscrituraToggleUI();
+    applyEscrituraVisibility();
   }
 
   function bindSelectionEvents() {
@@ -1189,6 +1310,8 @@
     bindCounterDblClick();
     montarBotonSRS();
     montarBotonFrases();
+    mountWritingUI();
+    mountEscrituraToggle();
 
     const filterInput = document.getElementById('filter-lista');
     if (filterInput) {
@@ -1247,6 +1370,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (State.modoEscritura) return;
     const map = { '1': 'op1', '2': 'op2', '3': 'op3', '4': 'op4' };
     if (map[e.key]) {
       const el = $(map[e.key]);

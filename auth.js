@@ -581,6 +581,10 @@
       const day = localDay(e);
       if (activityByDay[day] !== undefined) activityByDay[day]++;
     });
+    data.filter(e => e.event_type === 'auto_session_end').forEach(e => {
+      const day = localDay(e);
+      if (activityByDay[day] !== undefined) activityByDay[day]++;
+    });
     const activityCounts = days30.map(d => activityByDay[d]);
 
     // Streak: consecutive days with any activity, ending on the last active day

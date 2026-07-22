@@ -408,7 +408,6 @@
   function incrementPalabraCounter() { State.palabrasContadas++; updateCounterDisplay(); }
 
   function stopAutoByLimit() {
-    window.logEvent(APP, 'auto_session_end', { words_played: State.palabrasContadas });
     State.modoAuto = false;
     const btnAuto = $('auto');
     if (btnAuto) { btnAuto.textContent = 'Auto: OFF'; btnAuto.className = 'btn btn-danger'; }
@@ -456,11 +455,10 @@
         State.modoAuto = !State.modoAuto;
         btnAuto.textContent = State.modoAuto ? 'Auto: ON' : 'Auto: OFF';
         btnAuto.className = State.modoAuto ? 'btn btn-secondary' : 'btn btn-danger';
-        window.logEvent(APP, 'mode_change', { mode: 'auto', active: State.modoAuto });
         if (State.modoAuto) {
+          window.logEvent(APP, 'auto_session_end', {});
           State.palabrasContadas = 0; updateCounterDisplay(); requestWakeLock();
         } else {
-          window.logEvent(APP, 'auto_session_end', { words_played: State.palabrasContadas });
           releaseWakeLock();
         }
       });

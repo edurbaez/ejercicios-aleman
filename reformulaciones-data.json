@@ -5213,7 +5213,7 @@
       "explanation": "Reemplaza 'hast' por 'hättest' para formar una hipótesis irreal en el pasado."
     }
   ],
-  "b2-03": [
+  "b2-07": [
     {
       "source": "Das Kind, das gerade schläft, liegt im Bett.",
       "instruction": "Reescribe la frase usando Partizip I.",
@@ -5375,7 +5375,7 @@
       "explanation": "Se usa Partizip I 'blühend' para indicar que la flor está floreciendo."
     }
   ],
-  "b2-04": [
+  "b2-08": [
     {
       "source": "Das Fenster wurde geöffnet und es ist jetzt offen.",
       "instruction": "Usa Partizip II como adjetivo para describir el estado del objeto.",
@@ -5537,7 +5537,7 @@
       "explanation": "El Partizip II 'abgeschlossene' describe el estado del 'Projekt'."
     }
   ],
-  "b2-05": [
+  "b2-04": [
     {
       "source": "Ein berühmter Künstler malt das Bild.",
       "instruction": "Reescribe la frase en pasiva con agente.",
@@ -5699,7 +5699,7 @@
       "explanation": "El agente animado 'der Mechaniker' requiere 'von + Dativo'."
     }
   ],
-  "b2-06": [
+  "b2-15": [
     {
       "source": "Er kommt nicht und sie kommt auch nicht.",
       "instruction": "Usa 'weder...noch' para unir las frases.",
@@ -5861,7 +5861,7 @@
       "explanation": "Con 'weder...noch' se niegan dos condiciones de una persona."
     }
   ],
-  "b2-07": [
+  "b2-16": [
     {
       "source": "Ich finde es interessant, Bücher zu lesen.",
       "instruction": "Transforma la frase usando una nominalización del infinitivo.",
@@ -6023,7 +6023,7 @@
       "explanation": "El infinitivo 'machen' se nominaliza a 'das Yoga-Machen'."
     }
   ],
-  "b2-08": [
+  "b2-17": [
     {
       "source": "Komm mit uns ins Kino.",
       "instruction": "Añade la partícula modal 'doch' para invitar.",
@@ -6189,7 +6189,7 @@
       "explanation": "'Halt' indica que no hay otra opción más que aceptar la situación."
     }
   ],
-  "b2-09": [
+  "b2-10": [
     {
       "source": "Ich gehe ins Fitnessstudio, damit ich stärker werde.",
       "instruction": "Reescribe la frase usando um...zu.",
@@ -6351,7 +6351,7 @@
       "explanation": "El sujeto es el mismo en ambas frases, por lo que se utiliza um...zu."
     }
   ],
-  "b2-10": [
+  "b2-11": [
     {
       "source": "Es ist kalt draußen. Wir gehen trotzdem joggen.",
       "instruction": "Une las dos frases con obwohl.",
@@ -6837,7 +6837,7 @@
       "explanation": "La estructura expresa la obligación de firmar los documentos."
     }
   ],
-  "c1-03": [
+  "c1-04": [
     {
       "source": "Das Buch, das von vielen Kritikern gelobt wurde, ist ein Bestseller.",
       "instruction": "Reescribe la frase usando un atributo participial extendido.",
@@ -6999,7 +6999,7 @@
       "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
     }
   ],
-  "c1-04": [
+  "c1-14": [
     {
       "source": "Wir müssen die Möglichkeit in Betracht ziehen, dass das Projekt scheitert.",
       "instruction": "Reescribe la frase usando 'eine Möglichkeit in Betracht ziehen'.",
@@ -7485,7 +7485,7 @@
       "explanation": "La frase original está en Präsens. En Perfekt con 'lassen', se usa el Ersatzinfinitiv."
     }
   ],
-  "c1-07": [
+  "c1-09": [
     {
       "source": "Die Tür des Hauses ist rot gestrichen.",
       "instruction": "Reescribe la frase usando un compuesto.",
@@ -7647,7 +7647,7 @@
       "explanation": "El compuesto 'Umsatzsteuer' se forma de 'Umsatz' y 'Steuer', donde 'Steuer' es el núcleo y determina el género femenino."
     }
   ],
-  "c1-08": [
+  "c1-07": [
     {
       "source": "Man sagt, dass er ein großes Vermögen hat.",
       "instruction": "Reescribe la frase usando 'soll'.",
@@ -7809,7 +7809,7 @@
       "explanation": "La transformación usa 'müsste' para indicar un cálculo lógico sobre la reparación del coche."
     }
   ],
-  "c1-09": [
+  "c1-15": [
     {
       "source": "Er hat das Thema bereits angesprochen. Er hat es ausführlich erklärt.",
       "instruction": "Reescribe usando 'darüber'.",
@@ -7971,7 +7971,7 @@
       "explanation": "Se usa 'darüber' para conectar el aprendizaje con la conferencia."
     }
   ],
-  "c1-10": [
+  "c1-16": [
     {
       "source": "Als er ankam, begann das Konzert.",
       "instruction": "Transforma usando 'Kaum...als'.",

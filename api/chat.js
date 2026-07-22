@@ -1,5 +1,5 @@
 import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
-import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, pick } from './_reading-topics.js';
+import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
 
@@ -104,12 +104,8 @@ async function generateReading(req, res) {
         return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
     }
 
-    const tema      = pick(TEMAS[level]);
-    const personas  = pick(PERSONAS);
-    const lugar     = pick(LUGARES);
-    const tono      = pick(TONOS);
-    const momento   = pick(MOMENTOS);
-    const conflicto = pick(CONFLICTOS);
+    const spec = READING_SPECS[level];
+    const tema = pick(TEMAS[level]);
 
     let recentTitles = [];
     try {
@@ -120,9 +116,16 @@ async function generateReading(req, res) {
         if (recentRes.ok) recentTitles = (await recentRes.json()).map(r => r.title);
     } catch { /* best-effort — a failed lookup shouldn't block generation */ }
 
-    const prompt = `Genera un texto en alemán de nivel ${level} (100-150 palabras) con título.
+    const noRepeat = recentTitles.length ? `\nNo repitas estos títulos ni sus situaciones: ${recentTitles.join(', ')}.` : '';
+
+    const prompt = spec.simple
+        ? `Genera un texto en alemán de nivel ${level} (${spec.minWords}-${spec.maxWords} palabras) con título.
+El texto debe ser ${spec.textType}, sobre el tema: ${tema}.
+Usa vocabulario y gramática muy simples, apropiados para nivel ${level}, con frases cortas.${noRepeat}
+Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`
+        : `Genera un texto en alemán de nivel ${level} (${spec.minWords}-${spec.maxWords} palabras) con título, en forma de ${spec.textType}.
 Tema: ${tema}.
-La situación debe involucrar a ${personas} en ${lugar}, ${momento}, contada como ${tono}. En la historia, ${conflicto}.${recentTitles.length ? `\nNo repitas estos títulos ni sus situaciones: ${recentTitles.join(', ')}.` : ''}
+La situación debe involucrar a ${pick(PERSONAS)} en ${pick(LUGARES)}, ${pick(MOMENTOS)}, contada como ${pick(TONOS)}. En la historia, ${pick(CONFLICTOS)}.${noRepeat}
 Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
 
     try {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ejercicios-aleman.vercel.app/sitemap.xml

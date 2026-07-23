@@ -122,7 +122,9 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `sw-c2.js` | Service Worker for C2 app — caches `C2.html`, `DataC2.json`, `manifest-c2.json`, `icon-c2.svg`. |
 | `icon-c2.svg` | PWA icon for C2. |
 | `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
-| `index.html` | Landing page principal: muestra todas las apps como tarjetas. Navbar con dropdown. Auth via `auth.js`. |
+| `index.html` | Landing page principal: muestra todas las apps como tarjetas. Navbar con dropdown. Auth via `auth.js`. SEO: meta description, canonical, Open Graph y Twitter card apuntando a `https://ejercicios-aleman.vercel.app/`. |
+| `robots.txt` | Permite indexación completa (`Allow: /`) y referencia `sitemap.xml`. |
+| `sitemap.xml` | Sitemap con la landing (`/`) como única URL pública — las apps internas no se listan (requieren login/uso). |
 | `package.json` | Node.js package declaration — forces Vercel to treat the project as Node. Dependencies: `@vercel/kv`, `web-push` (used by `api/push-notify.js`). |
 | `.env.local` | Local env vars (not committed). Must define `OPENAI_API_KEY` for local dev. |
 

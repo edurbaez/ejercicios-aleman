@@ -183,10 +183,10 @@ body {
 
 
 /* ========================
-   PALABRAS B2
+   PALABRAS A1 / A2 / B1 / B2 / C1 / C2 (shared)
    ======================== */
 
-#page-b2 {
+#page-a1, #page-a2, #page-b1, #page-b2, #page-c1, #page-c2 {
     --bg: #1d1c1c20;
     --card-bg: #ffffff;
     --text: #333333;
@@ -200,6 +200,65 @@ body {
     min-height: 100vh;
 }
 
+/* Per-page accent used by the shared navbar-hover/.btn rules below.
+   NOTE: #page-b1 intentionally maps to --color-b2 / --color-b2-dark, not
+   --color-b1 / --color-b1-dark. This reproduces a pre-existing behavior:
+   B1's navbar hover AND its .btn buttons were already wired to B2's blue
+   palette rather than B1's own green. Preserved here byte-for-byte for
+   zero visual regression. If unintentional, fix as its own separate,
+   reviewed change — not silently here. */
+#page-a1 { --accent: var(--color-a1); --accent-dark: var(--color-a1-dark); }
+#page-a2 { --accent: var(--color-a2); --accent-dark: var(--color-a2-dark); }
+#page-b1 { --accent: var(--color-b2); --accent-dark: var(--color-b2-dark); }
+#page-b2 { --accent: var(--color-b2); --accent-dark: var(--color-b2-dark); }
+#page-c1 { --accent: var(--color-c1); --accent-dark: var(--color-c1-dark); }
+#page-c2 { --accent: var(--color-c2); --accent-dark: var(--color-c2-dark); }
+
+#page-a1.dark {
+    --bg: #1a0808;
+    --card-bg: #2a1010;
+    --text: #e0e0e0;
+    --border: #553333;
+    --navbar-bg: #3a0808;
+    --option-hover: #3a1a1a;
+    --table-border: #555;
+}
+#page-a1.dark .lista-info {
+    background: #3a1a1a;
+    border-color: #7a2a2a;
+    color: #e6a0a0;
+}
+
+#page-a2.dark {
+    --bg: #1a0d08;
+    --card-bg: #2a1a10;
+    --text: #e0e0e0;
+    --border: #553a33;
+    --navbar-bg: #3a1a08;
+    --option-hover: #3a2010;
+    --table-border: #555;
+}
+#page-a2.dark .lista-info {
+    background: #3a2010;
+    border-color: #7a4a2a;
+    color: #e6c0a0;
+}
+
+#page-b1.dark {
+    --bg: #1a1a2e;
+    --card-bg: #16213e;
+    --text: #e0e0e0;
+    --border: #444;
+    --navbar-bg: #0f3460;
+    --option-hover: #1a3a6e;
+    --table-border: #555;
+}
+#page-b1.dark .lista-info {
+    background: #2a3a1a;
+    border-color: #5a7a2a;
+    color: #c8e6a0;
+}
+
 #page-b2.dark {
     --bg: #1a1a2e;
     --card-bg: #16213e;
@@ -209,67 +268,74 @@ body {
     --option-hover: #1a3a6e;
     --table-border: #555;
 }
-
 #page-b2.dark .lista-info {
     background: #2a3a1a;
     border-color: #5a7a2a;
     color: #c8e6a0;
 }
 
-/* ── Home (index.html) ─────────────────────────────────── */
-#page-home {
-    --bg: #f0f2f7;
-    --text: #333333;
-    --border: #cccccc;
-    --navbar-bg: #ffffff;
+#page-c1.dark {
+    --bg: #081a1a;
+    --card-bg: #102a2a;
+    --text: #e0e0e0;
+    --border: #335555;
+    --navbar-bg: #083a3a;
+    --option-hover: #103a3a;
+    --table-border: #555;
 }
-#page-home.dark {
-    --bg: #181824;
-    --text: #dde1ec;
-    --border: #444;
-    --navbar-bg: #0f3460;
+#page-c1.dark .lista-info {
+    background: #103a3a;
+    border-color: #2a7a7a;
+    color: #a0e6e6;
 }
-#page-home #navbar {
+
+#page-c2.dark {
+    --bg: #0d1117;
+    --card-bg: #161b22;
+    --text: #e0e0e0;
+    --border: #30363d;
+    --navbar-bg: #21262d;
+    --option-hover: #2d333b;
+    --table-border: #444c56;
+}
+#page-c2.dark .lista-info {
+    background: #2d333b;
+    border-color: #4a5568;
+    color: #a0aec0;
+}
+
+#page-a1 #navbar, #page-a2 #navbar, #page-b1 #navbar, #page-b2 #navbar, #page-c1 #navbar, #page-c2 #navbar {
     background-color: var(--navbar-bg);
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
-#page-home #navbar a:hover,
-#page-home #navbar a.active,
-#page-home #navbar .nav-menu-btn:hover,
-#page-home #navbar .nav-menu-btn.active {
-    background-color: var(--color-b2);
+
+#page-a1 #navbar a:hover, #page-a1 #navbar a.active, #page-a1 #navbar .nav-menu-btn:hover, #page-a1 #navbar .nav-menu-btn.active,
+#page-a2 #navbar a:hover, #page-a2 #navbar a.active, #page-a2 #navbar .nav-menu-btn:hover, #page-a2 #navbar .nav-menu-btn.active,
+#page-b1 #navbar a:hover, #page-b1 #navbar a.active, #page-b1 #navbar .nav-menu-btn:hover, #page-b1 #navbar .nav-menu-btn.active,
+#page-b2 #navbar a:hover, #page-b2 #navbar a.active, #page-b2 #navbar .nav-menu-btn:hover, #page-b2 #navbar .nav-menu-btn.active,
+#page-c1 #navbar a:hover, #page-c1 #navbar a.active, #page-c1 #navbar .nav-menu-btn:hover, #page-c1 #navbar .nav-menu-btn.active,
+#page-c2 #navbar a:hover, #page-c2 #navbar a.active, #page-c2 #navbar .nav-menu-btn:hover, #page-c2 #navbar .nav-menu-btn.active {
+    background-color: var(--accent);
     color: white;
 }
-#page-home #darkModeBtn {
+
+#page-a1 #darkModeBtn, #page-a2 #darkModeBtn, #page-b1 #darkModeBtn, #page-b2 #darkModeBtn, #page-c1 #darkModeBtn, #page-c2 #darkModeBtn {
     padding: 6px 8px;
-    border-radius: 8px;
-    background: none;
-    border: none;
+    border-radius: var(--radius);
+}
+
+#page-a1 .btn, #page-a2 .btn, #page-b1 .btn, #page-b2 .btn, #page-c1 .btn, #page-c2 .btn {
+    padding: 12px;
+    border: 3px solid var(--accent-dark);
+    background-color: var(--accent);
+    color: white;
     cursor: pointer;
-    color: var(--text);
-    font-size: 18px;
-    transition: background-color 0.2s;
-}
-#page-home #darkModeBtn:hover { background-color: var(--color-b2); color: white; }
-
-/* ── end Home ──────────────────────────────────────────── */
-
-#page-b2 #navbar {
-    background-color: var(--navbar-bg);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    border-radius: var(--radius);
+    transition: 0.2s;
 }
 
-#page-b2 #navbar a:hover,
-#page-b2 #navbar a.active,
-#page-b2 #navbar .nav-menu-btn:hover,
-#page-b2 #navbar .nav-menu-btn.active {
-    background-color: var(--color-b2);
-    color: white;
-}
-
-#page-b2 #darkModeBtn {
-    padding: 6px 8px;
-    border-radius: 8px;
+#page-a1 .btn:hover, #page-a2 .btn:hover, #page-b1 .btn:hover, #page-b2 .btn:hover, #page-c1 .btn:hover, #page-c2 .btn:hover {
+    background-color: var(--accent-dark);
 }
 
 .app {
@@ -334,20 +400,6 @@ body {
 
 .option:hover {
     background: var(--option-hover);
-}
-
-#page-b2 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-b2-dark);
-    background-color: var(--color-b2);
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-b2 .btn:hover {
-    background-color: var(--color-b2-dark);
 }
 
 .btn-danger {
@@ -437,359 +489,46 @@ th, td {
     #repeticion-palabras .panel { flex-direction: column; gap: 10px; }
     .footer-controls { flex-wrap: wrap; }
     .footer-controls .btn { flex: 1 1 auto; }
-    #page-b2 .btn { padding: 10px 8px; font-size: 0.9rem; }
+    #page-a1 .btn, #page-a2 .btn, #page-b1 .btn, #page-b2 .btn, #page-c1 .btn, #page-c2 .btn { padding: 10px 8px; font-size: 0.9rem; }
 }
 
-
-/* ========================
-   PALABRAS B1
-   ======================== */
-
-#page-b1 {
-    --bg: #1d1c1c20;
-    --card-bg: #ffffff;
+/* ── Home (index.html) ─────────────────────────────────── */
+#page-home {
+    --bg: #f0f2f7;
     --text: #333333;
     --border: #cccccc;
     --navbar-bg: #ffffff;
-    --option-hover: #f2f2f2;
-    --table-border: grey;
-    background: var(--bg);
-    color: var(--text);
-    width: 100%;
-    min-height: 100vh;
 }
-
-#page-b1.dark {
-    --bg: #1a1a2e;
-    --card-bg: #16213e;
-    --text: #e0e0e0;
+#page-home.dark {
+    --bg: #181824;
+    --text: #dde1ec;
     --border: #444;
     --navbar-bg: #0f3460;
-    --option-hover: #1a3a6e;
-    --table-border: #555;
 }
-
-#page-b1.dark .lista-info {
-    background: #2a3a1a;
-    border-color: #5a7a2a;
-    color: #c8e6a0;
-}
-
-#page-b1 #navbar {
+#page-home #navbar {
     background-color: var(--navbar-bg);
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
-
-#page-b1 #navbar a:hover,
-#page-b1 #navbar a.active,
-#page-b1 #navbar .nav-menu-btn:hover,
-#page-b1 #navbar .nav-menu-btn.active {
+#page-home #navbar a:hover,
+#page-home #navbar a.active,
+#page-home #navbar .nav-menu-btn:hover,
+#page-home #navbar .nav-menu-btn.active {
     background-color: var(--color-b2);
     color: white;
 }
-
-#page-b1 #darkModeBtn {
+#page-home #darkModeBtn {
     padding: 6px 8px;
     border-radius: 8px;
-}
-
-#page-b1 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-b2-dark);
-    background-color: var(--color-b2);
-    color: white;
+    background: none;
+    border: none;
     cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-b1 .btn:hover {
-    background-color: var(--color-b2-dark);
-}
-
-@media (max-width: 600px) {
-    #page-b1 .btn { padding: 10px 8px; font-size: 0.9rem; }
-}
-
-/* ========================
-   PALABRAS A1
-   ======================== */
-
-#page-a1 {
-    --bg: #1d1c1c20;
-    --card-bg: #ffffff;
-    --text: #333333;
-    --border: #cccccc;
-    --navbar-bg: #ffffff;
-    --option-hover: #f2f2f2;
-    --table-border: grey;
-    background: var(--bg);
     color: var(--text);
-    width: 100%;
-    min-height: 100vh;
+    font-size: 18px;
+    transition: background-color 0.2s;
 }
+#page-home #darkModeBtn:hover { background-color: var(--color-b2); color: white; }
 
-#page-a1.dark {
-    --bg: #1a0808;
-    --card-bg: #2a1010;
-    --text: #e0e0e0;
-    --border: #553333;
-    --navbar-bg: #3a0808;
-    --option-hover: #3a1a1a;
-    --table-border: #555;
-}
-
-#page-a1.dark .lista-info {
-    background: #3a1a1a;
-    border-color: #7a2a2a;
-    color: #e6a0a0;
-}
-
-#page-a1 #navbar {
-    background-color: var(--navbar-bg);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-
-#page-a1 #navbar a:hover,
-#page-a1 #navbar a.active,
-#page-a1 #navbar .nav-menu-btn:hover,
-#page-a1 #navbar .nav-menu-btn.active {
-    background-color: var(--color-a1);
-    color: white;
-}
-
-#page-a1 #darkModeBtn {
-    padding: 6px 8px;
-    border-radius: 8px;
-}
-
-#page-a1 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-a1-dark);
-    background-color: var(--color-a1);
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-a1 .btn:hover {
-    background-color: var(--color-a1-dark);
-}
-
-@media (max-width: 600px) {
-    #page-a1 .btn { padding: 10px 8px; font-size: 0.9rem; }
-}
-
-/* ========================
-   PALABRAS A2
-   ======================== */
-
-#page-a2 {
-    --bg: #1d1c1c20;
-    --card-bg: #ffffff;
-    --text: #333333;
-    --border: #cccccc;
-    --navbar-bg: #ffffff;
-    --option-hover: #f2f2f2;
-    --table-border: grey;
-    background: var(--bg);
-    color: var(--text);
-    width: 100%;
-    min-height: 100vh;
-}
-
-#page-a2.dark {
-    --bg: #1a0d08;
-    --card-bg: #2a1a10;
-    --text: #e0e0e0;
-    --border: #553a33;
-    --navbar-bg: #3a1a08;
-    --option-hover: #3a2010;
-    --table-border: #555;
-}
-
-#page-a2.dark .lista-info {
-    background: #3a2010;
-    border-color: #7a4a2a;
-    color: #e6c0a0;
-}
-
-#page-a2 #navbar {
-    background-color: var(--navbar-bg);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-
-#page-a2 #navbar a:hover,
-#page-a2 #navbar a.active,
-#page-a2 #navbar .nav-menu-btn:hover,
-#page-a2 #navbar .nav-menu-btn.active {
-    background-color: var(--color-a2);
-    color: white;
-}
-
-#page-a2 #darkModeBtn {
-    padding: 6px 8px;
-    border-radius: 8px;
-}
-
-#page-a2 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-a2-dark);
-    background-color: var(--color-a2);
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-a2 .btn:hover {
-    background-color: var(--color-a2-dark);
-}
-
-@media (max-width: 600px) {
-    #page-a2 .btn { padding: 10px 8px; font-size: 0.9rem; }
-}
-
-/* ========================
-   PALABRAS C1
-   ======================== */
-
-#page-c1 {
-    --bg: #1d1c1c20;
-    --card-bg: #ffffff;
-    --text: #333333;
-    --border: #cccccc;
-    --navbar-bg: #ffffff;
-    --option-hover: #f2f2f2;
-    --table-border: grey;
-    background: var(--bg);
-    color: var(--text);
-    width: 100%;
-    min-height: 100vh;
-}
-
-#page-c1.dark {
-    --bg: #081a1a;
-    --card-bg: #102a2a;
-    --text: #e0e0e0;
-    --border: #335555;
-    --navbar-bg: #083a3a;
-    --option-hover: #103a3a;
-    --table-border: #555;
-}
-
-#page-c1.dark .lista-info {
-    background: #103a3a;
-    border-color: #2a7a7a;
-    color: #a0e6e6;
-}
-
-#page-c1 #navbar {
-    background-color: var(--navbar-bg);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-
-#page-c1 #navbar a:hover,
-#page-c1 #navbar a.active,
-#page-c1 #navbar .nav-menu-btn:hover,
-#page-c1 #navbar .nav-menu-btn.active {
-    background-color: var(--color-c1);
-    color: white;
-}
-
-#page-c1 #darkModeBtn {
-    padding: 6px 8px;
-    border-radius: 8px;
-}
-
-#page-c1 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-c1-dark);
-    background-color: var(--color-c1);
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-c1 .btn:hover {
-    background-color: var(--color-c1-dark);
-}
-
-@media (max-width: 600px) {
-    #page-c1 .btn { padding: 10px 8px; font-size: 0.9rem; }
-}
-
-/* ========================
-   PALABRAS C2
-   ======================== */
-
-#page-c2 {
-    --bg: #1d1c1c20;
-    --card-bg: #ffffff;
-    --text: #333333;
-    --border: #cccccc;
-    --navbar-bg: #ffffff;
-    --option-hover: #f2f2f2;
-    --table-border: grey;
-    background: var(--bg);
-    color: var(--text);
-    width: 100%;
-    min-height: 100vh;
-}
-
-#page-c2.dark {
-    --bg: #0d1117;
-    --card-bg: #161b22;
-    --text: #e0e0e0;
-    --border: #30363d;
-    --navbar-bg: #21262d;
-    --option-hover: #2d333b;
-    --table-border: #444c56;
-}
-
-#page-c2.dark .lista-info {
-    background: #2d333b;
-    border-color: #4a5568;
-    color: #a0aec0;
-}
-
-#page-c2 #navbar {
-    background-color: var(--navbar-bg);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-
-#page-c2 #navbar a:hover,
-#page-c2 #navbar a.active,
-#page-c2 #navbar .nav-menu-btn:hover,
-#page-c2 #navbar .nav-menu-btn.active {
-    background-color: var(--color-c2);
-    color: white;
-}
-
-#page-c2 #darkModeBtn {
-    padding: 6px 8px;
-    border-radius: 8px;
-}
-
-#page-c2 .btn {
-    padding: 12px;
-    border: 3px solid var(--color-c2-dark);
-    background-color: var(--color-c2);
-    color: white;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: 0.2s;
-}
-
-#page-c2 .btn:hover {
-    background-color: var(--color-c2-dark);
-}
-
-@media (max-width: 600px) {
-    #page-c2 .btn { padding: 10px 8px; font-size: 0.9rem; }
-}
+/* ── end Home ──────────────────────────────────────────── */
 
 /* ========================
    LECTURA VELOZ

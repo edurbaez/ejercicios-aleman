@@ -214,6 +214,11 @@ durante la construcción:
   `modoB_mostrarResultadoTeilFinal()` agrega el total de aciertos y muestra un desglose
   por Teil, reutilizando `#comp-resultado` (con una lista `.comp-teil-breakdown` nueva).
   `emparejar` se implementó con `<select>` (no drag-and-drop), como recomendaba §6/§10.
+  Además, antes de empezar la sesión se muestra un **selector de Teile**
+  (`modoB_mostrarSelectorTeile()`, checkboxes sobre los 5 Teile, todos marcados por
+  defecto) para que el estudiante pueda practicar solo un subconjunto en vez del
+  simulacro completo — la sesión ya generada no se descarta, solo se filtra en el
+  cliente antes de iniciar `modoB_iniciarTeilSession()`.
 - **Modo A**: sin cambios, sigue siendo MCQ genérico (§7 confirmado).
 - **Verificación realizada**: sintaxis de `api/chat.js`/`api/_reading-topics.js`
   (`node --check`) y de los bloques `<script>` de `lectura veloz.html` (parseo con

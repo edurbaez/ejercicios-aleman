@@ -1255,6 +1255,21 @@ th, td {
 #comp-resultado-texto.naranja { color: #fd7e14; }
 #comp-resultado-texto.rojo   { color: #dc3545; }
 
+/* ---- Comprensión Modo B — selector de Teile (format_version 2) ---- */
+.comp-teil-selector-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 2px solid var(--border, #ccc);
+    border-radius: var(--radius, 8px);
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.comp-teil-selector-item input { width: 16px; height: 16px; cursor: pointer; }
+
 /* ---- Comprensión Modo B — sesiones por Teile (format_version 2) ---- */
 .comp-teil-header {
     display: flex;

@@ -1,6 +1,11 @@
 # Plan: adaptar "Comprensión" al formato real del examen (Leseverstehen)
 
-> Documento de planificación, no implementado. Complementa la "opción ligera" ya
+> **Estado: Fase 1 (B1) implementada** — ver §11 para el detalle de lo hecho y lo que
+> queda pendiente (B2/C1/C2, A1/A2). El resto de este documento describe el diseño
+> original; §11 documenta las decisiones tomadas durante la implementación donde
+> divergieron de lo planificado aquí.
+
+> Documento de planificación, no implementado originalmente. Complementa la "opción ligera" ya
 > implementada (`api/_reading-topics.js` `READING_SPECS`, `api/chat.js` `generateReading()`),
 > que solo varía longitud/tipo de texto por nivel manteniendo siempre MCQ de 4 opciones.
 > Aquí se documenta la opción fiel: reproducir la estructura real del Leseverstehen
@@ -170,3 +175,58 @@ solo cambia la forma del JSON que contiene).
   por Teil), no reproduce contenido de ningún Modellsatz con derechos de autor. Antes de
   implementar, conviene revisar Modellsätze oficiales actualizados por si la estructura
   cambió de versión.
+
+## 11. Fase 1 (B1) — implementado
+
+Implementado siguiendo el diseño de §3-8, con algunas decisiones concretas tomadas
+durante la construcción:
+
+- **Migración**: `supabase/migrations/011_reading_texts_format_version.sql` — añade
+  `reading_texts.format_version integer NOT NULL DEFAULT 1`, aplicada a producción.
+  Formato 1 = plano (sin cambios, todos los niveles salvo B1). Formato 2 = Teile.
+- **`api/_reading-topics.js`**: nuevo export `READING_TEILE_SPECS` — por nivel, lista
+  ordenada de Teile `{ id, tipo, nombre }`. Solo `B1` poblado: `teil1` mcq, `teil2`
+  emparejar, `teil3` emparejar, `teil4` richtig_falsch, `teil5` emparejar (según §3).
+- **`api/chat.js`**: `generateReading()` ahora delega en `generateReadingTeile()` cuando
+  `READING_TEILE_SPECS[level]` existe. Decisión tomada sobre la disyuntiva de §5: **una
+  sola llamada a la IA** genera los 5 Teile de golpe (`max_tokens: 3500`,
+  `response_format: json_object`), no una llamada por Teil — más barato y más simple;
+  el riesgo de JSON mal formado se mitiga con `validTeileSession()` (rechaza la sesión
+  completa con 502 si algo no cuadra, igual que el flujo v1, el usuario puede reintentar).
+  Validadores por tipo: `validMcqTeil` (opciones exactamente 3, no 4 — real del examen
+  B1 a partir de Teil 1), `validRichtigFalschTeil`, `validEmparejarTeil` (columna derecha
+  ≥ columna izquierda para permitir distractores, cada id de solución debe existir en
+  ambas columnas). El texto/anuncio/reglas de cada Teil van embebidos en el propio JSON
+  de la sesión — no hay generación de imagen ni de audio.
+- **Modelo de datos real usado** (igual al propuesto en §4, con los tipos que introduce
+  B1): `questions = { teile: [ { id, tipo, instrucciones, textos?, items?,
+  columnaIzquierda?, columnaDerecha?, solucion? } ] }`. `title` = título general de la
+  sesión; `content` (columna NOT NULL heredada del formato 1, sin uso real en formato 2)
+  se rellena con una descripción genérica ("Simulacro de Leseverstehen B1 — 5 Teile").
+- **Frontend (`lectura veloz.html`, Modo B)**: `modoB_obtenerTexto()` ahora pide también
+  `format_version` a Supabase y bifurca — `1` sigue el flujo existente sin tocar,
+  `2` entra en `modoB_iniciarTeilSession()`. Nuevo contenedor `#comp-teil-session` con
+  cabecera (nombre + progreso "N / 5"), instrucciones, texto(s) del Teil, cuerpo
+  específico por tipo y navegación. A diferencia del feedback inmediato del formato 1
+  (click → corrige al instante), el formato 2 usa un patrón **"responder todo el Teil →
+  Comprobar Teil → Siguiente Teil"** (más fiel al examen real, y necesario para que
+  `emparejar` con `<select>` tenga sentido). Al terminar el Teil 5,
+  `modoB_mostrarResultadoTeilFinal()` agrega el total de aciertos y muestra un desglose
+  por Teil, reutilizando `#comp-resultado` (con una lista `.comp-teil-breakdown` nueva).
+  `emparejar` se implementó con `<select>` (no drag-and-drop), como recomendaba §6/§10.
+- **Modo A**: sin cambios, sigue siendo MCQ genérico (§7 confirmado).
+- **Verificación realizada**: sintaxis de `api/chat.js`/`api/_reading-topics.js`
+  (`node --check`) y de los bloques `<script>` de `lectura veloz.html` (parseo con
+  `new Function`); lógica de `validTeileSession`/`TEIL_VALIDATORS` probada con sesiones
+  sintéticas válidas e inválidas (orden de Teile incorrecto, MCQ con 4 opciones,
+  `solucion` apuntando a un id inexistente, columna derecha más corta que la izquierda —
+  todas correctamente rechazadas). **No se hizo una prueba manual en navegador con login
+  real** (el entorno de ejecución no tiene sesión de usuario/browser interactivo) — antes
+  de dar la fase por cerrada conviene entrar a `/lectura veloz.html` → Comprensión → Por
+  nivel → B1 → Obtener texto, y completar una sesión completa una vez desplegado.
+- **Pendiente / no incluido en esta fase**: B2/C1/C2 (mismos tipos de tarea, reutilizan
+  los renderers ya construidos — falta solo poblar `READING_TEILE_SPECS` y el prompt por
+  nivel), A1/A2 (necesitan tipos de tarea nuevos: emparejar notas muy cortas, carteles),
+  y las "decisiones abiertas" de §10 sobre costo/latencia si el volumen de uso crece
+  (por ahora se reusan sesiones no vistas de `reading_texts` antes de generar una nueva,
+  igual que el flujo v1).

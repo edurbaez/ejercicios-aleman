@@ -1196,7 +1196,8 @@ th, td {
     border-radius: var(--radius, 8px);
 }
 
-.comp-pregunta-texto {
+.comp-pregunta-texto,
+.comp-pregunta-enunciado {
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 12px;
@@ -1253,6 +1254,85 @@ th, td {
 #comp-resultado-texto.verde  { color: #28a745; }
 #comp-resultado-texto.naranja { color: #fd7e14; }
 #comp-resultado-texto.rojo   { color: #dc3545; }
+
+/* ---- Comprensión Modo B — sesiones por Teile (format_version 2) ---- */
+.comp-teil-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--btn, #1976D2);
+}
+
+.comp-teil-instrucciones {
+    font-size: 14px;
+    font-style: italic;
+    opacity: 0.85;
+    margin-bottom: 14px;
+}
+
+.comp-opcion.seleccionada {
+    border-color: var(--btn, #1976D2);
+    background: rgba(25, 118, 210, 0.12);
+}
+
+.comp-emparejar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border, #ccc);
+}
+
+.comp-emparejar-row:last-child { border-bottom: none; }
+
+.comp-emparejar-texto {
+    flex: 1;
+    font-size: 14px;
+}
+
+.comp-emparejar-select {
+    flex: 1;
+    max-width: 220px;
+    padding: 8px 10px;
+    border: 2px solid var(--border, #ccc);
+    border-radius: var(--radius, 8px);
+    background: var(--card, #fff);
+    color: var(--text, #222);
+    font-size: 14px;
+}
+
+.comp-emparejar-select.correcta { border-color: #28a745; background: rgba(40, 167, 69, 0.12); }
+.comp-emparejar-select.incorrecta { border-color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+
+.comp-teil-nav {
+    margin-top: 18px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.comp-teil-resultado {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.comp-teil-breakdown {
+    list-style: none;
+    padding: 0;
+    margin: 14px 0 0;
+    font-size: 14px;
+    text-align: left;
+}
+
+.comp-teil-breakdown li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border, #ccc);
+}
 
 @media (max-width: 600px) {
     .comp-opciones { grid-template-columns: 1fr; }

@@ -1,5 +1,5 @@
 import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
-import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, pick } from './_reading-topics.js';
+import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, READING_TEILE_SPECS, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
 
@@ -104,6 +104,10 @@ async function generateReading(req, res) {
         return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
     }
 
+    if (READING_TEILE_SPECS[level]) {
+        return generateReadingTeile(req, res, level);
+    }
+
     const spec = READING_SPECS[level];
     const tema = pick(TEMAS[level]);
 
@@ -184,6 +188,155 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
         const [row] = await insertRes.json();
         return res.status(200).json({
             text: { id: row.id, title: row.title, content: row.content, questions: row.questions },
+        });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// ── format_version 2: Teile-based sessions (see lecturaplan.md) ──────────────────
+
+function validMcqTeil(t) {
+    return Array.isArray(t.textos) && t.textos.length > 0
+        && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
+        && Array.isArray(t.items) && t.items.length > 0
+        && t.items.every(it =>
+            typeof it.pregunta === 'string'
+            && Array.isArray(it.opciones) && it.opciones.length === 3
+            && Number.isInteger(it.correcta) && it.correcta >= 0 && it.correcta < 3);
+}
+
+function validRichtigFalschTeil(t) {
+    return Array.isArray(t.textos) && t.textos.length > 0
+        && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
+        && Array.isArray(t.items) && t.items.length > 0
+        && t.items.every(it => typeof it.afirmacion === 'string' && typeof it.correcta === 'boolean');
+}
+
+function validEmparejarTeil(t) {
+    if (!Array.isArray(t.columnaIzquierda) || t.columnaIzquierda.length === 0) return false;
+    if (!Array.isArray(t.columnaDerecha) || t.columnaDerecha.length < t.columnaIzquierda.length) return false;
+    const isItem = x => x && typeof x.id === 'string' && typeof x.texto === 'string';
+    if (!t.columnaIzquierda.every(isItem) || !t.columnaDerecha.every(isItem)) return false;
+    if (!t.solucion || typeof t.solucion !== 'object') return false;
+    const derechaIds = new Set(t.columnaDerecha.map(x => x.id));
+    return t.columnaIzquierda.every(izq =>
+        typeof t.solucion[izq.id] === 'string' && derechaIds.has(t.solucion[izq.id]));
+}
+
+const TEIL_VALIDATORS = { mcq: validMcqTeil, richtig_falsch: validRichtigFalschTeil, emparejar: validEmparejarTeil };
+
+function validTeileSession(parsed, spec) {
+    if (!parsed || typeof parsed.titulo !== 'string' || !Array.isArray(parsed.teile)) return false;
+    if (parsed.teile.length !== spec.length) return false;
+    return spec.every((expected, i) => {
+        const t = parsed.teile[i];
+        return t && t.id === expected.id && t.tipo === expected.tipo
+            && typeof t.instrucciones === 'string'
+            && TEIL_VALIDATORS[expected.tipo](t);
+    });
+}
+
+function buildTeilePrompt(level, spec, tema) {
+    const teilPrompts = spec.map(t => {
+        if (t.tipo === 'mcq') {
+            return `- "${t.id}" (tipo "mcq"): 1 texto en alemán (100-150 palabras, relato o artículo breve) en "textos" (1 elemento con "titulo" y "contenido"), y 5 preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).`;
+        }
+        if (t.tipo === 'richtig_falsch') {
+            return `- "${t.id}" (tipo "richtig_falsch"): 1 texto en alemán (100-150 palabras) en "textos", y 5 afirmaciones sobre el texto en "items", cada una con "afirmacion" (string) y "correcta" (true o false), mezclando verdaderas y falsas.`;
+        }
+        if (t.id === 'teil2') {
+            return `- "${t.id}" (tipo "emparejar"): sin "textos". 5 personas en "columnaIzquierda" (id "p1".."p5", "texto" describiendo brevemente qué busca/necesita cada una) y 8 anuncios breves en "columnaDerecha" (id "a1".."a8", "texto" el anuncio). "solucion" debe mapear cada "p1".."p5" al id del anuncio que le corresponde; los 3 anuncios restantes son distractores sin solución asociada.`;
+        }
+        if (t.id === 'teil3') {
+            return `- "${t.id}" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." y "contenido" con 5 comentarios cortos de personas distintas (nombre en negrita al inicio de cada uno, separados por saltos de línea). 5 afirmaciones/opiniones en "columnaIzquierda" (id "s1".."s5") que coinciden con lo que dijo una de esas personas, y las 5 personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.`;
+        }
+        if (t.id === 'teil5') {
+            return `- "${t.id}" (tipo "emparejar"): sin "textos". 5 situaciones cotidianas en "columnaIzquierda" (id "s1".."s5") y 8 reglas breves de un reglamento (Hausordnung, normas de una biblioteca, gimnasio, etc.) en "columnaDerecha" (id "r1".."r8"). "solucion" mapea cada situación a la regla que aplica; 3 reglas son distractores.`;
+        }
+        return '';
+    }).join('\n');
+
+    return `Genera una sesión de comprensión lectora en alemán de nivel ${level}, siguiendo el formato del examen Goethe/telc Leseverstehen (estructura general, sin copiar textos de exámenes reales). Tema general de fondo: ${tema}.
+
+Genera estos 5 Teile:
+${teilPrompts}
+
+Responde SOLO con JSON válido (sin markdown) con este formato exacto:
+{"titulo": "título general de la sesión", "teile": [
+  {"id":"teil1","tipo":"mcq","instrucciones":"instrucción en español de qué hacer","textos":[{"titulo":"...","contenido":"..."}],"items":[{"pregunta":"...","opciones":["...","...","..."],"correcta":0}]},
+  {"id":"teil2","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"p1","texto":"..."}],"columnaDerecha":[{"id":"a1","texto":"..."}],"solucion":{"p1":"a1"}},
+  {"id":"teil3","tipo":"emparejar","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"anna","texto":"Anna"}],"solucion":{"s1":"anna"}},
+  {"id":"teil4","tipo":"richtig_falsch","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"items":[{"afirmacion":"...","correcta":true}]},
+  {"id":"teil5","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"r1","texto":"..."}],"solucion":{"s1":"r1"}}
+]}
+Todo el contenido en alemán (textos, opciones, anuncios, reglas) debe ser apropiado para nivel ${level}. Las "instrucciones" de cada Teil van en español, breves, explicando la tarea al estudiante.`;
+}
+
+async function generateReadingTeile(req, res, level) {
+    const spec = READING_TEILE_SPECS[level];
+    const tema = pick(TEMAS[level]);
+
+    let recentTitles = [];
+    try {
+        const recentRes = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/reading_texts?level=eq.${level}&format_version=eq.2&select=title&order=created_at.desc&limit=8`,
+            { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+        );
+        if (recentRes.ok) recentTitles = (await recentRes.json()).map(r => r.title);
+    } catch { /* best-effort — a failed lookup shouldn't block generation */ }
+
+    const noRepeat = recentTitles.length ? `\nNo repitas estos títulos ni sus situaciones: ${recentTitles.join(', ')}.` : '';
+    const prompt = buildTeilePrompt(level, spec, tema) + noRepeat;
+
+    try {
+        const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                max_tokens: 3500,
+                response_format: { type: 'json_object' },
+                messages: [{ role: 'user', content: prompt }],
+            }),
+        });
+        if (!aiRes.ok) {
+            const err = await aiRes.json().catch(() => ({}));
+            return res.status(aiRes.status).json({ error: err?.error?.message || 'Error de OpenAI' });
+        }
+        const aiData = await aiRes.json();
+        const parsed = JSON.parse(aiData.choices[0].message.content);
+
+        if (!validTeileSession(parsed, spec)) {
+            return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+        }
+
+        const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/reading_texts`, {
+            method: 'POST',
+            headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation',
+            },
+            body: JSON.stringify({
+                level,
+                title: parsed.titulo,
+                content: `Simulacro de Leseverstehen ${level} — ${spec.length} Teile`,
+                questions: { teile: parsed.teile },
+                format_version: 2,
+            }),
+        });
+        if (!insertRes.ok) {
+            const errText = await insertRes.text().catch(() => '');
+            return res.status(502).json({ error: 'Error al guardar la sesión: ' + errText.slice(0, 200) });
+        }
+        const [row] = await insertRes.json();
+        return res.status(200).json({
+            text: { id: row.id, title: row.title, content: row.content, questions: row.questions, format_version: row.format_version },
         });
     } catch {
         return res.status(500).json({ error: 'Error interno' });

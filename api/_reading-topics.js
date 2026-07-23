@@ -37,3 +37,18 @@ export const READING_SPECS = {
 export function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
+
+// Teile-based session specs (format_version 2 in reading_texts, see lecturaplan.md).
+// Each level lists its Teile in exam order with the task type ("tipo") the generator/
+// validator/frontend renderer must agree on. Only B1 is populated so far (fase 1 del
+// plan); B2/C1/C2 reuse the same task types once implemented, A1/A2 need new ones
+// (emparejar de notas cortas, carteles) not modeled here yet.
+export const READING_TEILE_SPECS = {
+    B1: [
+        { id: 'teil1', tipo: 'mcq', nombre: 'Teil 1 — Texto y preguntas' },
+        { id: 'teil2', tipo: 'emparejar', nombre: 'Teil 2 — Personas y anuncios' },
+        { id: 'teil3', tipo: 'emparejar', nombre: 'Teil 3 — Foro de opiniones' },
+        { id: 'teil4', tipo: 'richtig_falsch', nombre: 'Teil 4 — Richtig oder falsch' },
+        { id: 'teil5', tipo: 'emparejar', nombre: 'Teil 5 — Situaciones y reglas' },
+    ],
+};

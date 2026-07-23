@@ -136,8 +136,23 @@
 
         <div id="comp-preguntas" style="display:none"></div>
 
+        <div id="comp-teil-session" style="display:none">
+            <div class="comp-teil-header">
+                <span id="comp-teil-nombre"></span>
+                <span id="comp-teil-progreso"></span>
+            </div>
+            <div class="comp-teil-instrucciones" id="comp-teil-instrucciones"></div>
+            <div id="comp-teil-textos"></div>
+            <div id="comp-teil-body"></div>
+            <div class="comp-teil-nav">
+                <button class="btn comp-action-btn" id="comp-teil-comprobar-btn" style="width:auto">Comprobar Teil</button>
+                <button class="btn comp-action-btn" id="comp-teil-siguiente-btn" style="width:auto;display:none">Siguiente Teil →</button>
+            </div>
+        </div>
+
         <div id="comp-resultado" style="display:none">
             <div id="comp-resultado-texto"></div>
+            <ul class="comp-teil-breakdown" id="comp-teil-breakdown" style="display:none"></ul>
             <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
         </div>
     </div>
@@ -804,7 +819,9 @@
             document.getElementById('comp-mode-B').style.display = mode === 'B' ? 'block' : 'none';
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-teil-session').style.display = 'none';
             document.getElementById('comp-resultado').style.display = 'none';
+            TeilState = null;
         }
 
         document.querySelectorAll('.comp-level-pill').forEach(pill => {
@@ -954,6 +971,7 @@
             const correctas = compRespuestas.filter((r, i) => r === compPreguntas[i].correcta).length;
             const total = compPreguntas.length;
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'A' });
+            document.getElementById('comp-teil-breakdown').style.display = 'none';
             const resultado = document.getElementById('comp-resultado');
             const textoEl = document.getElementById('comp-resultado-texto');
             textoEl.textContent = correctas + ' / ' + total + ' correctas';
@@ -1316,6 +1334,7 @@
 
         /* ========================= MODO B — Por nivel ========================= */
         let modoBRespuestas = {};
+        let TeilState = null; // { titulo, teile[], idx, resultados: [{correct,total}] }
 
         function modoB_getSelectedLevel() {
             const active = document.querySelector('#comp-level-pills .comp-level-pill.active');
@@ -1333,8 +1352,10 @@
 
         function modoB_reset() {
             modoBRespuestas = {};
+            TeilState = null;
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
+            document.getElementById('comp-teil-session').style.display = 'none';
             document.getElementById('comp-resultado').style.display = 'none';
             document.getElementById('comp-loading').style.display = 'none';
         }
@@ -1376,7 +1397,7 @@
             try {
                 const { data: allTexts, error: textsErr } = await window.sb
                     .from('reading_texts')
-                    .select('id, title, content, questions')
+                    .select('id, title, content, questions, format_version')
                     .eq('level', level);
                 if (textsErr) throw new Error('Error al cargar textos: ' + textsErr.message);
 
@@ -1403,15 +1424,19 @@
                 );
 
                 document.getElementById('comp-loading').style.display = 'none';
-                document.getElementById('comp-texto-titulo').textContent = chosenText.title;
-                document.getElementById('comp-texto-contenido').textContent = chosenText.content;
-                document.getElementById('comp-texto-display').style.display = 'block';
 
-                const preguntas = typeof chosenText.questions === 'string'
+                const questions = typeof chosenText.questions === 'string'
                     ? JSON.parse(chosenText.questions)
                     : chosenText.questions;
 
-                modoB_renderPreguntas(preguntas);
+                if (chosenText.format_version === 2) {
+                    modoB_iniciarTeilSession(chosenText.title, questions.teile);
+                } else {
+                    document.getElementById('comp-texto-titulo').textContent = chosenText.title;
+                    document.getElementById('comp-texto-contenido').textContent = chosenText.content;
+                    document.getElementById('comp-texto-display').style.display = 'block';
+                    modoB_renderPreguntas(questions);
+                }
 
             } catch (err) {
                 console.error('[ModoB]', err);
@@ -1460,6 +1485,7 @@
 
         function modoB_mostrarResultado(correctas, total) {
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
+            document.getElementById('comp-teil-breakdown').style.display = 'none';
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = `${correctas} / ${total} correctas`;
@@ -1467,6 +1493,171 @@
             el.style.display = 'block';
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+
+        /* ---- Modo B — sesión por Teile (format_version 2) ---- */
+
+        const TEIL_NOMBRES = {
+            teil1: 'Teil 1 — Texto y preguntas',
+            teil2: 'Teil 2 — Personas y anuncios',
+            teil3: 'Teil 3 — Foro de opiniones',
+            teil4: 'Teil 4 — Richtig oder falsch',
+            teil5: 'Teil 5 — Situaciones y reglas',
+        };
+
+        function modoB_iniciarTeilSession(titulo, teile) {
+            TeilState = { titulo, teile, idx: 0, resultados: [] };
+            document.getElementById('comp-teil-session').style.display = 'block';
+            modoB_renderTeilActual();
+        }
+
+        function modoB_renderTeilActual() {
+            const teil = TeilState.teile[TeilState.idx];
+            document.getElementById('comp-teil-nombre').textContent = TEIL_NOMBRES[teil.id] || teil.id;
+            document.getElementById('comp-teil-progreso').textContent = `${TeilState.idx + 1} / ${TeilState.teile.length}`;
+            document.getElementById('comp-teil-instrucciones').textContent = teil.instrucciones;
+
+            const textosEl = document.getElementById('comp-teil-textos');
+            textosEl.innerHTML = (teil.textos || []).map(t => `
+                <div class="comp-teil-texto" style="margin-bottom:14px;padding:16px;background:var(--bg,#f4f4f9);border-radius:var(--radius,8px);border-left:4px solid var(--btn,#1976D2)">
+                    <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--btn,#1976D2)">${escHtml(t.titulo)}</h3>
+                    <div style="font-size:15px;line-height:1.7;white-space:pre-wrap">${escHtml(t.contenido)}</div>
+                </div>
+            `).join('');
+
+            const body = document.getElementById('comp-teil-body');
+            if (teil.tipo === 'mcq') body.innerHTML = renderMcqTeilHtml(teil);
+            else if (teil.tipo === 'richtig_falsch') body.innerHTML = renderRichtigFalschTeilHtml(teil);
+            else if (teil.tipo === 'emparejar') body.innerHTML = renderEmparejarTeilHtml(teil);
+
+            document.getElementById('comp-teil-comprobar-btn').style.display = 'inline-block';
+            document.getElementById('comp-teil-siguiente-btn').style.display = 'none';
+        }
+
+        function renderMcqTeilHtml(teil) {
+            return teil.items.map((it, i) => `
+                <div class="comp-pregunta" data-item="${i}">
+                    <div class="comp-pregunta-enunciado">${escHtml(it.pregunta)}</div>
+                    <div class="comp-opciones">
+                        ${it.opciones.map((op, j) => `
+                            <button type="button" class="comp-opcion" data-item="${i}" data-valor="${j}"
+                                onclick="teilSeleccionarOpcion(this)">${escHtml(op)}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRichtigFalschTeilHtml(teil) {
+            return teil.items.map((it, i) => `
+                <div class="comp-pregunta" data-item="${i}">
+                    <div class="comp-pregunta-enunciado">${escHtml(it.afirmacion)}</div>
+                    <div class="comp-opciones">
+                        <button type="button" class="comp-opcion" data-item="${i}" data-valor="true" onclick="teilSeleccionarOpcion(this)">Richtig</button>
+                        <button type="button" class="comp-opcion" data-item="${i}" data-valor="false" onclick="teilSeleccionarOpcion(this)">Falsch</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderEmparejarTeilHtml(teil) {
+            const opciones = teil.columnaDerecha.map(d => `<option value="${d.id}">${escHtml(d.texto)}</option>`).join('');
+            return teil.columnaIzquierda.map(izq => `
+                <div class="comp-emparejar-row" data-item="${izq.id}">
+                    <div class="comp-emparejar-texto">${escHtml(izq.texto)}</div>
+                    <select class="comp-emparejar-select" data-item="${izq.id}">
+                        <option value="">— elegir —</option>
+                        ${opciones}
+                    </select>
+                </div>
+            `).join('');
+        }
+
+        function teilSeleccionarOpcion(btn) {
+            if (btn.disabled) return;
+            btn.closest('.comp-pregunta').querySelectorAll('.comp-opcion').forEach(b => b.classList.remove('seleccionada'));
+            btn.classList.add('seleccionada');
+        }
+
+        function modoB_comprobarTeilActual() {
+            const teil = TeilState.teile[TeilState.idx];
+            let correct = 0, total = 0;
+
+            if (teil.tipo === 'mcq' || teil.tipo === 'richtig_falsch') {
+                teil.items.forEach((it, i) => {
+                    total++;
+                    const bloque = document.querySelector(`.comp-pregunta[data-item="${i}"]`);
+                    const seleccionado = bloque.querySelector('.comp-opcion.seleccionada');
+                    const correcta = it.correcta;
+                    bloque.querySelectorAll('.comp-opcion').forEach(b => {
+                        b.disabled = true;
+                        const valor = teil.tipo === 'mcq' ? parseInt(b.dataset.valor) : (b.dataset.valor === 'true');
+                        if (valor === correcta) b.classList.add('correcta');
+                        else if (b === seleccionado) b.classList.add('incorrecta');
+                    });
+                    if (seleccionado) {
+                        const valorSel = teil.tipo === 'mcq' ? parseInt(seleccionado.dataset.valor) : (seleccionado.dataset.valor === 'true');
+                        if (valorSel === correcta) correct++;
+                    }
+                });
+            } else if (teil.tipo === 'emparejar') {
+                teil.columnaIzquierda.forEach(izq => {
+                    total++;
+                    const select = document.querySelector(`.comp-emparejar-select[data-item="${izq.id}"]`);
+                    select.disabled = true;
+                    const correctaId = teil.solucion[izq.id];
+                    if (select.value === correctaId) {
+                        select.classList.add('correcta');
+                        correct++;
+                    } else {
+                        select.classList.add('incorrecta');
+                    }
+                });
+            }
+
+            TeilState.resultados[TeilState.idx] = { correct, total };
+            document.getElementById('comp-teil-comprobar-btn').style.display = 'none';
+            document.getElementById('comp-teil-siguiente-btn').style.display = 'inline-block';
+            document.getElementById('comp-teil-siguiente-btn').textContent =
+                TeilState.idx < TeilState.teile.length - 1 ? 'Siguiente Teil →' : 'Ver resultado final';
+        }
+
+        function modoB_avanzarTeil() {
+            if (TeilState.idx < TeilState.teile.length - 1) {
+                TeilState.idx++;
+                modoB_renderTeilActual();
+                document.getElementById('comp-teil-session').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                modoB_mostrarResultadoTeilFinal();
+            }
+        }
+
+        function modoB_mostrarResultadoTeilFinal() {
+            document.getElementById('comp-teil-session').style.display = 'none';
+
+            const totalCorrect = TeilState.resultados.reduce((s, r) => s + r.correct, 0);
+            const totalItems = TeilState.resultados.reduce((s, r) => s + r.total, 0);
+
+            window.logEvent('lectura-veloz', 'comp_completed', { correct: totalCorrect, total: totalItems, modo: 'B', format_version: 2 });
+
+            const el = document.getElementById('comp-resultado');
+            const txt = document.getElementById('comp-resultado-texto');
+            txt.textContent = `${totalCorrect} / ${totalItems} correctas`;
+            const ratio = totalItems ? totalCorrect / totalItems : 0;
+            txt.className = ratio >= 0.7 ? 'verde' : ratio >= 0.5 ? 'naranja' : 'rojo';
+
+            const breakdown = document.getElementById('comp-teil-breakdown');
+            breakdown.innerHTML = TeilState.teile.map((teil, i) => {
+                const r = TeilState.resultados[i] || { correct: 0, total: 0 };
+                return `<li><span>${escHtml(TEIL_NOMBRES[teil.id] || teil.id)}</span><span>${r.correct} / ${r.total}</span></li>`;
+            }).join('');
+            breakdown.style.display = 'block';
+
+            el.style.display = 'block';
+            el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        document.getElementById('comp-teil-comprobar-btn').addEventListener('click', modoB_comprobarTeilActual);
+        document.getElementById('comp-teil-siguiente-btn').addEventListener('click', modoB_avanzarTeil);
 
         document.getElementById('comp-nivel-btn').addEventListener('click', modoB_obtenerTexto);
 

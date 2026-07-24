@@ -839,6 +839,19 @@
             });
         });
 
+        /* Deep-link support: lectura veloz.html?level=B1
+           Abre directo en Comprensión → Por nivel (ya son el activity/modo por defecto)
+           y preselecciona el nivel pedido; el usuario sigue pulsando "Obtener texto" a mano. */
+        (function initComprensionDeepLink() {
+            const paramLevel = new URLSearchParams(location.search).get('level');
+            if (!paramLevel) return;
+            const pill = document.querySelector(`.comp-level-pill[data-level="${paramLevel.toUpperCase()}"]`);
+            if (pill) {
+                document.querySelectorAll('.comp-level-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+            }
+        })();
+
         /* ---- Modo A: Mi texto ---- */
         let compRespuestas = [];
         let compPreguntas = [];
@@ -1343,6 +1356,15 @@
         /* ========================= MODO B — Por nivel ========================= */
         let modoBRespuestas = {};
         let TeilState = null; // { titulo, teile[], idx, resultados: [{correct,total}] }
+        let modoBCurrentTextId = null; // id del texto en curso; se marca como visto solo al terminar el ejercicio, no al pedirlo
+
+        async function modoB_marcarComoVisto() {
+            if (!modoBCurrentTextId || !window.currentUser) return;
+            await window.sb.from('user_reading_seen').upsert(
+                { user_id: window.currentUser.id, text_id: modoBCurrentTextId, seen_at: new Date().toISOString() },
+                { onConflict: 'user_id,text_id' }
+            );
+        }
 
         function modoB_getSelectedLevel() {
             const active = document.querySelector('#comp-level-pills .comp-level-pill.active');
@@ -1401,6 +1423,7 @@
             modoBRespuestas = {};
             TeilState = null;
             _pendingTeilSesion = null;
+            modoBCurrentTextId = null;
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
             document.getElementById('comp-teil-selector').style.display = 'none';
@@ -1432,10 +1455,7 @@
                     chosenText = await modoB_generarTextoIA(level);
                 }
 
-                await window.sb.from('user_reading_seen').upsert(
-                    { user_id: window.currentUser.id, text_id: chosenText.id, seen_at: new Date().toISOString() },
-                    { onConflict: 'user_id,text_id' }
-                );
+                modoBCurrentTextId = chosenText.id;
 
                 document.getElementById('comp-loading').style.display = 'none';
 
@@ -1498,6 +1518,7 @@
         }
 
         function modoB_mostrarResultado(correctas, total) {
+            modoB_marcarComoVisto();
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
             document.getElementById('comp-teil-breakdown').style.display = 'none';
             const el = document.getElementById('comp-resultado');
@@ -1674,6 +1695,7 @@
         }
 
         function modoB_mostrarResultadoTeilFinal() {
+            modoB_marcarComoVisto();
             document.getElementById('comp-teil-session').style.display = 'none';
 
             const totalCorrect = TeilState.resultados.reduce((s, r) => s + r.correct, 0);

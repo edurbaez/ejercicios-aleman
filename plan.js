@@ -1110,7 +1110,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-06", label: "Gramática: Passivsätze ohne Subjekt", minutes: 5 },
         { app: "B2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Escritura: Reclamación formal", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1134,7 +1135,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-12", label: "Gramática: Konsekutive Nebensätze", minutes: 5 },
         { app: "B2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=foro", label: "Escritura: Forumsbeitrag", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1158,7 +1160,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-01", label: "Repaso: Konjunktiv I (discurso indirecto)", minutes: 5 },
         { app: "B2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura: E-Mail laboral", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     // Semana 2 (días 7-14): repaso de las 17 reglas
@@ -1183,7 +1186,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-06", label: "Repaso: Passivsätze ohne Subjekt", minutes: 5 },
         { app: "B2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Escritura: Reclamación formal", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1207,7 +1211,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-12", label: "Repaso: Konsekutive Nebensätze", minutes: 5 },
         { app: "B2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=foro", label: "Escritura: Forumsbeitrag", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1231,7 +1236,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-01", label: "Repaso: Konjunktiv I (discurso indirecto)", minutes: 5 },
         { app: "B2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura: E-Mail laboral", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1255,7 +1261,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-07", label: "Repaso: Partizip I como adjetivo", minutes: 5 },
         { app: "B2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Escritura: Reclamación formal", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     // Semana 3 (días 15-21): consolidación oral con chat-reformulaciones.html
@@ -1280,7 +1287,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b2-13", label: "Reformulación: Relativsätze im Genitiv", minutes: 5 },
         { app: "B2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=foro", label: "Escritura: Forumsbeitrag", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1304,7 +1312,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b2-02", label: "Reformulación: Konjunktiv II pasado", minutes: 5 },
         { app: "B2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura: E-Mail laboral", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1328,7 +1337,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b2-08", label: "Reformulación: Partizip II como adjetivo", minutes: 5 },
         { app: "B2.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Escritura: Reclamación formal", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1353,7 +1363,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-14", label: "Repaso: Relativpronomen mit was/wo(r)-", minutes: 5 },
         { app: "B2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=foro", label: "Escritura: Forumsbeitrag", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1377,7 +1388,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-03", label: "Repaso: Comparaciones y consecuencias irreales", minutes: 5 },
         { app: "B2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura: E-Mail laboral", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1401,7 +1413,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-09", label: "Repaso: Futur II", minutes: 5 },
         { app: "B2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Escritura: Reclamación formal", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1425,7 +1438,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-15", label: "Repaso: Conectores de dos partes", minutes: 5 },
         { app: "B2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=foro", label: "Escritura: Forumsbeitrag", minutes: 15 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1447,7 +1461,8 @@ window.PLANS = {
         { app: "gramatica.html#b2-02", label: "Repaso ligero: Konjunktiv II pasado", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura breve: E-Mail laboral", minutes: 10 },
         { app: "mundliche.html?level=B2&teil=praesentation", label: "Simulacro examen: Präsentation", minutes: 10 },
-        { app: "mundliche.html?level=B2&teil=diskussion", label: "Simulacro examen: Diskussion (activar Modo examen)", minutes: 20 }
+        { app: "mundliche.html?level=B2&teil=diskussion", label: "Simulacro examen: Diskussion (activar Modo examen)", minutes: 20 },
+        { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]
     }
   ],

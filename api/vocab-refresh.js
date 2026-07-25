@@ -8,6 +8,8 @@
 // Level: body/query `level` (a1–c2); if absent, rotates one level per day so the
 // whole catalog refreshes every 6 days with a single daily cron job.
 
+import { fetchWithRetry } from './_lib.js';
+
 const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
 
 const LEVELS = ['a1', 'a2', 'b1', 'b2', 'c1', 'c2'];
@@ -60,7 +62,7 @@ Rules:
 Return ONLY this JSON:
 { "de": [exactly ${BATCH_SIZE} strings], "es": [exactly ${BATCH_SIZE} strings] }`;
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -1,4 +1,4 @@
-import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:deepseek-chat');
 
@@ -57,7 +57,7 @@ export default async function handler(req, res) {
         };
         if (json === true) body.response_format = { type: 'json_object' };
 
-        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+        const response = await fetchWithRetry('https://api.deepseek.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,

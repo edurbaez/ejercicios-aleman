@@ -1,4 +1,4 @@
-import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
 import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, READING_TEILE_SPECS, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
         if (json === true) body.response_format = { type: 'json_object' };
         if (typeof temperature === 'number' && temperature >= 0 && temperature <= 2) body.temperature = temperature;
 
-        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        const response = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -133,7 +133,7 @@ La situación debe involucrar a ${pick(PERSONAS)} en ${pick(LUGARES)}, ${pick(MO
 Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
 
     try {
-        const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -290,7 +290,7 @@ async function generateReadingTeile(req, res, level) {
     const prompt = buildTeilePrompt(level, spec, tema) + noRepeat;
 
     try {
-        const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+        const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,

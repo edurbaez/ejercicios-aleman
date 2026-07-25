@@ -75,6 +75,31 @@ export async function checkAccess(userId) {
     }
 }
 
+// Retries a fetch call on 429 (rate limit) and transient 5xx errors, honoring the
+// Retry-After header when the provider sends one. Exponential backoff + jitter,
+// capped at maxDelayMs so total added latency stays well inside Vercel's 60s
+// maxDuration even after 3 retries (~4s worst case with the defaults below).
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
+
+export async function fetchWithRetry(url, options = {}, { maxRetries = 3, baseDelayMs = 500, maxDelayMs = 8000 } = {}) {
+    let lastResponse;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const response = await fetch(url, options);
+        if (response.ok || !RETRYABLE_STATUS.has(response.status) || attempt === maxRetries) {
+            return response;
+        }
+        lastResponse = response;
+        try { await response.text(); } catch { /* drain body before retrying */ }
+
+        const retryAfterSec = Number(response.headers.get('retry-after'));
+        const delay = Number.isFinite(retryAfterSec) && retryAfterSec > 0
+            ? Math.min(retryAfterSec * 1000, maxDelayMs)
+            : Math.min(baseDelayMs * 2 ** attempt, maxDelayMs) + Math.random() * 250;
+        await new Promise(r => setTimeout(r, delay));
+    }
+    return lastResponse;
+}
+
 // Returns an isRateLimited(userId) function.
 // Uses Vercel KV (Redis) when KV_REST_API_URL is set; falls back to in-memory Map.
 export function createRateLimiter(limit, windowMs = 60_000, namespace = 'rl') {

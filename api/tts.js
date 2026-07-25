@@ -1,4 +1,4 @@
-import { verifyJWT, createRateLimiter, checkAccess } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
 
 const isRateLimited = createRateLimiter(30, 60_000, 'rl:tts');
 
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const response = await fetch('https://api.openai.com/v1/audio/speech', {
+        const response = await fetchWithRetry('https://api.openai.com/v1/audio/speech', {
             method: 'POST',
             headers: {
                 Authorization:  `Bearer ${process.env.OPENAI_API_KEY}`,

@@ -1464,7 +1464,7 @@
                     : chosenText.questions;
 
                 if (chosenText.format_version === 2) {
-                    modoB_mostrarSelectorTeile(chosenText.title, questions.teile);
+                    modoB_mostrarSelectorTeile(chosenText.title, questions.teile, level);
                 } else {
                     document.getElementById('comp-texto-titulo').textContent = chosenText.title;
                     document.getElementById('comp-texto-contenido').textContent = chosenText.content;
@@ -1532,22 +1532,35 @@
         /* ---- Modo B — sesión por Teile (format_version 2) ---- */
 
         const TEIL_NOMBRES = {
-            teil1: 'Teil 1 — Texto y preguntas',
-            teil2: 'Teil 2 — Personas y anuncios',
-            teil3: 'Teil 3 — Foro de opiniones',
-            teil4: 'Teil 4 — Richtig oder falsch',
-            teil5: 'Teil 5 — Situaciones y reglas',
+            B1: {
+                teil1: 'Teil 1 — Texto y preguntas',
+                teil2: 'Teil 2 — Personas y anuncios',
+                teil3: 'Teil 3 — Foro de opiniones',
+                teil4: 'Teil 4 — Richtig oder falsch',
+                teil5: 'Teil 5 — Situaciones y reglas',
+            },
+            B2: {
+                teil1: 'Teil 1 — Personas y afirmaciones',
+                teil2: 'Teil 2 — Texto con huecos',
+                teil3: 'Teil 3 — Preguntas de comprensión',
+                teil4: 'Teil 4 — Opiniones y titulares',
+                teil5: 'Teil 5 — Reglamento y párrafos',
+            },
         };
 
-        let _pendingTeilSesion = null; // { titulo, teile } — sesión completa a la espera de que el usuario elija qué Teile practicar
+        function teilNombre(level, teilId) {
+            return (TEIL_NOMBRES[level] && TEIL_NOMBRES[level][teilId]) || teilId;
+        }
 
-        function modoB_mostrarSelectorTeile(titulo, teile) {
-            _pendingTeilSesion = { titulo, teile };
+        let _pendingTeilSesion = null; // { titulo, teile, level } — sesión completa a la espera de que el usuario elija qué Teile practicar
+
+        function modoB_mostrarSelectorTeile(titulo, teile, level) {
+            _pendingTeilSesion = { titulo, teile, level };
             const list = document.getElementById('comp-teil-selector-list');
             list.innerHTML = teile.map((t, i) => `
                 <label class="comp-teil-selector-item">
                     <input type="checkbox" data-idx="${i}" checked>
-                    ${escHtml(TEIL_NOMBRES[t.id] || t.id)}
+                    ${escHtml(teilNombre(level, t.id))}
                 </label>
             `).join('');
             document.getElementById('comp-teil-selector').style.display = 'block';
@@ -1560,22 +1573,23 @@
 
             const teile = checked.map(i => _pendingTeilSesion.teile[i]);
             const titulo = _pendingTeilSesion.titulo;
+            const level = _pendingTeilSesion.level;
             _pendingTeilSesion = null;
             document.getElementById('comp-teil-selector').style.display = 'none';
-            modoB_iniciarTeilSession(titulo, teile);
+            modoB_iniciarTeilSession(titulo, teile, level);
         }
 
         document.getElementById('comp-teil-empezar-btn').addEventListener('click', modoB_empezarTeilesSeleccionados);
 
-        function modoB_iniciarTeilSession(titulo, teile) {
-            TeilState = { titulo, teile, idx: 0, resultados: [] };
+        function modoB_iniciarTeilSession(titulo, teile, level) {
+            TeilState = { titulo, teile, level, idx: 0, resultados: [] };
             document.getElementById('comp-teil-session').style.display = 'block';
             modoB_renderTeilActual();
         }
 
         function modoB_renderTeilActual() {
             const teil = TeilState.teile[TeilState.idx];
-            document.getElementById('comp-teil-nombre').textContent = TEIL_NOMBRES[teil.id] || teil.id;
+            document.getElementById('comp-teil-nombre').textContent = teilNombre(TeilState.level, teil.id);
             document.getElementById('comp-teil-progreso').textContent = `${TeilState.idx + 1} / ${TeilState.teile.length}`;
             document.getElementById('comp-teil-instrucciones').textContent = teil.instrucciones;
 
@@ -1712,7 +1726,7 @@
             const breakdown = document.getElementById('comp-teil-breakdown');
             breakdown.innerHTML = TeilState.teile.map((teil, i) => {
                 const r = TeilState.resultados[i] || { correct: 0, total: 0 };
-                return `<li><span>${escHtml(TEIL_NOMBRES[teil.id] || teil.id)}</span><span>${r.correct} / ${r.total}</span></li>`;
+                return `<li><span>${escHtml(teilNombre(TeilState.level, teil.id))}</span><span>${r.correct} / ${r.total}</span></li>`;
             }).join('');
             breakdown.style.display = 'block';
 

@@ -1,9 +1,9 @@
 # Plan: adaptar "Comprensión" al formato real del examen (Leseverstehen)
 
-> **Estado: Fase 1 (B1) implementada** — ver §11 para el detalle de lo hecho y lo que
-> queda pendiente (B2/C1/C2, A1/A2). El resto de este documento describe el diseño
-> original; §11 documenta las decisiones tomadas durante la implementación donde
-> divergieron de lo planificado aquí.
+> **Estado: Fase 1 (B1) y Fase 2 (B2) implementadas** — ver §11 y §12 para el detalle de
+> lo hecho y lo que queda pendiente (C1/C2, A1/A2). El resto de este documento describe
+> el diseño original; §11/§12 documentan las decisiones tomadas durante la
+> implementación donde divergieron de lo planificado aquí.
 
 > Documento de planificación, no implementado originalmente. Complementa la "opción ligera" ya
 > implementada (`api/_reading-topics.js` `READING_SPECS`, `api/chat.js` `generateReading()`),
@@ -235,3 +235,88 @@ durante la construcción:
   y las "decisiones abiertas" de §10 sobre costo/latencia si el volumen de uso crece
   (por ahora se reusan sesiones no vistas de `reading_texts` antes de generar una nueva,
   igual que el flujo v1).
+
+## 12. Fase 2 (B2) — implementado
+
+Antes de implementar se investigó la estructura real del Modellsatz oficial
+Goethe-Zertifikat B2 (Lesen, bfu.goethe.de), en vez de asumir la tabla del §3 al pie de
+la letra. Hallazgo principal: **la tabla de §3 estaba equivocada en los tipos de tarea
+de B2** — el examen real no usa `richtig_falsch` en ningún Teil de B2, y el "Teil 4 con
+huecos/conectores" que suponía §3 en realidad es un Lückentext (Teil 2 real) que encaja
+sin cambios en el tipo `emparejar` ya construido para B1 (huecos numerados en la columna
+izquierda ↔ frases candidatas en la columna derecha, con distractores). El Teil 1 real
+(4 personas opinan, 9 afirmaciones se asignan a la persona que las dijo, con opciones
+repetibles) encaja en `mcq` sin cambios de esquema — cada `item` simplemente repite el
+mismo array de opciones. **Conclusión: no hizo falta construir ningún tipo de tarea
+nuevo** (`huecos` nunca se implementó); B2 reutiliza `mcq` y `emparejar` tal cual.
+
+- **Estructura adoptada** (`READING_TEILE_SPECS.B2` en `api/_reading-topics.js`): teil1
+  `mcq` (4 personas/opiniones, `opcionesCount: 4`, opciones compartidas y repetibles
+  entre items) · teil2 `emparejar` (Lückentext: huecos `[1]`.."[5]"` en un artículo ↔ 8
+  frases candidatas, 3 distractoras) · teil3 `mcq` (`opcionesCount: 3`, MCQ estándar,
+  mismo patrón que el teil1 de B1) · teil4 `emparejar` (titulares ↔ opiniones/comentarios
+  completos, 3 distractoras) · teil5 `emparejar` (párrafos de un reglamento ↔
+  encabezados, con distractores). Se mantienen 5 ítems por Teil (no los 9/6/6/6/3 reales)
+  por consistencia con B1 y para no complicar el generador — la app es una herramienta de
+  práctica de formato, no una réplica exacta del examen.
+- **Generalización necesaria (no solo "copiar y pegar" el patrón de B1)**: la
+  implementación de B1 tenía tres puntos hardcodeados a ese nivel que había que
+  corregir para que B2 no heredara datos incorrectos:
+  1. `buildTeilePrompt` (`api/chat.js`) tenía el rango de palabras ("100-150") y las
+     descripciones de contenido de los Teile `emparejar` escritas literalmente,
+     condicionadas por `t.id === 'teil2'/'teil3'/'teil5'`. Se refactorizó a una función
+     100% genérica dirigida por el `spec` recibido: cada entrada de
+     `READING_TEILE_SPECS[level]` ahora lleva un campo `promptFragment` (el texto de
+     instrucción para la IA, con placeholders `{minWords}`/`{maxWords}` interpolados
+     desde `READING_SPECS[level]`). Se aplicó el mismo cambio de forma a las 5 entradas
+     de B1 (sin cambiar su contenido) para que ambos niveles compartan un único código
+     de generación de prompt.
+  2. `validMcqTeil` exigía exactamente 3 opciones — se generalizó a
+     `validMcqTeil(t, opcionesCount = 3)`, con `opcionesCount` leído de
+     `expected.opcionesCount` en `validTeileSession` (nuevo campo opcional en la spec,
+     usado por B2 teil1 con valor `4`).
+  3. `TEIL_NOMBRES` en `lectura veloz.html` era un mapa fijo por `id` con nombres de la
+     semántica de B1 (p. ej. "Teil 2 — Personas y anuncios"), que se habría mostrado
+     también para el Teil 2 de B2 (Lückentext) sin ser correcto. Se convirtió en un mapa
+     anidado por nivel (`TEIL_NOMBRES.B1`/`TEIL_NOMBRES.B2`, helper `teilNombre(level,
+     teilId)`), y se enhebró `level` a través de `modoB_mostrarSelectorTeile` →
+     `_pendingTeilSesion.level` → `modoB_iniciarTeilSession` → `TeilState.level` para que
+     el nombre correcto se resuelva en cada punto de la UI (selector de Teile, cabecera
+     de sesión, desglose final).
+  4. `max_tokens` de la llamada a OpenAI se subió de 3500 a 4200 (textos de B2 son más
+     largos — 150-200 palabras vs. 100-150 de B1 — con el mismo número de Teile).
+  5. Las longitudes de texto por Teil se calibraron por separado en vez de compartir un
+     único rango de palabras (`READING_SPECS.B2`, 150-200, pensado para el formato plano
+     v1 de un solo artículo): teil1 60-90 palabras por persona (antes 40-60), teil2
+     220-300 palabras (hardcodeado en su `promptFragment`, en vez de heredar
+     `{minWords}-{maxWords}` — el Lückentext real necesita más contexto alrededor de los
+     5 huecos), teil3 mantiene 150-200 vía `{minWords}-{maxWords}` (ya era razonable para
+     un texto de comprensión simple), teil4 30-50 palabras por opinión, teil5 30-60
+     palabras por párrafo. Se descartó usar un único rango ancho (p. ej. 150-300 para
+     todos) porque no diferenciaba Teil2 (necesita tender largo) de Teil3 (debe quedarse
+     corto) y no cubría Teil1/4/5, que no usan el placeholder `{minWords}/{maxWords}` en
+     absoluto.
+- **Nada más requirió cambios**: el dispatcher `format_version`/`READING_TEILE_SPECS[level]`
+  en `generateReading`, los 3 renderers de UI por tipo (`renderMcqTeilHtml`,
+  `renderRichtigFalschTeilHtml`, `renderEmparejarTeilHtml`), el flujo de estado/navegación
+  de sesión (`TeilState`, `modoB_iniciarTeilSession`, `modoB_renderTeilActual`,
+  `modoB_comprobarTeilActual`, `modoB_avanzarTeil`, `modoB_mostrarResultadoTeilFinal`), el
+  CSS, el botón de nivel B2 en `#comp-level-pills`, y el Modo A — todos ya eran genéricos
+  por tipo de tarea y no dependían de B1. Ninguna migración de Supabase nueva
+  (`format_version`/`CHECK` de `level` ya cubrían B2).
+- **Verificación realizada**: `node --check` de `api/chat.js`/`api/_reading-topics.js`;
+  parseo de los bloques `<script>` de `lectura veloz.html` con `new Function`; script
+  standalone que reconstruye los validadores y prueba una sesión B2 sintética válida más
+  4 variantes inválidas (mcq con conteo de opciones equivocado en ambos sentidos,
+  columna derecha más corta que la izquierda, `solucion` apuntando a un id inexistente —
+  todas correctamente rechazadas) y confirma que una sesión B1 sintética sigue
+  aceptándose tras el refactor de `promptFragment`; también se verificó que
+  `buildTeilePrompt` interpola correctamente 100-150 para B1 y 150-200 para B2. **No se
+  hizo prueba manual en navegador** (mismo motivo que en la Fase 1: el entorno de
+  ejecución no tiene sesión de usuario/browser interactivo) — antes de dar la fase por
+  cerrada conviene entrar a `/lectura veloz.html` → Comprensión → Por nivel → B2 →
+  Obtener texto, y completar una sesión completa de los 5 Teile una vez desplegado.
+- **Pendiente / no incluido en esta fase**: C1/C2 (mismos tipos de tarea que B1/B2,
+  reutilizan `mcq`/`emparejar` — solo falta poblar `READING_TEILE_SPECS.C1`/`.C2` con sus
+  propios `promptFragment` y nombres, siguiendo el mismo patrón que esta fase), A1/A2
+  (sin cambios, siguen necesitando tipos de tarea nuevos).

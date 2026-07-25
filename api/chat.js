@@ -196,14 +196,14 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
 
 // ── format_version 2: Teile-based sessions (see lecturaplan.md) ──────────────────
 
-function validMcqTeil(t) {
+function validMcqTeil(t, opcionesCount = 3) {
     return Array.isArray(t.textos) && t.textos.length > 0
         && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
         && Array.isArray(t.items) && t.items.length > 0
         && t.items.every(it =>
             typeof it.pregunta === 'string'
-            && Array.isArray(it.opciones) && it.opciones.length === 3
-            && Number.isInteger(it.correcta) && it.correcta >= 0 && it.correcta < 3);
+            && Array.isArray(it.opciones) && it.opciones.length === opcionesCount
+            && Number.isInteger(it.correcta) && it.correcta >= 0 && it.correcta < opcionesCount);
 }
 
 function validRichtigFalschTeil(t) {
@@ -233,29 +233,15 @@ function validTeileSession(parsed, spec) {
         const t = parsed.teile[i];
         return t && t.id === expected.id && t.tipo === expected.tipo
             && typeof t.instrucciones === 'string'
-            && TEIL_VALIDATORS[expected.tipo](t);
+            && TEIL_VALIDATORS[expected.tipo](t, expected.opcionesCount || 3);
     });
 }
 
 function buildTeilePrompt(level, spec, tema) {
-    const teilPrompts = spec.map(t => {
-        if (t.tipo === 'mcq') {
-            return `- "${t.id}" (tipo "mcq"): 1 texto en alemán (100-150 palabras, relato o artículo breve) en "textos" (1 elemento con "titulo" y "contenido"), y 5 preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).`;
-        }
-        if (t.tipo === 'richtig_falsch') {
-            return `- "${t.id}" (tipo "richtig_falsch"): 1 texto en alemán (100-150 palabras) en "textos", y 5 afirmaciones sobre el texto en "items", cada una con "afirmacion" (string) y "correcta" (true o false), mezclando verdaderas y falsas.`;
-        }
-        if (t.id === 'teil2') {
-            return `- "${t.id}" (tipo "emparejar"): sin "textos". 5 personas en "columnaIzquierda" (id "p1".."p5", "texto" describiendo brevemente qué busca/necesita cada una) y 8 anuncios breves en "columnaDerecha" (id "a1".."a8", "texto" el anuncio). "solucion" debe mapear cada "p1".."p5" al id del anuncio que le corresponde; los 3 anuncios restantes son distractores sin solución asociada.`;
-        }
-        if (t.id === 'teil3') {
-            return `- "${t.id}" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." y "contenido" con 5 comentarios cortos de personas distintas (nombre en negrita al inicio de cada uno, separados por saltos de línea). 5 afirmaciones/opiniones en "columnaIzquierda" (id "s1".."s5") que coinciden con lo que dijo una de esas personas, y las 5 personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.`;
-        }
-        if (t.id === 'teil5') {
-            return `- "${t.id}" (tipo "emparejar"): sin "textos". 5 situaciones cotidianas en "columnaIzquierda" (id "s1".."s5") y 8 reglas breves de un reglamento (Hausordnung, normas de una biblioteca, gimnasio, etc.) en "columnaDerecha" (id "r1".."r8"). "solucion" mapea cada situación a la regla que aplica; 3 reglas son distractores.`;
-        }
-        return '';
-    }).join('\n');
+    const { minWords, maxWords } = READING_SPECS[level];
+    const teilPrompts = spec
+        .map(t => t.promptFragment.replace(/\{minWords\}/g, minWords).replace(/\{maxWords\}/g, maxWords))
+        .join('\n');
 
     return `Genera una sesión de comprensión lectora en alemán de nivel ${level}, siguiendo el formato del examen Goethe/telc Leseverstehen (estructura general, sin copiar textos de exámenes reales). Tema general de fondo: ${tema}.
 
@@ -298,7 +284,7 @@ async function generateReadingTeile(req, res, level) {
             },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
-                max_tokens: 3500,
+                max_tokens: 4200,
                 response_format: { type: 'json_object' },
                 messages: [{ role: 'user', content: prompt }],
             }),

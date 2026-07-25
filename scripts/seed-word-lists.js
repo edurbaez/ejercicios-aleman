@@ -29,19 +29,30 @@ const HEADERS = {
   'Content-Type': 'application/json',
   'apikey': SERVICE_KEY,
   'Authorization': `Bearer ${SERVICE_KEY}`,
-  'Prefer': 'resolution=merge-duplicates,return=minimal',
 };
 
-async function upsertBatch(rows) {
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: HEADERS,
-    body: JSON.stringify(rows),
+// word_lists_sys_name_idx is a PARTIAL unique index (app_id, name) WHERE is_system = true,
+// so PostgREST's `Prefer: resolution=merge-duplicates` can't infer it as an ON CONFLICT
+// target (it falls back to the id PK, which never collides, then hits a plain insert
+// conflict). Upsert manually instead: PATCH by filter, insert only if nothing matched.
+async function upsertRow(row) {
+  const filterUrl = `${API}?app_id=eq.${encodeURIComponent(row.app_id)}&name=eq.${encodeURIComponent(row.name)}&is_system=eq.true`;
+  const patchRes = await fetch(filterUrl, {
+    method: 'PATCH',
+    headers: { ...HEADERS, 'Prefer': 'return=representation' },
+    body: JSON.stringify({ words: row.words }),
   });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`HTTP ${res.status}: ${body}`);
-  }
+  if (!patchRes.ok) throw new Error(`PATCH ${row.app_id}/${row.name}: HTTP ${patchRes.status}: ${await patchRes.text()}`);
+  const updated = await patchRes.json();
+  if (updated.length > 0) return 'updated';
+
+  const insertRes = await fetch(API, {
+    method: 'POST',
+    headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+    body: JSON.stringify([row]),
+  });
+  if (!insertRes.ok) throw new Error(`INSERT ${row.app_id}/${row.name}: HTTP ${insertRes.status}: ${await insertRes.text()}`);
+  return 'inserted';
 }
 
 async function seedFile(filePath, appId) {
@@ -55,12 +66,9 @@ async function seedFile(filePath, appId) {
     user_id:   null,
   }));
 
-  // Insert in chunks of 50 to stay under payload limits
-  const CHUNK = 50;
-  for (let i = 0; i < rows.length; i += CHUNK) {
-    const chunk = rows.slice(i, i + CHUNK);
-    await upsertBatch(chunk);
-    console.log(`  ${appId}: inserted ${Math.min(i + CHUNK, rows.length)}/${rows.length} lists`);
+  for (const row of rows) {
+    const result = await upsertRow(row);
+    console.log(`  ${appId}/${row.name}: ${result} (${row.words.de.length} words)`);
   }
 }
 

@@ -90,7 +90,7 @@ async function callGPT(prompt, attempt = 0) {
   }
 }
 
-async function generateCategory(catName, spec, level, excludeWords) {
+async function generateCategory(catName, spec, level, excludeWords, attempt = 0) {
   const excludeStr = excludeWords.size > 0
     ? `\n\nDo NOT include any of these (already used in lower levels or prior categories):\n${[...excludeWords].slice(0, 800).join(', ')}`
     : '';
@@ -119,6 +119,22 @@ Return this exact JSON:
     console.log(`    ${catName}: trimming mismatch ${data.de.length}/${data.es.length} → ${min}`);
     data.de = data.de.slice(0, min);
     data.es = data.es.slice(0, min);
+  }
+  const seen = new Set();
+  const dupes = data.de.filter(w => {
+    const n = w.toLowerCase().replace(/^(der|die|das)\s+/i, '').trim();
+    if (seen.has(n)) return true;
+    seen.add(n);
+    return false;
+  });
+  if (dupes.length > 0) {
+    // The model sometimes pads short categories (e.g. expresiones) by repeating
+    // the last entries to hit the exact requested count — reject and retry once.
+    if (attempt < 2) {
+      console.log(`    ${catName}: ${dupes.length} internal duplicate(s) (e.g. "${dupes[0]}"), retrying...`);
+      return generateCategory(catName, spec, level, excludeWords, attempt + 1);
+    }
+    throw new Error(`${catName}: response still has ${dupes.length} duplicate(s) after retries`);
   }
   console.log(`    ${catName}: ${data.de.length} words`);
   return data;

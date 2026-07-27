@@ -39,6 +39,10 @@ export default async function handler(req, res) {
         return generateReading(req, res);
     }
 
+    if (action === 'generate-practice') {
+        return generatePractice(req, res);
+    }
+
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
     }
@@ -189,6 +193,85 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
         return res.status(200).json({
             text: { id: row.id, title: row.title, content: row.content, questions: row.questions },
         });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// Generates practice sentences for a grammar rule (gramatica.html) and stores them
+// server-side in grammar_practice_exercises so other users can reuse the same set
+// instead of triggering a new OpenAI call each time.
+async function generatePractice(req, res) {
+    const ruleId = String(req.body.ruleId || '');
+    const level  = String(req.body.level || '').toUpperCase();
+    const { system, prompt } = req.body;
+
+    if (!ruleId) return res.status(400).json({ error: 'ruleId requerido' });
+    if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
+        return res.status(400).json({ error: 'level inválido (A1–C2)' });
+    }
+    if (typeof prompt !== 'string' || !prompt) return res.status(400).json({ error: 'prompt requerido' });
+    if (system && String(system).length > 4000) {
+        return res.status(400).json({ error: 'System prompt demasiado largo' });
+    }
+
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
+    }
+
+    try {
+        const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                max_tokens: 400,
+                messages: system
+                    ? [{ role: 'system', content: String(system) }, { role: 'user', content: prompt }]
+                    : [{ role: 'user', content: prompt }],
+            }),
+        });
+        if (!aiRes.ok) {
+            const err = await aiRes.json().catch(() => ({}));
+            return res.status(aiRes.status).json({ error: err?.error?.message || 'Error de OpenAI' });
+        }
+        const aiData = await aiRes.json();
+        const reply = aiData.choices[0].message.content || '';
+
+        let oraciones;
+        try {
+            oraciones = JSON.parse(reply);
+        } catch {
+            const arrMatch = reply.match(/\[[\s\S]*\]/);
+            if (!arrMatch) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+            try { oraciones = JSON.parse(arrMatch[0]); } catch { return res.status(502).json({ error: 'La IA devolvió un formato inesperado' }); }
+        }
+        const valid = Array.isArray(oraciones) && oraciones.length > 0
+            && oraciones.every(o => o && typeof o.de === 'string' && typeof o.es === 'string');
+        if (!valid) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+
+        const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/grammar_practice_exercises`, {
+            method: 'POST',
+            headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation',
+            },
+            body: JSON.stringify({ rule_id: ruleId, level, oraciones }),
+        });
+        if (!insertRes.ok) {
+            const errText = await insertRes.text().catch(() => '');
+            return res.status(502).json({ error: 'Error al guardar el ejercicio: ' + errText.slice(0, 200) });
+        }
+        const [row] = await insertRes.json();
+        return res.status(200).json({ exercise: { id: row.id, oraciones: row.oraciones } });
     } catch {
         return res.status(500).json({ error: 'Error interno' });
     }

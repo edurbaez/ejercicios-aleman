@@ -187,7 +187,7 @@ Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketi
 
 ### `/api/chat` ([api/chat.js](api/chat.js))
 
-Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html` and `chat-voz.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable. Also handles `action: 'generate-reading'` (`{ action, level }`): generates a reading-comprehension text server-side and stores it in `reading_texts` with the service role key (used by `lectura veloz.html` Modo B).
+Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`). Used by `diccionario.html` and `chat-voz.html`. Requires `OPENAI_API_KEY` set as a Vercel environment variable. Also handles `action: 'generate-reading'` (`{ action, level }`): generates a reading-comprehension text server-side and stores it in `reading_texts` with the service role key (used by `lectura veloz.html` Modo B). Also handles `action: 'generate-practice'` (`{ action, ruleId, level, system, prompt }`): generates practice sentences for a grammar rule and stores them in `grammar_practice_exercises` with the service role key, so other users can reuse the same set instead of triggering a new OpenAI call (used by the "🎯 Practicar" button in `gramatica.html`).
 
 ### `/api/whisper` ([api/whisper.js](api/whisper.js))
 

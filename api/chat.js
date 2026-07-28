@@ -130,11 +130,11 @@ async function generateReading(req, res) {
         ? `Genera un texto en alemán de nivel ${level} (${spec.minWords}-${spec.maxWords} palabras) con título.
 El texto debe ser ${spec.textType}, sobre el tema: ${tema}.
 Usa vocabulario y gramática muy simples, apropiados para nivel ${level}, con frases cortas.${noRepeat}
-Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`
+Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0, "explicacion": "una frase breve en español explicando por qué es correcta"}]}`
         : `Genera un texto en alemán de nivel ${level} (${spec.minWords}-${spec.maxWords} palabras) con título, en forma de ${spec.textType}.
 Tema: ${tema}.
 La situación debe involucrar a ${pick(PERSONAS)} en ${pick(LUGARES)}, ${pick(MOMENTOS)}, contada como ${pick(TONOS)}. En la historia, ${pick(CONFLICTOS)}.${noRepeat}
-Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0}]}`;
+Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON: {"titulo": "...", "contenido": "...", "preguntas": [{"pregunta": "...", "opciones": ["A","B","C","D"], "correcta": 0, "explicacion": "una frase breve en español explicando por qué es correcta"}]}`;
 
     try {
         const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
@@ -145,7 +145,7 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
             },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
-                max_tokens: 1200,
+                max_tokens: 1500,
                 response_format: { type: 'json_object' },
                 messages: [{ role: 'user', content: prompt }],
             }),
@@ -165,7 +165,8 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
             && parsed.preguntas.every(p =>
                 typeof p.pregunta === 'string'
                 && Array.isArray(p.opciones) && p.opciones.length === 4
-                && Number.isInteger(p.correcta) && p.correcta >= 0 && p.correcta < 4);
+                && Number.isInteger(p.correcta) && p.correcta >= 0 && p.correcta < 4
+                && typeof p.explicacion === 'string');
         if (!valid) {
             return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
         }
@@ -286,14 +287,16 @@ function validMcqTeil(t, opcionesCount = 3) {
         && t.items.every(it =>
             typeof it.pregunta === 'string'
             && Array.isArray(it.opciones) && it.opciones.length === opcionesCount
-            && Number.isInteger(it.correcta) && it.correcta >= 0 && it.correcta < opcionesCount);
+            && Number.isInteger(it.correcta) && it.correcta >= 0 && it.correcta < opcionesCount
+            && typeof it.explicacion === 'string');
 }
 
 function validRichtigFalschTeil(t) {
     return Array.isArray(t.textos) && t.textos.length > 0
         && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
         && Array.isArray(t.items) && t.items.length > 0
-        && t.items.every(it => typeof it.afirmacion === 'string' && typeof it.correcta === 'boolean');
+        && t.items.every(it => typeof it.afirmacion === 'string' && typeof it.correcta === 'boolean'
+            && typeof it.explicacion === 'string');
 }
 
 function validEmparejarTeil(t) {
@@ -303,8 +306,10 @@ function validEmparejarTeil(t) {
     if (!t.columnaIzquierda.every(isItem) || !t.columnaDerecha.every(isItem)) return false;
     if (!t.solucion || typeof t.solucion !== 'object') return false;
     const derechaIds = new Set(t.columnaDerecha.map(x => x.id));
-    return t.columnaIzquierda.every(izq =>
-        typeof t.solucion[izq.id] === 'string' && derechaIds.has(t.solucion[izq.id]));
+    if (!t.columnaIzquierda.every(izq =>
+        typeof t.solucion[izq.id] === 'string' && derechaIds.has(t.solucion[izq.id]))) return false;
+    if (!t.explicaciones || typeof t.explicaciones !== 'object') return false;
+    return t.columnaIzquierda.every(izq => typeof t.explicaciones[izq.id] === 'string' && t.explicaciones[izq.id].length > 0);
 }
 
 const TEIL_VALIDATORS = { mcq: validMcqTeil, richtig_falsch: validRichtigFalschTeil, emparejar: validEmparejarTeil };
@@ -333,11 +338,11 @@ ${teilPrompts}
 
 Responde SOLO con JSON válido (sin markdown) con este formato exacto:
 {"titulo": "título general de la sesión", "teile": [
-  {"id":"teil1","tipo":"mcq","instrucciones":"instrucción en español de qué hacer","textos":[{"titulo":"...","contenido":"..."}],"items":[{"pregunta":"...","opciones":["...","...","..."],"correcta":0}]},
-  {"id":"teil2","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"p1","texto":"..."}],"columnaDerecha":[{"id":"a1","texto":"..."}],"solucion":{"p1":"a1"}},
-  {"id":"teil3","tipo":"emparejar","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"anna","texto":"Anna"}],"solucion":{"s1":"anna"}},
-  {"id":"teil4","tipo":"richtig_falsch","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"items":[{"afirmacion":"...","correcta":true}]},
-  {"id":"teil5","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"r1","texto":"..."}],"solucion":{"s1":"r1"}}
+  {"id":"teil1","tipo":"mcq","instrucciones":"instrucción en español de qué hacer","textos":[{"titulo":"...","contenido":"..."}],"items":[{"pregunta":"...","opciones":["...","...","..."],"correcta":0,"explicacion":"una frase breve en español explicando por qué es correcta"}]},
+  {"id":"teil2","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"p1","texto":"..."}],"columnaDerecha":[{"id":"a1","texto":"..."}],"solucion":{"p1":"a1"},"explicaciones":{"p1":"una frase breve en español explicando la relación"}},
+  {"id":"teil3","tipo":"emparejar","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"anna","texto":"Anna"}],"solucion":{"s1":"anna"},"explicaciones":{"s1":"una frase breve en español explicando la relación"}},
+  {"id":"teil4","tipo":"richtig_falsch","instrucciones":"...","textos":[{"titulo":"...","contenido":"..."}],"items":[{"afirmacion":"...","correcta":true,"explicacion":"una frase breve en español explicando por qué es correcta"}]},
+  {"id":"teil5","tipo":"emparejar","instrucciones":"...","columnaIzquierda":[{"id":"s1","texto":"..."}],"columnaDerecha":[{"id":"r1","texto":"..."}],"solucion":{"s1":"r1"},"explicaciones":{"s1":"una frase breve en español explicando la relación"}}
 ]}
 Todo el contenido en alemán (textos, opciones, anuncios, reglas) debe ser apropiado para nivel ${level}. Las "instrucciones" de cada Teil van en español, breves, explicando la tarea al estudiante.`;
 }
@@ -367,7 +372,7 @@ async function generateReadingTeile(req, res, level) {
             },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
-                max_tokens: 4200,
+                max_tokens: 5300,
                 response_format: { type: 'json_object' },
                 messages: [{ role: 'user', content: prompt }],
             }),

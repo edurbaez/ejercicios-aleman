@@ -32,8 +32,8 @@
         <button class="activity-tab active" data-activity="comprension" onclick="switchActivity('comprension')">📖 Comprensión</button>
     </div>
 
-    <div id="hint-lv" style="display:none; background:#E3F2FD; border-left:4px solid #1976D2; border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
-      <button onclick="dismissLvHint()" style="position:absolute;top:6px;right:10px;background:none;border:none;cursor:pointer;font-size:1rem;color:#555">×</button>
+    <div id="hint-lv" style="display:none; background:var(--card); border-left:4px solid var(--color-b2); border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
+      <button onclick="dismissLvHint()" style="position:absolute;top:6px;right:10px;background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text)">×</button>
       <strong>3 actividades disponibles:</strong><br>
       ⚡ <b>Sprint</b> — flashcards de vocabulario con WPM adaptativo<br>
       📚 <b>Lectura veloz</b> — pega o carga un texto y practica RSVP<br>
@@ -220,6 +220,10 @@
             return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
 
+        function explicacionHtml(text) {
+            return text ? `<div class="comp-explicacion">${escHtml(text)}</div>` : '';
+        }
+
         function renderWord(w1, w2) {
             const display = document.getElementById('display');
             const pos = getORPpos(w1);
@@ -341,7 +345,7 @@
         }
 
         document.addEventListener('keydown', function(e) {
-            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+            if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
             if (e.key === 'ArrowUp') changeWpm(10);
             else if (e.key === 'ArrowDown') changeWpm(-10);
             else if (e.key === ' ') { e.preventDefault(); if (words.length > 0) pauseReading(); }
@@ -780,6 +784,35 @@
             });
         }
 
+        function showConfirmDialog(message) {
+            return new Promise(resolve => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9000;display:flex;align-items:center;justify-content:center;';
+                const isDark = document.body.classList.contains('dark');
+                const bg = isDark ? '#23253a' : '#fff';
+                const fg = isDark ? '#e0e0e0' : '#222';
+                const borderColor = isDark ? '#444' : '#ccc';
+                overlay.innerHTML = `
+                  <div role="dialog" aria-modal="true" style="background:${bg};color:${fg};border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);">
+                    <p style="margin:0 0 18px;font-size:15px;font-weight:600;line-height:1.4;">${message}</p>
+                    <div style="display:flex;gap:8px;justify-content:flex-end;">
+                      <button id="lv-confirm-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:14px;background:transparent;color:${fg};">Cancelar</button>
+                      <button id="lv-confirm-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Continuar</button>
+                    </div>
+                  </div>`;
+                document.body.appendChild(overlay);
+                const confirmFn = () => { overlay.remove(); resolve(true); };
+                const cancelFn  = () => { overlay.remove(); resolve(false); };
+                overlay.querySelector('#lv-confirm-ok').onclick = confirmFn;
+                overlay.querySelector('#lv-confirm-cancel').onclick = cancelFn;
+                overlay.querySelector('#lv-confirm-ok').focus();
+                overlay.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') confirmFn();
+                    if (e.key === 'Escape') cancelFn();
+                });
+            });
+        }
+
         function showToast(msg) {
             const div = document.createElement('div');
             div.textContent = msg;
@@ -800,8 +833,16 @@
         const LECTURA_IDS = ['text', 'controls', 'progress-container', 'display-container', 'saved-section'];
         let currentActivity = 'comprension';
 
-        function switchActivity(name) {
+        async function switchActivity(name) {
             if (name === currentActivity) return;
+            const blogViewActive = document.getElementById('blog-view').style.display === 'block';
+            if (currentActivity === 'lectura' && (isRunning || blogViewActive)) {
+                const ok = await showConfirmDialog('Hay una sesión de lectura en curso. ¿Seguro que quieres salir? Se perderá el progreso.');
+                if (!ok) return;
+            } else if (currentActivity === 'sprint' && sprintRunning) {
+                const ok = await showConfirmDialog('Hay un sprint en curso. ¿Seguro que quieres salir? Se perderá el progreso.');
+                if (!ok) return;
+            }
             if (currentActivity === 'lectura') {
                 if (document.getElementById('blog-view').style.display === 'block') salirBlogView();
                 if (isRunning) stopReading();
@@ -856,17 +897,33 @@
         let compRespuestas = [];
         let compPreguntas = [];
 
-        function compShowError(msg) {
+        function friendlyApiError(context, detail) {
+            console.error('[' + context + ']', detail);
+            const str = String(detail?.message || detail || '');
+            if (detail instanceof TypeError || /network|fetch|failed to fetch/i.test(str)) {
+                return 'No se pudo conectar con el servidor. Revisa tu conexión e intenta de nuevo.';
+            }
+            return 'Algo salió mal generando el contenido. Intenta de nuevo.';
+        }
+
+        function compShowError(msg, retryFn) {
             const loading = document.getElementById('comp-loading');
             loading.style.display = 'none';
-            const errDiv = document.getElementById('comp-error');
-            if (errDiv) { errDiv.textContent = msg; errDiv.style.display = 'block'; }
-            else {
-                const d = document.createElement('div');
-                d.id = 'comp-error';
-                d.style.cssText = 'color:#e63946;padding:10px 0;font-size:14px;';
-                d.textContent = msg;
-                document.getElementById('comp-mode-A').appendChild(d);
+            let errDiv = document.getElementById('comp-error');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'comp-error';
+                errDiv.style.cssText = 'color:#e63946;padding:10px 0;font-size:14px;';
+                document.getElementById('comp-mode-A').appendChild(errDiv);
+            }
+            errDiv.textContent = msg;
+            errDiv.style.display = 'block';
+            if (retryFn) {
+                const btn = document.createElement('button');
+                btn.textContent = 'Reintentar';
+                btn.style.cssText = 'margin-left:10px;padding:4px 10px;cursor:pointer;';
+                btn.onclick = retryFn;
+                errDiv.appendChild(btn);
             }
         }
 
@@ -905,7 +962,7 @@
                         messages: [
                             {
                                 role: 'system',
-                                content: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0}]}'
+                                content: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0,"explicacion": "una frase breve en español explicando por qué es correcta"}]}'
                             },
                             { role: 'user', content: texto }
                         ]
@@ -914,22 +971,22 @@
 
                 const raw = await res.text();
                 if (!res.ok) {
-                    compShowError('Error del servidor (' + res.status + '): ' + raw.slice(0, 120));
+                    compShowError(friendlyApiError('CompModoA', 'Error del servidor (' + res.status + '): ' + raw.slice(0, 120)), compGenerarPreguntas);
                     return;
                 }
 
                 let data;
-                try { data = JSON.parse(raw); } catch { compShowError('Respuesta inválida del servidor: ' + raw.slice(0, 120)); return; }
+                try { data = JSON.parse(raw); } catch { compShowError(friendlyApiError('CompModoA', 'Respuesta inválida del servidor: ' + raw.slice(0, 120)), compGenerarPreguntas); return; }
 
                 const content = data?.choices?.[0]?.message?.content || '';
                 let parsed;
                 try {
                     const jsonStr = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/, '').trim();
                     parsed = JSON.parse(jsonStr);
-                } catch { compShowError('No se pudo parsear las preguntas. Respuesta: ' + content.slice(0, 200)); return; }
+                } catch { compShowError(friendlyApiError('CompModoA', 'No se pudo parsear las preguntas. Respuesta: ' + content.slice(0, 200)), compGenerarPreguntas); return; }
 
                 if (!Array.isArray(parsed?.preguntas) || parsed.preguntas.length === 0) {
-                    compShowError('El modelo no devolvió preguntas válidas.');
+                    compShowError(friendlyApiError('CompModoA', 'El modelo no devolvió preguntas válidas.'), compGenerarPreguntas);
                     return;
                 }
 
@@ -946,7 +1003,7 @@
                 preguntas.style.display = 'block';
 
             } catch (err) {
-                compShowError('Error de red: ' + err.message);
+                compShowError(friendlyApiError('CompModoA', err), compGenerarPreguntas);
             } finally {
                 genBtn.disabled = false;
                 document.getElementById('comp-loading').style.display = 'none';
@@ -981,6 +1038,7 @@
                 if (j === correcta) btn.classList.add('correcta');
                 else if (j === opIdx) btn.classList.add('incorrecta');
             });
+            bloque.insertAdjacentHTML('beforeend', explicacionHtml(compPreguntas[pregIdx].explicacion));
 
             const respondidas = compRespuestas.filter(r => r !== null).length;
             if (respondidas === compPreguntas.length) {
@@ -1355,6 +1413,7 @@
 
         /* ========================= MODO B — Por nivel ========================= */
         let modoBRespuestas = {};
+        let modoBPreguntasActuales = [];
         let TeilState = null; // { titulo, teile[], idx, resultados: [{correct,total}] }
         let modoBCurrentTextId = null; // id del texto en curso; se marca como visto solo al terminar el ejercicio, no al pedirlo
 
@@ -1371,12 +1430,22 @@
             return active ? active.dataset.level : null;
         }
 
-        function modoB_showError(msg) {
+        function modoB_showError(msg, retryFn) {
             document.getElementById('comp-loading').style.display = 'none';
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = msg;
             txt.className = 'naranja';
+            const oldBtn = document.getElementById('modo-b-retry-btn');
+            if (oldBtn) oldBtn.remove();
+            if (retryFn) {
+                const btn = document.createElement('button');
+                btn.id = 'modo-b-retry-btn';
+                btn.textContent = 'Reintentar';
+                btn.style.cssText = 'margin-top:10px;padding:6px 14px;cursor:pointer;display:block;';
+                btn.onclick = retryFn;
+                el.appendChild(btn);
+            }
             el.style.display = 'block';
         }
 
@@ -1474,12 +1543,13 @@
 
             } catch (err) {
                 console.error('[ModoB]', err);
-                modoB_showError('Error: ' + err.message);
+                modoB_showError(friendlyApiError('ModoB', err), modoB_obtenerTexto);
             }
         }
 
         function modoB_renderPreguntas(preguntas) {
             modoBRespuestas = {};
+            modoBPreguntasActuales = preguntas;
             const container = document.getElementById('comp-preguntas');
             container.innerHTML = preguntas.map((p, i) => `
                 <div class="comp-pregunta" data-respondida="false">
@@ -1487,7 +1557,7 @@
                     <div class="comp-opciones">
                         ${p.opciones.map((op, j) => `
                             <button class="comp-opcion" data-pregunta="${i}" data-index="${j}"
-                                onclick="modoB_responder(this, ${i}, ${j}, ${p.correcta}, ${preguntas.length})">
+                                onclick="modoB_responder(this, ${i}, ${j}, ${preguntas.length})">
                                 ${escHtml(op)}
                             </button>
                         `).join('')}
@@ -1497,11 +1567,12 @@
             container.style.display = 'block';
         }
 
-        function modoB_responder(btn, pregunta, opcion, correcta, total) {
+        function modoB_responder(btn, pregunta, opcion, total) {
             const pregContainer = btn.closest('.comp-pregunta');
             if (pregContainer.dataset.respondida === 'true') return;
             pregContainer.dataset.respondida = 'true';
 
+            const correcta = modoBPreguntasActuales[pregunta].correcta;
             const esCorrecto = opcion === correcta;
             modoBRespuestas[pregunta] = esCorrecto;
 
@@ -1510,6 +1581,7 @@
                 if (j === correcta) b.classList.add('correcta');
                 else if (j === opcion && !esCorrecto) b.classList.add('incorrecta');
             });
+            pregContainer.insertAdjacentHTML('beforeend', explicacionHtml(modoBPreguntasActuales[pregunta].explicacion));
 
             if (Object.keys(modoBRespuestas).length === total) {
                 const correctas = Object.values(modoBRespuestas).filter(Boolean).length;
@@ -1671,6 +1743,7 @@
                         if (valor === correcta) b.classList.add('correcta');
                         else if (b === seleccionado) b.classList.add('incorrecta');
                     });
+                    bloque.insertAdjacentHTML('beforeend', explicacionHtml(it.explicacion));
                     if (seleccionado) {
                         const valorSel = teil.tipo === 'mcq' ? parseInt(seleccionado.dataset.valor) : (seleccionado.dataset.valor === 'true');
                         if (valorSel === correcta) correct++;
@@ -1688,6 +1761,8 @@
                     } else {
                         select.classList.add('incorrecta');
                     }
+                    const row = document.querySelector(`.comp-emparejar-row[data-item="${izq.id}"]`);
+                    row.insertAdjacentHTML('afterend', explicacionHtml(teil.explicaciones && teil.explicaciones[izq.id]));
                 });
             }
 

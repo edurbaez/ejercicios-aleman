@@ -976,6 +976,17 @@ th, td {
     background: rgba(220, 53, 69, 0.1);
 }
 
+.comp-explicacion {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--btn, #1976D2);
+    background: var(--card, #fff);
+    border-radius: var(--radius, 8px);
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text, #222);
+}
+
 #comp-resultado {
     margin-top: 20px;
     padding: 20px;

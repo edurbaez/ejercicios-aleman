@@ -170,13 +170,53 @@
             <label for="sprint-source">Lista:</label>
             <select id="sprint-source">
                 <option value="srs" selected>🧠 Mis palabras SRS (dominadas)</option>
-                <optgroup label="Listas por nivel">
-                    <option value="lvl:a1">Vocabulario A1</option>
-                    <option value="lvl:a2">Vocabulario A2</option>
-                    <option value="lvl:b1">Vocabulario B1</option>
-                    <option value="lvl:b2">Vocabulario B2</option>
-                    <option value="lvl:c1">Vocabulario C1</option>
-                    <option value="lvl:c2">Vocabulario C2</option>
+                <optgroup label="A1">
+                    <option value="lvl:a1">A1 · Todas</option>
+                    <option value="cat:a1:esenciales">A1 · Esenciales</option>
+                    <option value="cat:a1:verbos">A1 · Verbos</option>
+                    <option value="cat:a1:sustantivos">A1 · Sustantivos</option>
+                    <option value="cat:a1:adjetivos">A1 · Adjetivos</option>
+                    <option value="cat:a1:expresiones">A1 · Expresiones</option>
+                </optgroup>
+                <optgroup label="A2">
+                    <option value="lvl:a2">A2 · Todas</option>
+                    <option value="cat:a2:esenciales">A2 · Esenciales</option>
+                    <option value="cat:a2:verbos">A2 · Verbos</option>
+                    <option value="cat:a2:sustantivos">A2 · Sustantivos</option>
+                    <option value="cat:a2:adjetivos">A2 · Adjetivos</option>
+                    <option value="cat:a2:expresiones">A2 · Expresiones</option>
+                </optgroup>
+                <optgroup label="B1">
+                    <option value="lvl:b1">B1 · Todas</option>
+                    <option value="cat:b1:esenciales">B1 · Esenciales</option>
+                    <option value="cat:b1:verbos">B1 · Verbos</option>
+                    <option value="cat:b1:sustantivos">B1 · Sustantivos</option>
+                    <option value="cat:b1:adjetivos">B1 · Adjetivos</option>
+                    <option value="cat:b1:expresiones">B1 · Expresiones</option>
+                </optgroup>
+                <optgroup label="B2">
+                    <option value="lvl:b2">B2 · Todas</option>
+                    <option value="cat:b2:esenciales">B2 · Esenciales</option>
+                    <option value="cat:b2:verbos">B2 · Verbos</option>
+                    <option value="cat:b2:sustantivos">B2 · Sustantivos</option>
+                    <option value="cat:b2:adjetivos">B2 · Adjetivos</option>
+                    <option value="cat:b2:expresiones">B2 · Expresiones</option>
+                </optgroup>
+                <optgroup label="C1">
+                    <option value="lvl:c1">C1 · Todas</option>
+                    <option value="cat:c1:esenciales">C1 · Esenciales</option>
+                    <option value="cat:c1:verbos">C1 · Verbos</option>
+                    <option value="cat:c1:sustantivos">C1 · Sustantivos</option>
+                    <option value="cat:c1:adjetivos">C1 · Adjetivos</option>
+                    <option value="cat:c1:expresiones">C1 · Expresiones</option>
+                </optgroup>
+                <optgroup label="C2">
+                    <option value="lvl:c2">C2 · Todas</option>
+                    <option value="cat:c2:esenciales">C2 · Esenciales</option>
+                    <option value="cat:c2:verbos">C2 · Verbos</option>
+                    <option value="cat:c2:sustantivos">C2 · Sustantivos</option>
+                    <option value="cat:c2:adjetivos">C2 · Adjetivos</option>
+                    <option value="cat:c2:expresiones">C2 · Expresiones</option>
                 </optgroup>
                 <optgroup label="Mis listas" id="sprint-user-lists"></optgroup>
             </select>
@@ -1141,24 +1181,37 @@
         }
 
         // Same source priority as the quiz apps: Supabase system lists first, static JSON as fallback
-        async function sprintLevelPairs(level) {
+        async function sprintLevelCategorized(level) {
             if (_sprintLevelCache[level]) return _sprintLevelCache[level];
-            let pairs = [];
+            const byCategory = {};
             try {
-                const { data } = await window.sb.from('word_lists').select('words').eq('app_id', level).eq('is_system', true);
-                (data || []).forEach(r => pairs.push(..._pairsFromWords(r.words)));
+                const { data } = await window.sb.from('word_lists').select('name, words').eq('app_id', level).eq('is_system', true);
+                (data || []).forEach(r => { byCategory[r.name] = _pairsFromWords(r.words); });
             } catch {}
-            if (pairs.length === 0) {
+            if (Object.keys(byCategory).length === 0) {
                 const res = await fetch('Data' + level.toUpperCase() + '.json');
                 if (res.ok) {
                     const data = JSON.parse(await res.text());
-                    Object.values(data).forEach(cat => pairs.push(..._pairsFromWords(cat)));
+                    Object.entries(data).forEach(([name, cat]) => { byCategory[name] = _pairsFromWords(cat); });
                 }
             }
+            _sprintLevelCache[level] = byCategory;
+            return byCategory;
+        }
+
+        async function sprintLevelPairs(level) {
+            const byCategory = await sprintLevelCategorized(level);
             const seen = new Set();
-            pairs = pairs.filter(p => !seen.has(p.de) && seen.add(p.de));
-            _sprintLevelCache[level] = pairs;
+            const pairs = [];
+            Object.values(byCategory).forEach(catPairs => catPairs.forEach(p => {
+                if (!seen.has(p.de)) { seen.add(p.de); pairs.push(p); }
+            }));
             return pairs;
+        }
+
+        async function sprintCategoryPairs(level, category) {
+            const byCategory = await sprintLevelCategorized(level);
+            return byCategory[category] || [];
         }
 
         async function sprintFetchUserLists() {
@@ -1202,6 +1255,12 @@
         async function sprintLoadPairs() {
             const src = document.getElementById('sprint-source').value;
             if (src === 'srs') return sprintSrsPairs();
+            if (src.startsWith('cat:')) {
+                const [, level, category] = src.split(':');
+                const pairs = await sprintCategoryPairs(level, category);
+                if (pairs.length < 8) throw new Error('Esta categoría tiene muy pocas palabras (mínimo 8). Elige "Todas" u otra fuente.');
+                return pairs;
+            }
             if (src.startsWith('lvl:')) {
                 const pairs = await sprintLevelPairs(src.slice(4));
                 if (pairs.length < 8) throw new Error('No se pudo cargar la lista de ese nivel.');
@@ -1215,6 +1274,19 @@
                 return l.pairs;
             }
             throw new Error('Fuente no válida.');
+        }
+
+        function buildSprintQueue(pairs, wpm) {
+            const target = Math.max(pairs.length, wpm); // wpm palabras ≈ 1 minuto activo
+            const queue = [];
+            while (queue.length < target) {
+                const lap = shuffleArr(pairs);
+                if (queue.length > 0 && lap.length > 1 && lap[0].de === queue[queue.length - 1].de) {
+                    [lap[0], lap[1]] = [lap[1], lap[0]];
+                }
+                queue.push(...lap);
+            }
+            return queue;
         }
 
         function shuffleArr(arr) {
@@ -1241,7 +1313,7 @@
                 btn.textContent = '▶ Iniciar sprint';
                 return;
             }
-            sprintPairs = shuffleArr(pairs);
+            sprintPairs = buildSprintQueue(pairs, sprintWpm);
             sprintPos = 0;
             sprintBatch = [];
             sprintCorrect = 0;

@@ -164,6 +164,252 @@ tasks: [
 
 ---
 
+## Mejoras pedagógicas (auditoría 2026-07-29)
+
+> Origen: revisión completa de la suite pedida por el usuario para identificar mejoras
+> a nivel pedagógico (no técnico). Los puntos marcados "ya en backlog/lecturaplan/
+> teacher/plan" no se rediseñan aquí — solo se referencian para que el orden de
+> ejecución de abajo quede completo; su diseño vive en su documento original.
+> Regla obligatoria de la cabecera de este archivo aplica igual aquí: revisar
+> compatibilidad antes de tocar código, marcar `[x]` al terminar cada sesión,
+> actualizar `CLAUDE.md`/`README.md` si se agrega un archivo activo.
+
+### P1. Hörverstehen — no existe entrenamiento de comprensión auditiva
+
+**Diagnóstico:** Lesen (`lectura veloz.html` Modo B), Schreiben (`escritura.html`) y
+Sprechen (`mundliche.html`) tienen simulacros fieles al formato Goethe/telc. Hören no
+tiene equivalente — `chat-voz.html`/`chatvoz2` son conversación (habla-y-escucha-una-
+respuesta), no una tarea de "escucha un audio → responde preguntas de comprensión".
+
+**Diseño propuesto:** reutilizar el patrón ya construido en `lectura veloz.html` Modo B
+(`READING_TEILE_SPECS`, `validTeileSession`/`TEIL_VALIDATORS`, renderers `mcq`/
+`richtig_falsch`/`emparejar`) invirtiendo el flujo: en vez de mostrar un texto, generar
+un guion por IA y reproducirlo con `api/tts.js` (mismo patrón que la voz premium de
+`mundliche.html`), luego preguntar sobre lo escuchado. No requiere Whisper (no hay STT,
+es al revés).
+
+**Decisiones a tomar en la Sesión 1 (no asumir de antemano):**
+- Tabla nueva `listening_texts` (mismo shape que `reading_texts` + columna `audio_text`
+  para el guion) vs. reusar `reading_texts` con una columna `skill` (`lesen`/`hoeren`).
+  Recomendado: tabla nueva — evita mezclar políticas RLS/columnas no usadas entre dos
+  dominios distintos, y `user_reading_seen` seguiría referenciando solo Lesen sin
+  ambigüedad.
+- Audio generado on-the-fly en cada intento (más simple, repite costo de TTS por
+  alumno) vs. cachear el audio generado la primera vez (requiere Supabase Storage,
+  más complejo). Recomendado: on-the-fly primero, igual que TTS en el resto de la
+  suite — revisar costo real de `tts-1` antes de invertir en caché.
+- Nivel de partida: **B1**, mismo criterio que Lesen (nivel bisagra más demandado, ya
+  hay Teile/validadores de referencia que copiar).
+
+**Sesiones de ejecución:**
+- [ ] Sesión Hören.1 — Diseño: fijar las decisiones de arriba, definir
+  `LISTENING_TEILE_SPECS.B1` (formato Hörverstehen B1 real: 5 Teile, mezcla de
+  `richtig_falsch`/`mcq`/`emparejar` sobre anuncios cortos, diálogos, entrevista) y el
+  esquema de audio (guion con indicaciones de hablante para poder generar TTS con
+  distintas voces si el diálogo tiene 2+ personas).
+- [ ] Sesión Hören.2 — Backend: migración de la tabla elegida, `generateListeningTeile()`
+  en `api/chat.js` o archivo nuevo si ya se acerca al límite de 12 funciones (ver
+  Gotcha de `CLAUDE.md` sobre Hobby plan), validadores por tipo (reutilizar los de
+  Lesen si el shape es idéntico).
+- [ ] Sesión Hören.3 — Frontend: nueva pestaña "🎧 Hörverstehen" en `lectura veloz.html`
+  (o app nueva si no encaja en el flujo de "Comprensión" ya existente — decidir en
+  Sesión 1), reproductor de audio con controles básicos (play/pause/repetir, sin
+  scrubbing libre para simular el examen real donde el audio se oye 1-2 veces), UI de
+  Teile reutilizando los renderers `mcq`/`richtig_falsch`/`emparejar` ya construidos.
+- [ ] Sesión Hören.4 — Extender a B2/C1/C2 (mismo patrón que Lesen: mcq/emparejar,
+  ajustar solo longitud/complejidad del guion). A1/A2 al final (formato más simple:
+  anuncios/números/horarios).
+- [ ] Cierre: actualizar `CLAUDE.md` (Active Files + tabla Supabase nueva) y `README.md`.
+
+---
+
+### P2. Perfil de debilidades unificado entre apps
+
+**Diagnóstico:** cada app evalúa y muestra errores con detalle (`escritura.html`,
+`corrector.html`: error cards por categoría; `mundliche.html`: subscores por rúbrica;
+`kasus.html`: aciertos/fallos por caso), pero esa señal no persiste más allá del
+historial local de 20 intentos por app (IndexedDB). Solo `srs_progress` (vocabulario) y
+`grammar_rule_progress` (reglas, vía `chat-reformulaciones.html`) tienen memoria
+persistente en Supabase — y son sistemas separados entre sí. Un alumno puede fallar el
+mismo punto (p. ej. Konjunktiv II) en `escritura`, `kasus` y `mundliche` sin que el
+sistema conecte esas tres señales.
+
+**Diseño propuesto:** no crear un sistema de tracking nuevo — extender
+`grammar_rule_progress` (ya existe, ya tiene SM-2, ya está poblándose) para que
+reciba señales de más apps, en vez de que solo `chat-reformulaciones.html` escriba en
+ella. Esto convierte la tabla en el "perfil de debilidades" real sin tabla nueva.
+
+**Sesiones de ejecución:**
+- [ ] Sesión Perfil.1 — Diseño: para cada evaluación con IA (`escritura.html`,
+  `corrector.html`, `mundliche.html`, `gramatica.html` Modo Examen), decidir cómo
+  pedirle al modelo que etiquete cada error con el `rule_id` de `GRAMMAR_DATA` más
+  cercano cuando aplique (muchos error cards ya son claramente "esto es Konjunktiv II"
+  o "esto es orden de palabras en subordinada"; otros son léxicos/ortográficos y no
+  deben forzarse a una regla). Definir el criterio de cuándo NO taggear (evitar ruido:
+  un error de tipeo no es una debilidad gramatical).
+- [ ] Sesión Perfil.2 — Implementar el tagging en `escritura.html` (prompt de
+  evaluación ya devuelve error cards con categoría; añadir `rule_id?` opcional al
+  schema) y llamar a la misma actualización SM-2 que usa `chat-reformulaciones.html`
+  cuando el error trae `rule_id` (reutilizar la función existente, no reimplementarla).
+- [ ] Sesión Perfil.3 — Repetir para `mundliche.html` (subscores `gramatica_y_lexico`)
+  y `corrector.html`.
+- [ ] Sesión Perfil.4 — Vista de alumno "Mis puntos débiles" (agregando
+  `grammar_rule_progress` por `ease`/`reps` bajos, cualquiera sea el origen de la
+  señal) — candidato natural: sección nueva en el panel de stats de `auth.js` o en
+  `gramatica.html`.
+- [ ] Sesión Perfil.5 — Dashboard de profesor (ver **P-backlog-1** abajo, ahora con más
+  señal disponible que solo `chat-reformulaciones.html`).
+- [ ] Cierre: actualizar `CLAUDE.md` (tabla `grammar_rule_progress` con las nuevas
+  apps que escriben en ella).
+
+---
+
+### P3. Diagnóstico de nivel por destreza
+
+**Diagnóstico:** el nivel CEFR se autoselecciona una vez en el onboarding
+(`onboarding_level`, localStorage) y se asume igual para las 5+ apps que lo leen. No
+hay noción de que un alumno puede ser B2 en lectura y A2 en producción oral (común en
+autodidactas) — todo asume un nivel único transversal, sin test de nivelación real.
+
+**Diseño propuesto (barato, sin test dedicado):** en vez de construir un examen de
+nivelación nuevo, **inferir el nivel por destreza a partir de los resultados reales
+ya generados** (`escritura.html` guarda `puntuacion` 0-100 por intento en IndexedDB;
+`mundliche.html` guarda `puntuacion`/`veredicto`; Lesen por Teile ya guarda aciertos).
+Si el alumno elige B2 pero sus últimas 3 evaluaciones de escritura promedian <40/100,
+mostrar un aviso sugiriendo bajar a B1 en esa destreza concreta — sin bloquear, solo
+orientar.
+
+**Sesiones de ejecución:**
+- [ ] Sesión Diag.1 — Diseño: definir el umbral de puntuación/veredicto que dispara el
+  aviso por destreza (escritura, mündliche, lectura), y dónde persistir el nivel
+  "sugerido" por destreza (extender `user_data`: columnas `nivel_sugerido_escritura`,
+  `nivel_sugerido_mundliche`, etc., o una tabla `skill_level_estimates` más genérica —
+  decidir según cuántas destrezas se cubran).
+  Nota B1 mündliche: la simulacros aún cubren 3 niveles, la señal ya existe en el
+  historial local de cada app (`escritura-db`, `mundliche-db`) — no requiere generar
+  datos nuevos, solo agregarlos.
+- [ ] Sesión Diag.2 — Implementar el cálculo (al cargar cada app, leer el historial
+  local reciente y comparar contra el umbral) y el aviso no bloqueante (mismo patrón
+  de warnings inline ya usado en `escritura.html`, sin `alert`/`confirm`).
+- [ ] Sesión Diag.3 — Vista de profesor: desglose por alumno y destreza (depende de
+  que `usage_events`/evaluaciones ya se logueen con `user_id`, lo cual ya ocurre).
+- [ ] Cierre: actualizar `CLAUDE.md`.
+
+---
+
+### P4. Vocabulario SRS reciente sugerido en tareas de escritura
+
+**Diagnóstico:** el vocabulario recién dominado (`reps >= 2` en `srs_progress`, ya
+usado como fuente del Sprint de `lectura veloz.html`) no se inyecta en
+`escritura.html`/`mundliche.html`. El alumno lo memoriza aislado pero rara vez se le
+pide usarlo en producción real, que es donde se consolida.
+
+**Sesiones de ejecución (una sola sesión, feature pequeña):**
+- [ ] Sesión Vocab.1 — En `escritura.html`, al generar la tarea (`fetchTarea()`),
+  consultar 3-5 palabras con `reps >= 2` del nivel activo desde `srs_progress` (mismo
+  query que ya usa `lectura veloz.html` para el Sprint) y añadirlas como sugerencia
+  opcional visible bajo el enunciado ("💡 Si querés, usá alguna de estas palabras que
+  ya dominás: ..."), sin forzarlas en la evaluación (para no penalizar al alumno que
+  no las use — es una tarea tipo examen real).
+
+---
+
+### P5. Interleaving en la práctica de gramática (`gramatica.html`)
+
+**Diagnóstico:** el botón "🎯 Practicar" de `gramatica.html` genera 5 preguntas de
+**una sola regla** por sesión (práctica en bloque). `chat-reformulaciones.html` ya
+permite seleccionar varias reglas o modo aleatorio para una sesión — el patrón
+intercalado ya existe en la suite, falta llevarlo a `gramatica.html`.
+
+**Sesiones de ejecución:**
+- [ ] Sesión Interleave.1 — Añadir un modo "Repaso mixto" en `gramatica.html`: elegir
+  2-3 reglas ya practicadas antes (usando `grammar_rule_progress`/`user_grammar_practice_seen`
+  para priorizar reglas con `due` próximo, mismo criterio SM-2 que ya usa
+  `chat-reformulaciones.html`) y mezclar sus preguntas en una sola sesión de quiz en
+  vez de una sesión por regla.
+- [ ] Cierre: actualizar `CLAUDE.md` (nota en la fila de `gramatica.html`).
+
+---
+
+### P6. Encadenar Lesen → Schreiben (mismo patrón que Vortrag → Diskussion)
+
+**Diagnóstico:** `mundliche.html` ya encadena Vortrag→Diskussion en la misma sesión
+(`findVortragPrevio()`) — un patrón fuerte porque simula uso real del idioma. No se
+generalizó a Lesen→Schreiben (leer un texto de comprensión y luego escribir sobre el
+mismo tema).
+
+**Sesiones de ejecución:**
+- [ ] Sesión Cadena.1 — Al terminar una sesión de Teile en `lectura veloz.html` Modo B
+  (`modoB_mostrarResultadoTeilFinal()`), añadir un botón "✍️ Escribir sobre este tema"
+  que navegue a `escritura.html` con el tema del texto leído como parámetro (deep-link,
+  mismo mecanismo que el backlog de deep-linking de B2/C1/C2 arriba) para que
+  `escritura.html` lo use como brief en vez de sortear un tema aleatorio del banco
+  `TEMAS`.
+
+---
+
+### Puntos ya diagnosticados en otros documentos (incluidos aquí solo para el orden de ejecución)
+
+- **P-backlog-1 — Dashboard de profesor: reglas más falladas entre alumnos.** Ver
+  Backlog arriba. Se beneficia directamente de P2 (más señal en `grammar_rule_progress`).
+- **P-teacher-1 — Extender `teacher/index.html` a A1/A2/B2/C1/C2.** Ver
+  `teacher/plan.md` tarea 4 — marcado por el propio usuario como la tarea de mayor
+  impacto pedagógico (revisión 2026-07-18). **En progreso:** `teacher/clases-a1.js`
+  (Sesión 1, 2026-07-29) y `teacher/clases-a2.js` (Sesión 2, 2026-07-29) completados
+  — ver bitácora en `teacher/plan.md` tarea 4. Faltan B2/C1/C2 (bloqueados por
+  P-plan-1 abajo) y la tarea 5 (selector de nivel en `teacher/index.html`, ya
+  desbloqueable con A1+A2 disponibles).
+- **P-plan-1 — Completar `plan.js` (B2/C1/C2) con gramática/escritura/mündliche
+  diarios reales.** Ver secciones de arriba en este mismo archivo.
+- **P-lectura-1 — Extender Leseverstehen por Teile a C1/C2 (bajo esfuerzo) y A1/A2
+  (medio esfuerzo, tipos de tarea nuevos).** Ver `lecturaplan.md` §12.
+
+### Orden de ejecución sugerido (impacto pedagógico vs. esfuerzo/dependencias)
+
+| Orden | Punto | Impacto | Esfuerzo | Depende de |
+|-------|-------|---------|----------|------------|
+| 1 | P-teacher-1 — `teacher/index.html` a todos los niveles | Alto | Medio | `plan.js` verificado por nivel |
+| 2 | P-plan-1 — Completar `plan.js` B2/C1/C2 | Alto | Medio (ya diseñado) | — |
+| 3 | P2 — Perfil de debilidades unificado | Alto | Medio-alto | — |
+| 4 | P1 — Hörverstehen | Alto | Medio-alto | — |
+| 5 | P5 — Interleaving en `gramatica.html` | Medio | Bajo | — |
+| 6 | P3 — Diagnóstico de nivel por destreza | Medio | Medio | Historial local ya existente |
+| 7 | P4 — Vocabulario SRS sugerido en escritura | Medio | Bajo | — |
+| 8 | P-backlog-1 — Dashboard profesor reglas más falladas | Medio | Bajo | Idealmente después de P2 |
+| 9 | P6 — Encadenar Lesen→Schreiben | Bajo-Medio | Bajo | — |
+| 10 | P-lectura-1 — Leseverstehen Teile a C1/C2/A1/A2 | Bajo-Medio | Bajo (C1/C2) / Medio (A1/A2) | — |
+
+Ejecutar en el orden de la tabla salvo que el usuario priorice distinto en la sesión de
+arranque de cada punto — cada fila es independiente entre sí salvo donde se anota una
+dependencia explícita.
+
+### Estado de ejecución (actualizado 2026-07-29)
+
+**Ejecutado hasta ahora (2 sesiones, ambas dentro de P-teacher-1 — orden 1 de la tabla):**
+- [x] Sesión 1 — `teacher/clases-a1.js`: 30 días de `PLANS.a1` cruzados contra las 21
+  reglas de `GRAMMAR_DATA.A1`. Detalle completo en `teacher/plan.md` tarea 4.
+- [x] Sesión 2 — `teacher/clases-a2.js`: mismo patrón, 30 días de `PLANS.a2` cruzados
+  contra las 21 reglas de `GRAMMAR_DATA.A2`. Verificado con Node (30 días secuenciales,
+  8 días de clase en vivo, `contenido.reglas[]` alineado con `ruleIds`, 21 reglas
+  cubiertas 4-5 veces cada una). Detalle en `teacher/plan.md` tarea 4.
+
+**Pendiente para la Sesión 3 — opciones (no excluyentes, a decidir al arrancar la sesión):**
+1. **Tarea 5 de `teacher/plan.md`** — selector de nivel en `teacher/index.html` (pill
+   buttons, cargar `clases-{nivel}.js` dinámicamente, persistir en localStorage). Ya
+   ejecutable hoy mismo: A1 y A2 existen además de B1, no depende de nada más.
+2. **Sesión B2.1 de este archivo** (arriba, sección "B2 — pendiente") — escribir los
+   días 1-7 del array `b2` en `plan.js` (primera pasada de gramática `b2-01`…`b2-10`),
+   primer paso de P-plan-1 (orden 2 de la tabla). Desbloquea después `teacher/clases-b2.js`.
+3. **`teacher/clases-a2.js` ya cerró la tarea 4 para A1/A2** — si se prioriza terminar
+   P-teacher-1 antes que P-plan-1, la siguiente pieza natural de esa tarea es B2, pero
+   requiere la opción 2 completa primero (dependencia explícita en `teacher/plan.md`).
+
+Recomendación por defecto si no se indica otra cosa: opción 1 (selector de nivel) por
+ser la de menor esfuerzo y no tener dependencias pendientes; las opciones 2/3 son el
+siguiente tramo largo (B2 completo, varias sesiones).
+
+---
+
 ## Escalabilidad y deuda técnica (auditoría 2026-07-13)
 
 > Nota: `plan-mejoras.md` ya trackea deuda técnica de nivel código (duplicación, accesibilidad, paginación admin, timeouts OpenAI). Esta sección cubre lo que ese archivo no cubre: **límites de infraestructura** (Vercel Hobby, base de datos en Supabase) y **drift de documentación** encontrados al revisar el proyecto completo, incluyendo consulta directa a los Advisors de Supabase (performance + security) sobre el proyecto real.

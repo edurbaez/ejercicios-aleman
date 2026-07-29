@@ -1,5 +1,5 @@
-window.TEACHER_CLASES = {
-  b1: [
+window.TEACHER_CLASES = window.TEACHER_CLASES || {};
+window.TEACHER_CLASES.b1 = [
     {
       day: 1,
       semana: 1,
@@ -2148,5 +2148,4 @@ window.TEACHER_CLASES = {
         resumen: 'Para el oral: werden + Partizip II al final sirve para describir procesos/costumbres sin mencionar quién lo hace ("wird gemacht"). En Perfekt, cuidado con decir "geworden" en vez de "worden" — si hay duda, usa Präsens o Präteritum de pasiva.'
       }
     ] } }
-  ]
-};
+  ];

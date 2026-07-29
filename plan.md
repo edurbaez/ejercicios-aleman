@@ -355,10 +355,14 @@ mismo tema).
 - **P-teacher-1 — Extender `teacher/index.html` a A1/A2/B2/C1/C2.** Ver
   `teacher/plan.md` tarea 4 — marcado por el propio usuario como la tarea de mayor
   impacto pedagógico (revisión 2026-07-18). **En progreso:** `teacher/clases-a1.js`
-  (Sesión 1, 2026-07-29) y `teacher/clases-a2.js` (Sesión 2, 2026-07-29) completados
-  — ver bitácora en `teacher/plan.md` tarea 4. Faltan B2/C1/C2 (bloqueados por
-  P-plan-1 abajo) y la tarea 5 (selector de nivel en `teacher/index.html`, ya
-  desbloqueable con A1+A2 disponibles).
+  (Sesión 1, 2026-07-29), `teacher/clases-a2.js` (Sesión 2, 2026-07-29) y el
+  **selector de nivel en `teacher/index.html` (Sesión 3, 2026-07-29, tarea 5 —
+  completada)** — A1/A2/B1 ya seleccionables en la UI, B2/C1/C2 deshabilitados
+  hasta que existan sus `clases-{nivel}.js`. De paso se corrigió un bug preexistente
+  en `teacher/clases-b1.js` que sobrescribía `window.TEACHER_CLASES` entero en vez
+  de fusionar (borraba A1/A2 al cargar los 3 scripts juntos) — ver detalle en
+  `teacher/plan.md` tarea 5. Falta la tarea 4 para B2/C1/C2 (bloqueada por
+  P-plan-1 abajo).
 - **P-plan-1 — Completar `plan.js` (B2/C1/C2) con gramática/escritura/mündliche
   diarios reales.** Ver secciones de arriba en este mismo archivo.
 - **P-lectura-1 — Extender Leseverstehen por Teile a C1/C2 (bajo esfuerzo) y A1/A2
@@ -385,28 +389,38 @@ dependencia explícita.
 
 ### Estado de ejecución (actualizado 2026-07-29)
 
-**Ejecutado hasta ahora (2 sesiones, ambas dentro de P-teacher-1 — orden 1 de la tabla):**
+**Ejecutado hasta ahora (3 sesiones, todas dentro de P-teacher-1 — orden 1 de la tabla):**
 - [x] Sesión 1 — `teacher/clases-a1.js`: 30 días de `PLANS.a1` cruzados contra las 21
   reglas de `GRAMMAR_DATA.A1`. Detalle completo en `teacher/plan.md` tarea 4.
 - [x] Sesión 2 — `teacher/clases-a2.js`: mismo patrón, 30 días de `PLANS.a2` cruzados
   contra las 21 reglas de `GRAMMAR_DATA.A2`. Verificado con Node (30 días secuenciales,
   8 días de clase en vivo, `contenido.reglas[]` alineado con `ruleIds`, 21 reglas
   cubiertas 4-5 veces cada una). Detalle en `teacher/plan.md` tarea 4.
+- [x] Sesión 3 — Tarea 5 de `teacher/plan.md`: selector de nivel (pill buttons) en
+  `teacher/index.html`, A1/A2/B1 seleccionables, B2/C1/C2 deshabilitados (listos para
+  habilitarse con un cambio de una línea en el array `LEVELS` en cuanto existan). Bug
+  preexistente corregido de paso: `teacher/clases-b1.js` sobrescribía
+  `window.TEACHER_CLASES` entero en vez de fusionar, lo que borraba A1/A2 al cargar los
+  3 scripts a la vez — solo se manifestaba con más de un nivel cargado, por eso no se
+  había detectado antes. Verificado con Node cargando los 3 `grammar-data-{nivel}.js` +
+  los 3 `clases-{nivel}.js` en el orden real del `<script>`: 30 días por nivel, 0
+  referencias de `ruleId` rotas. Detalle completo en `teacher/plan.md` tarea 5.
 
-**Pendiente para la Sesión 3 — opciones (no excluyentes, a decidir al arrancar la sesión):**
-1. **Tarea 5 de `teacher/plan.md`** — selector de nivel en `teacher/index.html` (pill
-   buttons, cargar `clases-{nivel}.js` dinámicamente, persistir en localStorage). Ya
-   ejecutable hoy mismo: A1 y A2 existen además de B1, no depende de nada más.
-2. **Sesión B2.1 de este archivo** (arriba, sección "B2 — pendiente") — escribir los
+**Pendiente para la Sesión 4 — opciones (no excluyentes, a decidir al arrancar la sesión):**
+1. **Tareas 1+2 de `teacher/plan.md`** (edición desde la UI + persistencia en Supabase)
+   — mejora de comodidad sobre lo ya existente, acopladas entre sí.
+2. **Tarea 3 de `teacher/plan.md`** (mapeo dinámico por fecha real de inicio del alumno).
+3. **Sesión B2.1 de este archivo** (arriba, sección "B2 — pendiente") — escribir los
    días 1-7 del array `b2` en `plan.js` (primera pasada de gramática `b2-01`…`b2-10`),
-   primer paso de P-plan-1 (orden 2 de la tabla). Desbloquea después `teacher/clases-b2.js`.
-3. **`teacher/clases-a2.js` ya cerró la tarea 4 para A1/A2** — si se prioriza terminar
-   P-teacher-1 antes que P-plan-1, la siguiente pieza natural de esa tarea es B2, pero
-   requiere la opción 2 completa primero (dependencia explícita en `teacher/plan.md`).
+   primer paso de P-plan-1 (orden 2 de la tabla). Desbloquea después `teacher/clases-b2.js`
+   y con eso la tarea 4 de `teacher/plan.md` para B2.
 
-Recomendación por defecto si no se indica otra cosa: opción 1 (selector de nivel) por
-ser la de menor esfuerzo y no tener dependencias pendientes; las opciones 2/3 son el
-siguiente tramo largo (B2 completo, varias sesiones).
+Con la tarea 5 cerrada, P-teacher-1 solo le falta la tarea 4 para B2/C1/C2 (bloqueada
+por P-plan-1) — el resto de tareas de `teacher/plan.md` (1, 2, 3) no dependían de la 4/5
+y ya son ejecutables. Recomendación por defecto: opción 3 (arrancar B2 en `plan.js`) por
+ser la que más desbloquea aguas abajo (P-teacher-1 completo + P-plan-1 orden 2 de la
+tabla), salvo que el usuario prefiera cerrar primero las mejoras de comodidad (1+2+3 de
+`teacher/plan.md`).
 
 ---
 

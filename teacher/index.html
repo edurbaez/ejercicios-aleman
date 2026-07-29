@@ -8,6 +8,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/config.js"></script>
   <script src="../grammar-data.js"></script>
+  <script src="clases-a1.js"></script>
+  <script src="clases-a2.js"></script>
   <script src="clases-b1.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
@@ -30,6 +32,16 @@
 
     .level-note { font-size: 12px; color: #888; margin-bottom: 18px; }
     body.dark .level-note { color: #6a7090; }
+
+    #level-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .level-btn { padding: 6px 16px; border: 2px solid #00695C; border-radius: 20px; background: transparent; color: #00695C; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s, color .15s; }
+    .level-btn:hover { background: #00695C; color: #fff; }
+    .level-btn.active { background: #00695C; color: #fff; }
+    body.dark .level-btn { border-color: #4db6ac; color: #4db6ac; }
+    body.dark .level-btn:hover, body.dark .level-btn.active { background: #4db6ac; color: #13141f; }
+    .level-btn:disabled { opacity: .4; cursor: not-allowed; }
+    .level-btn:disabled:hover { background: transparent; color: #00695C; }
+    body.dark .level-btn:disabled:hover { background: transparent; color: #4db6ac; }
 
     .week-card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 18px; }
     body.dark .week-card { background: #1e2035; }
@@ -126,7 +138,8 @@
   </div>
 
   <div class="adm-main">
-    <p class="level-note">Nivel B1 — los 30 días del plan de autoestudio. Los días marcados 🟢 Clase en vivo son martes/jueves (mapeo fijo: martes = día 2 de cada semana, jueves = día 4); el resto son días de autoestudio (📖) para los que igual conviene tener contenido de apoyo preparado.</p>
+    <div id="level-selector"></div>
+    <p class="level-note" id="level-note"></p>
     <div id="weeks-container"></div>
   </div>
 </div>
@@ -151,8 +164,50 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  const LEVELS = [
+    { key: 'a1', label: 'A1', grammarKey: 'A1', available: true },
+    { key: 'a2', label: 'A2', grammarKey: 'A2', available: true },
+    { key: 'b1', label: 'B1', grammarKey: 'B1', available: true },
+    { key: 'b2', label: 'B2', grammarKey: 'B2', available: false },
+    { key: 'c1', label: 'C1', grammarKey: 'C1', available: false },
+    { key: 'c2', label: 'C2', grammarKey: 'C2', available: false },
+  ];
+
+  function currentLevelConfig() {
+    return LEVELS.find(l => l.key === currentLevel) || LEVELS.find(l => l.key === 'b1');
+  }
+
+  const savedLevel = localStorage.getItem('teacher_level');
+  let currentLevel = (LEVELS.find(l => l.key === savedLevel && l.available) || LEVELS.find(l => l.key === 'b1')).key;
+
+  function selectLevel(key) {
+    const cfg = LEVELS.find(l => l.key === key);
+    if (!cfg || !cfg.available) return;
+    currentLevel = key;
+    localStorage.setItem('teacher_level', key);
+    renderLevelSelector();
+    updateLevelNote();
+    renderWeeks();
+  }
+
+  function renderLevelSelector() {
+    document.getElementById('level-selector').innerHTML = LEVELS.map(l => `
+      <button class="level-btn ${l.key === currentLevel ? 'active' : ''}"
+        ${l.available ? '' : 'disabled'}
+        title="${l.available ? '' : 'Aún no disponible — plan.js de este nivel pendiente'}"
+        onclick="selectLevel('${l.key}')">${l.label}</button>
+    `).join('');
+  }
+
+  function updateLevelNote() {
+    const cfg = currentLevelConfig();
+    document.getElementById('level-note').textContent =
+      `Nivel ${cfg.label} — los 30 días del plan de autoestudio. Los días marcados 🟢 Clase en vivo son martes/jueves (mapeo fijo: martes = día 2 de cada semana, jueves = día 4); el resto son días de autoestudio (📖) para los que igual conviene tener contenido de apoyo preparado.`;
+  }
+
   function ruleById(id) {
-    return (GRAMMAR_DATA.B1 || []).find(r => r.id === id);
+    const grammarKey = currentLevelConfig().grammarKey;
+    return ((GRAMMAR_DATA && GRAMMAR_DATA[grammarKey]) || []).find(r => r.id === id);
   }
 
   function renderRule(id) {
@@ -231,7 +286,7 @@
   }
 
   function renderWeeks() {
-    const days = (window.TEACHER_CLASES && window.TEACHER_CLASES.b1) || [];
+    const days = (window.TEACHER_CLASES && window.TEACHER_CLASES[currentLevel]) || [];
     const bySemana = {};
     days.forEach(d => {
       (bySemana[d.semana] = bySemana[d.semana] || []).push(d);
@@ -262,6 +317,8 @@
     document.getElementById('loading-overlay').style.display = 'none';
     document.getElementById('teacher-app').style.display = 'block';
 
+    renderLevelSelector();
+    updateLevelNote();
     renderWeeks();
   }
 

@@ -8,6 +8,8 @@ Fase 2 (implementada y verificada): los 30 días de `TEACHER_CLASES.b1` tienen `
 
 **Orden sugerido (revisión 2026-07-18):** la tarea de mayor impacto pedagógico es la **4** — hoy `teacher/index.html` solo sirve para dar clase de B1; extenderlo a A1/A2/B2/C1/C2 es lo que más valor aporta porque habilita el uso real de la herramienta en el resto de tus clases. Las tareas 1-2 (edición + persistencia) son mejoras de comodidad sobre lo que ya existe y pueden esperar. La 3 (mapeo por fecha de inicio del alumno) y la 5 (selector de nivel) dependen de que la 4 tenga al menos un nivel adicional. Orden recomendado: **4 → 5 → 1+2 (acopladas) → 3**.
 
+**Estado (2026-07-29): tarea 5 completada** (selector de nivel funcionando para A1/A2/B1, B2/C1/C2 deshabilitados hasta que existan). Tarea 4 sigue abierta para B2/C1/C2 (bloqueada por `plan.js` de esos niveles, ver P-plan-1 en `plan.md` raíz). Siguiente pieza natural: 1+2 (edición + persistencia) o 3 (mapeo por fecha de inicio), o retomar la tarea 4 en cuanto B2 esté desbloqueado.
+
 ### 1. Edición desde la UI de tips/ejemplos del profesor
 Hoy `clases-b1.js` es estático (hardcoded) y `teacher/index.html` es de solo lectura. No hay ningún campo de edición para que el profesor ajuste `intro`/`practica`/`pasos`/`resumen` sin tocar código.
 
@@ -53,13 +55,9 @@ Pasos de ejecución (repetir por nivel, un nivel por sesión igual que se hizo c
 5. Actualizar CLAUDE.md (Active Files) con la nueva entrada de datos.
 
 ### 5. Selector de nivel en `teacher/index.html`
-Hoy la página solo lee `TEACHER_CLASES.b1`, hardcoded. Depende de que la tarea 4 haya generado al menos un nivel adicional.
+**Completado (sesión 2026-07-29).** Se agregó un selector de nivel (pill buttons, mismo estilo teal que el resto de la página, sin depender de `--plan-accent` de `styles.css` porque esa variable está scopeada a `#page-plan`) arriba de `#weeks-container`. Los 3 scripts de datos (`clases-a1.js`, `clases-a2.js`, `clases-b1.js`) se precargan todos vía `<script>` y `renderWeeks()`/`ruleById()` cambian de fuente (`window.TEACHER_CLASES[currentLevel]` / `GRAMMAR_DATA[grammarKey]`) según el nivel activo — no hay carga dinámica de scripts, están todos presentes en el HTML. Persistencia en `localStorage` como `teacher_level` (mismo patrón que `esc_level` de `escritura.html`). B2/C1/C2 aparecen como botones deshabilitados (`disabled`, tooltip "Aún no disponible — plan.js de este nivel pendiente") listos para habilitarse con solo cambiar `available: true` en el array `LEVELS` una vez existan sus `clases-{nivel}.js` (bloqueado por P-plan-1 en `plan.md` raíz). El `level-note` superior ahora es dinámico según el nivel elegido.
 
-Pasos de ejecución:
-1. Agregar un selector de nivel (pill buttons, mismo patrón que `plan.html`) arriba del `class-grid`.
-2. Cargar dinámicamente `teacher/clases-{nivel}.js` según selección, o precargar todos los scripts disponibles y cambiar la referencia en `renderWeeks`.
-3. Persistir el nivel seleccionado (localStorage, mismo patrón que `esc_level` en `escritura.html`).
-4. Actualizar el título/badges de la página para reflejar el nivel activo.
+**Bug encontrado y corregido durante esta sesión (no introducido por ella, preexistente):** `teacher/clases-b1.js` hacía `window.TEACHER_CLASES = { b1: [...] }`, sobrescribiendo el objeto completo en vez de fusionar como sí hacían `clases-a1.js`/`clases-a2.js` (`window.TEACHER_CLASES = window.TEACHER_CLASES || {}; window.TEACHER_CLASES.a1 = [...]`). Mientras solo se cargaba un nivel a la vez esto no se notaba; al precargar los 3 scripts para el selector, cargar `clases-b1.js` después de los otros dos borraba silenciosamente `TEACHER_CLASES.a1`/`.a2`. Corregido para usar el mismo patrón de fusión. Verificado con Node (cargando los 3 `grammar-data-{nivel}.js` + los 3 `clases-{nivel}.js` en el mismo orden que el `<script>` de `index.html`): los 3 niveles resuelven 30 días cada uno, 0 referencias de `ruleId` rotas.
 
 ---
 

@@ -24,9 +24,15 @@ const ROOT  = path.join(__dirname, '..');
 const OUT   = path.join(ROOT, 'reformulaciones-data.json');
 const EXERCISES_PER_RULE = 20;
 
-// grammar-data.js is a browser script (globals, no exports) — eval it here
-const src = fs.readFileSync(path.join(ROOT, 'grammar-data.js'), 'utf8');
-const { GRAMMAR_DATA, LEVELS } = new Function(`${src}; return { GRAMMAR_DATA, LEVELS };`)();
+// grammar-data.js is a loader shim that document.writes the per-level scripts
+// (browser-only); load each grammar-data-{level}.js directly here instead.
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const windowShim = { GRAMMAR_DATA: {} };
+for (const lvl of LEVELS) {
+  const src = fs.readFileSync(path.join(ROOT, `grammar-data-${lvl.toLowerCase()}.js`), 'utf8');
+  new Function('window', src)(windowShim);
+}
+const GRAMMAR_DATA = windowShim.GRAMMAR_DATA;
 
 async function callGPT(prompt, attempt = 0) {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {

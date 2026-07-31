@@ -743,9 +743,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-05", label: "Gramática: Declinación de adjetivos", minutes: 5 },
         { app: "gramatica.html#b1-06", label: "Gramática: Conectores subordinantes", minutes: 5 },
         { app: "B1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -768,9 +768,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-11", label: "Gramática: Plusquamperfekt", minutes: 5 },
         { app: "gramatica.html#b1-12", label: "Gramática: Wenn vs. als", minutes: 5 },
         { app: "B1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -793,9 +793,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-17", label: "Gramática: n-Deklination", minutes: 5 },
         { app: "gramatica.html#b1-18", label: "Gramática: Adjektive als Nomen", minutes: 5 },
         { app: "B1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-formal", label: "Escritura: E-Mail semi-formal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam planen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -819,9 +819,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-23", label: "Gramática: Trennbare vs. untrennbare Verben", minutes: 5 },
         { app: "gramatica.html#b1-24", label: "Gramática: Reflexivpronomen (ampliado)", minutes: 5 },
         { app: "B1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -844,9 +844,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-29", label: "Gramática: Finalsätze um…zu / damit", minutes: 5 },
         { app: "gramatica.html#b1-30", label: "Gramática: Doppelkonnektoren", minutes: 5 },
         { app: "B1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -869,9 +869,9 @@ window.PLANS = {
         { app: "kasus.html?caso=Genitiv&relleno=articulo", label: "Repaso: Entrenador de casos Genitiv", minutes: 5 },
         { app: "kasus.html?relleno=adjetivo", label: "Repaso: Entrenador de declinación de adjetivos", minutes: 5 },
         { app: "B1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-formal", label: "Escritura: E-Mail semi-formal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam planen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -883,7 +883,7 @@ window.PLANS = {
         { app: "gramatica.html#b1-08", label: "Repaso: Infinitivo con \"zu\"", minutes: 5 },
         { app: "B1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
-        { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
+        { app: "mundliche.html?level=B1&teil=feedback-geben", label: "Mündliche: Feedback geben", minutes: 10 }
       ]
     },
     {
@@ -893,9 +893,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-09", label: "Repaso: Pasiva básica", minutes: 5 },
         { app: "gramatica.html#b1-10", label: "Repaso: Futuro", minutes: 5 },
         { app: "B1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     // Semana 3 (días 15-21): consolidación con chat-reformulaciones.html (b1-01…b1-10) y kasus.html
@@ -917,9 +917,9 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b1-03", label: "Reformulación: Oraciones de relativo", minutes: 5 },
         { app: "chat-reformulaciones.html?rule=b1-07", label: "Reformulación: Verbos con preposición fija", minutes: 5 },
         { app: "B1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -940,9 +940,9 @@ window.PLANS = {
         { app: "kasus.html?relleno=adjetivo", label: "Entrenador: declinación de adjetivos", minutes: 5 },
         { app: "gramatica.html#b1-18", label: "Repaso: Adjektive als Nomen", minutes: 5 },
         { app: "B1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-formal", label: "Escritura: E-Mail semi-formal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam planen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -953,7 +953,7 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b1-14", label: "Reformulación: Infinitivo sin \"zu\"", minutes: 5 },
         { app: "B1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
-        { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
+        { app: "mundliche.html?level=B1&teil=feedback-geben", label: "Mündliche: Feedback geben", minutes: 10 }
       ]
     },
     {
@@ -963,9 +963,9 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=b1-09", label: "Reformulación: Pasiva básica", minutes: 5 },
         { app: "gramatica.html#b1-22", label: "Repaso: Funktionen von werden", minutes: 5 },
         { app: "B1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -987,9 +987,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-19", label: "Repaso: Präpositionaladverbien da-/wo-", minutes: 5 },
         { app: "gramatica.html#b1-20", label: "Repaso: Präpositionen mit Genitiv", minutes: 5 },
         { app: "B1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1010,9 +1010,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-23", label: "Repaso: Trennbare vs. untrennbare Verben", minutes: 5 },
         { app: "gramatica.html#b1-24", label: "Repaso: Reflexivpronomen (ampliado)", minutes: 5 },
         { app: "B1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-formal", label: "Escritura: E-Mail semi-formal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam planen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1023,7 +1023,7 @@ window.PLANS = {
         { app: "gramatica.html#b1-28", label: "Repaso: Das Verb lassen", minutes: 5 },
         { app: "B1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
-        { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
+        { app: "mundliche.html?level=B1&teil=feedback-geben", label: "Mündliche: Feedback geben", minutes: 10 }
       ]
     },
     {
@@ -1033,9 +1033,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-29", label: "Repaso: Finalsätze um…zu / damit", minutes: 5 },
         { app: "gramatica.html#b1-30", label: "Repaso: Doppelkonnektoren", minutes: 5 },
         { app: "B1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1057,9 +1057,9 @@ window.PLANS = {
         { app: "gramatica.html#b1-16", label: "Repaso: Vergleichssätze je…desto", minutes: 5 },
         { app: "gramatica.html#b1-20", label: "Repaso: Präpositionen mit Genitiv", minutes: 5 },
         { app: "B1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
+        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-informal", label: "Escritura: E-Mail informal", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 },
-        { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     },
     {
@@ -1069,7 +1069,7 @@ window.PLANS = {
         { app: "gramatica.html#b1-02", label: "Repaso ligero: Konjunktiv II", minutes: 5 },
         { app: "gramatica.html#b1-06", label: "Repaso ligero: Conectores subordinantes", minutes: 5 },
         { app: "B1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
-        { app: "escritura.html?level=B1&tipo=foro", label: "Simulacro examen: Opinión en foro (evaluación completa)", minutes: 20 },
+        { app: "escritura.html?level=B1&tipo=foro", label: "Simulacro examen: Opinión en foro (evaluación completa, activar Modo examen)", minutes: 20 },
         { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam planen", minutes: 10 }
       ]
     },
@@ -1079,9 +1079,9 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#b1-09", label: "Repaso ligero: Pasiva básica", minutes: 5 },
         { app: "B1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
-        { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Simulacro examen Teil 1: Gemeinsam etwas planen", minutes: 10 },
+        { app: "mundliche.html?level=B1&teil=gemeinsam-planen", label: "Simulacro examen Teil 1: Gemeinsam etwas planen (activar Modo examen)", minutes: 10 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Simulacro examen Teil 2: Präsentation (activar Modo examen)", minutes: 20 },
-        { app: "mundliche.html?level=B1&teil=feedback-geben", label: "Simulacro examen Teil 3: Feedback geben", minutes: 10 },
+        { app: "mundliche.html?level=B1&teil=feedback-geben", label: "Simulacro examen Teil 3: Feedback geben (activar Modo examen)", minutes: 10 },
         { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
       ]
     }

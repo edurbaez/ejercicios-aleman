@@ -9754,5 +9754,3407 @@
       ],
       "explanation": "La introducción de un Essay debe usar una fórmula de apertura típica."
     }
+  ],
+  "b1-11": [
+    {
+      "source": "Ich ging ins Kino, nachdem ich die Arbeit beendet habe.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Ich ging ins Kino, nachdem ich die Arbeit beendet hatte."
+      ],
+      "explanation": "La acción de terminar el trabajo ocurrió antes de ir al cine, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Bevor sie ankam, machte sie einen Anruf.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Bevor sie ankam, hatte sie einen Anruf gemacht."
+      ],
+      "explanation": "El llamado ocurrió antes de su llegada, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem wir gegessen haben, gingen wir spazieren.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir gegessen hatten, gingen wir spazieren."
+      ],
+      "explanation": "La acción de comer ocurrió antes de salir a caminar, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Sie kaufte ein Auto, nachdem sie das Geld gespart hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Sie kaufte ein Auto, nachdem sie das Geld gespart hatte."
+      ],
+      "explanation": "Ahorrar el dinero ocurrió antes de comprar el auto, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem er den Film gesehen hat, schrieb er eine Rezension.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er den Film gesehen hatte, schrieb er eine Rezension."
+      ],
+      "explanation": "Ver la película ocurrió antes de escribir la reseña, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Wir gingen nach Hause, nachdem wir die Party verlassen haben.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Wir gingen nach Hause, nachdem wir die Party verlassen hatten."
+      ],
+      "explanation": "Dejar la fiesta ocurrió antes de ir a casa, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem sie die Prüfung bestanden hat, feierte sie mit Freunden.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie die Prüfung bestanden hatte, feierte sie mit Freunden."
+      ],
+      "explanation": "Pasar el examen ocurrió antes de la celebración, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Er las das Buch, nachdem er es gekauft hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Er las das Buch, nachdem er es gekauft hatte."
+      ],
+      "explanation": "Comprar el libro ocurrió antes de leerlo, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem wir angekommen sind, suchten wir das Hotel.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir angekommen waren, suchten wir das Hotel."
+      ],
+      "explanation": "Llegar ocurrió antes de buscar el hotel, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Sie war glücklich, nachdem sie die Nachricht gehört hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Sie war glücklich, nachdem sie die Nachricht gehört hatte."
+      ],
+      "explanation": "Escuchar la noticia ocurrió antes de sentirse feliz, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem er die Tür geschlossen hat, ging er ins Bett.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er die Tür geschlossen hatte, ging er ins Bett."
+      ],
+      "explanation": "Cerrar la puerta ocurrió antes de ir a la cama, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Wir fuhren in den Urlaub, nachdem wir die Tickets gekauft haben.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Wir fuhren in den Urlaub, nachdem wir die Tickets gekauft hatten."
+      ],
+      "explanation": "Comprar los boletos ocurrió antes de ir de vacaciones, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem sie den Brief geschrieben hat, schickte sie ihn ab.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie den Brief geschrieben hatte, schickte sie ihn ab."
+      ],
+      "explanation": "Escribir la carta ocurrió antes de enviarla, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Er ging zur Arbeit, nachdem er gefrühstückt hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Er ging zur Arbeit, nachdem er gefrühstückt hatte."
+      ],
+      "explanation": "Desayunar ocurrió antes de ir al trabajo, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem wir das Spiel gewonnen haben, feierten wir im Restaurant.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir das Spiel gewonnen hatten, feierten wir im Restaurant."
+      ],
+      "explanation": "Ganar el juego ocurrió antes de la celebración, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Sie ging ins Bett, nachdem sie das Buch gelesen hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Sie ging ins Bett, nachdem sie das Buch gelesen hatte."
+      ],
+      "explanation": "Leer el libro ocurrió antes de ir a la cama, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem er die Aufgabe erledigt hat, entspannte er sich.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er die Aufgabe erledigt hatte, entspannte er sich."
+      ],
+      "explanation": "Completar la tarea ocurrió antes de relajarse, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Wir gingen einkaufen, nachdem wir die Liste gemacht haben.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Wir gingen einkaufen, nachdem wir die Liste gemacht hatten."
+      ],
+      "explanation": "Hacer la lista ocurrió antes de ir de compras, por lo que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Nachdem sie das Konzert besucht hat, erzählte sie uns davon.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie das Konzert besucht hatte, erzählte sie uns davon."
+      ],
+      "explanation": "Asistir al concierto ocurrió antes de contarlo, así que se usa Plusquamperfekt."
+    },
+    {
+      "source": "Er war müde, nachdem er den ganzen Tag gearbeitet hat.",
+      "instruction": "Reescribe la frase usando Plusquamperfekt.",
+      "solutions": [
+        "Er war müde, nachdem er den ganzen Tag gearbeitet hatte."
+      ],
+      "explanation": "Trabajar todo el día ocurrió antes de sentirse cansado, por lo que se usa Plusquamperfekt."
+    }
+  ],
+  "b1-12": [
+    {
+      "source": "Ich war überrascht, sie dort zu sehen.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als ich sie dort sah, war ich überrascht."
+      ],
+      "explanation": "El evento de ver a alguien allí ocurrió una sola vez en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Du kannst mich anrufen, wenn du Zeit hast.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn du Zeit hast, kannst du mich anrufen."
+      ],
+      "explanation": "La frase ya usa 'wenn' correctamente para expresar una condición en el presente."
+    },
+    {
+      "source": "Jedes Mal, wenn ich ihn sah, lächelte er.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Immer wenn ich ihn sah, lächelte er."
+      ],
+      "explanation": "La acción de verlo y sonreír es repetida, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich war nervös, als ich die Prüfung machte.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als ich die Prüfung machte, war ich nervös."
+      ],
+      "explanation": "El evento de hacer el examen es único en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich in Berlin bin, besuche ich immer das Museum.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich in Berlin bin, besuche ich immer das Museum."
+      ],
+      "explanation": "La acción de visitar el museo es repetida cada vez que se está en Berlín, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich habe ihn getroffen, als er nach Hause kam.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als er nach Hause kam, habe ich ihn getroffen."
+      ],
+      "explanation": "El encuentro ocurrió una sola vez en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Ich war glücklich, wenn ich im Urlaub war.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Immer wenn ich im Urlaub war, war ich glücklich."
+      ],
+      "explanation": "La felicidad en vacaciones es una acción repetida en el pasado, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Wenn es regnet, bleibe ich zu Hause.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn es regnet, bleibe ich zu Hause."
+      ],
+      "explanation": "La acción de quedarse en casa cuando llueve es una condición, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich war überrascht, ihn zu sehen, als er ankam.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als er ankam, war ich überrascht, ihn zu sehen."
+      ],
+      "explanation": "El evento de su llegada es único en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich müde bin, gehe ich früh ins Bett.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich müde bin, gehe ich früh ins Bett."
+      ],
+      "explanation": "Irse a la cama temprano es una condición que ocurre cada vez que se está cansado, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Als ich klein war, hatte ich einen Hund.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich klein war, hatte ich einen Hund."
+      ],
+      "explanation": "Tener un perro durante la infancia es una acción repetida en el pasado, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Wenn ich die Wahrheit sage, fühle ich mich besser.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich die Wahrheit sage, fühle ich mich besser."
+      ],
+      "explanation": "Sentirse mejor al decir la verdad es una condición, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich war überrascht, als ich die Nachricht hörte.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als ich die Nachricht hörte, war ich überrascht."
+      ],
+      "explanation": "Escuchar la noticia es un evento único en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich nach Hause komme, esse ich immer etwas.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Immer wenn ich nach Hause komme, esse ich etwas."
+      ],
+      "explanation": "Comer al llegar a casa es una acción repetida, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich habe sie besucht, als sie krank war.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als sie krank war, habe ich sie besucht."
+      ],
+      "explanation": "La visita ocurrió una sola vez en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich Zeit habe, lese ich ein Buch.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich Zeit habe, lese ich ein Buch."
+      ],
+      "explanation": "Leer un libro es una acción condicional, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich war traurig, als ich die schlechte Nachricht hörte.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als ich die schlechte Nachricht hörte, war ich traurig."
+      ],
+      "explanation": "Escuchar la mala noticia es un evento único en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich jung war, spielte ich Fußball.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Immer wenn ich jung war, spielte ich Fußball."
+      ],
+      "explanation": "Jugar al fútbol durante la juventud es una acción repetida, por lo que se usa 'wenn'."
+    },
+    {
+      "source": "Ich habe ihn gesehen, als er den Raum betrat.",
+      "instruction": "Reescribe la frase usando 'als'.",
+      "solutions": [
+        "Als er den Raum betrat, habe ich ihn gesehen."
+      ],
+      "explanation": "El evento de verlo al entrar en la habitación es único en el pasado, por lo que se usa 'als'."
+    },
+    {
+      "source": "Wenn ich Hunger habe, esse ich etwas.",
+      "instruction": "Reescribe la frase usando 'wenn'.",
+      "solutions": [
+        "Wenn ich Hunger habe, esse ich etwas."
+      ],
+      "explanation": "Comer al tener hambre es una acción condicional, por lo que se usa 'wenn'."
+    }
+  ],
+  "b1-13": [
+    {
+      "source": "Ist das Wetter morgen gut?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Wissen Sie'.",
+      "solutions": [
+        "Wissen Sie, ob das Wetter morgen gut ist?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wann beginnt der Film?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, wann der Film beginnt?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Wo ist die nächste Apotheke?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, wo die nächste Apotheke ist."
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Hat er die Hausaufgaben gemacht?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, ob er die Hausaufgaben gemacht hat?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Warum ist der Laden geschlossen?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, warum der Laden geschlossen ist?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Ist das Museum heute geöffnet?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, ob das Museum heute geöffnet ist."
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wann fährt der nächste Zug?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, wann der nächste Zug fährt?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Wie spät ist es?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, wie spät es ist?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Kommt er heute Abend?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, ob er heute Abend kommt."
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Woher kommt sie?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, woher sie kommt?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Hat er das Buch gelesen?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, ob er das Buch gelesen hat?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Warum hat sie nicht geantwortet?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, warum sie nicht geantwortet hat."
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Ist das Essen schon fertig?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, ob das Essen schon fertig ist?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wie lange dauert der Film?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, wie lange der Film dauert?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Kommt der Bus pünktlich?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, ob der Bus pünktlich kommt."
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wie heißt der Film?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, wie der Film heißt?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Hat er die Prüfung bestanden?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, ob er die Prüfung bestanden hat?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wann ist das Konzert?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Ich frage mich'.",
+      "solutions": [
+        "Ich frage mich, wann das Konzert ist."
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    },
+    {
+      "source": "Ist das Hotel teuer?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Weißt du'.",
+      "solutions": [
+        "Weißt du, ob das Hotel teuer ist?"
+      ],
+      "explanation": "La pregunta directa de sí/no se convierte en una subordinada introducida por 'ob' con el verbo al final."
+    },
+    {
+      "source": "Wie alt ist er?",
+      "instruction": "Reescribe la frase como pregunta indirecta usando 'Können Sie mir sagen'.",
+      "solutions": [
+        "Können Sie mir sagen, wie alt er ist?"
+      ],
+      "explanation": "La pregunta directa con W-Wort se convierte en una subordinada manteniendo el W-Wort y colocando el verbo al final."
+    }
+  ],
+  "b1-14": [
+    {
+      "source": "Ich versuche, das Problem zu lösen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Ich muss das Problem lösen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Er plant, seine Schwester zu besuchen.",
+      "instruction": "Reescribe la frase usando 'gehen'.",
+      "solutions": [
+        "Er geht seine Schwester besuchen."
+      ],
+      "explanation": "Con verbos de movimiento como 'gehen', se usa el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Sie versucht, den Kuchen zu backen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt den Kuchen backen."
+      ],
+      "explanation": "El verbo 'lassen' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Wir planen, morgen ins Kino zu gehen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Wir müssen morgen ins Kino gehen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, die Hausaufgaben zu machen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Ich muss die Hausaufgaben machen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Er plant, das Haus zu renovieren.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Er lässt das Haus renovieren."
+      ],
+      "explanation": "El verbo 'lassen' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, die Vögel zu beobachten.",
+      "instruction": "Reescribe la frase usando 'hören'.",
+      "solutions": [
+        "Ich höre die Vögel singen."
+      ],
+      "explanation": "El verbo 'hören' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Wir planen, im Park spazieren zu gehen.",
+      "instruction": "Reescribe la frase usando 'gehen'.",
+      "solutions": [
+        "Wir gehen im Park spazieren."
+      ],
+      "explanation": "Con verbos de movimiento como 'gehen', se usa el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Sie versucht, die Aufgabe zu verstehen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Sie muss die Aufgabe verstehen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, das Auto zu reparieren.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse das Auto reparieren."
+      ],
+      "explanation": "El verbo 'lassen' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Er plant, die Stadt zu besuchen.",
+      "instruction": "Reescribe la frase usando 'fahren'.",
+      "solutions": [
+        "Er fährt die Stadt besuchen."
+      ],
+      "explanation": "Con verbos de movimiento como 'fahren', se usa el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, das Buch zu lesen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Ich muss das Buch lesen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Wir planen, in den Urlaub zu fahren.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Wir müssen in den Urlaub fahren."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Sie versucht, das Lied zu singen.",
+      "instruction": "Reescribe la frase usando 'hören'.",
+      "solutions": [
+        "Sie hört das Lied singen."
+      ],
+      "explanation": "El verbo 'hören' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Er plant, den Baum zu fällen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Er lässt den Baum fällen."
+      ],
+      "explanation": "El verbo 'lassen' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, die Stadt zu erkunden.",
+      "instruction": "Reescribe la frase usando 'gehen'.",
+      "solutions": [
+        "Ich gehe die Stadt erkunden."
+      ],
+      "explanation": "Con verbos de movimiento como 'gehen', se usa el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Wir planen, die Ausstellung zu besuchen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Wir müssen die Ausstellung besuchen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Sie versucht, die Prüfung zu bestehen.",
+      "instruction": "Reescribe la frase usando 'müssen'.",
+      "solutions": [
+        "Sie muss die Prüfung bestehen."
+      ],
+      "explanation": "El verbo modal 'müssen' requiere el uso del infinitivo sin 'zu'."
+    },
+    {
+      "source": "Ich habe vor, den Film zu sehen.",
+      "instruction": "Reescribe la frase usando 'sehen'.",
+      "solutions": [
+        "Ich sehe den Film."
+      ],
+      "explanation": "El verbo 'sehen' se usa con el infinitivo sin 'zu'."
+    },
+    {
+      "source": "Er plant, das Konzert zu besuchen.",
+      "instruction": "Reescribe la frase usando 'gehen'.",
+      "solutions": [
+        "Er geht das Konzert besuchen."
+      ],
+      "explanation": "Con verbos de movimiento como 'gehen', se usa el infinitivo sin 'zu'."
+    }
+  ],
+  "b1-15": [
+    {
+      "source": "Ich kenne den Mann, mit dem ich oft rede.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Der Mann, mit dem ich oft rede, ist mein Freund."
+      ],
+      "explanation": "La preposición 'mit' se coloca delante del pronombre relativo 'dem'."
+    },
+    {
+      "source": "Ich warte auf die Freunde, die bald kommen.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Freunde, auf die ich warte, kommen bald."
+      ],
+      "explanation": "La preposición 'auf' se coloca delante del pronombre relativo 'die'."
+    },
+    {
+      "source": "Das Buch, über das wir sprechen, ist spannend.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Buch, über das wir sprechen, ist spannend."
+      ],
+      "explanation": "La preposición 'über' se coloca delante del pronombre relativo 'das'."
+    },
+    {
+      "source": "Ich freue mich auf den Urlaub, der bald beginnt.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Der Urlaub, auf den ich mich freue, beginnt bald."
+      ],
+      "explanation": "La preposición 'auf' se coloca delante del pronombre relativo 'den'."
+    },
+    {
+      "source": "Ich arbeite in der Firma, die in Berlin ist.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Firma, in der ich arbeite, ist in Berlin."
+      ],
+      "explanation": "La preposición 'in' se coloca delante del pronombre relativo 'der'."
+    },
+    {
+      "source": "Ich erinnere mich an die Zeit, die wir zusammen verbrachten.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Zeit, an die ich mich erinnere, verbrachten wir zusammen."
+      ],
+      "explanation": "La preposición 'an' se coloca delante del pronombre relativo 'die'."
+    },
+    {
+      "source": "Ich habe das Auto, mit dem ich zur Arbeit fahre.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Auto, mit dem ich zur Arbeit fahre, habe ich."
+      ],
+      "explanation": "La preposición 'mit' se coloca delante del pronombre relativo 'dem'."
+    },
+    {
+      "source": "Ich spreche oft über das Thema, das wichtig ist.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Thema, über das ich oft spreche, ist wichtig."
+      ],
+      "explanation": "La preposición 'über' se coloca delante del pronombre relativo 'das'."
+    },
+    {
+      "source": "Ich denke an die Freunde, die ich lange nicht gesehen habe.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Freunde, an die ich denke, habe ich lange nicht gesehen."
+      ],
+      "explanation": "La preposición 'an' se coloca delante del pronombre relativo 'die'."
+    },
+    {
+      "source": "Ich bin in der Stadt, die ich liebe.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Stadt, in der ich bin, liebe ich."
+      ],
+      "explanation": "La preposición 'in' se coloca delante del pronombre relativo 'der'."
+    },
+    {
+      "source": "Ich spreche mit dem Lehrer, der mir hilft.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Der Lehrer, mit dem ich spreche, hilft mir."
+      ],
+      "explanation": "La preposición 'mit' se coloca delante del pronombre relativo 'dem'."
+    },
+    {
+      "source": "Ich warte auf den Bus, der spät kommt.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Der Bus, auf den ich warte, kommt spät."
+      ],
+      "explanation": "La preposición 'auf' se coloca delante del pronombre relativo 'den'."
+    },
+    {
+      "source": "Ich träume von dem Haus, das ich kaufen möchte.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Haus, von dem ich träume, möchte ich kaufen."
+      ],
+      "explanation": "La preposición 'von' se coloca delante del pronombre relativo 'dem'."
+    },
+    {
+      "source": "Ich arbeite an dem Projekt, das wichtig ist.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Projekt, an dem ich arbeite, ist wichtig."
+      ],
+      "explanation": "La preposición 'an' se coloca delante del pronombre relativo 'dem'."
+    },
+    {
+      "source": "Ich bin stolz auf die Arbeit, die ich gemacht habe.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Arbeit, auf die ich stolz bin, habe ich gemacht."
+      ],
+      "explanation": "La preposición 'auf' se coloca delante del pronombre relativo 'die'."
+    },
+    {
+      "source": "Ich diskutiere über das Problem, das wir lösen müssen.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Problem, über das ich diskutiere, müssen wir lösen."
+      ],
+      "explanation": "La preposición 'über' se coloca delante del pronombre relativo 'das'."
+    },
+    {
+      "source": "Ich freue mich auf das Konzert, das bald stattfindet.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Das Konzert, auf das ich mich freue, findet bald statt."
+      ],
+      "explanation": "La preposición 'auf' se coloca delante del pronombre relativo 'das'."
+    },
+    {
+      "source": "Ich lese über den Autor, der berühmt ist.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Der Autor, über den ich lese, ist berühmt."
+      ],
+      "explanation": "La preposición 'über' se coloca delante del pronombre relativo 'den'."
+    },
+    {
+      "source": "Ich denke an die Reise, die wir planen.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Reise, an die ich denke, planen wir."
+      ],
+      "explanation": "La preposición 'an' se coloca delante del pronombre relativo 'die'."
+    },
+    {
+      "source": "Ich spreche mit der Frau, die mir geholfen hat.",
+      "instruction": "Reescribe la frase usando una oración de relativo con preposición.",
+      "solutions": [
+        "Die Frau, mit der ich spreche, hat mir geholfen."
+      ],
+      "explanation": "La preposición 'mit' se coloca delante del pronombre relativo 'der'."
+    }
+  ],
+  "b1-16": [
+    {
+      "source": "Wenn ich viel esse, werde ich dicker.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr ich esse, desto dicker werde ich."
+      ],
+      "explanation": "La estructura je...desto se usa para expresar una relación proporcional entre dos acciones o estados."
+    },
+    {
+      "source": "Wenn es kalt ist, ziehe ich mehr Kleidung an.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je kälter es ist, desto mehr Kleidung ziehe ich an."
+      ],
+      "explanation": "Usamos je...desto para mostrar cómo un aumento en la temperatura afecta la cantidad de ropa que se lleva."
+    },
+    {
+      "source": "Wenn du viel übst, wirst du besser.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr du übst, desto besser wirst du."
+      ],
+      "explanation": "La estructura je...desto conecta la cantidad de práctica con la mejora en habilidad."
+    },
+    {
+      "source": "Wenn ich früh aufstehe, bin ich produktiver.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je früher ich aufstehe, desto produktiver bin ich."
+      ],
+      "explanation": "La estructura je...desto se utiliza para expresar cómo el levantarse temprano afecta la productividad."
+    },
+    {
+      "source": "Wenn sie viel liest, wird sie klüger.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr sie liest, desto klüger wird sie."
+      ],
+      "explanation": "Usamos je...desto para mostrar la relación entre la cantidad de lectura y la inteligencia."
+    },
+    {
+      "source": "Wenn das Auto schnell fährt, ist es gefährlicher.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je schneller das Auto fährt, desto gefährlicher ist es."
+      ],
+      "explanation": "La estructura je...desto conecta la velocidad del auto con el nivel de peligro."
+    },
+    {
+      "source": "Wenn es viel regnet, wird der Boden nasser.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr es regnet, desto nasser wird der Boden."
+      ],
+      "explanation": "Je...desto se usa para mostrar cómo la cantidad de lluvia afecta la humedad del suelo."
+    },
+    {
+      "source": "Wenn ich lange warte, werde ich ungeduldiger.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je länger ich warte, desto ungeduldiger werde ich."
+      ],
+      "explanation": "La estructura je...desto muestra cómo el tiempo de espera afecta la paciencia."
+    },
+    {
+      "source": "Wenn wir viel arbeiten, verdienen wir mehr Geld.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr wir arbeiten, desto mehr Geld verdienen wir."
+      ],
+      "explanation": "Usamos je...desto para expresar una relación entre la cantidad de trabajo y el dinero ganado."
+    },
+    {
+      "source": "Wenn er viel trainiert, wird er stärker.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr er trainiert, desto stärker wird er."
+      ],
+      "explanation": "La estructura je...desto conecta el entrenamiento con el aumento de fuerza."
+    },
+    {
+      "source": "Wenn das Wetter schön ist, sind wir glücklicher.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je schöner das Wetter ist, desto glücklicher sind wir."
+      ],
+      "explanation": "Je...desto se usa para mostrar cómo el clima afecta el estado de ánimo."
+    },
+    {
+      "source": "Wenn ich viel laufe, werde ich müder.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr ich laufe, desto müder werde ich."
+      ],
+      "explanation": "La estructura je...desto muestra la relación entre la cantidad de ejercicio y el cansancio."
+    },
+    {
+      "source": "Wenn du wenig schläfst, bist du müder.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je weniger du schläfst, desto müder bist du."
+      ],
+      "explanation": "Usamos je...desto para conectar la cantidad de sueño con el nivel de cansancio."
+    },
+    {
+      "source": "Wenn sie viel reist, lernt sie mehr Kulturen kennen.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr sie reist, desto mehr Kulturen lernt sie kennen."
+      ],
+      "explanation": "La estructura je...desto muestra la relación entre viajar y conocer culturas."
+    },
+    {
+      "source": "Wenn ich viel spreche, werde ich selbstbewusster.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr ich spreche, desto selbstbewusster werde ich."
+      ],
+      "explanation": "Je...desto se usa para expresar cómo hablar más afecta la confianza en uno mismo."
+    },
+    {
+      "source": "Wenn er viel spart, hat er mehr Geld.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr er spart, desto mehr Geld hat er."
+      ],
+      "explanation": "La estructura je...desto conecta el ahorro con la cantidad de dinero disponible."
+    },
+    {
+      "source": "Wenn du viel lernst, bekommst du bessere Noten.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr du lernst, desto bessere Noten bekommst du."
+      ],
+      "explanation": "Je...desto se utiliza para mostrar cómo el aprendizaje afecta las calificaciones."
+    },
+    {
+      "source": "Wenn das Essen scharf ist, trinke ich mehr Wasser.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je schärfer das Essen ist, desto mehr Wasser trinke ich."
+      ],
+      "explanation": "La estructura je...desto muestra la relación entre la intensidad del sabor y la cantidad de agua bebida."
+    },
+    {
+      "source": "Wenn die Musik laut ist, tanzen wir mehr.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je lauter die Musik ist, desto mehr tanzen wir."
+      ],
+      "explanation": "Usamos je...desto para conectar el volumen de la música con la cantidad de baile."
+    },
+    {
+      "source": "Wenn du viel liest, verstehst du mehr.",
+      "instruction": "Reescribe la frase usando je...desto.",
+      "solutions": [
+        "Je mehr du liest, desto mehr verstehst du."
+      ],
+      "explanation": "La estructura je...desto se usa para expresar la relación entre la cantidad de lectura y el nivel de comprensión."
+    }
+  ],
+  "b1-17": [
+    {
+      "source": "Der Lehrer erklärt den Schülern die Aufgabe.",
+      "instruction": "Cambia 'den Schülern' por 'dem Jungen'.",
+      "solutions": [
+        "Der Lehrer erklärt dem Jungen die Aufgabe."
+      ],
+      "explanation": "El sustantivo masculino 'der Junge' requiere la forma 'dem Jungen' en dativo singular."
+    },
+    {
+      "source": "Ich sehe den Hund im Park.",
+      "instruction": "Cambia 'den Hund' por 'den Affen'.",
+      "solutions": [
+        "Ich sehe den Affen im Park."
+      ],
+      "explanation": "El sustantivo masculino 'der Affe' requiere la forma 'den Affen' en acusativo singular."
+    },
+    {
+      "source": "Die Lehrerin lobt den Schüler.",
+      "instruction": "Cambia 'den Schüler' por 'den Kollegen'.",
+      "solutions": [
+        "Die Lehrerin lobt den Kollegen."
+      ],
+      "explanation": "El sustantivo masculino 'der Kollege' requiere la forma 'den Kollegen' en acusativo singular."
+    },
+    {
+      "source": "Der Vater hilft dem Sohn bei den Hausaufgaben.",
+      "instruction": "Cambia 'dem Sohn' por 'dem Kunden'.",
+      "solutions": [
+        "Der Vater hilft dem Kunden bei den Hausaufgaben."
+      ],
+      "explanation": "El sustantivo masculino 'der Kunde' requiere la forma 'dem Kunden' en dativo singular."
+    },
+    {
+      "source": "Ich kenne den Mann aus dem Büro.",
+      "instruction": "Cambia 'den Mann' por 'den Jungen'.",
+      "solutions": [
+        "Ich kenne den Jungen aus dem Büro."
+      ],
+      "explanation": "El sustantivo masculino 'der Junge' requiere la forma 'den Jungen' en acusativo singular."
+    },
+    {
+      "source": "Das ist das Auto des Vaters.",
+      "instruction": "Cambia 'des Vaters' por 'des Kunden'.",
+      "solutions": [
+        "Das ist das Auto des Kunden."
+      ],
+      "explanation": "El sustantivo masculino 'der Kunde' requiere la forma 'des Kunden' en genitivo singular."
+    },
+    {
+      "source": "Die Mutter ruft den Sohn zum Abendessen.",
+      "instruction": "Cambia 'den Sohn' por 'den Nachbarn'.",
+      "solutions": [
+        "Die Mutter ruft den Nachbarn zum Abendessen."
+      ],
+      "explanation": "El sustantivo masculino 'der Nachbar' requiere la forma 'den Nachbarn' en acusativo singular."
+    },
+    {
+      "source": "Der Hund gehört dem Mann.",
+      "instruction": "Cambia 'dem Mann' por 'dem Affen'.",
+      "solutions": [
+        "Der Hund gehört dem Affen."
+      ],
+      "explanation": "El sustantivo masculino 'der Affe' requiere la forma 'dem Affen' en dativo singular."
+    },
+    {
+      "source": "Die Frau spricht mit dem Lehrer.",
+      "instruction": "Cambia 'dem Lehrer' por 'dem Kollegen'.",
+      "solutions": [
+        "Die Frau spricht mit dem Kollegen."
+      ],
+      "explanation": "El sustantivo masculino 'der Kollege' requiere la forma 'dem Kollegen' en dativo singular."
+    },
+    {
+      "source": "Der Junge spielt mit dem Ball.",
+      "instruction": "Cambia 'dem Ball' por 'dem Löwen'.",
+      "solutions": [
+        "Der Junge spielt mit dem Löwen."
+      ],
+      "explanation": "El sustantivo masculino 'der Löwe' requiere la forma 'dem Löwen' en dativo singular."
+    },
+    {
+      "source": "Ich gebe das Buch dem Freund.",
+      "instruction": "Cambia 'dem Freund' por 'dem Jungen'.",
+      "solutions": [
+        "Ich gebe das Buch dem Jungen."
+      ],
+      "explanation": "El sustantivo masculino 'der Junge' requiere la forma 'dem Jungen' en dativo singular."
+    },
+    {
+      "source": "Das Geschenk ist für den Bruder.",
+      "instruction": "Cambia 'den Bruder' por 'den Kunden'.",
+      "solutions": [
+        "Das Geschenk ist für den Kunden."
+      ],
+      "explanation": "El sustantivo masculino 'der Kunde' requiere la forma 'den Kunden' en acusativo singular."
+    },
+    {
+      "source": "Der Lehrer gibt dem Schüler das Buch.",
+      "instruction": "Cambia 'dem Schüler' por 'dem Affen'.",
+      "solutions": [
+        "Der Lehrer gibt dem Affen das Buch."
+      ],
+      "explanation": "El sustantivo masculino 'der Affe' requiere la forma 'dem Affen' en dativo singular."
+    },
+    {
+      "source": "Der Mann sieht den Hund im Garten.",
+      "instruction": "Cambia 'den Hund' por 'den Löwen'.",
+      "solutions": [
+        "Der Mann sieht den Löwen im Garten."
+      ],
+      "explanation": "El sustantivo masculino 'der Löwe' requiere la forma 'den Löwen' en acusativo singular."
+    },
+    {
+      "source": "Ich spreche mit dem Nachbarn über das Problem.",
+      "instruction": "Cambia 'dem Nachbarn' por 'dem Kunden'.",
+      "solutions": [
+        "Ich spreche mit dem Kunden über das Problem."
+      ],
+      "explanation": "El sustantivo masculino 'der Kunde' requiere la forma 'dem Kunden' en dativo singular."
+    },
+    {
+      "source": "Der Hund gehört dem Jungen.",
+      "instruction": "Cambia 'dem Jungen' por 'dem Kollegen'.",
+      "solutions": [
+        "Der Hund gehört dem Kollegen."
+      ],
+      "explanation": "El sustantivo masculino 'der Kollege' requiere la forma 'dem Kollegen' en dativo singular."
+    },
+    {
+      "source": "Die Mutter ruft den Lehrer.",
+      "instruction": "Cambia 'den Lehrer' por 'den Affen'.",
+      "solutions": [
+        "Die Mutter ruft den Affen."
+      ],
+      "explanation": "El sustantivo masculino 'der Affe' requiere la forma 'den Affen' en acusativo singular."
+    },
+    {
+      "source": "Das ist das Fahrrad des Bruders.",
+      "instruction": "Cambia 'des Bruders' por 'des Jungen'.",
+      "solutions": [
+        "Das ist das Fahrrad des Jungen."
+      ],
+      "explanation": "El sustantivo masculino 'der Junge' requiere la forma 'des Jungen' en genitivo singular."
+    },
+    {
+      "source": "Ich kenne den Mann aus der Nachbarschaft.",
+      "instruction": "Cambia 'den Mann' por 'den Nachbarn'.",
+      "solutions": [
+        "Ich kenne den Nachbarn aus der Nachbarschaft."
+      ],
+      "explanation": "El sustantivo masculino 'der Nachbar' requiere la forma 'den Nachbarn' en acusativo singular."
+    },
+    {
+      "source": "Der Lehrer gibt dem Schüler die Hausaufgaben.",
+      "instruction": "Cambia 'dem Schüler' por 'dem Kollegen'.",
+      "solutions": [
+        "Der Lehrer gibt dem Kollegen die Hausaufgaben."
+      ],
+      "explanation": "El sustantivo masculino 'der Kollege' requiere la forma 'dem Kollegen' en dativo singular."
+    }
+  ],
+  "b1-18": [
+    {
+      "source": "Der junge Mann liest ein Buch.",
+      "instruction": "Reescribe la frase usando 'Jugendlicher' como sustantivo.",
+      "solutions": [
+        "Der Jugendliche liest ein Buch."
+      ],
+      "explanation": "El adjetivo 'jung' se sustantiva como 'Jugendlicher' y se declina como un sustantivo masculino definido."
+    },
+    {
+      "source": "Sie hat etwas Interessantes im Fernsehen gesehen.",
+      "instruction": "Reescribe la frase usando 'interessant' como sustantivo.",
+      "solutions": [
+        "Sie hat etwas Interessantes im Fernsehen gesehen."
+      ],
+      "explanation": "El adjetivo 'interessant' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Das ist der beste Kuchen, den ich je gegessen habe.",
+      "instruction": "Reescribe la frase usando 'Beste' como sustantivo.",
+      "solutions": [
+        "Das ist das Beste, was ich je gegessen habe."
+      ],
+      "explanation": "El adjetivo 'beste' se sustantiva y se declina como neutro definido."
+    },
+    {
+      "source": "Ein alter Freund hat mich besucht.",
+      "instruction": "Reescribe la frase usando 'Bekannter' como sustantivo.",
+      "solutions": [
+        "Ein Bekannter hat mich besucht."
+      ],
+      "explanation": "El adjetivo 'bekannt' se sustantiva como 'Bekannter' y se declina como un sustantivo masculino indefinido."
+    },
+    {
+      "source": "Sie hat etwas Schönes gefunden.",
+      "instruction": "Reescribe la frase usando 'schön' como sustantivo.",
+      "solutions": [
+        "Sie hat etwas Schönes gefunden."
+      ],
+      "explanation": "El adjetivo 'schön' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Der alte Mann erzählt eine Geschichte.",
+      "instruction": "Reescribe la frase usando 'Ältere' como sustantivo.",
+      "solutions": [
+        "Der Ältere erzählt eine Geschichte."
+      ],
+      "explanation": "El adjetivo 'alt' se sustantiva como 'Ältere' y se declina como un sustantivo masculino definido."
+    },
+    {
+      "source": "Ich habe einen neuen Laptop gekauft.",
+      "instruction": "Reescribe la frase usando 'Neues' como sustantivo.",
+      "solutions": [
+        "Ich habe etwas Neues gekauft."
+      ],
+      "explanation": "El adjetivo 'neu' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Das ist das interessanteste Buch, das ich kenne.",
+      "instruction": "Reescribe la frase usando 'Interessanteste' como sustantivo.",
+      "solutions": [
+        "Das ist das Interessanteste, das ich kenne."
+      ],
+      "explanation": "El adjetivo 'interessanteste' se sustantiva y se declina como neutro definido."
+    },
+    {
+      "source": "Ein netter Kollege hat mir geholfen.",
+      "instruction": "Reescribe la frase usando 'Bekannter' como sustantivo.",
+      "solutions": [
+        "Ein Bekannter hat mir geholfen."
+      ],
+      "explanation": "El adjetivo 'bekannt' se sustantiva como 'Bekannter' y se declina como un sustantivo masculino indefinido."
+    },
+    {
+      "source": "Sie hat etwas Spannendes im Kino gesehen.",
+      "instruction": "Reescribe la frase usando 'spannend' como sustantivo.",
+      "solutions": [
+        "Sie hat etwas Spannendes im Kino gesehen."
+      ],
+      "explanation": "El adjetivo 'spannend' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Der junge Mann ist sehr sportlich.",
+      "instruction": "Reescribe la frase usando 'Jugendlicher' como sustantivo.",
+      "solutions": [
+        "Der Jugendliche ist sehr sportlich."
+      ],
+      "explanation": "El adjetivo 'jung' se sustantiva como 'Jugendlicher' y se declina como un sustantivo masculino definido."
+    },
+    {
+      "source": "Das ist das schönste Bild, das ich je gesehen habe.",
+      "instruction": "Reescribe la frase usando 'Schönste' como sustantivo.",
+      "solutions": [
+        "Das ist das Schönste, was ich je gesehen habe."
+      ],
+      "explanation": "El adjetivo 'schönste' se sustantiva y se declina como neutro definido."
+    },
+    {
+      "source": "Ein alter Bekannter hat mich angerufen.",
+      "instruction": "Reescribe la frase usando 'Bekannter' como sustantivo.",
+      "solutions": [
+        "Ein Bekannter hat mich angerufen."
+      ],
+      "explanation": "El adjetivo 'bekannt' se sustantiva como 'Bekannter' y se declina como un sustantivo masculino indefinido."
+    },
+    {
+      "source": "Sie hat etwas Leckeres gekocht.",
+      "instruction": "Reescribe la frase usando 'lecker' como sustantivo.",
+      "solutions": [
+        "Sie hat etwas Leckeres gekocht."
+      ],
+      "explanation": "El adjetivo 'lecker' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Der alte Mann ist sehr weise.",
+      "instruction": "Reescribe la frase usando 'Ältere' como sustantivo.",
+      "solutions": [
+        "Der Ältere ist sehr weise."
+      ],
+      "explanation": "El adjetivo 'alt' se sustantiva como 'Ältere' y se declina como un sustantivo masculino definido."
+    },
+    {
+      "source": "Ich habe einen neuen Freund getroffen.",
+      "instruction": "Reescribe la frase usando 'Neues' como sustantivo.",
+      "solutions": [
+        "Ich habe etwas Neues getroffen."
+      ],
+      "explanation": "El adjetivo 'neu' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Das ist das beste Angebot, das wir haben.",
+      "instruction": "Reescribe la frase usando 'Beste' como sustantivo.",
+      "solutions": [
+        "Das ist das Beste, was wir haben."
+      ],
+      "explanation": "El adjetivo 'beste' se sustantiva y se declina como neutro definido."
+    },
+    {
+      "source": "Ein netter Nachbar hat mir geholfen.",
+      "instruction": "Reescribe la frase usando 'Bekannter' como sustantivo.",
+      "solutions": [
+        "Ein Bekannter hat mir geholfen."
+      ],
+      "explanation": "El adjetivo 'bekannt' se sustantiva como 'Bekannter' y se declina como un sustantivo masculino indefinido."
+    },
+    {
+      "source": "Sie hat etwas Lustiges im Internet gefunden.",
+      "instruction": "Reescribe la frase usando 'lustig' como sustantivo.",
+      "solutions": [
+        "Sie hat etwas Lustiges im Internet gefunden."
+      ],
+      "explanation": "El adjetivo 'lustig' se sustantiva con 'etwas' y se declina como neutro."
+    },
+    {
+      "source": "Der junge Mann arbeitet hart.",
+      "instruction": "Reescribe la frase usando 'Jugendlicher' como sustantivo.",
+      "solutions": [
+        "Der Jugendliche arbeitet hart."
+      ],
+      "explanation": "El adjetivo 'jung' se sustantiva como 'Jugendlicher' y se declina como un sustantivo masculino definido."
+    }
+  ],
+  "b1-19": [
+    {
+      "source": "Ich habe über das Buch nachgedacht.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Ich habe darüber nachgedacht."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, el libro, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Sie interessiert sich für den Film.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie interessiert sich dafür."
+      ],
+      "explanation": "La preposición 'für' se refiere a una cosa, el film, por lo que se reemplaza con 'dafür'."
+    },
+    {
+      "source": "Wir sprechen oft über die Politik.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Wir sprechen oft darüber."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, la política, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Er wartet auf die Antwort.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Er wartet darauf."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, la respuesta, por lo que se reemplaza con 'darauf'."
+    },
+    {
+      "source": "Sie hat sich an den Urlaub erinnert.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie hat sich daran erinnert."
+      ],
+      "explanation": "La preposición 'an' se refiere a una cosa, el viaje, por lo que se reemplaza con 'daran'."
+    },
+    {
+      "source": "Wir freuen uns auf das Wochenende.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Wir freuen uns darauf."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, el fin de semana, por lo que se reemplaza con 'darauf'."
+    },
+    {
+      "source": "Sie hat über das Problem gesprochen.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie hat darüber gesprochen."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, el problema, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Er denkt an seine Zukunft.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Er denkt daran."
+      ],
+      "explanation": "La preposición 'an' se refiere a una cosa, su futuro, por lo que se reemplaza con 'daran'."
+    },
+    {
+      "source": "Wir haben uns über das Wetter unterhalten.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Wir haben uns darüber unterhalten."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, el clima, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Ich habe mich auf die Prüfung vorbereitet.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Ich habe mich darauf vorbereitet."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, el examen, por lo que se reemplaza con 'darauf'."
+    },
+    {
+      "source": "Sie denkt über die Zukunft nach.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie denkt darüber nach."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, el futuro, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Er hat sich für das Geschenk bedankt.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Er hat sich dafür bedankt."
+      ],
+      "explanation": "La preposición 'für' se refiere a una cosa, el regalo, por lo que se reemplaza con 'dafür'."
+    },
+    {
+      "source": "Wir haben auf das Angebot geantwortet.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Wir haben darauf geantwortet."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, la oferta, por lo que se reemplaza con 'darauf'."
+    },
+    {
+      "source": "Sie hat sich über die Nachricht gefreut.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie hat sich darüber gefreut."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, la noticia, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Er hat an das Treffen gedacht.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Er hat daran gedacht."
+      ],
+      "explanation": "La preposición 'an' se refiere a una cosa, la reunión, por lo que se reemplaza con 'daran'."
+    },
+    {
+      "source": "Ich habe mich für den Kurs entschieden.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Ich habe mich dafür entschieden."
+      ],
+      "explanation": "La preposición 'für' se refiere a una cosa, el curso, por lo que se reemplaza con 'dafür'."
+    },
+    {
+      "source": "Wir haben über die Situation diskutiert.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Wir haben darüber diskutiert."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, la situación, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Sie wartet auf die Ergebnisse.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Sie wartet darauf."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, los resultados, por lo que se reemplaza con 'darauf'."
+    },
+    {
+      "source": "Er hat sich über die Einladung gefreut.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Er hat sich darüber gefreut."
+      ],
+      "explanation": "La preposición 'über' se refiere a una cosa, la invitación, por lo que se reemplaza con 'darüber'."
+    },
+    {
+      "source": "Ich habe mich auf das Konzert gefreut.",
+      "instruction": "Reescribe la frase usando ein Präpositionaladverb.",
+      "solutions": [
+        "Ich habe mich darauf gefreut."
+      ],
+      "explanation": "La preposición 'auf' se refiere a una cosa, el concierto, por lo que se reemplaza con 'darauf'."
+    }
+  ],
+  "b1-20": [
+    {
+      "source": "Ich habe während dem Kurs viel gelernt.",
+      "instruction": "Corrige la frase usando Genitiv con 'während'.",
+      "solutions": [
+        "Ich habe während des Kurses viel gelernt."
+      ],
+      "explanation": "La preposición 'während' requiere el uso del Genitiv, por lo tanto, se debe usar 'des Kurses'."
+    },
+    {
+      "source": "Wir sind wegen dem Wetter zu Hause geblieben.",
+      "instruction": "Corrige la frase usando Genitiv con 'wegen'.",
+      "solutions": [
+        "Wir sind wegen des Wetters zu Hause geblieben."
+      ],
+      "explanation": "La preposición 'wegen' requiere el uso del Genitiv, así que se debe usar 'des Wetters'."
+    },
+    {
+      "source": "Trotz dem Regen machen wir ein Picknick.",
+      "instruction": "Corrige la frase usando Genitiv con 'trotz'.",
+      "solutions": [
+        "Trotz des Regens machen wir ein Picknick."
+      ],
+      "explanation": "La preposición 'trotz' requiere el uso del Genitiv, por eso se debe usar 'des Regens'."
+    },
+    {
+      "source": "Der Park liegt außerhalb die Stadt.",
+      "instruction": "Corrige la frase usando Genitiv con 'außerhalb'.",
+      "solutions": [
+        "Der Park liegt außerhalb der Stadt."
+      ],
+      "explanation": "La preposición 'außerhalb' requiere el uso del Genitiv, por lo tanto, se debe usar 'der Stadt'."
+    },
+    {
+      "source": "Innerhalb ein Jahr haben wir viel erreicht.",
+      "instruction": "Corrige la frase usando Genitiv con 'innerhalb'.",
+      "solutions": [
+        "Innerhalb eines Jahres haben wir viel erreicht."
+      ],
+      "explanation": "La preposición 'innerhalb' requiere el uso del Genitiv, por eso se debe usar 'eines Jahres'."
+    },
+    {
+      "source": "Wir haben während dem Konzert viel Spaß gehabt.",
+      "instruction": "Corrige la frase usando Genitiv con 'während'.",
+      "solutions": [
+        "Wir haben während des Konzerts viel Spaß gehabt."
+      ],
+      "explanation": "La preposición 'während' requiere el uso del Genitiv, así que se debe usar 'des Konzerts'."
+    },
+    {
+      "source": "Wegen dem Lärm konnte ich nicht schlafen.",
+      "instruction": "Corrige la frase usando Genitiv con 'wegen'.",
+      "solutions": [
+        "Wegen des Lärms konnte ich nicht schlafen."
+      ],
+      "explanation": "La preposición 'wegen' requiere el uso del Genitiv, por lo tanto, se debe usar 'des Lärms'."
+    },
+    {
+      "source": "Trotz dem Stau sind wir pünktlich angekommen.",
+      "instruction": "Corrige la frase usando Genitiv con 'trotz'.",
+      "solutions": [
+        "Trotz des Staus sind wir pünktlich angekommen."
+      ],
+      "explanation": "La preposición 'trotz' requiere el uso del Genitiv, por eso se debe usar 'des Staus'."
+    },
+    {
+      "source": "Der Supermarkt liegt außerhalb das Dorf.",
+      "instruction": "Corrige la frase usando Genitiv con 'außerhalb'.",
+      "solutions": [
+        "Der Supermarkt liegt außerhalb des Dorfes."
+      ],
+      "explanation": "La preposición 'außerhalb' requiere el uso del Genitiv, así que se debe usar 'des Dorfes'."
+    },
+    {
+      "source": "Innerhalb die Woche haben wir alles vorbereitet.",
+      "instruction": "Corrige la frase usando Genitiv con 'innerhalb'.",
+      "solutions": [
+        "Innerhalb der Woche haben wir alles vorbereitet."
+      ],
+      "explanation": "La preposición 'innerhalb' requiere el uso del Genitiv, por lo tanto, se debe usar 'der Woche'."
+    },
+    {
+      "source": "Ich habe während dem Urlaub viel gelesen.",
+      "instruction": "Corrige la frase usando Genitiv con 'während'.",
+      "solutions": [
+        "Ich habe während des Urlaubs viel gelesen."
+      ],
+      "explanation": "La preposición 'während' requiere el uso del Genitiv, por eso se debe usar 'des Urlaubs'."
+    },
+    {
+      "source": "Wegen dem Verkehr bin ich spät gekommen.",
+      "instruction": "Corrige la frase usando Genitiv con 'wegen'.",
+      "solutions": [
+        "Wegen des Verkehrs bin ich spät gekommen."
+      ],
+      "explanation": "La preposición 'wegen' requiere el uso del Genitiv, así que se debe usar 'des Verkehrs'."
+    },
+    {
+      "source": "Trotz dem Wind haben wir gesegelt.",
+      "instruction": "Corrige la frase usando Genitiv con 'trotz'.",
+      "solutions": [
+        "Trotz des Windes haben wir gesegelt."
+      ],
+      "explanation": "La preposición 'trotz' requiere el uso del Genitiv, por lo tanto, se debe usar 'des Windes'."
+    },
+    {
+      "source": "Die Schule liegt außerhalb die Stadt.",
+      "instruction": "Corrige la frase usando Genitiv con 'außerhalb'.",
+      "solutions": [
+        "Die Schule liegt außerhalb der Stadt."
+      ],
+      "explanation": "La preposición 'außerhalb' requiere el uso del Genitiv, por eso se debe usar 'der Stadt'."
+    },
+    {
+      "source": "Innerhalb ein Monat haben wir alles organisiert.",
+      "instruction": "Corrige la frase usando Genitiv con 'innerhalb'.",
+      "solutions": [
+        "Innerhalb eines Monats haben wir alles organisiert."
+      ],
+      "explanation": "La preposición 'innerhalb' requiere el uso del Genitiv, así que se debe usar 'eines Monats'."
+    },
+    {
+      "source": "Ich habe während dem Meeting Notizen gemacht.",
+      "instruction": "Corrige la frase usando Genitiv con 'während'.",
+      "solutions": [
+        "Ich habe während des Meetings Notizen gemacht."
+      ],
+      "explanation": "La preposición 'während' requiere el uso del Genitiv, por lo tanto, se debe usar 'des Meetings'."
+    },
+    {
+      "source": "Wegen dem Sturm sind wir nicht rausgegangen.",
+      "instruction": "Corrige la frase usando Genitiv con 'wegen'.",
+      "solutions": [
+        "Wegen des Sturms sind wir nicht rausgegangen."
+      ],
+      "explanation": "La preposición 'wegen' requiere el uso del Genitiv, por eso se debe usar 'des Sturms'."
+    },
+    {
+      "source": "Trotz dem Schnee fahren wir Ski.",
+      "instruction": "Corrige la frase usando Genitiv con 'trotz'.",
+      "solutions": [
+        "Trotz des Schnees fahren wir Ski."
+      ],
+      "explanation": "La preposición 'trotz' requiere el uso del Genitiv, así que se debe usar 'des Schnees'."
+    },
+    {
+      "source": "Das Museum liegt außerhalb die Stadt.",
+      "instruction": "Corrige la frase usando Genitiv con 'außerhalb'.",
+      "solutions": [
+        "Das Museum liegt außerhalb der Stadt."
+      ],
+      "explanation": "La preposición 'außerhalb' requiere el uso del Genitiv, por lo tanto, se debe usar 'der Stadt'."
+    },
+    {
+      "source": "Innerhalb das Jahres haben wir viel gelernt.",
+      "instruction": "Corrige la frase usando Genitiv con 'innerhalb'.",
+      "solutions": [
+        "Innerhalb des Jahres haben wir viel gelernt."
+      ],
+      "explanation": "La preposición 'innerhalb' requiere el uso del Genitiv, por eso se debe usar 'des Jahres'."
+    }
+  ],
+  "b1-21": [
+    {
+      "source": "Ich habe vor drei Monaten mit dem Kurs begonnen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas en el curso.",
+      "solutions": [
+        "Ich bin seit drei Monaten im Kurs."
+      ],
+      "explanation": "La acción de estar en el curso sigue en el presente, por lo que se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich habe sie vor einer Woche gesehen.",
+      "instruction": "Usa 'seit' para indicar desde cuándo no la ves.",
+      "solutions": [
+        "Ich habe sie seit einer Woche nicht gesehen."
+      ],
+      "explanation": "La acción de no verla sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde nächsten Monat nach Spanien reisen.",
+      "instruction": "Usa 'in' para indicar cuándo viajarás a España.",
+      "solutions": [
+        "Ich werde in einem Monat nach Spanien reisen."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich beginne am Montag mit der Arbeit.",
+      "instruction": "Usa 'ab' para indicar cuándo empiezas a trabajar.",
+      "solutions": [
+        "Ich beginne ab Montag mit der Arbeit."
+      ],
+      "explanation": "'Ab' se usa para indicar el inicio de una acción en el futuro."
+    },
+    {
+      "source": "Wir treffen uns um 18 Uhr.",
+      "instruction": "Usa 'bis' para indicar hasta qué hora te quedarás.",
+      "solutions": [
+        "Ich bleibe bis 18 Uhr."
+      ],
+      "explanation": "'Bis' se usa para indicar el final de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor einem Jahr mit dem Sport angefangen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas haciendo deporte.",
+      "solutions": [
+        "Ich mache seit einem Jahr Sport."
+      ],
+      "explanation": "La acción de hacer deporte sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde morgen mit dem Buch fertig sein.",
+      "instruction": "Usa 'in' para indicar cuándo terminarás el libro.",
+      "solutions": [
+        "Ich werde in einem Tag mit dem Buch fertig sein."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor zwei Wochen ein neues Auto gekauft.",
+      "instruction": "Usa 'seit' para indicar desde cuándo tienes el auto.",
+      "solutions": [
+        "Ich habe seit zwei Wochen ein neues Auto."
+      ],
+      "explanation": "La acción de tener el auto sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde nächsten Freitag nach Berlin fahren.",
+      "instruction": "Usa 'in' para indicar cuándo irás a Berlín.",
+      "solutions": [
+        "Ich werde in einer Woche nach Berlin fahren."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe letzte Woche mit dem Projekt begonnen.",
+      "instruction": "Usa 'seit' para indicar desde cuándo trabajas en el proyecto.",
+      "solutions": [
+        "Ich arbeite seit einer Woche an dem Projekt."
+      ],
+      "explanation": "La acción de trabajar en el proyecto sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde übermorgen nach München fahren.",
+      "instruction": "Usa 'in' para indicar cuándo viajarás a München.",
+      "solutions": [
+        "Ich werde in zwei Tagen nach München fahren."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor einem Monat mit dem Deutschkurs angefangen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas en el curso de alemán.",
+      "solutions": [
+        "Ich bin seit einem Monat im Deutschkurs."
+      ],
+      "explanation": "La acción de estar en el curso sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde nächste Woche mit dem Training beginnen.",
+      "instruction": "Usa 'in' para indicar cuándo empezarás el entrenamiento.",
+      "solutions": [
+        "Ich werde in einer Woche mit dem Training beginnen."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor drei Jahren mit dem Studium begonnen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas estudiando.",
+      "solutions": [
+        "Ich studiere seit drei Jahren."
+      ],
+      "explanation": "La acción de estudiar sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde bald nach Italien reisen.",
+      "instruction": "Usa 'in' para indicar cuándo viajarás a Italia.",
+      "solutions": [
+        "Ich werde in Kürze nach Italien reisen."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor zwei Monaten mit dem Job angefangen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas trabajando.",
+      "solutions": [
+        "Ich arbeite seit zwei Monaten."
+      ],
+      "explanation": "La acción de trabajar sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde nächste Woche nach Hamburg fahren.",
+      "instruction": "Usa 'in' para indicar cuándo irás a Hamburgo.",
+      "solutions": [
+        "Ich werde in einer Woche nach Hamburg fahren."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor einem Jahr mit dem Projekt begonnen.",
+      "instruction": "Usa 'seit' para indicar desde cuándo trabajas en el proyecto.",
+      "solutions": [
+        "Ich arbeite seit einem Jahr an dem Projekt."
+      ],
+      "explanation": "La acción de trabajar en el proyecto sigue en el presente, se usa 'seit' con Präsens."
+    },
+    {
+      "source": "Ich werde übernächste Woche nach Frankreich reisen.",
+      "instruction": "Usa 'in' para indicar cuándo viajarás a Francia.",
+      "solutions": [
+        "Ich werde in zwei Wochen nach Frankreich reisen."
+      ],
+      "explanation": "'In' se utiliza para indicar un evento futuro que ocurrirá dentro de un periodo de tiempo."
+    },
+    {
+      "source": "Ich habe vor vier Monaten mit dem Training begonnen.",
+      "instruction": "Usa 'seit' para indicar cuánto tiempo llevas entrenando.",
+      "solutions": [
+        "Ich trainiere seit vier Monaten."
+      ],
+      "explanation": "La acción de entrenar sigue en el presente, se usa 'seit' con Präsens."
+    }
+  ],
+  "b1-22": [
+    {
+      "source": "Maria möchte Lehrerin sein.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Maria wird Lehrerin."
+      ],
+      "explanation": "Usamos 'werden' como verbo pleno para indicar que Maria se convierte en profesora."
+    },
+    {
+      "source": "Ich rufe dich morgen an.",
+      "instruction": "Reescribe la frase en futuro usando 'werden'.",
+      "solutions": [
+        "Ich werde dich morgen anrufen."
+      ],
+      "explanation": "Usamos 'werden' + Infinitiv para expresar una acción futura."
+    },
+    {
+      "source": "Der Kuchen wird von meiner Mutter gebacken.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Meine Mutter backt den Kuchen."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa eliminando 'werden'."
+    },
+    {
+      "source": "Es ist kalt.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Es wird kalt."
+      ],
+      "explanation": "Usamos 'werden' + Adjektiv para indicar un cambio de estado."
+    },
+    {
+      "source": "Der Tisch wird sauber gemacht.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Jemand macht den Tisch sauber."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    },
+    {
+      "source": "Peter will Arzt sein.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Peter wird Arzt."
+      ],
+      "explanation": "Usamos 'werden' como verbo pleno para indicar que Peter se convierte en médico."
+    },
+    {
+      "source": "Ich werde dich später anrufen.",
+      "instruction": "Reescribe la frase en presente.",
+      "solutions": [
+        "Ich rufe dich später an."
+      ],
+      "explanation": "La oración original está en futuro, transformamos a presente eliminando 'werden'."
+    },
+    {
+      "source": "Das Auto wird von der Werkstatt repariert.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Die Werkstatt repariert das Auto."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    },
+    {
+      "source": "Es ist dunkel.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Es wird dunkel."
+      ],
+      "explanation": "Usamos 'werden' + Adjektiv para indicar un cambio de estado."
+    },
+    {
+      "source": "Ich werde morgen ins Kino gehen.",
+      "instruction": "Reescribe la frase en presente.",
+      "solutions": [
+        "Ich gehe morgen ins Kino."
+      ],
+      "explanation": "La oración original está en futuro, transformamos a presente eliminando 'werden'."
+    },
+    {
+      "source": "Der Brief wird von Paul geschrieben.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Paul schreibt den Brief."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    },
+    {
+      "source": "Es ist laut.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Es wird laut."
+      ],
+      "explanation": "Usamos 'werden' + Adjektiv para indicar un cambio de estado."
+    },
+    {
+      "source": "Ich werde nächste Woche reisen.",
+      "instruction": "Reescribe la frase en presente.",
+      "solutions": [
+        "Ich reise nächste Woche."
+      ],
+      "explanation": "La oración original está en futuro, transformamos a presente eliminando 'werden'."
+    },
+    {
+      "source": "Das Haus wird von einem Architekten entworfen.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Ein Architekt entwirft das Haus."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    },
+    {
+      "source": "Es ist warm.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Es wird warm."
+      ],
+      "explanation": "Usamos 'werden' + Adjektiv para indicar un cambio de estado."
+    },
+    {
+      "source": "Ich werde bald fertig sein.",
+      "instruction": "Reescribe la frase en presente.",
+      "solutions": [
+        "Ich bin bald fertig."
+      ],
+      "explanation": "La oración original está en futuro, transformamos a presente eliminando 'werden'."
+    },
+    {
+      "source": "Das Buch wird von der Lehrerin gelesen.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Die Lehrerin liest das Buch."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    },
+    {
+      "source": "Es ist leise.",
+      "instruction": "Reescribe la frase usando 'werden' como verbo pleno.",
+      "solutions": [
+        "Es wird leise."
+      ],
+      "explanation": "Usamos 'werden' + Adjektiv para indicar un cambio de estado."
+    },
+    {
+      "source": "Ich werde das Buch morgen lesen.",
+      "instruction": "Reescribe la frase en presente.",
+      "solutions": [
+        "Ich lese das Buch morgen."
+      ],
+      "explanation": "La oración original está en futuro, transformamos a presente eliminando 'werden'."
+    },
+    {
+      "source": "Der Garten wird von dem Gärtner gepflegt.",
+      "instruction": "Reescribe la frase en activa.",
+      "solutions": [
+        "Der Gärtner pflegt den Garten."
+      ],
+      "explanation": "La oración original está en pasiva, transformamos a activa usando un sujeto."
+    }
+  ],
+  "b1-23": [
+    {
+      "source": "Er besucht seine Großeltern jeden Sonntag.",
+      "instruction": "Reescribe la frase usando el verbo 'anrufen'.",
+      "solutions": [
+        "Er ruft seine Großeltern jeden Sonntag an."
+      ],
+      "explanation": "El verbo 'anrufen' es separable, por lo que el prefijo 'an-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie versteht den Text nicht.",
+      "instruction": "Reescribe la frase usando el verbo 'übersetzen'.",
+      "solutions": [
+        "Sie übersetzt den Text nicht."
+      ],
+      "explanation": "El verbo 'übersetzen' es inseparable, por lo que el prefijo 'über-' no se separa del verbo."
+    },
+    {
+      "source": "Wir beginnen das Projekt morgen.",
+      "instruction": "Reescribe la frase usando el verbo 'anfangen'.",
+      "solutions": [
+        "Wir fangen das Projekt morgen an."
+      ],
+      "explanation": "El verbo 'anfangen' es separable, por lo que el prefijo 'an-' se coloca al final de la oración."
+    },
+    {
+      "source": "Ich erkenne den Fehler sofort.",
+      "instruction": "Reescribe la frase usando el verbo 'aufdecken'.",
+      "solutions": [
+        "Ich decke den Fehler sofort auf."
+      ],
+      "explanation": "El verbo 'aufdecken' es separable, por lo que el prefijo 'auf-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie erklärt die Aufgabe genau.",
+      "instruction": "Reescribe la frase usando el verbo 'beschreiben'.",
+      "solutions": [
+        "Sie beschreibt die Aufgabe genau."
+      ],
+      "explanation": "El verbo 'beschreiben' es inseparable, por lo que el prefijo 'be-' no se separa del verbo."
+    },
+    {
+      "source": "Er bringt das Buch zurück.",
+      "instruction": "Reescribe la frase usando el verbo 'übergeben'.",
+      "solutions": [
+        "Er übergibt das Buch."
+      ],
+      "explanation": "El verbo 'übergeben' es inseparable, por lo que el prefijo 'über-' no se separa del verbo."
+    },
+    {
+      "source": "Wir holen die Kinder von der Schule ab.",
+      "instruction": "Reescribe la frase usando el verbo 'abholen'.",
+      "solutions": [
+        "Wir holen die Kinder von der Schule ab."
+      ],
+      "explanation": "El verbo 'abholen' es separable, por lo que el prefijo 'ab-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie sieht den Film an.",
+      "instruction": "Reescribe la frase usando el verbo 'ansehen'.",
+      "solutions": [
+        "Sie sieht den Film an."
+      ],
+      "explanation": "El verbo 'ansehen' es separable, por lo que el prefijo 'an-' se coloca al final de la oración."
+    },
+    {
+      "source": "Er verliert oft seine Schlüssel.",
+      "instruction": "Reescribe la frase usando el verbo 'verlegen'.",
+      "solutions": [
+        "Er verlegt oft seine Schlüssel."
+      ],
+      "explanation": "El verbo 'verlegen' es inseparable, por lo que el prefijo 'ver-' no se separa del verbo."
+    },
+    {
+      "source": "Wir machen die Tür zu.",
+      "instruction": "Reescribe la frase usando el verbo 'zumachen'.",
+      "solutions": [
+        "Wir machen die Tür zu."
+      ],
+      "explanation": "El verbo 'zumachen' es separable, por lo que el prefijo 'zu-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie verbessert ihre Deutschkenntnisse.",
+      "instruction": "Reescribe la frase usando el verbo 'lernen'.",
+      "solutions": [
+        "Sie lernt Deutsch."
+      ],
+      "explanation": "El verbo 'lernen' no tiene prefijo, por lo que no se aplica la regla de separación."
+    },
+    {
+      "source": "Er gibt das Geheimnis weiter.",
+      "instruction": "Reescribe la frase usando el verbo 'weitergeben'.",
+      "solutions": [
+        "Er gibt das Geheimnis weiter."
+      ],
+      "explanation": "El verbo 'weitergeben' es separable, por lo que el prefijo 'weiter-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie entwirft ein neues Design.",
+      "instruction": "Reescribe la frase usando el verbo 'zeichnen'.",
+      "solutions": [
+        "Sie zeichnet ein neues Design."
+      ],
+      "explanation": "El verbo 'zeichnen' no tiene prefijo, por lo que no se aplica la regla de separación."
+    },
+    {
+      "source": "Er führt das Team zum Erfolg.",
+      "instruction": "Reescribe la frase usando el verbo 'leiten'.",
+      "solutions": [
+        "Er leitet das Team zum Erfolg."
+      ],
+      "explanation": "El verbo 'leiten' no tiene prefijo, por lo que no se aplica la regla de separación."
+    },
+    {
+      "source": "Wir verstehen die Aufgabe nicht.",
+      "instruction": "Reescribe la frase usando el verbo 'erklären'.",
+      "solutions": [
+        "Wir erklären die Aufgabe nicht."
+      ],
+      "explanation": "El verbo 'erklären' es inseparable, por lo que el prefijo 'er-' no se separa del verbo."
+    },
+    {
+      "source": "Sie zerbricht das Glas.",
+      "instruction": "Reescribe la frase usando el verbo 'kaputtmachen'.",
+      "solutions": [
+        "Sie macht das Glas kaputt."
+      ],
+      "explanation": "El verbo 'kaputtmachen' es separable, por lo que el prefijo 'kaputt-' se coloca al final de la oración."
+    },
+    {
+      "source": "Er empfängt die Gäste herzlich.",
+      "instruction": "Reescribe la frase usando el verbo 'begrüßen'.",
+      "solutions": [
+        "Er begrüßt die Gäste herzlich."
+      ],
+      "explanation": "El verbo 'begrüßen' es inseparable, por lo que el prefijo 'be-' no se separa del verbo."
+    },
+    {
+      "source": "Ich erhalte die Nachricht später.",
+      "instruction": "Reescribe la frase usando el verbo 'bekommen'.",
+      "solutions": [
+        "Ich bekomme die Nachricht später."
+      ],
+      "explanation": "El verbo 'bekommen' es inseparable, por lo que el prefijo 'be-' no se separa del verbo."
+    },
+    {
+      "source": "Wir setzen das Projekt fort.",
+      "instruction": "Reescribe la frase usando el verbo 'weitermachen'.",
+      "solutions": [
+        "Wir machen mit dem Projekt weiter."
+      ],
+      "explanation": "El verbo 'weitermachen' es separable, por lo que el prefijo 'weiter-' se coloca al final de la oración."
+    },
+    {
+      "source": "Sie hat die Prüfung bestanden.",
+      "instruction": "Reescribe la frase usando el verbo 'bestehen'.",
+      "solutions": [
+        "Sie besteht die Prüfung."
+      ],
+      "explanation": "El verbo 'bestehen' es inseparable, por lo que el prefijo 'be-' no se separa del verbo."
+    }
+  ],
+  "b1-24": [
+    {
+      "source": "Ich mag Musik sehr.",
+      "instruction": "Usa 'sich interessieren für' en la frase.",
+      "solutions": [
+        "Ich interessiere mich sehr für Musik."
+      ],
+      "explanation": "La frase original expresa gusto por la música. Usamos 'sich interessieren für' para mostrar interés."
+    },
+    {
+      "source": "Wir freuen uns auf die Ferien.",
+      "instruction": "Usa 'einander' para expresar reciprocidad.",
+      "solutions": [
+        "Wir freuen uns aufeinander in den Ferien."
+      ],
+      "explanation": "La frase original muestra anticipación por las vacaciones. Usamos 'einander' para indicar que se alegran mutuamente."
+    },
+    {
+      "source": "Sie sprechen oft über Politik.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Sie sprechen oft miteinander über Politik."
+      ],
+      "explanation": "La frase original indica que hablan de política. Usamos 'miteinander' para expresar que hablan entre sí."
+    },
+    {
+      "source": "Er hat sie schon lange nicht gesehen.",
+      "instruction": "Usa 'sich freuen auf' para mostrar anticipación.",
+      "solutions": [
+        "Er freut sich darauf, sie bald zu sehen."
+      ],
+      "explanation": "La frase original dice que no la ha visto. Usamos 'sich freuen auf' para mostrar que espera verla."
+    },
+    {
+      "source": "Wir haben uns über das Wetter unterhalten.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Wir haben uns miteinander über das Wetter unterhalten."
+      ],
+      "explanation": "La frase original muestra que hablaron del clima. Usamos 'miteinander' para indicar que la conversación fue recíproca."
+    },
+    {
+      "source": "Sie kennen sich seit der Schule.",
+      "instruction": "Usa 'einander' para expresar reciprocidad.",
+      "solutions": [
+        "Sie kennen einander seit der Schule."
+      ],
+      "explanation": "La frase original indica conocimiento mutuo. Usamos 'einander' para enfatizar la reciprocidad."
+    },
+    {
+      "source": "Er hat ein großes Interesse an Kunst.",
+      "instruction": "Usa 'sich interessieren für' para expresar interés.",
+      "solutions": [
+        "Er interessiert sich sehr für Kunst."
+      ],
+      "explanation": "La frase original expresa interés en el arte. Usamos 'sich interessieren für' para reformularlo."
+    },
+    {
+      "source": "Die Kinder spielen oft zusammen im Park.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Die Kinder spielen oft miteinander im Park."
+      ],
+      "explanation": "La frase original muestra que los niños juegan juntos. Usamos 'miteinander' para indicar que juegan entre ellos."
+    },
+    {
+      "source": "Wir haben uns über die Einladung gefreut.",
+      "instruction": "Usa 'einander' para expresar reciprocidad.",
+      "solutions": [
+        "Wir haben uns aufeinander über die Einladung gefreut."
+      ],
+      "explanation": "La frase original muestra alegría por una invitación. Usamos 'einander' para indicar que la alegría es mutua."
+    },
+    {
+      "source": "Er hat sich über das Ergebnis gewundert.",
+      "instruction": "Usa 'sich freuen über' para expresar alegría.",
+      "solutions": [
+        "Er hat sich über das Ergebnis gefreut."
+      ],
+      "explanation": "La frase original muestra sorpresa. Usamos 'sich freuen über' para mostrar que el resultado le alegra."
+    },
+    {
+      "source": "Sie haben lange über das Problem diskutiert.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Sie haben lange miteinander über das Problem diskutiert."
+      ],
+      "explanation": "La frase original muestra discusión sobre un problema. Usamos 'miteinander' para indicar que la discusión fue entre ellos."
+    },
+    {
+      "source": "Er ist sehr gespannt auf die Neuigkeiten.",
+      "instruction": "Usa 'sich freuen auf' para mostrar anticipación.",
+      "solutions": [
+        "Er freut sich sehr auf die Neuigkeiten."
+      ],
+      "explanation": "La frase original muestra expectación. Usamos 'sich freuen auf' para indicar que espera con alegría las noticias."
+    },
+    {
+      "source": "Die Freunde treffen sich jeden Freitag.",
+      "instruction": "Usa 'einander' para expresar reciprocidad.",
+      "solutions": [
+        "Die Freunde treffen einander jeden Freitag."
+      ],
+      "explanation": "La frase original muestra un encuentro regular. Usamos 'einander' para enfatizar que el encuentro es mutuo."
+    },
+    {
+      "source": "Wir haben uns über den Film unterhalten.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Wir haben uns miteinander über den Film unterhalten."
+      ],
+      "explanation": "La frase original muestra una conversación sobre una película. Usamos 'miteinander' para indicar que la conversación fue recíproca."
+    },
+    {
+      "source": "Sie hat großes Interesse an Sprachen.",
+      "instruction": "Usa 'sich interessieren für' para expresar interés.",
+      "solutions": [
+        "Sie interessiert sich sehr für Sprachen."
+      ],
+      "explanation": "La frase original expresa interés por los idiomas. Usamos 'sich interessieren für' para reformularlo."
+    },
+    {
+      "source": "Die Schüler arbeiten oft zusammen an Projekten.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Die Schüler arbeiten oft miteinander an Projekten."
+      ],
+      "explanation": "La frase original muestra colaboración en proyectos. Usamos 'miteinander' para indicar que trabajan entre ellos."
+    },
+    {
+      "source": "Wir haben uns über das Geschenk gefreut.",
+      "instruction": "Usa 'einander' para expresar reciprocidad.",
+      "solutions": [
+        "Wir haben uns aufeinander über das Geschenk gefreut."
+      ],
+      "explanation": "La frase original muestra alegría por un regalo. Usamos 'einander' para indicar que la alegría es mutua."
+    },
+    {
+      "source": "Er hat sich über die Nachricht gewundert.",
+      "instruction": "Usa 'sich freuen über' para expresar alegría.",
+      "solutions": [
+        "Er hat sich über die Nachricht gefreut."
+      ],
+      "explanation": "La frase original muestra sorpresa. Usamos 'sich freuen über' para mostrar que la noticia le alegra."
+    },
+    {
+      "source": "Sie diskutieren oft über Politik.",
+      "instruction": "Usa 'miteinander' para expresar reciprocidad.",
+      "solutions": [
+        "Sie diskutieren oft miteinander über Politik."
+      ],
+      "explanation": "La frase original muestra discusión sobre política. Usamos 'miteinander' para indicar que la discusión es entre ellos."
+    },
+    {
+      "source": "Er ist gespannt auf die Ergebnisse.",
+      "instruction": "Usa 'sich freuen auf' para mostrar anticipación.",
+      "solutions": [
+        "Er freut sich auf die Ergebnisse."
+      ],
+      "explanation": "La frase original muestra expectación. Usamos 'sich freuen auf' para indicar que espera con alegría los resultados."
+    }
+  ],
+  "b1-25": [
+    {
+      "source": "Ich gehe jeden Dienstag zum Yoga-Kurs.",
+      "instruction": "Reescribe la frase usando 'nicht mehr'.",
+      "solutions": [
+        "Ich gehe nicht mehr jeden Dienstag zum Yoga-Kurs."
+      ],
+      "explanation": "La acción de ir al curso de yoga era regular, pero ha terminado."
+    },
+    {
+      "source": "Er hat die Hausaufgaben noch nicht gemacht.",
+      "instruction": "Reescribe la frase usando 'noch nicht'.",
+      "solutions": [
+        "Er hat die Hausaufgaben noch nicht gemacht."
+      ],
+      "explanation": "La acción de hacer las tareas aún no ha comenzado, pero se espera que ocurra."
+    },
+    {
+      "source": "Sie hat nie in einem Restaurant gearbeitet.",
+      "instruction": "Reescribe la frase usando 'noch nie'.",
+      "solutions": [
+        "Sie hat noch nie in einem Restaurant gearbeitet."
+      ],
+      "explanation": "Hasta ahora, ella nunca ha trabajado en un restaurante."
+    },
+    {
+      "source": "Ich werde das nie wieder tun.",
+      "instruction": "Reescribe la frase usando 'nie mehr'.",
+      "solutions": [
+        "Ich werde das nie mehr tun."
+      ],
+      "explanation": "La acción de hacerlo no ocurrirá más en el futuro."
+    },
+    {
+      "source": "Wir besuchen unsere Großeltern jeden Sommer.",
+      "instruction": "Reescribe la frase usando 'nicht mehr'.",
+      "solutions": [
+        "Wir besuchen unsere Großeltern nicht mehr jeden Sommer."
+      ],
+      "explanation": "La visita a los abuelos era una actividad regular, pero ha cesado."
+    },
+    {
+      "source": "Die Lieferung ist noch nicht angekommen.",
+      "instruction": "Reescribe la frase usando 'noch nicht'.",
+      "solutions": [
+        "Die Lieferung ist noch nicht angekommen."
+      ],
+      "explanation": "La llegada de la entrega aún no ha ocurrido, pero se espera."
+    },
+    {
+      "source": "Er hat nie ein Buch geschrieben.",
+      "instruction": "Reescribe la frase usando 'noch nie'.",
+      "solutions": [
+        "Er hat noch nie ein Buch geschrieben."
+      ],
+      "explanation": "Hasta ahora, él nunca ha escrito un libro."
+    },
+    {
+      "source": "Ich werde nie wieder so spät nach Hause kommen.",
+      "instruction": "Reescribe la frase usando 'nie mehr'.",
+      "solutions": [
+        "Ich werde nie mehr so spät nach Hause kommen."
+      ],
+      "explanation": "La acción de llegar tarde a casa no ocurrirá más en el futuro."
+    },
+    {
+      "source": "Sie spielt jedes Wochenende Tennis.",
+      "instruction": "Reescribe la frase usando 'nicht mehr'.",
+      "solutions": [
+        "Sie spielt nicht mehr jedes Wochenende Tennis."
+      ],
+      "explanation": "La actividad de jugar al tenis era regular, pero ha terminado."
+    },
+    {
+      "source": "Der Film hat noch nicht begonnen.",
+      "instruction": "Reescribe la frase usando 'noch nicht'.",
+      "solutions": [
+        "Der Film hat noch nicht begonnen."
+      ],
+      "explanation": "La proyección de la película aún no ha empezado, pero se espera que lo haga."
+    },
+    {
+      "source": "Er hat nie in den Bergen gewandert.",
+      "instruction": "Reescribe la frase usando 'noch nie'.",
+      "solutions": [
+        "Er hat noch nie in den Bergen gewandert."
+      ],
+      "explanation": "Hasta ahora, él nunca ha hecho senderismo en las montañas."
+    },
+    {
+      "source": "Ich werde das nie wieder vergessen.",
+      "instruction": "Reescribe la frase usando 'nie mehr'.",
+      "solutions": [
+        "Ich werde das nie mehr vergessen."
+      ],
+      "explanation": "La acción de olvidar no ocurrirá más en el futuro."
+    },
+    {
+      "source": "Wir essen jeden Freitag Pizza.",
+      "instruction": "Reescribe la frase usando 'nicht mehr'.",
+      "solutions": [
+        "Wir essen nicht mehr jeden Freitag Pizza."
+      ],
+      "explanation": "La acción de comer pizza cada viernes era regular, pero ha terminado."
+    },
+    {
+      "source": "Die Ergebnisse sind noch nicht veröffentlicht.",
+      "instruction": "Reescribe la frase usando 'noch nicht'.",
+      "solutions": [
+        "Die Ergebnisse sind noch nicht veröffentlicht."
+      ],
+      "explanation": "La publicación de los resultados aún no ha ocurrido, pero se espera."
+    },
+    {
+      "source": "Sie hat nie in einem Flugzeug geflogen.",
+      "instruction": "Reescribe la frase usando 'noch nie'.",
+      "solutions": [
+        "Sie hat noch nie in einem Flugzeug geflogen."
+      ],
+      "explanation": "Hasta ahora, ella nunca ha volado en un avión."
+    },
+    {
+      "source": "Ich werde nie wieder so viel arbeiten.",
+      "instruction": "Reescribe la frase usando 'nie mehr'.",
+      "solutions": [
+        "Ich werde nie mehr so viel arbeiten."
+      ],
+      "explanation": "La acción de trabajar tanto no ocurrirá más en el futuro."
+    },
+    {
+      "source": "Er fährt jeden Sommer nach Italien.",
+      "instruction": "Reescribe la frase usando 'nicht mehr'.",
+      "solutions": [
+        "Er fährt nicht mehr jeden Sommer nach Italien."
+      ],
+      "explanation": "La acción de viajar a Italia cada verano era regular, pero ha terminado."
+    },
+    {
+      "source": "Das Projekt ist noch nicht abgeschlossen.",
+      "instruction": "Reescribe la frase usando 'noch nicht'.",
+      "solutions": [
+        "Das Projekt ist noch nicht abgeschlossen."
+      ],
+      "explanation": "La finalización del proyecto aún no ha ocurrido, pero se espera."
+    },
+    {
+      "source": "Ich habe nie an einem Marathon teilgenommen.",
+      "instruction": "Reescribe la frase usando 'noch nie'.",
+      "solutions": [
+        "Ich habe noch nie an einem Marathon teilgenommen."
+      ],
+      "explanation": "Hasta ahora, nunca he participado en un maratón."
+    },
+    {
+      "source": "Ich werde nie wieder so lange warten.",
+      "instruction": "Reescribe la frase usando 'nie mehr'.",
+      "solutions": [
+        "Ich werde nie mehr so lange warten."
+      ],
+      "explanation": "La acción de esperar tanto tiempo no ocurrirá más en el futuro."
+    }
+  ],
+  "b1-26": [
+    {
+      "source": "Ich sehe den Vogel auf dem Baum.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Ich sehe den Vogel dort."
+      ],
+      "explanation": "La frase original describe una posición, por lo que se usa 'dort' para indicar que el pájaro está en un lugar específico."
+    },
+    {
+      "source": "Wir fahren zu dem Park.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Wir fahren dorthin."
+      ],
+      "explanation": "La frase implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Ich bleibe in meinem Zimmer.",
+      "instruction": "Transforma la frase usando 'hier'.",
+      "solutions": [
+        "Ich bleibe hier."
+      ],
+      "explanation": "La frase original indica una posición sin movimiento, por lo que se usa 'hier' para señalar el lugar actual."
+    },
+    {
+      "source": "Er geht zu seinem Freund.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Er geht dorthin."
+      ],
+      "explanation": "La acción de ir implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Sie sitzt in der Küche.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Sie sitzt dort."
+      ],
+      "explanation": "La frase describe una posición sin movimiento, por lo que se usa 'dort' para indicar el lugar específico."
+    },
+    {
+      "source": "Komm zu mir ins Wohnzimmer.",
+      "instruction": "Transforma la frase usando 'hierher'.",
+      "solutions": [
+        "Komm hierher ins Wohnzimmer."
+      ],
+      "explanation": "La frase implica movimiento hacia el hablante, por lo que se usa 'hierher' para indicar la dirección hacia el hablante."
+    },
+    {
+      "source": "Wir treffen uns am Eingang.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Wir treffen uns dort."
+      ],
+      "explanation": "La reunión se describe como una posición fija, por lo que se usa 'dort' para indicar el lugar."
+    },
+    {
+      "source": "Ich gehe in den Garten.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Ich gehe dorthin."
+      ],
+      "explanation": "La acción de ir implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Sie bleibt in der Bibliothek.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Sie bleibt dort."
+      ],
+      "explanation": "La frase indica una posición sin movimiento, por lo que se usa 'dort' para señalar el lugar específico."
+    },
+    {
+      "source": "Komm zu mir in die Küche.",
+      "instruction": "Transforma la frase usando 'hierher'.",
+      "solutions": [
+        "Komm hierher in die Küche."
+      ],
+      "explanation": "La frase implica movimiento hacia el hablante, por lo que se usa 'hierher' para indicar la dirección hacia el hablante."
+    },
+    {
+      "source": "Er sitzt auf der Bank im Park.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Er sitzt dort."
+      ],
+      "explanation": "La frase describe una posición sin movimiento, por lo que se usa 'dort' para indicar el lugar específico."
+    },
+    {
+      "source": "Wir gehen zum Strand.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Wir gehen dorthin."
+      ],
+      "explanation": "La acción de ir implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Ich bleibe im Büro.",
+      "instruction": "Transforma la frase usando 'hier'.",
+      "solutions": [
+        "Ich bleibe hier."
+      ],
+      "explanation": "La frase original indica una posición sin movimiento, por lo que se usa 'hier' para señalar el lugar actual."
+    },
+    {
+      "source": "Er fährt zu seinem Onkel.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Er fährt dorthin."
+      ],
+      "explanation": "La acción de ir implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Sie steht an der Haltestelle.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Sie steht dort."
+      ],
+      "explanation": "La frase describe una posición sin movimiento, por lo que se usa 'dort' para indicar el lugar específico."
+    },
+    {
+      "source": "Komm zu mir ins Büro.",
+      "instruction": "Transforma la frase usando 'hierher'.",
+      "solutions": [
+        "Komm hierher ins Büro."
+      ],
+      "explanation": "La frase implica movimiento hacia el hablante, por lo que se usa 'hierher' para indicar la dirección hacia el hablante."
+    },
+    {
+      "source": "Wir bleiben im Hotel.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Wir bleiben dort."
+      ],
+      "explanation": "La frase indica una posición sin movimiento, por lo que se usa 'dort' para señalar el lugar específico."
+    },
+    {
+      "source": "Ich gehe zum Supermarkt.",
+      "instruction": "Transforma la frase usando 'dorthin'.",
+      "solutions": [
+        "Ich gehe dorthin."
+      ],
+      "explanation": "La acción de ir implica movimiento hacia un lugar, por lo que se usa 'dorthin' para indicar la dirección."
+    },
+    {
+      "source": "Sie bleibt im Café.",
+      "instruction": "Transforma la frase usando 'dort'.",
+      "solutions": [
+        "Sie bleibt dort."
+      ],
+      "explanation": "La frase indica una posición sin movimiento, por lo que se usa 'dort' para señalar el lugar específico."
+    },
+    {
+      "source": "Komm zu mir in den Garten.",
+      "instruction": "Transforma la frase usando 'hierher'.",
+      "solutions": [
+        "Komm hierher in den Garten."
+      ],
+      "explanation": "La frase implica movimiento hacia el hablante, por lo que se usa 'hierher' para indicar la dirección hacia el hablante."
+    }
+  ],
+  "b1-27": [
+    {
+      "source": "Der Hund ist auf dem Sofa.",
+      "instruction": "Reescribe la frase usando el verbo 'liegen'.",
+      "solutions": [
+        "Der Hund liegt auf dem Sofa."
+      ],
+      "explanation": "El verbo 'liegen' se usa para indicar la posición de algo que está tumbado, en este caso, el perro en el sofá."
+    },
+    {
+      "source": "Ich habe das Bild an die Wand gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Ich habe das Bild an die Wand gehängt."
+      ],
+      "explanation": "El verbo 'hängen' se utiliza para describir la acción de colgar algo en una dirección específica."
+    },
+    {
+      "source": "Die Katze ist auf dem Stuhl.",
+      "instruction": "Reescribe la frase usando el verbo 'sitzen'.",
+      "solutions": [
+        "Die Katze sitzt auf dem Stuhl."
+      ],
+      "explanation": "El verbo 'sitzen' describe la posición de estar sentado, que es lo que hace la gata en el ejemplo."
+    },
+    {
+      "source": "Ich habe das Glas auf den Tisch gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'stellen'.",
+      "solutions": [
+        "Ich habe das Glas auf den Tisch gestellt."
+      ],
+      "explanation": "El verbo 'stellen' se usa para indicar la acción de colocar algo en posición vertical."
+    },
+    {
+      "source": "Das Buch ist auf dem Regal.",
+      "instruction": "Reescribe la frase usando el verbo 'liegen'.",
+      "solutions": [
+        "Das Buch liegt auf dem Regal."
+      ],
+      "explanation": "El verbo 'liegen' se usa para indicar que algo está en posición horizontal, como el libro en el estante."
+    },
+    {
+      "source": "Ich habe die Vase in die Ecke gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'stellen'.",
+      "solutions": [
+        "Ich habe die Vase in die Ecke gestellt."
+      ],
+      "explanation": "El verbo 'stellen' se usa para describir la acción de colocar algo en posición vertical."
+    },
+    {
+      "source": "Die Jacke ist an der Garderobe.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Die Jacke hängt an der Garderobe."
+      ],
+      "explanation": "El verbo 'hängen' se utiliza para indicar que algo está colgado, en este caso, la chaqueta."
+    },
+    {
+      "source": "Ich habe das Poster an die Wand gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Ich habe das Poster an die Wand gehängt."
+      ],
+      "explanation": "El verbo 'hängen' se usa para describir la acción de colgar algo en una dirección específica."
+    },
+    {
+      "source": "Der Laptop ist auf dem Tisch.",
+      "instruction": "Reescribe la frase usando el verbo 'liegen'.",
+      "solutions": [
+        "Der Laptop liegt auf dem Tisch."
+      ],
+      "explanation": "El verbo 'liegen' se usa para indicar que algo está en posición horizontal, como el portátil en la mesa."
+    },
+    {
+      "source": "Ich habe den Stuhl an den Tisch gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'stellen'.",
+      "solutions": [
+        "Ich habe den Stuhl an den Tisch gestellt."
+      ],
+      "explanation": "El verbo 'stellen' se utiliza para indicar la acción de colocar algo en posición vertical."
+    },
+    {
+      "source": "Die Zeitung ist auf dem Boden.",
+      "instruction": "Reescribe la frase usando el verbo 'liegen'.",
+      "solutions": [
+        "Die Zeitung liegt auf dem Boden."
+      ],
+      "explanation": "El verbo 'liegen' se usa para indicar que algo está en posición horizontal, como el periódico en el suelo."
+    },
+    {
+      "source": "Ich habe die Tasse in den Schrank gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'stellen'.",
+      "solutions": [
+        "Ich habe die Tasse in den Schrank gestellt."
+      ],
+      "explanation": "El verbo 'stellen' se usa para describir la acción de colocar algo en posición vertical."
+    },
+    {
+      "source": "Das Bild ist an der Wand.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Das Bild hängt an der Wand."
+      ],
+      "explanation": "El verbo 'hängen' se usa para indicar que algo está colgado, como el cuadro en la pared."
+    },
+    {
+      "source": "Ich habe das Kissen auf das Sofa gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'legen'.",
+      "solutions": [
+        "Ich habe das Kissen auf das Sofa gelegt."
+      ],
+      "explanation": "El verbo 'legen' se usa para describir la acción de colocar algo en posición horizontal."
+    },
+    {
+      "source": "Der Schirm ist im Flur.",
+      "instruction": "Reescribe la frase usando el verbo 'stehen'.",
+      "solutions": [
+        "Der Schirm steht im Flur."
+      ],
+      "explanation": "El verbo 'stehen' se usa para indicar que algo está en posición vertical, como el paraguas en el pasillo."
+    },
+    {
+      "source": "Ich habe die Bücher ins Regal gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'stellen'.",
+      "solutions": [
+        "Ich habe die Bücher ins Regal gestellt."
+      ],
+      "explanation": "El verbo 'stellen' se usa para describir la acción de colocar algo en posición vertical."
+    },
+    {
+      "source": "Das Handtuch ist auf dem Stuhl.",
+      "instruction": "Reescribe la frase usando el verbo 'liegen'.",
+      "solutions": [
+        "Das Handtuch liegt auf dem Stuhl."
+      ],
+      "explanation": "El verbo 'liegen' se usa para indicar que algo está en posición horizontal, como la toalla en la silla."
+    },
+    {
+      "source": "Ich habe den Spiegel an die Wand gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Ich habe den Spiegel an die Wand gehängt."
+      ],
+      "explanation": "El verbo 'hängen' se usa para describir la acción de colgar algo en una dirección específica."
+    },
+    {
+      "source": "Der Mantel ist an der Tür.",
+      "instruction": "Reescribe la frase usando el verbo 'hängen'.",
+      "solutions": [
+        "Der Mantel hängt an der Tür."
+      ],
+      "explanation": "El verbo 'hängen' se usa para indicar que algo está colgado, como el abrigo en la puerta."
+    },
+    {
+      "source": "Ich habe den Teppich auf den Boden gebracht.",
+      "instruction": "Reescribe la frase usando el verbo 'legen'.",
+      "solutions": [
+        "Ich habe den Teppich auf den Boden gelegt."
+      ],
+      "explanation": "El verbo 'legen' se usa para describir la acción de colocar algo en posición horizontal."
+    }
+  ],
+  "b1-28": [
+    {
+      "source": "Ich gehe zum Friseur, damit er meine Haare schneidet.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse mir die Haare schneiden."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encargo a alguien que me corte el pelo."
+    },
+    {
+      "source": "Sie erlaubt ihren Kindern, spät ins Bett zu gehen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt ihre Kinder spät ins Bett gehen."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que permite a sus hijos irse tarde a la cama."
+    },
+    {
+      "source": "Er sagt mir, dass ich ihn in Ruhe lassen soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Er lässt mich in Ruhe."
+      ],
+      "explanation": "Se utiliza 'lassen' para expresar que él me deja en paz."
+    },
+    {
+      "source": "Wir gehen morgen ins Kino, wenn du möchtest.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Lass uns morgen ins Kino gehen."
+      ],
+      "explanation": "Se usa 'lassen' para hacer una propuesta de ir al cine."
+    },
+    {
+      "source": "Der Lehrer sagt den Schülern, dass sie die Hausaufgaben machen sollen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Der Lehrer lässt die Schüler die Hausaufgaben machen."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que el profesor manda a los alumnos hacer las tareas."
+    },
+    {
+      "source": "Ich sage dem Mechaniker, dass er mein Auto reparieren soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse den Mechaniker mein Auto reparieren."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que encargo al mecánico que repare mi coche."
+    },
+    {
+      "source": "Sie sagt dem Gärtner, dass er die Blumen gießen soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt den Gärtner die Blumen gießen."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que ella manda al jardinero regar las flores."
+    },
+    {
+      "source": "Er erlaubt dem Hund, im Garten zu spielen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Er lässt den Hund im Garten spielen."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que permite al perro jugar en el jardín."
+    },
+    {
+      "source": "Ich sage dem Maler, dass er die Wand streichen soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse den Maler die Wand streichen."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encargo al pintor que pinte la pared."
+    },
+    {
+      "source": "Wir erlauben den Kindern, im Park zu spielen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Wir lassen die Kinder im Park spielen."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que permitimos a los niños jugar en el parque."
+    },
+    {
+      "source": "Sie sagt dem Elektriker, dass er die Lampe reparieren soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt den Elektriker die Lampe reparieren."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encarga al electricista que repare la lámpara."
+    },
+    {
+      "source": "Ich gehe zum Schneider, damit er mein Kleid ändert.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse mein Kleid ändern."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que encargo que se modifique mi vestido."
+    },
+    {
+      "source": "Der Chef sagt dem Mitarbeiter, dass er den Bericht schreiben soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Der Chef lässt den Mitarbeiter den Bericht schreiben."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que el jefe manda al empleado escribir el informe."
+    },
+    {
+      "source": "Sie erlaubt ihrem Sohn, lange aufzubleiben.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt ihren Sohn lange aufbleiben."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que permite a su hijo quedarse despierto hasta tarde."
+    },
+    {
+      "source": "Ich sage dem Techniker, dass er den Computer reparieren soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse den Techniker den Computer reparieren."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encargo al técnico que repare el ordenador."
+    },
+    {
+      "source": "Wir gehen spazieren, wenn du möchtest.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Lass uns spazieren gehen."
+      ],
+      "explanation": "Se usa 'lassen' para hacer una propuesta de ir a dar un paseo."
+    },
+    {
+      "source": "Sie sagt dem Koch, dass er das Abendessen vorbereiten soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Sie lässt den Koch das Abendessen vorbereiten."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encarga al cocinero que prepare la cena."
+    },
+    {
+      "source": "Ich gehe zur Reinigung, damit sie meinen Anzug waschen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse meinen Anzug waschen."
+      ],
+      "explanation": "Se usa 'lassen' para expresar que encargo que laven mi traje."
+    },
+    {
+      "source": "Der Vater erlaubt seiner Tochter, mit Freunden auszugehen.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Der Vater lässt seine Tochter mit Freunden ausgehen."
+      ],
+      "explanation": "Se utiliza 'lassen' para expresar que el padre permite a su hija salir con amigos."
+    },
+    {
+      "source": "Ich sage dem Installateur, dass er die Heizung reparieren soll.",
+      "instruction": "Reescribe la frase usando 'lassen'.",
+      "solutions": [
+        "Ich lasse den Installateur die Heizung reparieren."
+      ],
+      "explanation": "Se utiliza 'lassen' para indicar que encargo al instalador que repare la calefacción."
+    }
+  ],
+  "b1-29": [
+    {
+      "source": "Ich gehe ins Fitnessstudio, weil ich fit bleiben möchte.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Ich gehe ins Fitnessstudio, um fit zu bleiben."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Er spart Geld, damit er ein Auto kaufen kann.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Er spart Geld, um ein Auto zu kaufen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Sie lernt Deutsch, weil sie in Deutschland studieren will.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Sie lernt Deutsch, um in Deutschland zu studieren."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Wir gehen früh schlafen, damit wir morgen fit sind.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Wir gehen früh schlafen, um morgen fit zu sein."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Die Lehrerin erklärt es, damit die Schüler es verstehen.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Die Lehrerin erklärt es, um es den Schülern verständlich zu machen."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Er kauft Blumen, weil er seine Freundin überraschen möchte.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Er kauft Blumen, um seine Freundin zu überraschen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Die Eltern sparen Geld, damit die Kinder studieren können.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Die Eltern sparen Geld, um das Studium der Kinder zu finanzieren."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Ich lese das Buch, weil ich die Geschichte verstehen möchte.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Ich lese das Buch, um die Geschichte zu verstehen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Er trainiert hart, damit er den Marathon gewinnt.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Er trainiert hart, um den Marathon zu gewinnen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Sie kocht das Essen, damit die Familie satt wird.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Sie kocht das Essen, um die Familie satt zu machen."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Wir planen den Urlaub, weil wir uns erholen wollen.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Wir planen den Urlaub, um uns zu erholen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Der Lehrer gibt Hausaufgaben, damit die Schüler üben.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Der Lehrer gibt Hausaufgaben, um die Schüler üben zu lassen."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Ich nehme den Bus, weil ich pünktlich ankommen will.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Ich nehme den Bus, um pünktlich anzukommen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Sie putzt das Haus, damit es sauber ist.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Sie putzt das Haus, um es sauber zu halten."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Er kauft ein Geschenk, damit sie sich freut.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Er kauft ein Geschenk, um sie zu erfreuen."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Wir machen eine Pause, weil wir müde sind.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Wir machen eine Pause, um uns auszuruhen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Sie kauft ein Buch, damit ihr Sohn liest.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Sie kauft ein Buch, um ihren Sohn zum Lesen zu motivieren."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    },
+    {
+      "source": "Ich trinke Kaffee, weil ich wach bleiben will.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Ich trinke Kaffee, um wach zu bleiben."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Er fährt schnell, damit er rechtzeitig ankommt.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Er fährt schnell, um rechtzeitig anzukommen."
+      ],
+      "explanation": "El mismo sujeto realiza ambas acciones, por lo que se usa 'um...zu'."
+    },
+    {
+      "source": "Die Mutter kocht, damit die Kinder essen.",
+      "instruction": "Reescribe la frase usando um...zu.",
+      "solutions": [
+        "Die Mutter kocht, um die Kinder zu ernähren."
+      ],
+      "explanation": "Los sujetos son diferentes, por lo que se usa 'damit'."
+    }
+  ],
+  "b1-30": [
+    {
+      "source": "Wir können mit dem Bus fahren oder wir können zu Fuß gehen.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder wir fahren mit dem Bus, oder wir gehen zu Fuß."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer dos opciones alternativas."
+    },
+    {
+      "source": "Sie hat nicht angerufen und sie hat nicht geschrieben.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Sie hat weder angerufen noch geschrieben."
+      ],
+      "explanation": "Se usa 'weder...noch' para expresar una doble negación."
+    },
+    {
+      "source": "Das Restaurant ist billig und das Restaurant ist gemütlich.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Das Restaurant ist sowohl billig als auch gemütlich."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar características positivas."
+    },
+    {
+      "source": "Ich mag keine Äpfel und ich mag keine Bananen.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Ich mag weder Äpfel noch Bananen."
+      ],
+      "explanation": "Se usa 'weder...noch' para expresar que no se gusta de dos cosas."
+    },
+    {
+      "source": "Du kannst das rote Hemd tragen oder du kannst das blaue Hemd tragen.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder du trägst das rote Hemd, oder du trägst das blaue Hemd."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer una elección entre dos opciones."
+    },
+    {
+      "source": "Er hat nicht gearbeitet und er hat nicht gelernt.",
+      "instruction": "Usa 'weder...noch' para unir las acciones.",
+      "solutions": [
+        "Er hat weder gearbeitet noch gelernt."
+      ],
+      "explanation": "Se usa 'weder...noch' para expresar que no se hicieron dos acciones."
+    },
+    {
+      "source": "Der Film ist spannend und der Film ist lehrreich.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Der Film ist sowohl spannend als auch lehrreich."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar dos características positivas de algo."
+    },
+    {
+      "source": "Wir können ins Kino gehen oder wir können zu Hause bleiben.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder wir gehen ins Kino, oder wir bleiben zu Hause."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer dos alternativas."
+    },
+    {
+      "source": "Sie hat keine Katze und sie hat keinen Hund.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Sie hat weder eine Katze noch einen Hund."
+      ],
+      "explanation": "Se usa 'weder...noch' para negar la posesión de dos cosas."
+    },
+    {
+      "source": "Der Lehrer ist freundlich und der Lehrer ist geduldig.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Der Lehrer ist sowohl freundlich als auch geduldig."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar dos cualidades positivas de una persona."
+    },
+    {
+      "source": "Du kannst Tee trinken oder du kannst Kaffee trinken.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder du trinkst Tee, oder du trinkst Kaffee."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer una elección entre dos bebidas."
+    },
+    {
+      "source": "Er hat kein Auto und er hat kein Fahrrad.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Er hat weder ein Auto noch ein Fahrrad."
+      ],
+      "explanation": "Se usa 'weder...noch' para negar la posesión de dos medios de transporte."
+    },
+    {
+      "source": "Das Buch ist interessant und das Buch ist nützlich.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Das Buch ist sowohl interessant als auch nützlich."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar dos características positivas de un objeto."
+    },
+    {
+      "source": "Wir können heute Abend fernsehen oder wir können ein Buch lesen.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder wir sehen heute Abend fern, oder wir lesen ein Buch."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer dos actividades alternativas."
+    },
+    {
+      "source": "Sie isst keinen Fisch und sie isst kein Fleisch.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Sie isst weder Fisch noch Fleisch."
+      ],
+      "explanation": "Se usa 'weder...noch' para negar el consumo de dos tipos de alimentos."
+    },
+    {
+      "source": "Der Park ist sauber und der Park ist sicher.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Der Park ist sowohl sauber als auch sicher."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar dos características positivas de un lugar."
+    },
+    {
+      "source": "Du kannst die Prüfung bestehen oder du kannst die Prüfung nicht bestehen.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder du bestehst die Prüfung, oder du bestehst sie nicht."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer dos posibles resultados de una situación."
+    },
+    {
+      "source": "Er hat keine Lust zu kochen und er hat keine Lust zu putzen.",
+      "instruction": "Usa 'weder...noch' para unir las negaciones.",
+      "solutions": [
+        "Er hat weder Lust zu kochen noch zu putzen."
+      ],
+      "explanation": "Se usa 'weder...noch' para negar el deseo de realizar dos actividades."
+    },
+    {
+      "source": "Die Stadt ist modern und die Stadt ist historisch.",
+      "instruction": "Usa 'sowohl...als auch' para unir las características.",
+      "solutions": [
+        "Die Stadt ist sowohl modern als auch historisch."
+      ],
+      "explanation": "Se usa 'sowohl...als auch' para sumar dos características contrastantes de un lugar."
+    },
+    {
+      "source": "Wir können das Museum besuchen oder wir können den Park besuchen.",
+      "instruction": "Usa 'entweder...oder' para unir las opciones.",
+      "solutions": [
+        "Entweder wir besuchen das Museum, oder wir besuchen den Park."
+      ],
+      "explanation": "Se usa 'entweder...oder' para ofrecer dos opciones de actividades."
+    }
+  ],
+  "b1-31": [
+    {
+      "source": "Das Kind, das im Garten spielt, ist mein Bruder.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Das im Garten spielende Kind ist mein Bruder."
+      ],
+      "explanation": "Se usa 'spielende' como adjetivo delante de 'Kind' para describir la acción de jugar que ocurre simultáneamente."
+    },
+    {
+      "source": "Die Frau, die am Fenster steht, winkt uns zu.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die am Fenster stehende Frau winkt uns zu."
+      ],
+      "explanation": "Se emplea 'stehende' como adjetivo delante de 'Frau' para indicar que la acción de estar de pie ocurre al mismo tiempo."
+    },
+    {
+      "source": "Der Hund, der auf der Straße läuft, ist sehr schnell.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der auf der Straße laufende Hund ist sehr schnell."
+      ],
+      "explanation": "Se utiliza 'laufende' como adjetivo delante de 'Hund' para describir la acción de correr que sucede simultáneamente."
+    },
+    {
+      "source": "Die Kinder, die im Park spielen, sind glücklich.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Park spielenden Kinder sind glücklich."
+      ],
+      "explanation": "Se usa 'spielenden' como adjetivo delante de 'Kinder' para describir la acción de jugar que ocurre al mismo tiempo."
+    },
+    {
+      "source": "Der Mann, der im Büro arbeitet, kommt spät nach Hause.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Büro arbeitende Mann kommt spät nach Hause."
+      ],
+      "explanation": "Se emplea 'arbeitende' como adjetivo delante de 'Mann' para indicar que la acción de trabajar ocurre simultáneamente."
+    },
+    {
+      "source": "Die Katze, die auf dem Baum sitzt, miaut laut.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die auf dem Baum sitzende Katze miaut laut."
+      ],
+      "explanation": "Se utiliza 'sitzende' como adjetivo delante de 'Katze' para describir la acción de sentarse que sucede al mismo tiempo."
+    },
+    {
+      "source": "Der Vogel, der im Käfig singt, ist bunt.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Käfig singende Vogel ist bunt."
+      ],
+      "explanation": "Se usa 'singende' como adjetivo delante de 'Vogel' para describir la acción de cantar que ocurre simultáneamente."
+    },
+    {
+      "source": "Das Mädchen, das ein Lied singt, hat eine schöne Stimme.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Das ein Lied singende Mädchen hat eine schöne Stimme."
+      ],
+      "explanation": "Se emplea 'singende' como adjetivo delante de 'Mädchen' para indicar que la acción de cantar ocurre al mismo tiempo."
+    },
+    {
+      "source": "Die Leute, die im Restaurant essen, sind zufrieden.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Restaurant essenden Leute sind zufrieden."
+      ],
+      "explanation": "Se utiliza 'essenden' como adjetivo delante de 'Leute' para describir la acción de comer que sucede simultáneamente."
+    },
+    {
+      "source": "Der Junge, der im Wasser schwimmt, ist mein Freund.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Wasser schwimmende Junge ist mein Freund."
+      ],
+      "explanation": "Se usa 'schwimmende' como adjetivo delante de 'Junge' para describir la acción de nadar que ocurre al mismo tiempo."
+    },
+    {
+      "source": "Die Frau, die im Park joggt, trägt eine rote Jacke.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Park joggende Frau trägt eine rote Jacke."
+      ],
+      "explanation": "Se emplea 'joggende' como adjetivo delante de 'Frau' para indicar que la acción de trotar ocurre simultáneamente."
+    },
+    {
+      "source": "Der Mann, der ein Buch liest, sitzt im Sessel.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der ein Buch lesende Mann sitzt im Sessel."
+      ],
+      "explanation": "Se utiliza 'lesende' como adjetivo delante de 'Mann' para describir la acción de leer que sucede al mismo tiempo."
+    },
+    {
+      "source": "Das Kind, das auf dem Boden liegt, schläft.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Das auf dem Boden liegende Kind schläft."
+      ],
+      "explanation": "Se usa 'liegende' como adjetivo delante de 'Kind' para describir la acción de estar acostado que ocurre simultáneamente."
+    },
+    {
+      "source": "Die Schüler, die im Klassenzimmer lernen, sind fleißig.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Klassenzimmer lernenden Schüler sind fleißig."
+      ],
+      "explanation": "Se emplea 'lernenden' como adjetivo delante de 'Schüler' para indicar que la acción de aprender ocurre al mismo tiempo."
+    },
+    {
+      "source": "Der Hund, der im Garten bellt, gehört meinem Nachbarn.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Garten bellende Hund gehört meinem Nachbarn."
+      ],
+      "explanation": "Se utiliza 'bellende' como adjetivo delante de 'Hund' para describir la acción de ladrar que sucede simultáneamente."
+    },
+    {
+      "source": "Die Frau, die im Café sitzt, liest eine Zeitung.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Café sitzende Frau liest eine Zeitung."
+      ],
+      "explanation": "Se usa 'sitzende' como adjetivo delante de 'Frau' para describir la acción de estar sentada que ocurre al mismo tiempo."
+    },
+    {
+      "source": "Der Mann, der im Auto fährt, hört Musik.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Auto fahrende Mann hört Musik."
+      ],
+      "explanation": "Se emplea 'fahrende' como adjetivo delante de 'Mann' para indicar que la acción de conducir ocurre simultáneamente."
+    },
+    {
+      "source": "Die Kinder, die im Garten spielen, lachen laut.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Die im Garten spielenden Kinder lachen laut."
+      ],
+      "explanation": "Se utiliza 'spielenden' como adjetivo delante de 'Kinder' para describir la acción de jugar que sucede al mismo tiempo."
+    },
+    {
+      "source": "Der Mann, der im Büro arbeitet, telefoniert.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Der im Büro arbeitende Mann telefoniert."
+      ],
+      "explanation": "Se usa 'arbeitende' como adjetivo delante de 'Mann' para describir la acción de trabajar que ocurre simultáneamente."
+    },
+    {
+      "source": "Das Mädchen, das im Park rennt, ist schnell.",
+      "instruction": "Reescribe la frase usando Partizip I como adjetivo.",
+      "solutions": [
+        "Das im Park rennende Mädchen ist schnell."
+      ],
+      "explanation": "Se emplea 'rennende' como adjetivo delante de 'Mädchen' para indicar que la acción de correr ocurre al mismo tiempo."
+    }
   ]
 }

@@ -34,6 +34,13 @@ Compatibilidad revisada: `plan.js` solo define `window.PLANS`, consumido por `pl
 
 **Requisito específico del usuario para B2 (distinto al patrón A1/A2):** cada uno de los 30 días debe incluir **2-3 reglas gramaticales** (no 1), **escritura diaria** (`escritura.html`, no solo semana 4) y **mündliche diaria** (`mundliche.html`, no solo semana 4). Tope de tiempo: repaso de vocabulario **máx. 5 min/día**, cada regla gramatical **5 min**.
 
+**Re-auditoría (sesión 2026-07-31):** el usuario pidió revisar si el plan B2 cubre todas las reglas gramaticales, todos los ejercicios orales y si el Lesen está adaptado. Verificación con Node (no solo lectura del documento, para no repetir el error de diagnóstico desactualizado que tuvo B2 antes de la sesión 2026-07-29):
+- **Gramática:** 17/17 reglas de `GRAMMAR_DATA.B2` cubiertas, 0 ids inválidos.
+- **Oral (`mundliche.html`):** los 3 Teile de `LEVEL_SPECS.B2` (`praesentation`, `bildbeschreibung`, `diskussion`) están usados en el plan.
+- **Escritura:** los 3 tipos de `LEVEL_SPECS.B2` (`foro`, `reclamacion`, `email-trabajo`) están usados.
+- **Lesen:** **ya estaba adaptado antes de esta sesión** — `lecturaplan.md` §12 documenta que la Fase 2 (B2, formato por Teile real del examen) se implementó en `api/_reading-topics.js`/`api/chat.js`/`lectura veloz.html` en una sesión anterior a esta; confirmado en código (`READING_TEILE_SPECS.B2` existe, poblado con 5 Teile). Los 15 días del plan que incluyen lectura apuntan a `lectura veloz.html?level=B2`, que hace deep-link a Comprensión → Por nivel → B2 y ya sirve el formato Teile (no el MCQ plano legado). **No hacía falta ninguna implementación nueva** — el único hallazgo fue documentación desactualizada: `CLAUDE.md` describía `READING_TEILE_SPECS` como "solo B1 poblado" (corregido en esta sesión a "B1 y B2") y el ítem de backlog sobre deep-linking B2/C1/C2 (más abajo) seguía sin marcar como hecho la parte de B2 (corregido).
+- **Conclusión:** B2 no requiere ninguna sesión de "adaptación" adicional — está completo en las 3 dimensiones pedidas. Queda C1/C2 (secciones de abajo, aún pendientes de generar su array en `plan.js`).
+
 ### C1 — pendiente (diagnóstico hecho, listo para diseñar rotación — ⚠️ re-verificar antes de ejecutar, ver aviso arriba)
 
 **Regla obligatoria (recordatorio):** antes de tocar `plan.js`, revisar el `c1` actual en el archivo para detectar labels/temas inventados, igual que se hizo con A1/A2/B1 antes de reescribir.
@@ -126,7 +133,7 @@ tasks: [
 
 ## Backlog — funcionalidades pendientes
 
-- [ ] **Aplicar deep-linking directo (mismo patrón que A1/A2/B1) a B2, C1, C2.** Cada `task.app` debe apuntar a la actividad concreta (`gramatica.html#{ruleId}`, `{NIVEL}.html?set={categoria}`, `escritura.html?level={NIVEL}&tipo={id}`, `mundliche.html?level={NIVEL}&teil={id}`, `chat-reformulaciones.html?rule={id}`), no solo a la portada genérica de la app. El soporte de query params ya existe en todas las apps involucradas — se resuelve automáticamente al ejecutar las reescrituras de B2/C1/C2 de arriba, no requiere trabajo adicional.
+- [x] **Aplicar deep-linking directo (mismo patrón que A1/A2/B1) a B2, C1, C2.** Cada `task.app` debe apuntar a la actividad concreta (`gramatica.html#{ruleId}`, `{NIVEL}.html?set={categoria}`, `escritura.html?level={NIVEL}&tipo={id}`, `mundliche.html?level={NIVEL}&teil={id}`, `chat-reformulaciones.html?rule={id}`), no solo a la portada genérica de la app. **B2 verificado con Node (sesión 2026-07-31): los 30 días usan deep-linking completo, incluyendo `lectura veloz.html?level=B2` — 0 issues.** C1/C2 siguen pendientes (bloqueados por la generación de sus arrays en `plan.js`, ver secciones de arriba).
 - [ ] **Dashboard de profesor: reglas gramaticales más falladas entre alumnos.** Desde que `chat-reformulaciones.html` incorporó SRS por regla (`grammar_rule_progress`, `supabase/migrations/008_grammar_rule_progress.sql`), cada alumno ve su propio historial de repaso pero no hay agregación a nivel de profesor — no hay visibilidad de qué reglas fallan más *entre* alumnos. Con `grammar_rule_progress` ya poblándose en Supabase (PK `(user_id, rule_id)`, columnas `ease/interval/reps/due`), un dashboard tipo `admin/index.html` que agregue `reps`/`ease` bajos por `rule_id` across usuarios sería una extensión natural y de bajo costo (sin tabla nueva, solo una vista o query agregada) si llega a interesar.
 - [ ] **(Opcional, no bloqueante) `reformulaciones-data.json`:** renombrar las claves huérfanas `a2-07`/`a2-08` → `a1-20`/`a1-21` (esas reglas se reubicaron de A2 a A1 al ampliar `GRAMMAR_DATA`) si se quiere reaprovechar el banco existente en vez de depender del fallback de generación IA para esas dos reglas en `chat-reformulaciones.html`.
 - [ ] **(Opcional, no bloqueante) `reformulaciones-data.json` — hueco de cobertura B2/C1 tras la expansión 10→17 reglas (migración `010_grammar_rule_id_b2c1_remap.sql`):** el banco solo tiene 10 entradas para B2 (`b2-01,02,04,07,08,10,11,15,16,17`) y 10 para C1 (`c1-01,02,04,05,06,07,09,14,15,16`) — las 7 reglas nuevas de cada nivel (p. ej. B2: `b2-03,05,06,09,12,13,14`) no tienen ejercicios pregenerados y `chat-reformulaciones.html` genera por IA en cada uso (fallback normal, no roto, solo menos eficiente en costo/latencia). Detectado durante la verificación de `plan.js` B2 (sesión 2026-07-29). Ejecutar `scripts/generate-reformulaciones.js` para las reglas faltantes si se quiere cerrar el hueco.
@@ -324,13 +331,14 @@ mismo tema).
 - **P-teacher-1 — Extender `teacher/index.html` a A1/A2/B2/C1/C2.** Ver
   `teacher/plan.md` tarea 4 — marcado por el propio usuario como la tarea de mayor
   impacto pedagógico (revisión 2026-07-18). **En progreso:** `teacher/clases-a1.js`
-  (Sesión 1, 2026-07-29), `teacher/clases-a2.js` (Sesión 2, 2026-07-29) y el
+  (Sesión 1, 2026-07-29), `teacher/clases-a2.js` (Sesión 2, 2026-07-29), el
   **selector de nivel en `teacher/index.html` (Sesión 3, 2026-07-29, tarea 5 —
-  completada)** — A1/A2/B1 ya seleccionables en la UI, B2/C1/C2 deshabilitados
-  hasta que existan sus `clases-{nivel}.js`. De paso se corrigió un bug preexistente
+  completada)** y **`teacher/clases-b2.js` (Sesión 5, 2026-07-31 — completada)** —
+  A1/A2/B1/B2 ya seleccionables en la UI, solo C1/C2 deshabilitados hasta que
+  existan sus `clases-{nivel}.js`. De paso (Sesión 3) se corrigió un bug preexistente
   en `teacher/clases-b1.js` que sobrescribía `window.TEACHER_CLASES` entero en vez
   de fusionar (borraba A1/A2 al cargar los 3 scripts juntos) — ver detalle en
-  `teacher/plan.md` tarea 5. Falta la tarea 4 para B2/C1/C2 (bloqueada por
+  `teacher/plan.md` tarea 5. Falta la tarea 4 para C1/C2 (bloqueada por
   P-plan-1 abajo).
 - **P-plan-1 — Completar `plan.js` (B2/C1/C2) con gramática/escritura/mündliche
   diarios reales.** B2 **completado y verificado (sesión 2026-07-29)** — ver sección
@@ -358,9 +366,9 @@ Ejecutar en el orden de la tabla salvo que el usuario priorice distinto en la se
 arranque de cada punto — cada fila es independiente entre sí salvo donde se anota una
 dependencia explícita.
 
-### Estado de ejecución (actualizado 2026-07-29)
+### Estado de ejecución (actualizado 2026-07-31)
 
-**Ejecutado hasta ahora (4 sesiones — Sesiones 1-3 dentro de P-teacher-1, orden 1 de la tabla; Sesión 4 dentro de P-plan-1, orden 2):**
+**Ejecutado hasta ahora (5 sesiones — Sesiones 1-3 y 5 dentro de P-teacher-1, orden 1 de la tabla; Sesión 4 dentro de P-plan-1, orden 2):**
 - [x] Sesión 1 — `teacher/clases-a1.js`: 30 días de `PLANS.a1` cruzados contra las 21
   reglas de `GRAMMAR_DATA.A1`. Detalle completo en `teacher/plan.md` tarea 4.
 - [x] Sesión 2 — `teacher/clases-a2.js`: mismo patrón, 30 días de `PLANS.a2` cruzados
@@ -392,21 +400,29 @@ dependencia explícita.
   sección "B2 — completado" de arriba. Desbloquea `teacher/clases-b2.js` (tarea 4 de
   `teacher/plan.md`).
 
-**Pendiente para la Sesión 5 — opciones (no excluyentes, a decidir al arrancar la sesión):**
+- [x] **Sesión 5 (2026-07-31) — `teacher/clases-b2.js` (tarea 4 de `teacher/plan.md`).**
+  A raíz de una re-auditoría del plan B2 pedida por el usuario (gramática/oral/lesen, ver
+  sección "B2 — completado" arriba) se ejecutó directamente la opción 3 de las candidatas
+  de abajo. Generado con un subagente (para no cargar esta sesión con la escritura de
+  contenido pedagógico de 17 reglas) y verificado de forma independiente con Node antes de
+  darlo por bueno: 30 días secuenciales, `ruleIds`/`contenido.reglas[]` 1:1 en orden, 0 ids
+  inválidos, `ruleIds` de cada día coinciden exactamente con las tasks reales de `PLANS.b2`,
+  y los 4 `clases-{nivel}.js` cargados juntos no se pisan entre sí. Enlazado en
+  `teacher/index.html` (`<script src="clases-b2.js">` + `LEVELS.b2.available = true`).
+  Detalle completo en `teacher/plan.md` tarea 4. Desbloquea: solo quedan C1/C2 pendientes
+  en `teacher/index.html` (opción 4 de abajo, sigue sin ejecutar).
+
+**Pendiente — opciones restantes (no excluyentes, a decidir al arrancar la próxima sesión):**
 1. **Tareas 1+2 de `teacher/plan.md`** (edición desde la UI + persistencia en Supabase)
    — mejora de comodidad sobre lo ya existente, acopladas entre sí.
 2. **Tarea 3 de `teacher/plan.md`** (mapeo dinámico por fecha real de inicio del alumno).
-3. **`teacher/clases-b2.js`** (tarea 4 de `teacher/plan.md`, ahora desbloqueada) — cruzar
-   los 30 días de `PLANS.b2` (ya verificados) contra las 17 reglas de `GRAMMAR_DATA.B2`,
-   mismo patrón que `clases-a1.js`/`clases-a2.js`.
+3. ~~`teacher/clases-b2.js`~~ — completado, ver Sesión 5 arriba.
 4. **Re-diagnosticar C1** en este archivo (su sección "C1 — pendiente" asume 10 reglas,
    la realidad son 17 — mismo error que tenía B2) y, antes de diseñar nada, **comprobar
    si `plan.js` ya tiene contenido en `c1` que el documento no refleje**, repitiendo el
    primer paso de la Sesión 4.
 
-Recomendación por defecto: opción 3 (`teacher/clases-b2.js`) por ser la que más desbloquea
-aguas abajo (cierra P-teacher-1 para B2, deja solo C1/C2 pendientes ahí) y no tiene
-dependencias nuevas; la opción 4 es la más urgente de verificar antes de que alguien
+Recomendación por defecto: opción 4, es la más urgente de verificar antes de que alguien
 intente ejecutar una sesión "C1.x" sobre un diagnóstico que puede estar tan desactualizado
 como lo estaba el de B2.
 

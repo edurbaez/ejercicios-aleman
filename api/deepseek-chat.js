@@ -49,7 +49,7 @@ export default async function handler(req, res) {
 
     try {
         const body = {
-            model: 'deepseek-chat',
+            model: 'deepseek-v4-flash',
             max_tokens: resolvedMaxTokens,
             messages: system
                 ? [{ role: 'system', content: String(system) }, ...messages]

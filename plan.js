@@ -1179,7 +1179,7 @@ window.PLANS = {
     },
     {
       day: 8, week: 2,
-      focus: "Pasiva con agente (von/durch) + Pasiva con verbos modales + Passivsätze ohne Subjekt",
+      focus: "Repaso: Pasiva con agente (von/durch) + Pasiva con verbos modales + Passivsätze ohne Subjekt",
       tasks: [
         { app: "gramatica.html#b2-04", label: "Repaso: Pasiva con agente (von/durch)", minutes: 5 },
         { app: "gramatica.html#b2-05", label: "Repaso: Pasiva con verbos modales", minutes: 5 },
@@ -1192,7 +1192,7 @@ window.PLANS = {
     },
     {
       day: 9, week: 2,
-      focus: "Partizip I como adjetivo + Partizip II como adjetivo + Futur II",
+      focus: "Repaso: Partizip I como adjetivo + Partizip II como adjetivo + Futur II",
       tasks: [
         { app: "gramatica.html#b2-07", label: "Repaso: Partizip I como adjetivo", minutes: 5 },
         { app: "gramatica.html#b2-08", label: "Repaso: Partizip II como adjetivo", minutes: 5 },
@@ -1204,7 +1204,7 @@ window.PLANS = {
     },
     {
       day: 10, week: 2,
-      focus: "Finalidad y contraste con infinitivo + Concesión y adversación + Konsekutive Nebensätze",
+      focus: "Repaso: Finalidad y contraste con infinitivo + Concesión y adversación + Konsekutive Nebensätze",
       tasks: [
         { app: "gramatica.html#b2-10", label: "Repaso: Finalidad y contraste con infinitivo", minutes: 5 },
         { app: "gramatica.html#b2-11", label: "Repaso: Concesión y adversación", minutes: 5 },
@@ -1217,7 +1217,7 @@ window.PLANS = {
     },
     {
       day: 11, week: 2,
-      focus: "Relativsätze im Genitiv + Relativpronomen mit was/wo(r)- + Conectores de dos partes",
+      focus: "Repaso: Relativsätze im Genitiv + Relativpronomen mit was/wo(r)- + Conectores de dos partes",
       tasks: [
         { app: "gramatica.html#b2-13", label: "Repaso: Relativsätze im Genitiv", minutes: 5 },
         { app: "gramatica.html#b2-14", label: "Repaso: Relativpronomen mit was/wo(r)-", minutes: 5 },
@@ -1229,7 +1229,7 @@ window.PLANS = {
     },
     {
       day: 12, week: 2,
-      focus: "Nominalizaciones + Partículas modales + Konjunktiv I (discurso indirecto)",
+      focus: "Repaso: Nominalizaciones + Partículas modales + Konjunktiv I (discurso indirecto)",
       tasks: [
         { app: "gramatica.html#b2-16", label: "Repaso: Nominalizaciones", minutes: 5 },
         { app: "gramatica.html#b2-17", label: "Repaso: Partículas modales", minutes: 5 },
@@ -1242,7 +1242,7 @@ window.PLANS = {
     },
     {
       day: 13, week: 2,
-      focus: "Konjunktiv II pasado + Comparaciones y consecuencias irreales + Pasiva con agente (von/durch)",
+      focus: "Repaso: Konjunktiv II pasado + Comparaciones y consecuencias irreales + Pasiva con agente (von/durch)",
       tasks: [
         { app: "gramatica.html#b2-02", label: "Repaso: Konjunktiv II pasado", minutes: 5 },
         { app: "gramatica.html#b2-03", label: "Repaso: Comparaciones y consecuencias irreales", minutes: 5 },
@@ -1450,7 +1450,7 @@ window.PLANS = {
         { app: "gramatica.html#b2-17", label: "Repaso ligero: Partículas modales", minutes: 5 },
         { app: "B2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=reclamacion", label: "Simulacro examen: Reclamación formal (evaluación completa)", minutes: 20 },
-        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Mündliche: Eine Situation beschreiben", minutes: 10 }
+        { app: "mundliche.html?level=B2&teil=bildbeschreibung", label: "Simulacro examen: Eine Situation beschreiben (activar Modo examen)", minutes: 10 }
       ]
     },
     {
@@ -1460,7 +1460,7 @@ window.PLANS = {
         { app: "gramatica.html#b2-01", label: "Repaso ligero: Konjunktiv I (discurso indirecto)", minutes: 5 },
         { app: "gramatica.html#b2-02", label: "Repaso ligero: Konjunktiv II pasado", minutes: 5 },
         { app: "escritura.html?level=B2&tipo=email-trabajo", label: "Escritura breve: E-Mail laboral", minutes: 10 },
-        { app: "mundliche.html?level=B2&teil=praesentation", label: "Simulacro examen: Präsentation", minutes: 10 },
+        { app: "mundliche.html?level=B2&teil=praesentation", label: "Simulacro examen: Präsentation (activar Modo examen)", minutes: 10 },
         { app: "mundliche.html?level=B2&teil=diskussion", label: "Simulacro examen: Diskussion (activar Modo examen)", minutes: 20 },
         { app: "lectura veloz.html?level=B2", label: "Lectura: Comprensión B2 (Leseverstehen)", minutes: 15 },
       ]

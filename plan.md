@@ -13,60 +13,28 @@ Compatibilidad revisada: `plan.js` solo define `window.PLANS`, consumido por `pl
 
 **Niveles ya completados (A1, A2, B1)** siguen este mismo patrón (deep-linking por task, 2-3 reglas gramaticales/día, vocabulario máx. 5 min/día, escritura + mündliche diarios, simulacro final días 29-30) y sirven de plantilla real para B2/C1/C2 abajo — revisar sus arrays en `plan.js` como referencia de formato antes de escribir los que faltan.
 
-### B2 — pendiente (plan de modificación definido, listo para ejecutar por sesiones)
+### B2 — completado (sesión 2026-07-29, sesiones B2.1-B2.4)
+
+**Hallazgo al arrancar la sesión: el trabajo ya estaba hecho.** Este documento describía B2 como "pendiente" con un diseño de rotación basado en **10 reglas** (`b2-01`…`b2-10`), pero al revisar `plan.js` antes de generar nada (regla obligatoria de la cabecera) se encontró que el array `b2` **ya estaba completo desde el commit `0b0b425` ("ajuste planta B2 inclucion del lesen", 2026-07-26)** — 3 días antes de que se escribiera el diagnóstico de arriba. Ese diagnóstico nunca se actualizó tras el commit, quedando desincronizado con el código real. Causa raíz del error de diseño: `GRAMMAR_DATA.B2` tiene en realidad **17 reglas** (`b2-01`…`b2-17`, no 10 — ver nota de `CLAUDE.md`: "B2/C1 follow the chapter granularity of *Grammatik aktiv B2/C1*, Cornelsen"), y la rotación de 30 días ya implementada en `plan.js` sí usa correctamente las 17.
+
+**Verificación técnica realizada (Node, antes de tocar nada):** los 30 días de `PLANS.b2` resuelven contra `GRAMMAR_DATA.B2` (17/17 reglas cubiertas, 0 ids inválidos), contra las categorías reales de `DataB2.json` (esenciales/verbos/sustantivos/adjetivos/expresiones), contra los tipos reales de `escritura.html` nivel B2 (foro/reclamacion/email-trabajo) y los Teile reales de `mundliche.html` nivel B2 (praesentation/bildbeschreibung/diskussion), y contra el deep-link `lectura veloz.html?level=B2` (soportado, confirmado en el código de esa app).
+
+**Revisión pedagógica (2 subagentes independientes, días 1-14 y 15-30) — hallazgos y correcciones aplicadas:**
+- Días 8-13 (semana 2, repaso de las 17 reglas): el `focus` no distinguía "primera pasada" de "repaso" salvo en los días 7 y 14 — corregido añadiendo prefijo "Repaso:" a los `focus` de los días 8, 9, 10, 11, 12 y 13.
+- Día 29 (simulacro, Bildbeschreibung): llevaba label genérico "Mündliche: Eine Situation beschreiben" en vez de indicar que es parte del simulacro — corregido a "Simulacro examen: Eine Situation beschreiben (activar Modo examen)".
+- Día 30 (simulacro, Präsentation): le faltaba la indicación "(activar Modo examen)" que sí tenía la tarea de Diskussion del mismo día — corregido para que ambas la lleven.
+- Verificado con Node tras los cambios: 30 días secuenciales, 0 referencias de regla inválidas.
+
+**Hallazgos NO corregidos (documentados como deuda menor, no bloqueante):**
+- Límite de semana inconsistente: en A1/A2/B1 cada semana son exactamente 7 días; en B2 la semana 1 dura 6 días y la semana 2, 8 (el resto compensa: 6+8+7+9=30). No rompe nada en `plan.html` (agrupa por el campo `week`, no asume 7 días), pero difiere de la convención visual del resto de niveles. No se corrigió por requerir renumerar el campo `week` de los días 8-30, cambio más invasivo que el valor que aporta.
+- Ligero desbalance de repetición en la primera pasada + repaso (días 1-14): `b2-01` aparece 4 veces mientras `b2-13`/`14`/`15`/`16`/`17` aparecen solo 2 — dentro de lo razonable para repetición espaciada, no se tocó.
+- **`reformulaciones-data.json` solo tiene banco pregenerado para 10 de las 17 reglas b2** (`b2-01,02,04,07,08,10,11,15,16,17`); las 7 restantes (`b2-03,05,06,09,12,13,14`), usadas en varios días de la semana 3 vía `chat-reformulaciones.html`, funcionan por el fallback normal de generación IA en vivo de esa app (no es un bug, solo menos eficiente en costo/latencia que usar el banco). Ver ítem nuevo en el Backlog de abajo.
+
+**Próximo paso:** con B2 verificado y correcto, `teacher/clases-b2.js` (tarea 4 de `teacher/plan.md`, bloqueada hasta ahora) queda desbloqueado — puede ejecutarse como siguiente sesión de P-teacher-1. **Aviso importante para C1:** la sección "C1 — pendiente" de más abajo en este mismo archivo tiene el mismo error de diseño que tenía B2 (asume 10 reglas `c1-01`…`c1-10`, pero `GRAMMAR_DATA.C1` también tiene 17 reglas reales, confirmado con Node) — antes de ejecutar cualquier sesión C1.x hay que re-diagnosticar esa sección contra las 17 reglas reales, igual que se hizo aquí para B2, y **primero comprobar si `plan.js` ya tiene contenido para `c1` que este documento no refleje** (mismo error que causó este hallazgo en B2).
 
 **Requisito específico del usuario para B2 (distinto al patrón A1/A2):** cada uno de los 30 días debe incluir **2-3 reglas gramaticales** (no 1), **escritura diaria** (`escritura.html`, no solo semana 4) y **mündliche diaria** (`mundliche.html`, no solo semana 4). Tope de tiempo: repaso de vocabulario **máx. 5 min/día**, cada regla gramatical **5 min**.
 
-**Recursos reales disponibles (verificados en código):**
-- `GRAMMAR_DATA.B2` (`grammar-data.js`, 10 ids `b2-01`…`b2-10`, todos con banco completo en `reformulaciones-data.json` para `chat-reformulaciones.html`):
-  1. `b2-01` Konjunktiv I (discurso indirecto)
-  2. `b2-02` Konjunktiv II pasado (hipótesis irreales en el pasado)
-  3. `b2-03` Partizip I como adjetivo (acción en curso)
-  4. `b2-04` Partizip II como adjetivo (acción completada/resultado)
-  5. `b2-05` Pasiva con agente (von/durch, Zustandspassiv)
-  6. `b2-06` Conectores de dos partes (sowohl…als auch, weder…noch…)
-  7. `b2-07` Nominalizaciones
-  8. `b2-08` Partículas modales (doch, mal, ja, eigentlich, eben, halt)
-  9. `b2-09` Finalidad: um…zu / damit
-  10. `b2-10` Concesión y adversación (obwohl, trotzdem, dennoch, zwar…aber)
-- Categorías reales de vocabulario — `DataB2.json` (vía `palabrasB2.html`, leídas por `shared-game.js`): `esenciales`, `verbos`, `sustantivos`, `adjetivos`, `expresiones`.
-- `escritura.html` nivel B2 (`LEVEL_SPECS.B2`, 130-180 palabras): 3 tipos reales — `foro` (Forumsbeitrag argumentativo), `reclamacion` (carta/e-mail formal de queja), `email-trabajo` (e-mail formal laboral/estudios).
-- `mundliche.html` nivel B2 (`LEVEL_SPECS.B2.teile`): 3 Teile reales — `praesentation` (Teil 1, monólogo 150s), `bildbeschreibung` (Teil 2, "describir una situación", monólogo 90s), `diskussion` (Teil 3, diálogo 60s×6 turnos).
-- `chat-reformulaciones.html`: banco `b2-01`…`b2-10` completo en `reformulaciones-data.json` — se usa para las pasadas de repaso/consolidación (en vez de `gramatica.html`, que se reserva para la primera explicación de cada regla).
-- `kasus.html` **no aplica a B2**: sus modos (Nominativ/Akkusativ/Dativ/Genitiv/Wechselpräpositionen) son contenido de A1/A2; ninguna regla `b2-01`…`b2-10` es de flexión de caso. Se omite del plan B2 salvo que se quiera un repaso puntual de A2 (no solicitado).
-
-**Plantilla diaria (misma estructura los 30 días):**
-```
-tasks: [
-  { app: "gramatica.html" | "chat-reformulaciones.html", label: "Gramática: <título regla>", minutes: 5 },  // × 2-3, una por regla del día
-  { app: "palabrasB2.html", label: "Vocabulario: <categoría del día>", minutes: 5 },
-  { app: "escritura.html", label: "Escritura: <tipo del día>", minutes: 15 },
-  { app: "mundliche.html", label: "Mündliche: <Teil del día>", minutes: 10 }
-]
-```
-Total: ~35-45 min/día (5-6 tareas).
-
-**Rotación de vocabulario y escritura/mündliche (ciclos fijos, sin necesidad de lógica nueva en la app):**
-- Vocabulario: cicla las 5 categorías de `DataB2.json` cada 5 días (`esenciales→verbos→sustantivos→adjetivos→expresiones→repite`).
-- Escritura: cicla los 3 tipos (`foro→reclamacion→email-trabajo→repite`).
-- Mündliche: cicla los 3 Teile (`praesentation→bildbeschreibung→diskussion→repite`).
-
-**Rotación de gramática (spaced repetition, 3 pasadas + repaso final):**
-- **Semana 1 (días 1-7) — primera pasada, explicación con `gramatica.html`:** día 1: `b2-01,02,03`; día 2: `b2-04,05,06`; día 3: `b2-07,08,09`; día 4: `b2-10` + repaso `b2-01,02`; días 5-7: repaso por pares con `chat-reformulaciones.html` (`b2-03+04`, `b2-05+06`, `b2-07+08`) — cierra la primera pasada completa de las 10 reglas.
-- **Semana 2 (días 8-14) — segunda pasada, consolidación temática con `chat-reformulaciones.html`:** agrupar por familia — día 8: `b2-01+02` (Konjunktiv I/II); día 9: `b2-03+04` (Partizip I/II); día 10: `b2-05+07` (pasiva + nominalización, frecuentes juntas en registro formal); día 11: `b2-06+10` (conectores dobles + concesión); día 12: `b2-09+10` (finalidad + concesión); día 13: `b2-08` + repaso libre; día 14: repaso mixto 3 reglas más débiles (a definir en la sesión de ejecución según errores registrados, o `b2-01,05,09` por defecto).
-- **Semana 3 (días 15-21) — tercera pasada, combinaciones cruzadas:** día 15: `b2-01+05`; día 16: `b2-02+04`; día 17: `b2-03+09`; día 18: `b2-06+08`; día 19: `b2-07+10`; día 20: repaso 3 reglas (`b2-02,06,09`); día 21: repaso 3 reglas (`b2-01,04,08`).
-- **Semana 4 (días 22-30) — repaso final + simulacro:** días 22-27: ciclo completo una vez más a 2/día (`b2-01,02` / `b2-03,04` / `b2-05,06` / `b2-07,08` / `b2-09,10` / repaso libre 2 reglas más flojas); día 28: repaso general 3 reglas variadas; días 29-30: **simulacro final** — mantener escritura/mündliche del día pero evaluación completa (`escritura.html` tipo `foro` + `mundliche.html` Teile completos con puntuación 0-100), como cierre del mes, sin introducir gramática nueva (solo repaso ligero 2 reglas).
-
-**Siguiente paso de ejecución:** generar el array `b2: [...]` en `plan.js` (30 objetos `{ day, week, focus, tasks }`) siguiendo la plantilla y rotaciones de arriba, reemplazando el `b2` actual (que usa labels inventados como "Vorgangspassiv básico", "conversación libre B2" sin regla real asociada, y no usa `escritura.html` ni `mundliche.html`). Hacerlo en una o más sesiones separadas (p. ej. semana por semana) para preservar contexto; marcar cada semana con `[x]` aquí al terminarla, siguiendo el mismo formato de bitácora usado en A1/A2/B1.
-
-**Sesiones de ejecución (una por semana, mismo patrón que A1/A2/B1):**
-- [ ] Sesión B2.1 — Semana 1 (días 1-7): escribir los 7 días siguiendo "Semana 1" de la rotación de gramática de arriba (primera pasada `b2-01`…`b2-10` con `gramatica.html`), vocabulario ciclando `esenciales→verbos→sustantivos→adjetivos→expresiones`, `escritura.html` ciclando `foro→reclamacion→email-trabajo`, `mundliche.html` ciclando `praesentation→bildbeschreibung→diskussion`. Verificar contra el `b2` actual que no queden labels inventados residuales en esos 7 días antes de sobrescribir.
-- [ ] Sesión B2.2 — Semana 2 (días 8-14): segunda pasada por parejas temáticas con `chat-reformulaciones.html` (banco `b2-01`…`b2-10` ya completo en `reformulaciones-data.json`), continuar rotación de vocab/escritura/mündliche.
-- [ ] Sesión B2.3 — Semana 3 (días 15-21): combinaciones cruzadas + 2 días de repaso libre (reglas más flojas, o `b2-02,06,09` / `b2-01,04,08` por defecto si no hay datos de errores todavía).
-- [ ] Sesión B2.4 — Semana 4 (días 22-30): ciclo final a 2 reglas/día (días 22-27), repaso general día 28, simulacro completo días 29-30 (`escritura.html` tipo `foro` + `mundliche.html` los 3 Teile, puntuación 0-100, sin gramática nueva).
-- [ ] Cierre: actualizar esta sección de `plan.md` marcando "B2 — completado" con el mismo formato de bitácora que A1/A2/B1 (resumen de lo corregido vs. el `b2` anterior) y verificar en `plan.html` que los 30 días renderizan sin errores de consola.
-
-### C1 — pendiente (diagnóstico hecho, listo para diseñar rotación)
+### C1 — pendiente (diagnóstico hecho, listo para diseñar rotación — ⚠️ re-verificar antes de ejecutar, ver aviso arriba)
 
 **Regla obligatoria (recordatorio):** antes de tocar `plan.js`, revisar el `c1` actual en el archivo para detectar labels/temas inventados, igual que se hizo con A1/A2/B1 antes de reescribir.
 
@@ -161,6 +129,7 @@ tasks: [
 - [ ] **Aplicar deep-linking directo (mismo patrón que A1/A2/B1) a B2, C1, C2.** Cada `task.app` debe apuntar a la actividad concreta (`gramatica.html#{ruleId}`, `{NIVEL}.html?set={categoria}`, `escritura.html?level={NIVEL}&tipo={id}`, `mundliche.html?level={NIVEL}&teil={id}`, `chat-reformulaciones.html?rule={id}`), no solo a la portada genérica de la app. El soporte de query params ya existe en todas las apps involucradas — se resuelve automáticamente al ejecutar las reescrituras de B2/C1/C2 de arriba, no requiere trabajo adicional.
 - [ ] **Dashboard de profesor: reglas gramaticales más falladas entre alumnos.** Desde que `chat-reformulaciones.html` incorporó SRS por regla (`grammar_rule_progress`, `supabase/migrations/008_grammar_rule_progress.sql`), cada alumno ve su propio historial de repaso pero no hay agregación a nivel de profesor — no hay visibilidad de qué reglas fallan más *entre* alumnos. Con `grammar_rule_progress` ya poblándose en Supabase (PK `(user_id, rule_id)`, columnas `ease/interval/reps/due`), un dashboard tipo `admin/index.html` que agregue `reps`/`ease` bajos por `rule_id` across usuarios sería una extensión natural y de bajo costo (sin tabla nueva, solo una vista o query agregada) si llega a interesar.
 - [ ] **(Opcional, no bloqueante) `reformulaciones-data.json`:** renombrar las claves huérfanas `a2-07`/`a2-08` → `a1-20`/`a1-21` (esas reglas se reubicaron de A2 a A1 al ampliar `GRAMMAR_DATA`) si se quiere reaprovechar el banco existente en vez de depender del fallback de generación IA para esas dos reglas en `chat-reformulaciones.html`.
+- [ ] **(Opcional, no bloqueante) `reformulaciones-data.json` — hueco de cobertura B2/C1 tras la expansión 10→17 reglas (migración `010_grammar_rule_id_b2c1_remap.sql`):** el banco solo tiene 10 entradas para B2 (`b2-01,02,04,07,08,10,11,15,16,17`) y 10 para C1 (`c1-01,02,04,05,06,07,09,14,15,16`) — las 7 reglas nuevas de cada nivel (p. ej. B2: `b2-03,05,06,09,12,13,14`) no tienen ejercicios pregenerados y `chat-reformulaciones.html` genera por IA en cada uso (fallback normal, no roto, solo menos eficiente en costo/latencia). Detectado durante la verificación de `plan.js` B2 (sesión 2026-07-29). Ejecutar `scripts/generate-reformulaciones.js` para las reglas faltantes si se quiere cerrar el hueco.
 
 ---
 
@@ -364,7 +333,9 @@ mismo tema).
   `teacher/plan.md` tarea 5. Falta la tarea 4 para B2/C1/C2 (bloqueada por
   P-plan-1 abajo).
 - **P-plan-1 — Completar `plan.js` (B2/C1/C2) con gramática/escritura/mündliche
-  diarios reales.** Ver secciones de arriba en este mismo archivo.
+  diarios reales.** B2 **completado y verificado (sesión 2026-07-29)** — ver sección
+  de arriba. C1/C2 siguen pendientes; C1 necesita re-diagnóstico previo (su sección de
+  arriba asume 10 reglas cuando `GRAMMAR_DATA.C1` tiene 17 — mismo error que tenía B2).
 - **P-lectura-1 — Extender Leseverstehen por Teile a C1/C2 (bajo esfuerzo) y A1/A2
   (medio esfuerzo, tipos de tarea nuevos).** Ver `lecturaplan.md` §12.
 
@@ -373,7 +344,7 @@ mismo tema).
 | Orden | Punto | Impacto | Esfuerzo | Depende de |
 |-------|-------|---------|----------|------------|
 | 1 | P-teacher-1 — `teacher/index.html` a todos los niveles | Alto | Medio | `plan.js` verificado por nivel |
-| 2 | P-plan-1 — Completar `plan.js` B2/C1/C2 | Alto | Medio (ya diseñado) | — |
+| 2 | P-plan-1 — Completar `plan.js` B2/C1/C2 | Alto | Medio | B2 ✅ hecho; falta C1 (re-diagnóstico) / C2 |
 | 3 | P2 — Perfil de debilidades unificado | Alto | Medio-alto | — |
 | 4 | P1 — Hörverstehen | Alto | Medio-alto | — |
 | 5 | P5 — Interleaving en `gramatica.html` | Medio | Bajo | — |
@@ -389,7 +360,7 @@ dependencia explícita.
 
 ### Estado de ejecución (actualizado 2026-07-29)
 
-**Ejecutado hasta ahora (3 sesiones, todas dentro de P-teacher-1 — orden 1 de la tabla):**
+**Ejecutado hasta ahora (4 sesiones — Sesiones 1-3 dentro de P-teacher-1, orden 1 de la tabla; Sesión 4 dentro de P-plan-1, orden 2):**
 - [x] Sesión 1 — `teacher/clases-a1.js`: 30 días de `PLANS.a1` cruzados contra las 21
   reglas de `GRAMMAR_DATA.A1`. Detalle completo en `teacher/plan.md` tarea 4.
 - [x] Sesión 2 — `teacher/clases-a2.js`: mismo patrón, 30 días de `PLANS.a2` cruzados
@@ -406,21 +377,38 @@ dependencia explícita.
   los 3 `clases-{nivel}.js` en el orden real del `<script>`: 30 días por nivel, 0
   referencias de `ruleId` rotas. Detalle completo en `teacher/plan.md` tarea 5.
 
-**Pendiente para la Sesión 4 — opciones (no excluyentes, a decidir al arrancar la sesión):**
+- [x] **Sesión 4 (2026-07-29) — B2.1-B2.4 (P-plan-1, orden 2 de la tabla).** Al arrancar
+  la sesión (regla obligatoria: revisar compatibilidad/estado real antes de generar) se
+  encontró que `plan.js` **ya tenía el array `b2` completo** desde el commit `0b0b425`
+  (2026-07-26) — este documento no se había actualizado tras ese commit y seguía
+  describiendo B2 como pendiente, además con un diseño basado en 10 reglas cuando
+  `GRAMMAR_DATA.B2` tiene 17. En vez de regenerar (que hubiera arriesgado pisar contenido
+  ya bueno), se dividió el trabajo en 2 subagentes de revisión independiente (días 1-14 y
+  15-30) más una validación técnica propia por Node (ids de regla, categorías de
+  vocabulario, tipos de escritura, Teile de mündliche, cobertura de las 17 reglas — 0
+  problemas). Los subagentes encontraron solo detalles menores de etiquetado (labels de
+  "Repaso:" faltantes en días 8-13, etiquetas de simulacro inconsistentes en días 29-30),
+  corregidos directamente. Detalle completo y hallazgos no corregidos (deuda menor) en la
+  sección "B2 — completado" de arriba. Desbloquea `teacher/clases-b2.js` (tarea 4 de
+  `teacher/plan.md`).
+
+**Pendiente para la Sesión 5 — opciones (no excluyentes, a decidir al arrancar la sesión):**
 1. **Tareas 1+2 de `teacher/plan.md`** (edición desde la UI + persistencia en Supabase)
    — mejora de comodidad sobre lo ya existente, acopladas entre sí.
 2. **Tarea 3 de `teacher/plan.md`** (mapeo dinámico por fecha real de inicio del alumno).
-3. **Sesión B2.1 de este archivo** (arriba, sección "B2 — pendiente") — escribir los
-   días 1-7 del array `b2` en `plan.js` (primera pasada de gramática `b2-01`…`b2-10`),
-   primer paso de P-plan-1 (orden 2 de la tabla). Desbloquea después `teacher/clases-b2.js`
-   y con eso la tarea 4 de `teacher/plan.md` para B2.
+3. **`teacher/clases-b2.js`** (tarea 4 de `teacher/plan.md`, ahora desbloqueada) — cruzar
+   los 30 días de `PLANS.b2` (ya verificados) contra las 17 reglas de `GRAMMAR_DATA.B2`,
+   mismo patrón que `clases-a1.js`/`clases-a2.js`.
+4. **Re-diagnosticar C1** en este archivo (su sección "C1 — pendiente" asume 10 reglas,
+   la realidad son 17 — mismo error que tenía B2) y, antes de diseñar nada, **comprobar
+   si `plan.js` ya tiene contenido en `c1` que el documento no refleje**, repitiendo el
+   primer paso de la Sesión 4.
 
-Con la tarea 5 cerrada, P-teacher-1 solo le falta la tarea 4 para B2/C1/C2 (bloqueada
-por P-plan-1) — el resto de tareas de `teacher/plan.md` (1, 2, 3) no dependían de la 4/5
-y ya son ejecutables. Recomendación por defecto: opción 3 (arrancar B2 en `plan.js`) por
-ser la que más desbloquea aguas abajo (P-teacher-1 completo + P-plan-1 orden 2 de la
-tabla), salvo que el usuario prefiera cerrar primero las mejoras de comodidad (1+2+3 de
-`teacher/plan.md`).
+Recomendación por defecto: opción 3 (`teacher/clases-b2.js`) por ser la que más desbloquea
+aguas abajo (cierra P-teacher-1 para B2, deja solo C1/C2 pendientes ahí) y no tiene
+dependencias nuevas; la opción 4 es la más urgente de verificar antes de que alguien
+intente ejecutar una sesión "C1.x" sobre un diagnóstico que puede estar tan desactualizado
+como lo estaba el de B2.
 
 ---
 

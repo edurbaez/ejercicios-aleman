@@ -159,6 +159,7 @@
         <div id="comp-resultado" style="display:none">
             <div id="comp-resultado-texto"></div>
             <ul class="comp-teil-breakdown" id="comp-teil-breakdown" style="display:none"></ul>
+            <button class="btn comp-action-btn" id="comp-escribir-btn" style="width:auto;display:none">✍️ Escribir sobre este tema</button>
             <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
         </div>
     </div>
@@ -1091,6 +1092,7 @@
             const total = compPreguntas.length;
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'A' });
             document.getElementById('comp-teil-breakdown').style.display = 'none';
+            document.getElementById('comp-escribir-btn').style.display = 'none';
             const resultado = document.getElementById('comp-resultado');
             const textoEl = document.getElementById('comp-resultado-texto');
             textoEl.textContent = correctas + ' / ' + total + ' correctas';
@@ -1530,6 +1532,7 @@
             document.getElementById('comp-teil-selector').style.display = 'none';
             document.getElementById('comp-teil-session').style.display = 'none';
             document.getElementById('comp-resultado').style.display = 'none';
+            document.getElementById('comp-escribir-btn').style.display = 'none';
             document.getElementById('comp-loading').style.display = 'none';
         }
 
@@ -1587,11 +1590,16 @@
 
                 const seenIds = new Set((seen || []).map(r => r.text_id));
                 const unseen = (allTexts || []).filter(t => !seenIds.has(t.id));
+                // Prefer format_version 2 (Teile) over legacy flat texts left over from before
+                // that level had the Teile format — once a level supports Teile, don't serve
+                // its old plain MCQ texts anymore.
+                const teileUnseen = unseen.filter(t => t.format_version === 2);
+                const pool = teileUnseen.length > 0 ? teileUnseen : unseen;
 
                 let chosenText;
 
-                if (unseen.length > 0) {
-                    chosenText = unseen[Math.floor(Math.random() * unseen.length)];
+                if (pool.length > 0) {
+                    chosenText = pool[Math.floor(Math.random() * pool.length)];
                 } else {
                     chosenText = await modoB_generarTextoIA(level);
                 }
@@ -1665,6 +1673,7 @@
             modoB_marcarComoVisto();
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
             document.getElementById('comp-teil-breakdown').style.display = 'none';
+            document.getElementById('comp-escribir-btn').style.display = 'none';
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = `${correctas} / ${total} correctas`;
@@ -1876,6 +1885,12 @@
                 return `<li><span>${escHtml(teilNombre(TeilState.level, teil.id))}</span><span>${r.correct} / ${r.total}</span></li>`;
             }).join('');
             breakdown.style.display = 'block';
+
+            const escribirBtn = document.getElementById('comp-escribir-btn');
+            escribirBtn.style.display = 'inline-block';
+            escribirBtn.onclick = () => {
+                location.href = `escritura.html?level=${encodeURIComponent(TeilState.level)}&tema=${encodeURIComponent(TeilState.titulo)}`;
+            };
 
             el.style.display = 'block';
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

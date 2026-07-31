@@ -307,7 +307,7 @@ intercalado ya existe en la suite, falta llevarlo a `gramatica.html`.
 
 ---
 
-### P6. Encadenar Lesen → Schreiben (mismo patrón que Vortrag → Diskussion)
+### P6. Encadenar Lesen → Schreiben (mismo patrón que Vortrag → Diskussion) — completado (sesión 2026-07-31)
 
 **Diagnóstico:** `mundliche.html` ya encadena Vortrag→Diskussion en la misma sesión
 (`findVortragPrevio()`) — un patrón fuerte porque simula uso real del idioma. No se
@@ -315,12 +315,29 @@ generalizó a Lesen→Schreiben (leer un texto de comprensión y luego escribir 
 mismo tema).
 
 **Sesiones de ejecución:**
-- [ ] Sesión Cadena.1 — Al terminar una sesión de Teile en `lectura veloz.html` Modo B
-  (`modoB_mostrarResultadoTeilFinal()`), añadir un botón "✍️ Escribir sobre este tema"
-  que navegue a `escritura.html` con el tema del texto leído como parámetro (deep-link,
-  mismo mecanismo que el backlog de deep-linking de B2/C1/C2 arriba) para que
-  `escritura.html` lo use como brief en vez de sortear un tema aleatorio del banco
-  `TEMAS`.
+- [x] Sesión Cadena.1 — Al terminar una sesión de Teile en `lectura veloz.html` Modo B
+  (`modoB_mostrarResultadoTeilFinal()`), se añadió el botón "✍️ Escribir sobre este tema"
+  (`#comp-escribir-btn` dentro de `#comp-resultado`, oculto por defecto y explícitamente
+  ocultado en los otros dos flujos que reusan el mismo contenedor — `compMostrarResultado()`
+  Modo A y `modoB_mostrarResultado()` Modo B formato 1 — para que no aparezca fuera de una
+  sesión por Teile). El botón navega a
+  `escritura.html?level={TeilState.level}&tema={encodeURIComponent(TeilState.titulo)}`
+  (`TeilState.titulo` es el título real de la sesión generada por IA, ya guardado en
+  `reading_texts.title`). En `escritura.html`, `initLevel()` lee el nuevo param `tema` y lo
+  guarda en `EscState.temaFijo`; `buildTaskPrompt()` usa `EscState.temaFijo` en vez de
+  sortear del banco `TEMAS` cuando está presente. `renderTarea()` muestra un badge "📖 Tema
+  del texto leído" (con el tema completo en `title` del badge) para que el alumno entienda
+  por qué el tema no es aleatorio. Sin tabla ni migración nueva — solo deep-linking (mismo
+  mecanismo que el backlog de B2/C1/C2).
+  **Verificación realizada:** los 2 bloques `<script>` de cada archivo parsean con `new
+  Function` (sin errores de sintaxis). **Probado en navegador real (Playwright/Chromium
+  headless contra `vercel dev` local, sesión de usuario real inyectada)** junto con la
+  validación manual de B1 Leseverstehen — ver `lecturaplan.md` §11. El botón aparece tras
+  completar los 5 Teile, navega a `escritura.html?level=B1&tema=Umwelt%20und%20Recycling`
+  (título real generado por la sesión de prueba), la pill de nivel B1 queda preseleccionada
+  y `EscState.temaFijo`/`buildTaskPrompt()` confirmados usando ese tema (verificado sin
+  llamar a la API real, que localmente falla por falta de `OPENAI_API_KEY` en `.env.local`
+  — no es un bug de este cambio).
 
 ---
 
@@ -431,6 +448,12 @@ como lo estaba el de B2.
 ## Escalabilidad y deuda técnica (auditoría 2026-07-13)
 
 > Nota: `plan-mejoras.md` ya trackea deuda técnica de nivel código (duplicación, accesibilidad, paginación admin, timeouts OpenAI). Esta sección cubre lo que ese archivo no cubre: **límites de infraestructura** (Vercel Hobby, base de datos en Supabase) y **drift de documentación** encontrados al revisar el proyecto completo, incluyendo consulta directa a los Advisors de Supabase (performance + security) sobre el proyecto real.
+
+### 🔴🔴 URGENTE — hallazgo no relacionado, detectado durante la validación de B1 (2026-07-31)
+
+**`https://ejercicios-aleman.vercel.app` (la URL documentada en todo este repo como producción) ya no apunta a este proyecto.** Al probar la validación manual de B1 se comprobó que ese dominio sirve otra aplicación (Next.js, nav "Tablas / Ejercicios", nada que ver con este repo). `vercel ls`/`vercel domains ls` confirman que el proyecto Vercel real (`edurbaezde-3758s-projects/ejercicios-aleman`) **no tiene ningún dominio propio asignado** — solo existen las URLs autogeneradas por deployment (`ejercicios-aleman-<hash>-edurbaezde-3758s-projects.vercel.app`), y esas están detrás de la protección SSO de Vercel (redirigen a `vercel.com/sso-api`, no accesibles públicamente sin sesión de Vercel).
+
+**Efecto práctico: si esto es así también para tus alumnos, la app no es accesible públicamente ahora mismo** — ni por el dominio corto documentado (que es de otro proyecto) ni por las URLs de deployment (bloqueadas por SSO). No se investigó más a fondo por estar fuera del alcance de esta sesión (P6 + validación B1), pero es el hallazgo más urgente de esta sesión — revisar el panel de Vercel (Settings → Domains del proyecto `ejercicios-aleman`) cuanto antes.
 
 ### 🔴 Escalabilidad — infraestructura
 

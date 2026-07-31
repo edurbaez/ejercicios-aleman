@@ -139,6 +139,7 @@
         evaluando: false,
         fotoBase64: null,
         prefetch: null,
+        temaFijo: null,
     };
 
     const TAREA_KEY = 'esc_tarea';
@@ -262,7 +263,7 @@
         });
     }
 
-    // Deep-link support: escritura.html?level=B1&tipo=email-informal
+    // Deep-link support: escritura.html?level=B1&tipo=email-informal&tema=Umweltschutz
     (function initLevel() {
         const saved = localStorage.getItem('esc_level') || localStorage.getItem('onboarding_level');
         if (saved && LEVEL_SPECS[saved.toUpperCase()]) EscState.level = saved.toUpperCase();
@@ -273,6 +274,8 @@
         if (paramTipo && (paramTipo === 'aleatorio' || LEVEL_SPECS[EscState.level].tipos.some(t => t.id === paramTipo))) {
             EscState.tipo = paramTipo;
         }
+        const paramTema = params.get('tema');
+        if (paramTema) EscState.temaFijo = paramTema;
         document.querySelectorAll('#esc-level-btns .esc-pill').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.level === EscState.level);
             btn.addEventListener('click', () => {
@@ -308,7 +311,7 @@
         const tipo = EscState.tipo === 'aleatorio'
             ? tipos[Math.floor(Math.random() * tipos.length)]
             : tipos.find(t => t.id === EscState.tipo);
-        const tema = TEMAS[EscState.level][Math.floor(Math.random() * TEMAS[EscState.level].length)];
+        const tema = EscState.temaFijo || TEMAS[EscState.level][Math.floor(Math.random() * TEMAS[EscState.level].length)];
         const [minP, maxP] = spec.palabras;
 
         const system = `Eres un profesor de alemán y diseñas tareas de expresión escrita al estilo de los exámenes oficiales (Goethe-Zertifikat, telc). ${spec.guia}
@@ -410,6 +413,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     <span class="esc-badge esc-badge-tipo">${escHtml(t.tipoNombre)}</span>
                     <span class="esc-badge esc-badge-reg">${t.registro === 'formal' ? 'Formal (Sie)' : t.registro === 'informal' ? 'Informal (du)' : 'Registro neutral'}</span>
                     <span class="esc-badge esc-badge-len">${min}–${max} palabras</span>
+                    ${EscState.temaFijo ? `<span class="esc-badge" title="${escHtml(EscState.temaFijo)}">📖 Tema del texto leído</span>` : ''}
                     <button class="esc-pill esc-pill-sm esc-retask-btn" onclick="generarTarea()" title="Genera otra tarea con el nivel y tipo seleccionados">🔄 Otra tarea</button>
                 </div>
                 <h2 class="esc-task-title">${escHtml(t.titulo)}</h2>

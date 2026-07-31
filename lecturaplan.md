@@ -236,6 +236,28 @@ durante la construcción:
   (por ahora se reusan sesiones no vistas de `reading_texts` antes de generar una nueva,
   igual que el flujo v1).
 
+**Validación manual en navegador — completada (sesión 2026-07-31).** Se corrió un
+navegador real (Playwright/Chromium, headless) contra `vercel dev` local, con una sesión
+de usuario real inyectada en `localStorage` (token de sesión provisto por el usuario para
+esta prueba puntual, no persistido). Flujo completo probado: login → Comprensión → Por
+nivel → B1 → Obtener texto → selector de Teile → los 5 Teile (mcq/emparejar/richtig_falsch)
+respondidos y comprobados uno a uno → pantalla de resultado final con desglose por Teil.
+
+**Bug real encontrado y corregido:** `modoB_obtenerTexto()` elegía aleatoriamente entre
+*todos* los textos no vistos de un nivel sin distinguir `format_version` — como ya existían
+filas B1 en `reading_texts` con `format_version=1` (de antes de esta Fase 1), la primera
+corrida de la prueba recibió el formato plano legado en vez del formato por Teile. Corregido
+en `lectura veloz.html` (`modoB_obtenerTexto`): ahora, si entre los textos no vistos hay
+alguno con `format_version=2`, el sorteo se limita a esos — solo cae a formato 1 cuando no
+queda ningún texto Teile sin ver. Esto también protege a **B2** (Fase 2, mismo código
+compartido) del mismo problema con sus textos legado. Tras el fix, la prueba repetida generó
+correctamente una sesión Teile nueva y completó el flujo entero sin errores de consola.
+
+**Fuera de alcance de esta prueba (bloqueado por config local, no por el código):** en
+`escritura.html` (ver P6 más abajo) la generación real de tarea vía IA falló por
+`OPENAI_API_KEY` no configurada en `.env.local` — se verificó en su lugar, sin llamar a la
+API, que `EscState.temaFijo` y `buildTaskPrompt()` toman correctamente el tema del deep-link.
+
 ## 12. Fase 2 (B2) — implementado
 
 Antes de implementar se investigó la estructura real del Modellsatz oficial

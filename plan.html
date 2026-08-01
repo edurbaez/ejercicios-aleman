@@ -48,6 +48,7 @@
                 <h2 id="plan-detail-day">Día 1</h2>
                 <p id="plan-detail-focus"></p>
                 <ul id="plan-detail-tasks"></ul>
+                <div id="plan-detail-markers" title="Actividades abiertas"></div>
                 <button id="plan-complete-btn">Marcar como completado</button>
             </aside>
         </div>
@@ -73,6 +74,37 @@
 
         function saveProgress(level, progress) {
             localStorage.setItem(getProgressKey(level), JSON.stringify(progress));
+        }
+
+        function getOpenedKey(level) {
+            return 'plan_opened_' + level;
+        }
+
+        function loadOpened(level) {
+            const raw = localStorage.getItem(getOpenedKey(level));
+            if (raw) {
+                try { return JSON.parse(raw); } catch(e) {}
+            }
+            return {};
+        }
+
+        function saveOpened(level, opened) {
+            localStorage.setItem(getOpenedKey(level), JSON.stringify(opened));
+        }
+
+        function markTaskOpened(level, dayIndex, taskIndex, dayObj, task) {
+            const opened = loadOpened(level);
+            if (!opened[dayIndex]) opened[dayIndex] = [];
+            opened[dayIndex][taskIndex] = true;
+            saveOpened(level, opened);
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('plan', 'task_opened', {
+                    level: level,
+                    day: dayObj.day,
+                    taskIndex: taskIndex,
+                    taskLabel: task.label
+                });
+            }
         }
 
         function getCurrentDayIndex(progress) {
@@ -139,16 +171,33 @@
             document.getElementById('plan-detail-focus').textContent = dayObj.focus;
 
             const locked = index > currentIdx && !progress[index];
+            const opened = loadOpened(activeLevel)[index] || [];
             const tasksList = document.getElementById('plan-detail-tasks');
             tasksList.innerHTML = '';
-            dayObj.tasks.forEach(function(task) {
+            dayObj.tasks.forEach(function(task, ti) {
                 const li = document.createElement('li');
                 if (locked) {
                     li.innerHTML = '<span class="plan-task-locked" title="Completa los días anteriores primero">🔒 ' + task.label + '</span> — ' + task.minutes + ' min';
                 } else {
-                    li.innerHTML = '<a href="' + task.app + '">' + task.label + '</a> — ' + task.minutes + ' min';
+                    const a = document.createElement('a');
+                    a.href = task.app;
+                    a.textContent = task.label;
+                    a.addEventListener('click', function() {
+                        markTaskOpened(activeLevel, index, ti, dayObj, task);
+                    });
+                    li.appendChild(a);
+                    li.appendChild(document.createTextNode(' — ' + task.minutes + ' min'));
                 }
                 tasksList.appendChild(li);
+            });
+
+            const markersEl = document.getElementById('plan-detail-markers');
+            markersEl.innerHTML = '';
+            dayObj.tasks.forEach(function(task, ti) {
+                const marker = document.createElement('span');
+                marker.className = 'plan-task-marker' + (opened[ti] ? ' opened' : '');
+                marker.title = (opened[ti] ? '✓ Abierto: ' : 'No abierto: ') + task.label;
+                markersEl.appendChild(marker);
             });
 
             const btn = document.getElementById('plan-complete-btn');
@@ -180,7 +229,7 @@
             selectDay(selectedDay);
 
             if (typeof window.logEvent === 'function') {
-                window.logEvent('plan_day_complete', { level: activeLevel, day: selectedDay + 1 });
+                window.logEvent('plan', 'day_complete', { level: activeLevel, day: selectedDay + 1 });
             }
         }
 

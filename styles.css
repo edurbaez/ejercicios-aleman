@@ -5108,6 +5108,26 @@ body.dark .cr-results-title { color: #ce93d8; }
     cursor: not-allowed;
 }
 
+#plan-detail-markers {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0 14px;
+}
+
+.plan-task-marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.plan-task-marker.opened {
+    background: var(--plan-accent);
+    border-color: var(--plan-accent);
+}
+
 #plan-complete-btn {
     width: 100%;
     padding: 10px;

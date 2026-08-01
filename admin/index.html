@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/config.js"></script>
+  <script src="/plan.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f7; color: #222; margin: 0; min-height: 100vh; }
@@ -493,6 +494,7 @@
         </div>
         <div id="det-access-msg"></div>
       </div>
+      <div id="det-plan" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
     </div>
@@ -699,6 +701,7 @@
     'kasus': 'Kasus Trainer',
     'gramatica': 'Gramática',
     'chat-reformulaciones': 'Reformulaciones',
+    'plan': 'Plan 30 días',
   };
 
   function renderAppBars() {
@@ -944,6 +947,8 @@
     document.getElementById('det-name').textContent  = p?.display_name || p?.email || userId;
     document.getElementById('det-email').textContent = p?.email || '';
 
+    renderDetPlan(userId);
+
     document.getElementById('det-events').innerHTML = evs.length === 0
       ? '<p class="empty">Sin eventos registrados.</p>'
       : evs.map(e => `
@@ -981,6 +986,60 @@
     const panel = document.getElementById('detail-panel');
     panel.style.display = 'block';
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderDetPlan(userId) {
+    const el = document.getElementById('det-plan');
+    const planEvents = (eventsByUser[userId] || []).filter(e => e.app === 'plan');
+    if (planEvents.length === 0 || !window.PLANS) {
+      el.innerHTML = '';
+      return;
+    }
+
+    // level -> day -> { openedIdx: Set, completed: bool, lastEvent: iso }
+    const byLevel = {};
+    for (const e of planEvents) {
+      const level = e.payload?.level;
+      const day = e.payload?.day;
+      if (!level || !day || !window.PLANS[level]) continue;
+      if (!byLevel[level]) byLevel[level] = {};
+      if (!byLevel[level][day]) byLevel[level][day] = { openedIdx: new Set(), completed: false, lastEvent: e.created_at };
+      const d = byLevel[level][day];
+      if (e.event_type === 'task_opened' && typeof e.payload.taskIndex === 'number') {
+        d.openedIdx.add(e.payload.taskIndex);
+      } else if (e.event_type === 'day_complete') {
+        d.completed = true;
+      }
+      if (e.created_at > d.lastEvent) d.lastEvent = e.created_at;
+    }
+
+    const levels = Object.keys(byLevel).sort();
+    if (levels.length === 0) { el.innerHTML = ''; return; }
+
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#1565C0;margin-bottom:8px;">📅 Plan 30 días</div>` +
+      levels.map(level => {
+        const plan = window.PLANS[level];
+        const days = Object.keys(byLevel[level]).map(Number).sort((a, b) => a - b);
+        const rows = days.map(day => {
+          const dayObj = plan[day - 1];
+          if (!dayObj) return '';
+          const d = byLevel[level][day];
+          const markers = dayObj.tasks.map((t, i) =>
+            `<span class="plan-task-marker${d.openedIdx.has(i) ? ' opened' : ''}" title="${esc((d.openedIdx.has(i) ? '✓ Abierto: ' : 'No abierto: ') + t.label)}"></span>`
+          ).join('');
+          const completeBadge = d.completed ? '<span class="score-badge score-good">✓ completado</span>' : '';
+          return `<div class="event-row" style="align-items:center;">
+            <span class="ev-time" style="min-width:40px;">Día ${day}</span>
+            <div style="display:flex;gap:6px;">${markers}</div>
+            ${completeBadge}
+            <span class="ev-payload" style="margin-left:auto;color:#999;">${fmtDate(d.lastEvent)}</span>
+          </div>`;
+        }).join('');
+        return `<div style="margin-bottom:10px;">
+          <div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px;">${esc(level.toUpperCase())}</div>
+          ${rows}
+        </div>`;
+      }).join('');
   }
 
   function closeDetail() {

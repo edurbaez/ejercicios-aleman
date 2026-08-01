@@ -5102,6 +5102,12 @@ body.dark .cr-results-title { color: #ce93d8; }
     text-decoration: underline;
 }
 
+.plan-task-locked {
+    color: var(--text-secondary, #888);
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
 #plan-complete-btn {
     width: 100%;
     padding: 10px;

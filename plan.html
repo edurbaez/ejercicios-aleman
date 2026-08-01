@@ -138,11 +138,16 @@
             document.getElementById('plan-detail-day').textContent = 'Día ' + dayObj.day;
             document.getElementById('plan-detail-focus').textContent = dayObj.focus;
 
+            const locked = index > currentIdx && !progress[index];
             const tasksList = document.getElementById('plan-detail-tasks');
             tasksList.innerHTML = '';
             dayObj.tasks.forEach(function(task) {
                 const li = document.createElement('li');
-                li.innerHTML = '<a href="' + task.app + '">' + task.label + '</a> — ' + task.minutes + ' min';
+                if (locked) {
+                    li.innerHTML = '<span class="plan-task-locked" title="Completa los días anteriores primero">🔒 ' + task.label + '</span> — ' + task.minutes + ' min';
+                } else {
+                    li.innerHTML = '<a href="' + task.app + '">' + task.label + '</a> — ' + task.minutes + ' min';
+                }
                 tasksList.appendChild(li);
             });
 

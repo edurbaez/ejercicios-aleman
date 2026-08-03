@@ -226,7 +226,7 @@ All pages share a fixed navbar. **Inicio** is always visible as a standalone lin
 
 ## Deployment
 
-`B2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/B2.html`. Each PWA has its own Service Worker: `sw.js` (B2) and `sw-b1.js` (B1), each scoped to its own cache namespace so they don't interfere with each other.
+`B2.html` is the root page, deployed on Vercel. `vercel.json` rewrites `/` → `/B2.html`. Each PWA has its own Service Worker: `sw.js` (B2), `sw-b1.js` (B1), and `sw-plan.js` (Plan 30 días), each scoped to its own cache namespace so they don't interfere with each other.
 
 Push to `main` → Vercel redeploys automatically.
 

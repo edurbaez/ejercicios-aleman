@@ -1,0 +1,18 @@
+{
+  "name": "Plan 30 días",
+  "short_name": "Plan 30",
+  "description": "Plan de estudio de aleman de 30 dias",
+  "start_url": "/plan.html",
+  "display": "standalone",
+  "background_color": "#1565C0",
+  "theme_color": "#1565C0",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-plan.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

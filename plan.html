@@ -42,6 +42,7 @@
             <div id="plan-progress-bar">
                 <div id="plan-progress-fill"></div>
             </div>
+            <button id="plan-reset-btn" type="button" title="Borra el progreso del nivel actual">🗑️ Reiniciar progreso</button>
         </div>
 
         <div id="plan-content">
@@ -62,6 +63,7 @@
         const ACCENT = '#1565C0';
         let activeLevel = 'a1';
         let selectedDay = null;
+        let remotePlanProgress = null; // cache of user_data.plan_progress once fetched
 
         function getProgressKey(level) {
             return 'plan_progress_' + level;
@@ -77,7 +79,41 @@
 
         function saveProgress(level, progress) {
             localStorage.setItem(getProgressKey(level), JSON.stringify(progress));
+            persistRemoteProgress(level, progress);
         }
+
+        // --- Cross-device sync (Supabase user_data.plan_progress) ---
+        // Local-first: localStorage renders instantly; remote is merged in on
+        // load (remote wins, same convention as word_lists/srs_progress) and
+        // pushed on every save so other devices pick it up on their next load.
+        async function persistRemoteProgress(level, progress) {
+            if (!window.currentUser || !window.sb) return;
+            if (!remotePlanProgress) remotePlanProgress = {};
+            remotePlanProgress[level] = progress;
+            try {
+                await window.sb.from('user_data').upsert({
+                    user_id: window.currentUser.id,
+                    plan_progress: remotePlanProgress
+                });
+            } catch (e) {}
+        }
+
+        async function loadRemoteProgress() {
+            if (!window.currentUser || !window.sb) return;
+            try {
+                const { data } = await window.sb
+                    .from('user_data')
+                    .select('plan_progress')
+                    .eq('user_id', window.currentUser.id)
+                    .maybeSingle();
+                remotePlanProgress = (data && data.plan_progress) || {};
+                Object.keys(remotePlanProgress).forEach(function(level) {
+                    localStorage.setItem(getProgressKey(level), JSON.stringify(remotePlanProgress[level]));
+                });
+                switchLevel(activeLevel);
+            } catch (e) {}
+        }
+        window.onAuthSignedIn = loadRemoteProgress;
 
         function getOpenedKey(level) {
             return 'plan_opened_' + level;
@@ -236,6 +272,23 @@
             }
         }
 
+        function resetProgress() {
+            if (!confirm('¿Reiniciar el progreso del nivel ' + activeLevel.toUpperCase() + '? Se borrarán los días completados.')) return;
+
+            const progress = new Array(30).fill(false);
+            saveProgress(activeLevel, progress);
+            localStorage.removeItem(getOpenedKey(activeLevel));
+            localStorage.removeItem(getLastDayKey(activeLevel));
+
+            renderCalendar(activeLevel, progress);
+            renderProgressBar(progress);
+            selectDay(0);
+
+            if (typeof window.logEvent === 'function') {
+                window.logEvent('plan', 'progress_reset', { level: activeLevel });
+            }
+        }
+
         function switchLevel(level) {
             activeLevel = level;
             selectedDay = null;
@@ -262,6 +315,7 @@
         });
 
         document.getElementById('plan-complete-btn').addEventListener('click', markComplete);
+        document.getElementById('plan-reset-btn').addEventListener('click', resetProgress);
 
         function toggleDarkMode() {
             document.body.classList.toggle('dark');

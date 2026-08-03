@@ -165,7 +165,7 @@
       .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  const LEVELS = [
+  const TEACHER_LEVELS = [
     { key: 'a1', label: 'A1', grammarKey: 'A1', available: true },
     { key: 'a2', label: 'A2', grammarKey: 'A2', available: true },
     { key: 'b1', label: 'B1', grammarKey: 'B1', available: true },
@@ -175,14 +175,14 @@
   ];
 
   function currentLevelConfig() {
-    return LEVELS.find(l => l.key === currentLevel) || LEVELS.find(l => l.key === 'b1');
+    return TEACHER_LEVELS.find(l => l.key === currentLevel) || TEACHER_LEVELS.find(l => l.key === 'b1');
   }
 
   const savedLevel = localStorage.getItem('teacher_level');
-  let currentLevel = (LEVELS.find(l => l.key === savedLevel && l.available) || LEVELS.find(l => l.key === 'b1')).key;
+  let currentLevel = (TEACHER_LEVELS.find(l => l.key === savedLevel && l.available) || TEACHER_LEVELS.find(l => l.key === 'b1')).key;
 
   function selectLevel(key) {
-    const cfg = LEVELS.find(l => l.key === key);
+    const cfg = TEACHER_LEVELS.find(l => l.key === key);
     if (!cfg || !cfg.available) return;
     currentLevel = key;
     localStorage.setItem('teacher_level', key);
@@ -192,7 +192,7 @@
   }
 
   function renderLevelSelector() {
-    document.getElementById('level-selector').innerHTML = LEVELS.map(l => `
+    document.getElementById('level-selector').innerHTML = TEACHER_LEVELS.map(l => `
       <button class="level-btn ${l.key === currentLevel ? 'active' : ''}"
         ${l.available ? '' : 'disabled'}
         title="${l.available ? '' : 'Aún no disponible — plan.js de este nivel pendiente'}"

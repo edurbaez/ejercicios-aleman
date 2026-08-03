@@ -21,7 +21,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Konjunktiv II',
       subtitulo: 'hipótesis y cortesía',
       regla_base: 'Hipótesis, deseos y peticiones corteses. Comodín: würde+Inf. Los verbos clave tienen forma propia más elegante.',
-      tabla: { headers: ['Verbo', 'Konj. II propio'], rows: [['sein', 'wäre'], ['haben', 'hätte'], ['werden', 'würde'], ['können', 'könnte'], ['müssen', 'müsste'], ['sollen', 'sollte'], ['dürfen', 'dürfte']] },
+      tabla: { headers: ['Verbo', 'Konj. II propio'], rows: [['sein', 'wäre'], ['haben', 'hätte'], ['werden', 'würde'], ['können', 'könnte'], ['müssen', 'müsste'], ['sollen', 'sollte'], ['dürfen', 'dürfte'], ['mögen', 'möchte']] },
       excepciones: 'Con sein/haben/modales usa siempre la forma propia (wäre, hätte, könnte…), no würde+Inf. — "Er würde sein" suena incorrecto; lo correcto es "Er wäre".',
       explicacion: 'El Konjunktiv II expresa situaciones hipotéticas, deseos irreales, consejos y peticiones corteses. La construcción más productiva en B1 es "würde + Infinitivo", que funciona como comodín para casi cualquier verbo. Sin embargo, los verbos auxiliares y modales forman su propio Konjunktiv II a partir del Präteritum con umlaut cuando es posible: wäre (sein), hätte (haben), könnte (können), müsste (müssen), sollte (sollen), dürfte (dürfen), möchte (mögen). Estas formas propias suenan más elegantes que "würde + Inf." con los mismos verbos.',
       ejemplos: [
@@ -69,7 +69,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Declinación de adjetivos',
       subtitulo: 'después de def. / indef. / sin artículo',
       regla_base: 'Tras art. definido → débil (-e/-en). Tras art. indefinido → mixta. Sin artículo → fuerte (el adjetivo lleva la señal de caso).',
-      tabla: { headers: ['', 'Masc. Nom.', 'Masc. Akk.', 'Fem. Nom.', 'Neutro Nom.'], rows: [['Def. (der/die/das)', '-e', '-en', '-e', '-e'], ['Indef. (ein/kein)', '-er', '-en', '-e', '-es'], ['Sin artículo', '-er', '-en', '-e', '-es']] },
+      tabla: { headers: ['', 'Masc. Nom.', 'Masc. Akk.', 'Fem. Nom.', 'Neutro Nom.', 'Neutro Dat.'], rows: [['Def. (der/die/das)', '-e', '-en', '-e', '-e', '-en'], ['Indef. (ein/kein)', '-er', '-en', '-e', '-es', '-en'], ['Sin artículo', '-er', '-en', '-e', '-es', '-em']] },
       excepciones: 'Con artículo definido en casos oblicuos (Akk. masc., Dat., Gen.) casi siempre termina en -en. La terminación fuerte "sin artículo" es idéntica a la del artículo definido (der→-er, dem→-em, des→-en).',
       explicacion: 'Los adjetivos atributivos (los que preceden al sustantivo) se declinan de tres maneras según qué artículo los acompaña. Tras artículo definido (der/die/das) las terminaciones son "débiles" (-e o -en), porque el artículo ya da toda la información de género, número y caso. Tras artículo indefinido (ein, kein, mein…) las terminaciones son "mixtas": el adjetivo asume la señal de caso donde el artículo no la muestra (nominativo masc., acus. neutro → -er, -es). Sin artículo las terminaciones son "fuertes": el adjetivo debe indicar solo todo el género y el caso.',
       ejemplos: [
@@ -85,9 +85,9 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Conectores subordinantes',
       subtitulo: 'weil, dass, obwohl, wenn, als, bevor, nachdem',
       regla_base: 'Estos conectores mandan el verbo conjugado al final de la subordinada. Si la subordinada va primera, la principal empieza directamente con el verbo (V2 global).',
-      tabla: { headers: ['Conector', 'Significado', 'Uso'], rows: [['weil / da', 'porque', 'causa'], ['dass', 'que', 'contenido indirecto'], ['obwohl', 'aunque', 'concesión'], ['wenn', 'cuando / si', 'condición o hábito (cualquier tiempo)'], ['als', 'cuando', 'momento único pasado'], ['bevor', 'antes de que', 'temporal'], ['nachdem', 'después de que', 'temporal']] },
+      tabla: { headers: ['Conector', 'Significado', 'Uso'], rows: [['weil / da', 'porque', 'causa'], ['damit', 'para que', 'finalidad'], ['dass', 'que', 'contenido indirecto'], ['obwohl', 'aunque', 'concesión'], ['wenn', 'cuando / si', 'condición o hábito (cualquier tiempo)'], ['als', 'cuando', 'momento único pasado'], ['bevor', 'antes de que', 'temporal'], ['nachdem', 'después de que', 'temporal']] },
       excepciones: 'wenn vs. als: wenn para condiciones y acciones habituales en cualquier tiempo; als exclusivamente para un momento único y concreto en el pasado.',
-      explicacion: 'Estos conectores introducen oraciones subordinadas (Nebensätze) en las que el verbo conjugado va obligatoriamente AL FINAL. "Weil/da" expresan causa (porque); "damit/um…zu" expresan finalidad; "dass" introduce contenido (que); "obwohl" expresa concesión (aunque); "wenn" introduce condiciones o acciones habituales en cualquier tiempo; "als" se usa exclusivamente para un momento único en el pasado; "bevor" y "nachdem" indican relación temporal. Si la subordinada precede a la principal, la principal comienza directamente con el verbo (V2 global se mantiene).',
+      explicacion: 'Estos conectores introducen oraciones subordinadas (Nebensätze) en las que el verbo conjugado va obligatoriamente AL FINAL. "Weil/da" expresan causa (porque); "damit" expresa finalidad; "dass" introduce contenido (que); "obwohl" expresa concesión (aunque); "wenn" introduce condiciones o acciones habituales en cualquier tiempo; "als" se usa exclusivamente para un momento único en el pasado; "bevor" y "nachdem" indican relación temporal. ("um…zu" también expresa finalidad, pero no es un conector subordinante: no lleva verbo conjugado, es una construcción de infinitivo.) Si la subordinada precede a la principal, la principal comienza directamente con el verbo (V2 global se mantiene).',
       ejemplos: [
         { de: 'Ich lerne, weil ich eine Prüfung habe.', es: 'Estudio porque tengo un examen.' },
         { de: 'Ich glaube, dass er kommt.', es: 'Creo que él viene.' },
@@ -131,7 +131,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Pasiva básica',
       subtitulo: 'werden + Partizip II',
       regla_base: 'werden (conjugado) + Partizip II al final. Agente opcional: von+Dativo. Perfekt de pasiva: ist … worden (sin ge-).',
-      tabla: { headers: ['Tiempo', 'Estructura', 'Ejemplo'], rows: [['Präsens', 'wird + P.II', 'Das Haus wird gebaut.'], ['Präteritum', 'wurde + P.II', 'Das Haus wurde gebaut.'], ['Perfekt', 'ist + P.II + worden', 'Das Haus ist gebaut worden.']] },
+      tabla: { headers: ['Tiempo', 'Estructura', 'Ejemplo'], rows: [['Präsens', 'wird + P.II', 'Das Haus wird gebaut.'], ['Präteritum', 'wurde + P.II', 'Das Haus wurde gebaut.'], ['Perfekt', 'ist + P.II + worden', 'Das Haus ist gebaut worden.'], ['Konjunktiv II', 'würde + P.II + werden', 'Das Haus würde gebaut werden.']] },
       excepciones: 'Perfekt pasivo: worden (sin ge-), NO geworden. geworden es el P.II de werden como verbo pleno (convertirse). Este error es muy frecuente en B1.',
       explicacion: 'La voz pasiva (Vorgangspassiv) desplaza el foco del agente al proceso o resultado de la acción. Se forma con "werden" conjugado en el tiempo deseado más el Partizip II al final. El agente (¿por quién?) puede mencionarse con "von + Dativo" pero en alemán se omite con frecuencia. Conjugaciones de "werden": Präsens → wird; Präteritum → wurde; Perfekt → ist … worden (importante: "worden" sin "ge-"). En Konjunktiv II: würde … werden.',
       ejemplos: [
@@ -210,7 +210,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Infinitivo sin "zu"',
       subtitulo: 'modales, lassen, sehen, hören, gehen+Inf.',
       regla_base: 'Contraste con `b1-08`: modales, lassen, sehen, hören, fühlen y verbos de movimiento (gehen, kommen, fahren) van seguidos de infinitivo SIN "zu".',
-      tabla: { headers: ['Verbo', 'Ejemplo'], rows: [['modal', 'Ich muss gehen.'], ['lassen', 'Ich lasse das Auto reparieren.'], ['sehen/hören', 'Ich sehe ihn kommen.'], ['gehen/kommen', 'Wir gehen schwimmen.']] },
+      tabla: { headers: ['Verbo', 'Ejemplo'], rows: [['modal', 'Ich muss gehen.'], ['lassen', 'Ich lasse das Auto reparieren.'], ['sehen/hören/fühlen', 'Ich sehe ihn kommen.'], ['gehen/kommen', 'Wir gehen schwimmen.']] },
       excepciones: 'En Perfekt, los modales y "lassen/sehen/hören" usan el llamado Ersatzinfinitiv (doble infinitivo) en vez del Partizip II: "Ich habe gehen müssen" (no "gemusst"), "Ich habe ihn kommen sehen" (no "gesehen").',
       explicacion: 'Esta regla es el contraste directo de `b1-08` (infinitivo CON zu). Un grupo cerrado de verbos toma el infinitivo directamente, sin "zu": los verbos modales (können, müssen, wollen…), "lassen" (mandar hacer algo, causativo — ver también `b1-28` en niveles superiores), los verbos de percepción "sehen", "hören", "fühlen", y los verbos de movimiento "gehen", "kommen", "fahren" cuando van seguidos de otra actividad ("schwimmen gehen", "einkaufen fahren"). Un detalle avanzado: en Perfekt, con modales y con lassen/sehen/hören, no se usa el Partizip II normal sino el llamado "Ersatzinfinitiv" — el propio infinitivo ocupa el lugar del participio: "Ich habe nicht kommen können" (no "gekonnt kommen").',
       ejemplos: [
@@ -226,7 +226,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Relativsätze mit Präposition',
       subtitulo: 'der Mann, mit dem ich spreche…',
       regla_base: 'Extiende `b1-03`: si el verbo de la relativa exige preposición, esta se coloca delante del pronombre relativo, que toma el caso que rige esa preposición (no el de su función habitual).',
-      tabla: { headers: ['Antecedente', 'Prep. + Caso', 'Ejemplo'], rows: [['persona (masc.)', 'mit + Dat.', 'der Mann, mit dem ich spreche'], ['persona (fem.)', 'für + Akk.', 'die Frau, für die ich arbeite'], ['cosa/idea', 'über + Akk.', 'das Buch, über das wir sprechen']] },
+      tabla: { headers: ['Antecedente', 'Prep. + Caso', 'Ejemplo'], rows: [['persona (masc.)', 'mit + Dat.', 'der Mann, mit dem ich spreche'], ['persona (fem.)', 'für + Akk.', 'die Frau, für die ich arbeite'], ['cosa/idea', 'über + Akk.', 'das Buch, über das wir sprechen'], ['personas (plural)', 'auf + Akk.', 'die Freunde, auf die ich warte']] },
       excepciones: 'Con antecedente neutro/cosa abstracta e indefinida (algo genérico, "alles was", "das, worüber…") se puede usar wo(r)+prep. en vez de prep.+pronombre relativo, pero en B1 basta con dominar la forma con pronombre.',
       explicacion: 'Cuando el verbo de la oración de relativo (`b1-03`) exige una preposición fija (como los verbos de `b1-07`: sprechen über, warten auf, sich freuen auf…), esa preposición no desaparece: se coloca inmediatamente delante del pronombre relativo. El pronombre relativo ya no toma el caso de su función lógica en la frase, sino el caso que esa preposición exige. El género y número del pronombre siguen dependiendo del antecedente, exactamente igual que en `b1-03`.',
       ejemplos: [
@@ -294,7 +294,7 @@ window.GRAMMAR_DATA.B1 = [
       excepciones: 'Se añade una -r- de enlace cuando la preposición empieza por vocal: da+auf → darauf, wo+an → woran (no "daauf" ni "woan").',
       explicacion: 'Esta regla retoma `b1-07`: los verbos con preposición fija (warten auf, denken an, sich freuen über…) ya introdujeron da(r)+prep. como sustituto de "prep.+cosa". Aquí se completa el sistema con su pareja interrogativa: wo(r)+prep. Se usa para preguntar por una cosa o idea ("Woran denkst du?" — ¿en qué piensas?) y, exactamente igual que "ob"/W-Wort en `b1-13`, también para introducir una pregunta indirecta cuando el elemento por el que se pregunta es una cosa regida por preposición: "Ich frage mich, worüber sie sprechen" (me pregunto de qué hablan). Con personas nunca se usa da-/wo-: se usa pronombre o "wer" + preposición (an ihn, an wen).',
       ejemplos: [
-        { de: 'Ich freue mich darauf. (= auf die Reise)', es: 'Me alegro por ello. (= por el viaje)' },
+        { de: 'Ich freue mich darauf. (= auf die Reise)', es: 'Me alegro de ello. (= por el viaje)' },
         { de: 'Woran denkst du gerade?', es: '¿En qué piensas ahora mismo?' },
         { de: 'Ich weiß nicht, womit er das gemacht hat.', es: 'No sé con qué hizo eso.' },
         { de: 'An wen denkst du? — An meinen Bruder.', es: '¿En quién piensas? — En mi hermano. (persona: sin wo-)' }
@@ -343,7 +343,7 @@ window.GRAMMAR_DATA.B1 = [
       explicacion: 'Esta regla no introduce gramática nueva, sino que unifica y contrasta explícitamente las tres caras de "werden" que ya se vieron por separado en `b1-09` (pasiva) y `b1-10` (futuro), añadiendo la tercera función —el uso como verbo pleno con significado propio ("convertirse en", "llegar a ser")— que hasta ahora no tenía entrada propia. La clave para distinguirlas es mirar qué elemento acompaña a "werden": si va seguido de un sustantivo en Nominativ o un adjetivo, es verbo pleno (cambio de estado); si va seguido de un infinitivo, es futuro o suposición; si va seguido de un Partizip II, es pasiva. El Partizip II del propio "werden" también distingue las funciones: "geworden" cuando es verbo pleno, "worden" (sin ge-) cuando es auxiliar de pasiva en Perfekt.',
       ejemplos: [
         { de: 'Sie wird Ärztin. (verbo pleno)', es: 'Ella se hace/llega a ser médica.' },
-        { de: 'Es wird kalt. (verbo pleno + adjetivo)', es: 'Está haciéndose frío.' },
+        { de: 'Es wird kalt. (verbo pleno + adjetivo)', es: 'Se está poniendo frío.' },
         { de: 'Ich werde dich morgen anrufen. (futuro)', es: 'Te llamaré mañana.' },
         { de: 'Das Auto wird repariert. (pasiva)', es: 'El coche está siendo reparado.' }
       ],
@@ -354,7 +354,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Trennbare vs. untrennbare Verben',
       subtitulo: 'prefijos separables e inseparables',
       regla_base: 'Prefijos SIEMPRE separables (ab-, an-, auf-, aus-, ein-, mit-, vor-, zu-…): llevan acento tónico y el prefijo se va al final en Präsens/Präteritum. Prefijos SIEMPRE inseparables (be-, emp-, ent-, er-, ge-, miss-, ver-, zer-): sin acento, nunca se separan, sin "ge-" en Partizip II.',
-      tabla: { headers: ['Tipo', 'Prefijos', 'Ejemplo'], rows: [['separable', 'ab-, an-, auf-, aus-, ein-, mit-, vor-, zu-', 'Ich rufe dich an. / Ich habe angerufen.'], ['inseparable', 'be-, emp-, ent-, er-, ge-, miss-, ver-, zer-', 'Ich besuche dich. / Ich habe besucht.'], ['dual (según sentido)', 'durch-, über-, unter-, um-, wieder-, wider-', 'umfahren (atropellar) vs. umfahren (rodear)']] },
+      tabla: { headers: ['Tipo', 'Prefijos', 'Ejemplo'], rows: [['separable', 'ab-, an-, auf-, aus-, ein-, mit-, vor-, zu-', 'Ich rufe dich an. / Ich habe angerufen.'], ['inseparable', 'be-, emp-, ent-, er-, ge-, miss-, ver-, zer-', 'Ich besuche dich. / Ich habe dich besucht.'], ['dual (según sentido)', 'durch-, über-, unter-, um-, wieder-, wider-', 'umfahren (atropellar) vs. umfahren (rodear)']] },
       excepciones: 'Un grupo de prefijos (durch-, über-, unter-, um-, wieder-, wider-) puede ser separable o inseparable según el significado: si el prefijo tiene sentido literal/espacial suele ser separable y tónico (Er fährt das Schild um = lo atropella); si tiene sentido figurado suele ser inseparable y átono (Er umfährt die Stadt = la rodea, evita pasar por ella).',
       explicacion: 'Esta regla precede lógicamente a `b1-07` en la secuencia de aprendizaje del verbo alemán: antes de combinar un verbo con su preposición fija conviene saber si su prefijo se separa o no. Los verbos con prefijo separable llevan el acento tónico en el prefijo, y en Präsens/Präteritum/Imperativ ese prefijo se desplaza al final de la frase, dejando la raíz conjugada en 2ª posición: "an|rufen" → "Ich rufe dich an." En Partizip II, el "ge-" se inserta entre el prefijo y la raíz: "angerufen". Los verbos con prefijo inseparable nunca separan el prefijo, este va átono, y su Partizip II NO lleva "ge-": "besuchen" → "besucht" (no "gebesucht"). Un tercer grupo de prefijos (durch-, über-, unter-, um-, wieder-, wider-) es "dual": el mismo prefijo puede ser separable o inseparable según si el verbo tiene un sentido literal/espacial (separable) o figurado/abstracto (inseparable) — este subgrupo se reconoce mejor por el contexto que por regla fija.',
       ejemplos: [
@@ -402,7 +402,7 @@ window.GRAMMAR_DATA.B1 = [
       titulo: 'Lokale Adverbien: Position und Direktion',
       subtitulo: 'hier/dort/da vs. hierhin/dorthin/dahin',
       regla_base: '¿Wo? (posición, sin movimiento) → hier, dort, da. ¿Wohin? (dirección, con movimiento) → hierhin, dorthin, dahin (o hier-/dort- + her/hin separado: hier her, dort hin).',
-      tabla: { headers: ['Pregunta', 'Adverbio', 'Ejemplo'], rows: [['Wo? (posición)', 'hier / dort / da', 'Ich bin hier.'], ['Wohin? (dirección)', 'hierhin / dorthin', 'Komm hierhin!'], ['Woher? (procedencia)', 'von hier / von dort', 'Ich komme von dort.']] },
+      tabla: { headers: ['Pregunta', 'Adverbio', 'Ejemplo'], rows: [['Wo? (posición)', 'hier / dort / da', 'Ich bin hier.'], ['Wohin? (dirección, alejamiento)', 'hierhin / dorthin / dahin', 'Geh dorthin!'], ['Wohin? (dirección, hacia el hablante)', 'hierher / dorther / daher', 'Komm hierher!'], ['Woher? (procedencia)', 'von hier / von dort', 'Ich komme von dort.']] },
       excepciones: 'En el habla coloquial es muy frecuente separar la dirección en dos palabras al final de la frase: "Ich gehe da hin" (en vez de "dahin"), igual que ocurre con los verbos separables — "hin" y "her" se comportan como un prefijo separable pospuesto.',
       explicacion: 'Esta regla extiende a los adverbios de lugar la misma distinción wo/wohin ya vista con las preposiciones (`a2-06` Wechselpräpositionen): "hier/dort/da" responden a la pregunta "wo?" (posición estática, sin movimiento), mientras que "hierhin/dorthin/dahin" responden a "wohin?" (dirección, con movimiento hacia ese lugar). El componente "-hin" indica alejamiento del hablante (dahin, dorthin) y "-her" indica acercamiento hacia el hablante (hierher, daher). En la lengua hablada, en vez de fusionar el adverbio con -hin/-her, es muy común dejarlos separados al final de la frase: "Wo gehst du hin?" en vez de "Wohin gehst du?", "Ich komme da her" en vez de "Ich komme daher".',
       ejemplos: [
@@ -456,7 +456,7 @@ window.GRAMMAR_DATA.B1 = [
       ejemplos: [
         { de: 'Ich rufe an, um Hallo zu sagen.', es: 'Llamo para saludar. (mismo sujeto)' },
         { de: 'Er arbeitet viel, um Geld zu verdienen.', es: 'Trabaja mucho para ganar dinero.' },
-        { de: 'Ich schreibe es auf, damit ich es nicht vergesse.', es: 'Lo apunto para no olvidarlo. (mismo sujeto también, pero con damit es igual de válido)' },
+        { de: 'Ich schreibe es auf, damit du es nicht vergisst.', es: 'Lo apunto para que no lo olvides.' },
         { de: 'Die Mutter singt, damit das Baby einschläft.', es: 'La madre canta para que el bebé se duerma. (sujetos distintos)' }
       ],
       tip: 'Primero identifica el sujeto de las dos acciones. ¿Es la misma persona? → intenta "um…zu" primero, es más natural. ¿Son personas distintas? → "damit" es obligatorio, "um…zu" no funciona.'

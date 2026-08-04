@@ -226,8 +226,7 @@
 
     function buildPrompt(casoObjetivo, esWechsel, esAdjetivo) {
         const tema = TEMAS[Math.floor(Math.random() * TEMAS.length)];
-        const casosSpec = esWechsel ? 'Akkusativ|Dativ' : 'Nominativ|Akkusativ|Dativ|Genitiv';
-        const jsonSpec = `Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"${casosSpec}","explicacion":"explicación breve en español"}. Todas las opciones distintas entre sí. La respuesta debe estar entre las opciones.`;
+        const jsonSpec = `Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"${casoObjetivo}","explicacion":"explicación breve en español"}. El campo "caso" debe ser exactamente "${casoObjetivo}", literal. Todas las opciones distintas entre sí. La respuesta debe estar entre las opciones.`;
 
         if (esWechsel) {
             const preps = ['in', 'an', 'auf', 'über', 'unter', 'vor', 'hinter', 'neben', 'zwischen'];

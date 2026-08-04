@@ -637,8 +637,9 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
 
             const lvl = t.level || EscState.level;
             const system = `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${lvl}. Evalúa con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
+Calcula 4 subpuntuaciones 0-100 y pondéralas así para obtener "puntuacion": cumplimiento de la tarea 40%, gramática y vocabulario 30%, cohesión 15%, registro 15%. Antes de dar la puntuación final, escribe una breve justificación (1-2 frases en español) que referencie los subscores.
 Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
-{"puntuacion": número 0-100, "puntos_cubiertos": [true|false por cada punto guía, en el mismo orden], "registro_adecuado": true|false, "errores": [{"original":"fragmento con error","correccion":"fragmento corregido","explicacion":"explicación breve en español","categoria":"gramática|vocabulario|ortografía|registro|estructura"}], "version_mejorada":"el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido", "comentario":"valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar"}
+{"puntuacion": número 0-100, "subscores": {"cumplimiento": número 0-100, "gramatica_vocabulario": número 0-100, "cohesion": número 0-100, "registro": número 0-100}, "justificacion_puntuacion": "1-2 frases en español", "puntos_cubiertos": [true|false por cada punto guía, en el mismo orden], "registro_adecuado": true|false, "errores": [{"original":"fragmento con error","correccion":"fragmento corregido","explicacion":"explicación breve en español","categoria":"gramática|vocabulario|ortografía|registro|estructura"}], "version_mejorada":"el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido", "comentario":"valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar"}
 Si el texto no tiene errores, devuelve "errores": [].`;
 
             const userMsg = `TAREA (nivel ${lvl}, registro ${t.registro}, ${t.min_palabras}-${t.max_palabras} palabras):
@@ -710,12 +711,23 @@ ${texto}`;
                     <p class="esc-error-exp">${escHtml(e.explicacion || '')}</p>
                 </div>`).join('');
 
+        const subscores = ev.subscores;
+        const subscoresHtml = subscores ? `
+                <h3 class="esc-section-title">Desglose</h3>
+                <ul class="esc-checklist">
+                    <li>Cumplimiento de la tarea (40%): ${Math.round(subscores.cumplimiento ?? 0)}/100</li>
+                    <li>Gramática y vocabulario (30%): ${Math.round(subscores.gramatica_vocabulario ?? 0)}/100</li>
+                    <li>Cohesión (15%): ${Math.round(subscores.cohesion ?? 0)}/100</li>
+                    <li>Registro (15%): ${Math.round(subscores.registro ?? 0)}/100</li>
+                </ul>` : '';
+
         document.getElementById('esc-result').innerHTML = `
             <div class="esc-card">
                 <div class="esc-eval-head">
                     <div class="esc-score ${scoreClass}">${score}</div>
                     <div class="esc-eval-summary">
                         <p class="esc-comment">${escHtml(ev.comentario || '')}</p>
+                        ${ev.justificacion_puntuacion ? `<p class="esc-comment">${escHtml(ev.justificacion_puntuacion)}</p>` : ''}
                         ${ev.registro_adecuado === false ? '<p class="esc-reg-warn">⚠️ El registro (du/Sie) no es el adecuado para esta tarea.</p>' : ''}
                     </div>
                 </div>
@@ -726,6 +738,7 @@ ${texto}`;
                 </details>` : ''}
                 <h3 class="esc-section-title">Puntos guía</h3>
                 <ul class="esc-checklist">${checklist}</ul>
+                ${subscoresHtml}
                 <h3 class="esc-section-title">Errores (${ev.errores.length})</h3>
                 ${errores}
                 ${ev.version_mejorada ? `

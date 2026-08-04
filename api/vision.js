@@ -40,6 +40,7 @@ const cap = (s, n) => String(s || '').slice(0, n);
 function buildEscrituraPrompt(task) {
     const puntos = (Array.isArray(task.puntos) ? task.puntos : []).slice(0, 6).map(p => cap(p, 200));
     return `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${cap(task.level, 2)}. La imagen contiene el texto MANUSCRITO del alumno: transcríbelo primero con fidelidad (si algo es ilegible, márcalo como [ilegible]) y evalúalo después contra esta tarea con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
+Calcula 4 subpuntuaciones 0-100 y pondéralas así para obtener "puntuacion": cumplimiento de la tarea 40%, gramática y vocabulario 30%, cohesión 15%, registro 15%. Antes de dar la puntuación final, escribe una breve justificación (1-2 frases en español) que referencie los subscores.
 
 TAREA (registro ${cap(task.registro, 20)}, ${Number(task.min_palabras) || 0}-${Number(task.max_palabras) || 0} palabras):
 ${cap(task.titulo, 200)}
@@ -50,6 +51,8 @@ Responde ÚNICAMENTE con un objeto JSON válido con esta estructura exacta:
 {
   "texto_transcrito": "<transcripción fiel del texto manuscrito>",
   "puntuacion": <número entero 0-100>,
+  "subscores": {"cumplimiento": <número 0-100>, "gramatica_vocabulario": <número 0-100>, "cohesion": <número 0-100>, "registro": <número 0-100>},
+  "justificacion_puntuacion": "<1-2 frases en español>",
   "puntos_cubiertos": [<true|false por cada punto guía, en el mismo orden>],
   "registro_adecuado": <true|false>,
   "errores": [{"original":"<fragmento con error>","correccion":"<fragmento corregido>","explicacion":"<explicación breve en español>","categoria":"<gramática|vocabulario|ortografía|registro|estructura>"}],

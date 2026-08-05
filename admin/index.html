@@ -782,7 +782,19 @@
   // ── Last 5 days per student ───────────────────────────────
   function renderLast5Days() {
     const container = document.getElementById('last5-container');
-    const students  = allProfiles.filter(p => eventsByUser[p.id]?.length > 0);
+
+    const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - 4); // today + 4 previous days = 5-day window
+    const cutoffISO = cutoff.toISOString();
+
+    const students = allProfiles
+      .filter(p => (eventsByUser[p.id] || []).some(e => e.created_at >= cutoffISO))
+      .sort((a, b) => {
+        const lastA = (eventsByUser[a.id] || [])[0]?.created_at || '';
+        const lastB = (eventsByUser[b.id] || [])[0]?.created_at || '';
+        return lastB.localeCompare(lastA); // events are pre-sorted newest-first
+      });
 
     if (students.length === 0) {
       container.innerHTML = '<p class="empty">Sin actividad registrada.</p>';
@@ -790,7 +802,7 @@
     }
 
     container.innerHTML = students.map(p => {
-      const evs   = eventsByUser[p.id] || [];
+      const evs   = (eventsByUser[p.id] || []).filter(e => e.created_at >= cutoffISO);
       const byDay = {};
       for (const e of evs) {
         const day = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });

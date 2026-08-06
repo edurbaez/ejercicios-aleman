@@ -626,6 +626,7 @@ function showQuizResult() {
   const correct = results.filter(Boolean).length;
   const total = results.length;
   updateSRSEntry(ruleId, correct === total ? 4 : correct >= 2 ? 3 : 1);
+  if (window.logEvent) window.logEvent('gramatica', 'quiz_completed', { rule_id: ruleId, correct, total });
   const stars = ['☆☆☆','★☆☆','★★☆','★★★'][correct] || '★★★';
   const rachaHtml = correct === total ? '<div class="gram-quiz-racha">⚡ ¡Racha perfecta!</div>' : '';
   document.getElementById('quiz-' + ruleId).innerHTML =

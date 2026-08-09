@@ -1,6 +1,6 @@
 ---
 name: docs-maintainer
-description: Use after any task that added, deleted, or repurposed a file in this repo (a new app, API endpoint, migration, script, or shared JS/CSS file) to enforce the repo's Maintenance rule — updating the Active Files table in CLAUDE.md and the Apps/Deployment sections of README.md. Also use to check whether those docs are already out of sync with the current file tree.
+description: Use after a task that added/deleted/repurposed multiple files, or when it's unclear which table(s) need updating, to enforce the repo's Maintenance rule — updating the Active Files table in CLAUDE.md and the Apps/Deployment sections of README.md. Also use to audit whether those docs are already out of sync with the current file tree. Do NOT use for a single obvious one-line row addition/removal in a table you already have open (e.g. one new file, one clear table) — just edit it inline.
 tools: Read, Edit, Grep, Glob
 model: sonnet
 ---

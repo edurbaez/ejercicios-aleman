@@ -1,6 +1,6 @@
 ---
 name: serverless-endpoint
-description: Use for creating or editing Vercel serverless functions under api/*.js — new endpoints, changes to existing ones (chat.js, whisper.js, vision.js, tts.js, image.js, admin.js, etc.), rate limiting, or auth/access-control changes in api/_lib.js. Critical because the Vercel Hobby plan caps deployments at 12 serverless functions, so new endpoints usually must be merged into an existing one via action dispatch rather than added as a new file.
+description: Use for creating a new endpoint, deciding whether/how to merge it into an existing one (Hobby plan's 12-function cap), or changes to shared auth/rate-limit logic in api/_lib.js — cases where the right file or approach isn't already obvious. Critical because new endpoints usually must be merged into an existing one via action dispatch rather than added as a new file. Do NOT use for a small fix to an already-identified line in a specific api/*.js file (e.g. adjusting a rate limit number, fixing a typo in an error message, tweaking one prompt string) — do those inline instead.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 ---

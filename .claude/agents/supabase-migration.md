@@ -1,6 +1,6 @@
 ---
 name: supabase-migration
-description: Use for creating or reviewing Supabase database migrations (supabase/migrations/*.sql), RLS policies, or any schema change. Also use to inspect current DB state (tables, policies, columns) when mcp__supabase__* tools are not registered in the session. Critical for this repo because a past migration (009) found an untracked RLS policy created directly in Supabase that silently bypassed the access-control gate.
+description: Use for creating a new migration, reviewing/designing RLS policy changes, or investigating current DB state (tables, policies, columns) when mcp__supabase__* tools are not registered in the session. Critical for this repo because a past migration (009) found an untracked RLS policy created directly in Supabase that silently bypassed the access-control gate. Do NOT use for a one-line SQL tweak to a migration file you're already editing inline in the main conversation, or for reading a migration file you already know the path to — only for new migrations, policy design, or when the current schema/policy state is unknown and needs investigation.
 tools: Read, Write, Edit, Grep, Glob, Bash
 model: sonnet
 ---

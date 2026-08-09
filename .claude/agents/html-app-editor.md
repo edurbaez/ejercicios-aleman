@@ -1,6 +1,6 @@
 ---
 name: html-app-editor
-description: Use for reading, editing, or auditing the large single-file HTML apps in this repo (lectura veloz.html, mundliche.html, escritura.html, marketing/contenido.html, kasus.html, chat-reformulaciones.html, admin/index.html, teacher/index.html, and similar). Also use for broad exploration across the codebase or auditing a feature end-to-end within one of these files (e.g. a plan.js level, cross-referencing against GRAMMAR_DATA). Keeps the main context clean per the repo's subagent usage rule.
+description: Use for reading, editing, or auditing the large single-file HTML apps in this repo (lectura veloz.html, mundliche.html, escritura.html, marketing/contenido.html, kasus.html, chat-reformulaciones.html, admin/index.html, teacher/index.html, and similar) when the exact location to change is NOT already known — e.g. auditing a plan.js level end-to-end, cross-referencing a whole app against GRAMMAR_DATA, implementing a feature that spans several functions, or any change requiring reading unfamiliar sections of the file first. Do NOT use for a small, targeted edit where the file, function, and line are already known from context (e.g. a one-line CSS tweak, fixing a typo in a string, changing one constant, adjusting one already-located function) — do those inline instead, spawning an agent here only adds cold-start overhead.
 tools: Read, Edit, Write, Grep, Glob, Bash
 model: sonnet
 ---

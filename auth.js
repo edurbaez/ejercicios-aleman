@@ -497,7 +497,7 @@
     try {
       const [evRes, exRes] = await Promise.all([
         fetch(
-          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,session_start,lookup,text_evaluated,photo_evaluated,kasus_answered,revision,sprint_end,comp_completed)&order=created_at.asc&limit=10000`,
+          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,session_start,lookup,text_evaluated,photo_evaluated,kasus_answered,revision,sprint_end,comp_completed,quiz_completed)&order=created_at.asc&limit=10000`,
           { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
         ),
         window.sb.from('exam_results').select('created_at,level,score,total').order('created_at', { ascending: false }).limit(20)
@@ -551,7 +551,7 @@
     const counts   = days30.map(d => countByDay[d]);
     const maxCount = Math.max(...counts, 1);
 
-    // Activity per day for streak: quiz + escritura + kasus + revisión + audio + sprint + comprensión
+    // Activity per day for streak: quiz + escritura + kasus + revisión + audio + sprint + comprensión + gramática
     const activityByDay = Object.fromEntries(days30.map(d => [d, 0]));
     quizSessions.forEach(e => {
       const day = localDay(e);
@@ -582,6 +582,10 @@
       if (activityByDay[day] !== undefined) activityByDay[day]++;
     });
     data.filter(e => e.event_type === 'auto_session_end').forEach(e => {
+      const day = localDay(e);
+      if (activityByDay[day] !== undefined) activityByDay[day]++;
+    });
+    data.filter(e => e.event_type === 'quiz_completed').forEach(e => {
       const day = localDay(e);
       if (activityByDay[day] !== undefined) activityByDay[day]++;
     });

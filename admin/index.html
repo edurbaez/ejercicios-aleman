@@ -41,7 +41,7 @@
     @media (max-width: 600px) { .adm-main { padding: 12px 10px 24px; } }
 
     /* ── Summary cards ── */
-    .cards-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
+    .cards-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
     @media (max-width: 900px) { .cards-row { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 600px) { .cards-row { grid-template-columns: repeat(2, 1fr); } }
 
@@ -59,12 +59,14 @@
     .card.c-green { border-left-color: #2e7d32; } .card.c-green .card-icon { background: #e8f5e9; } .card.c-green .card-value { color: #2e7d32; }
     .card.c-purple{ border-left-color: #6A1B9A; } .card.c-purple .card-icon{ background: #f3e5f5; } .card.c-purple .card-value{ color: #6A1B9A; }
     .card.c-orange{ border-left-color: #E65100; } .card.c-orange .card-icon{ background: #fff3e0; } .card.c-orange .card-value{ color: #E65100; }
+    .card.c-indigo{ border-left-color: #3949AB; } .card.c-indigo .card-icon{ background: #e8eaf6; } .card.c-indigo .card-value{ color: #3949AB; }
 
     body.dark .card.c-blue .card-icon  { background: #0d2a50; } body.dark .card.c-blue .card-value  { color: #64b5f6; } body.dark .card.c-blue  { border-left-color: #64b5f6; }
     body.dark .card.c-teal .card-icon  { background: #00302b; } body.dark .card.c-teal .card-value  { color: #4db6ac; } body.dark .card.c-teal  { border-left-color: #4db6ac; }
     body.dark .card.c-green .card-icon { background: #0a2a0c; } body.dark .card.c-green .card-value { color: #81c784; } body.dark .card.c-green { border-left-color: #81c784; }
     body.dark .card.c-purple .card-icon{ background: #1e0a30; } body.dark .card.c-purple .card-value{ color: #ce93d8; } body.dark .card.c-purple{ border-left-color: #ce93d8; }
     body.dark .card.c-orange .card-icon{ background: #2a1000; } body.dark .card.c-orange .card-value{ color: #ffb74d; } body.dark .card.c-orange{ border-left-color: #ffb74d; }
+    body.dark .card.c-indigo .card-icon{ background: #1a1d3a; } body.dark .card.c-indigo .card-value{ color: #9fa8da; } body.dark .card.c-indigo{ border-left-color: #9fa8da; }
 
     /* ── Sparkline section ── */
     .sparkline-section { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 20px; }
@@ -144,6 +146,7 @@
     .active-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #ccc; margin-right: 6px; vertical-align: middle; flex-shrink: 0; }
     .active-dot.today { background: #43a047; }
     .active-dot.week  { background: #ffa726; }
+    .active-dot.stale { background: #e53935; }
 
     /* Badge */
     .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #e3f0ff; color: #1565C0; }
@@ -376,6 +379,15 @@
         </div>
         <div class="card-value" id="stat-exams">—</div>
       </div>
+      <div class="card c-indigo">
+        <div class="card-top">
+          <span class="card-label">Retención 8sem</span>
+          <div class="card-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3949AB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.85.99 6.57 2.61"/><polyline points="21 3 21 9 15 9"/></svg>
+          </div>
+        </div>
+        <div class="card-value" id="stat-retention">—</div>
+      </div>
     </div>
 
     <!-- 2. Sparkline -->
@@ -461,6 +473,15 @@
       </div>
     </div>
 
+    <!-- 3b. Expiring access alert -->
+    <div class="section" id="expiring-section" style="display:none;">
+      <div class="section-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Acceso por expirar (próximos 7 días)
+      </div>
+      <div id="expiring-list"></div>
+    </div>
+
     <!-- 4. Users table -->
     <div class="section">
       <div class="section-title">
@@ -477,7 +498,7 @@
             <th class="col-hide-mobile">Rol</th>
             <th class="col-hide-mobile">Acceso</th>
             <th class="col-hide-mobile" onclick="sortUsers('created_at')">Registro<span class="sort-icon"></span></th>
-            <th>Última actividad</th>
+            <th onclick="sortUsers('lastActivity')">Última actividad<span class="sort-icon"></span></th>
             <th class="col-hide-mobile" onclick="sortUsers('events')">Eventos<span class="sort-icon"></span></th>
           </tr>
         </thead>
@@ -521,6 +542,7 @@
       </div>
       <div id="det-plan" style="margin-top:16px;"></div>
       <div id="det-srs" style="margin-top:16px;"></div>
+      <div id="det-stats" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
     </div>
@@ -551,9 +573,12 @@
   const examsByUser  = {};
   const srsByUser     = {}; // user_id -> { total, mastered } (vocabulary words, reps >= 2)
   const grammarByUser = {}; // user_id -> { total, mastered } (grammar rules, reps >= 2)
+  const readingByUser = {}; // user_id -> count of reading_texts seen
+  const grammarPracticeByUser = {}; // user_id -> count of grammar_practice_exercises seen
 
   let profileMap          = new Map();
   let totalActivityWeight = 0;
+  let marketingSummary    = null; // { total_users, active_7d, active_30d, retained_2w, active_8w }
 
   // Track today's active users globally
   let activeTodayIds = new Set();
@@ -613,6 +638,8 @@
     for (const k of Object.keys(examsByUser))  delete examsByUser[k];
     for (const k of Object.keys(srsByUser))     delete srsByUser[k];
     for (const k of Object.keys(grammarByUser)) delete grammarByUser[k];
+    for (const k of Object.keys(readingByUser)) delete readingByUser[k];
+    for (const k of Object.keys(grammarPracticeByUser)) delete grammarPracticeByUser[k];
     await loadData();
     btn.innerHTML = orig;
     btn.disabled  = false;
@@ -620,7 +647,7 @@
 
   // ── Data loading ──────────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes, exRes, srsRes, gramRes] = await Promise.all([
+    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
@@ -634,11 +661,16 @@
         .limit(500),
       sb.from('srs_progress').select('user_id, reps').limit(20000),
       sb.from('grammar_rule_progress').select('user_id, reps').limit(20000),
+      sb.from('marketing_summary').select('*').single(),
+      // Requires migration 015 (admin read-all policy) — silently empty otherwise.
+      sb.from('user_reading_seen').select('user_id').limit(20000),
+      sb.from('user_grammar_practice_seen').select('user_id').limit(20000),
     ]);
 
-    allProfiles = profRes.data || [];
-    allEvents   = evRes.data  || [];
-    allExams    = exRes.data  || [];
+    allProfiles      = profRes.data || [];
+    allEvents        = evRes.data  || [];
+    allExams         = exRes.data  || [];
+    marketingSummary = summaryRes?.data || null;
 
     profileMap = new Map(allProfiles.map(p => [p.id, p]));
 
@@ -663,6 +695,12 @@
       grammarByUser[r.user_id].total++;
       if (r.reps >= 2) grammarByUser[r.user_id].mastered++;
     }
+    for (const r of readingRes.data || []) {
+      readingByUser[r.user_id] = (readingByUser[r.user_id] || 0) + 1;
+    }
+    for (const r of gramPracticeRes.data || []) {
+      grammarPracticeByUser[r.user_id] = (grammarPracticeByUser[r.user_id] || 0) + 1;
+    }
 
     renderSummary();
     renderSparkline();
@@ -670,6 +708,43 @@
     renderExamStats();
     renderLast5Days();
     renderUsersTable(allProfiles);
+    renderExpiringAccess();
+    renderGlobalKpis();
+  }
+
+  // ── Global KPIs (marketing_summary view) ──────────────────
+  function renderGlobalKpis() {
+    const el = document.getElementById('stat-retention');
+    if (!el) return;
+    if (!marketingSummary || !marketingSummary.active_8w) { el.textContent = '—'; return; }
+    const pct = Math.round(marketingSummary.retained_2w / marketingSummary.active_8w * 100);
+    el.textContent = pct + '%';
+  }
+
+  // ── Expiring access alert ─────────────────────────────────
+  function renderExpiringAccess(days = 7) {
+    const now    = Date.now();
+    const cutoff = now + days * 86400 * 1000;
+    const list = allProfiles
+      .filter(p => p.status !== 'blocked' && p.access_expires_at &&
+        new Date(p.access_expires_at).getTime() > now &&
+        new Date(p.access_expires_at).getTime() <= cutoff)
+      .sort((a, b) => new Date(a.access_expires_at) - new Date(b.access_expires_at));
+
+    const section = document.getElementById('expiring-section');
+    if (list.length === 0) { section.style.display = 'none'; return; }
+    section.style.display = 'block';
+
+    document.getElementById('expiring-list').innerHTML = list.map(p => {
+      const color = userColor(p.email || p.id);
+      const ini   = initials(p.display_name, p.email);
+      return `<div class="event-row" style="cursor:pointer;" onclick="showDetail('${esc(p.id)}')">
+        <div class="avatar" style="background:${color}">${esc(ini)}</div>
+        <span style="font-weight:600;">${esc(p.display_name || p.email || p.id)}</span>
+        <span style="color:#888;font-size:12px;">${esc(p.email || '')}</span>
+        <span class="badge admin" style="margin-left:auto;">expira ${fmtDate(p.access_expires_at)}</span>
+      </div>`;
+    }).join('');
   }
 
   // ── Summary cards ─────────────────────────────────────────
@@ -744,6 +819,10 @@
     'gramatica': 'Gramática',
     'chat-reformulaciones': 'Reformulaciones',
     'plan': 'Plan 30 días',
+    'mundliche': 'Práctica Oral',
+    'escritura': 'Escritura',
+    'chatvoz2': 'Chat de Voz 2',
+    'auth': 'Acceso / Autenticación',
   };
 
   // ── Time range filter (shared helper, per-section state) ──
@@ -839,7 +918,7 @@
     recentEl.innerHTML = `<table class="exam-table">
       <thead><tr><th>Fecha</th><th>Usuario</th><th>Nivel</th><th>Puntuación</th></tr></thead>
       <tbody>
-        ${allExams.slice(0, 20).map(x => {
+        ${exams.slice(0, 20).map(x => {
           const p   = profileMap.get(x.user_id);
           const pct = Math.round(x.score / x.total * 100);
           return `<tr>
@@ -932,6 +1011,9 @@
       if (sortCol === 'events') {
         va = (eventsByUser[a.id] || []).length;
         vb = (eventsByUser[b.id] || []).length;
+      } else if (sortCol === 'lastActivity') {
+        va = (eventsByUser[a.id] || [])[0]?.created_at || '';
+        vb = (eventsByUser[b.id] || [])[0]?.created_at || '';
       } else {
         va = (a[sortCol] || '').toString().toLowerCase();
         vb = (b[sortCol] || '').toString().toLowerCase();
@@ -952,8 +1034,10 @@
         const cutoff = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
         return e.created_at >= cutoff;
       });
-      const dotClass = isToday ? 'today' : isWeek ? 'week' : '';
-      const dotTitle = isToday ? 'Activo hoy' : isWeek ? 'Activo esta semana' : 'Sin actividad reciente';
+      const staleCutoff = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+      const isStale = !isToday && !isWeek && (!lastEv || lastEv.created_at < staleCutoff);
+      const dotClass = isToday ? 'today' : isWeek ? 'week' : isStale ? 'stale' : '';
+      const dotTitle = isToday ? 'Activo hoy' : isWeek ? 'Activo esta semana' : isStale ? 'Inactivo hace más de 30 días' : 'Sin actividad reciente';
 
       const roleBadge = p.role === 'admin'
         ? `<span class="badge admin">admin</span>`
@@ -992,7 +1076,7 @@
     document.querySelectorAll('#users-table thead th').forEach(th => {
       th.classList.remove('sort-asc', 'sort-desc');
     });
-    const colMap = { display_name: 0, email: 1, created_at: 4, events: 6 };
+    const colMap = { display_name: 0, email: 1, created_at: 4, lastActivity: 5, events: 6 };
     const idx = colMap[col];
     if (idx !== undefined) {
       const ths = document.querySelectorAll('#users-table thead th');
@@ -1035,6 +1119,7 @@
 
     renderDetPlan(userId);
     renderDetSrs(userId);
+    renderDetStats(userId);
 
     document.getElementById('det-events').innerHTML = evs.length === 0
       ? '<p class="empty">Sin eventos registrados.</p>'
@@ -1133,18 +1218,76 @@
     const el   = document.getElementById('det-srs');
     const srs  = srsByUser[userId];
     const gram = grammarByUser[userId];
-    if (!srs && !gram) { el.innerHTML = ''; return; }
+    const readingCount = readingByUser[userId] || 0;
+    const practiceCount = grammarPracticeByUser[userId] || 0;
 
     const pill = (label, stats) => {
       if (!stats || stats.total === 0) return '';
       const pct = Math.round(stats.mastered / stats.total * 100);
       return `<span class="score-badge ${scoreClass(pct)}">${esc(label)}: ${stats.mastered}/${stats.total} dominadas (${pct}%)</span>`;
     };
+    const countPill = (label, count) =>
+      count > 0 ? `<span class="stat-pill">${esc(label)}: ${count}</span>` : '';
 
-    const pills = [pill('Vocabulario', srs), pill('Gramática', gram)].filter(Boolean).join('');
+    const pills = [
+      pill('Vocabulario', srs),
+      pill('Gramática', gram),
+      countPill('Textos leídos', readingCount),
+      countPill('Práctica gramatical', practiceCount),
+    ].filter(Boolean).join('');
     if (!pills) { el.innerHTML = ''; return; }
 
     el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#00796B;margin-bottom:8px;">🧠 Progreso SRS</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
+  }
+
+  // Same aggregation as auth.js openStatsPanel(), but reads eventsByUser
+  // (already loaded for all users) instead of fetching per-user.
+  const STREAK_EVENT_TYPES = new Set(['quiz_session_end', 'text_evaluated', 'photo_evaluated',
+    'kasus_answered', 'revision', 'audio_sent', 'sprint_end', 'comp_completed', 'auto_session_end', 'quiz_completed']);
+
+  function renderDetStats(userId) {
+    const el  = document.getElementById('det-stats');
+    const evs = eventsByUser[userId] || [];
+    if (evs.length === 0) { el.innerHTML = ''; return; }
+
+    const localDay = e => new Date(e.created_at).toLocaleDateString('sv-SE');
+
+    const quizSessions = evs.filter(e => e.event_type === 'quiz_session_end');
+    const totalWords   = quizSessions.reduce((s, e) => s + (e.payload?.total || 0), 0);
+    const totalCorrect = quizSessions.reduce((s, e) => s + (e.payload?.correct || 0), 0);
+    const pct = totalWords > 0 ? Math.round(totalCorrect / totalWords * 100) : null;
+
+    const audioEvents  = evs.filter(e => e.event_type === 'audio_sent');
+    const audioMinutes = Math.round(audioEvents.reduce((s, e) => s + (e.payload?.duration_ms || 0), 0) / 60000);
+
+    const days30 = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days30.push(d.toLocaleDateString('sv-SE'));
+    }
+    const activityByDay = Object.fromEntries(days30.map(d => [d, 0]));
+    evs.forEach(e => {
+      if (!STREAK_EVENT_TYPES.has(e.event_type)) return;
+      const day = localDay(e);
+      if (activityByDay[day] !== undefined) activityByDay[day]++;
+    });
+    const activityCounts = days30.map(d => activityByDay[d]);
+
+    let streak = 0;
+    let si = activityCounts.length - 1;
+    while (si >= 0 && activityCounts[si] === 0) si--; // skip trailing empty days
+    while (si >= 0 && activityCounts[si] > 0) { streak++; si--; }
+
+    const pills = [
+      streak > 0    ? `<span class="stat-pill">🔥 Racha: ${streak} día${streak === 1 ? '' : 's'}</span>` : '',
+      pct !== null  ? `<span class="stat-pill">✅ Acierto: ${pct}%</span>` : '',
+      audioMinutes > 0 ? `<span class="stat-pill">🎧 Audio: ${audioMinutes} min</span>` : '',
+    ].filter(Boolean).join('');
+
+    if (!pills) { el.innerHTML = ''; return; }
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#6A1B9A;margin-bottom:8px;">📈 Actividad (últimos 30 días)</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
   }
 

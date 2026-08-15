@@ -245,6 +245,8 @@ Shared authentication module. Injects the login modal (OTP + Google OAuth) and e
 - **Racha** — streak of consecutive days with at least one word answered.
 - **Todo el tiempo** — all-time totals (words, dictionary lookups, audios, sessions).
 
+Also tracks daily active screen time per app: a local heartbeat accumulates it in `localStorage` and syncs to Supabase (`daily_usage_time` table, 60-day retention) once per calendar-day change — no per-session DB calls.
+
 ### `config.js`
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.
 

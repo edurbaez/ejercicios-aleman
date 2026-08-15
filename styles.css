@@ -1203,7 +1203,7 @@ th, td {
    CHAT DE VOZ
    ======================== */
 
-#page-cv {
+#page-cv, #page-cv2 {
     --bg: #f5f0fa;
     --card-bg: #ffffff;
     --text: #2d1b4e;
@@ -1219,7 +1219,7 @@ th, td {
     min-height: 100vh;
 }
 
-#page-cv.dark {
+#page-cv.dark, #page-cv2.dark {
     --bg: #1a0d2e;
     --card-bg: #2d1b4e;
     --text: #e8d5f5;
@@ -1231,7 +1231,7 @@ th, td {
     --ai-bubble-text: #e8d5f5;
 }
 
-#page-cv #navbar {
+#page-cv #navbar, #page-cv2 #navbar {
     background-color: var(--navbar-bg);
     box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
@@ -1239,12 +1239,16 @@ th, td {
 #page-cv #navbar a:hover,
 #page-cv #navbar a.active,
 #page-cv #navbar .nav-menu-btn:hover,
-#page-cv #navbar .nav-menu-btn.active {
+#page-cv #navbar .nav-menu-btn.active,
+#page-cv2 #navbar a:hover,
+#page-cv2 #navbar a.active,
+#page-cv2 #navbar .nav-menu-btn:hover,
+#page-cv2 #navbar .nav-menu-btn.active {
     background-color: var(--accent);
     color: white;
 }
 
-#page-cv #darkModeBtn {
+#page-cv #darkModeBtn, #page-cv2 #darkModeBtn {
     padding: 6px 8px;
     border-radius: 8px;
 }

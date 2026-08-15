@@ -714,10 +714,96 @@
   // Apps that consume OpenAI Whisper STT; their 'audio_sent' events share a single 60min/day cap.
   window.VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulaciones'];
 
+  // --- Daily active-time tracking (per app), local-first ---
+  // Each calendar day gets its own localStorage record, updated every 15s
+  // while the tab is visible and a user is signed in — zero DB calls during
+  // the day. On sign-in/page-load/tab-refocus, any record whose day isn't
+  // today is synced (1 RPC call each, additive across devices) and removed
+  // locally. Body id → canonical appId, matching ids used elsewhere
+  // (admin/index.html's APP_NAMES, logEvent).
+  const _DT_BODY_APP = {
+    'page-b1': 'b1', 'page-b2': 'b2', 'page-a1': 'a1', 'page-a2': 'a2', 'page-c1': 'c1', 'page-c2': 'c2',
+    'page-gram': 'gramatica', 'page-lv': 'lectura-veloz', 'page-esc': 'escritura',
+    'page-cr': 'chat-reformulaciones', 'page-kas': 'kasus', 'page-cv': 'chat-voz', 'page-cv2': 'chatvoz2',
+    'page-mp': 'mundliche', 'page-dic': 'diccionario', 'page-cor': 'corrector', 'page-plan': 'plan',
+    'page-home': 'home',
+  };
+  const DT_PREFIX = 'ejaleman_daily_time_';
+  const DT_TICK_MS = 15000;
+  let _dtLastTick = null;
+
+  function _dtToday() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function _dtAppId() {
+    const bodyId = document.body && document.body.id;
+    if (bodyId && _DT_BODY_APP[bodyId]) return _DT_BODY_APP[bodyId];
+    // Fallback for pages with no mapped body id (admin/teacher/marketing/chatvoz2).
+    const seg = location.pathname.split('/').filter(Boolean);
+    if (!seg.length) return 'home';
+    if (seg[0] === 'marketing') return seg[1] ? `marketing-${seg[1].replace('.html', '')}` : 'marketing';
+    return seg[seg.length - 1].replace(/\.html$/, '') || seg[0];
+  }
+
+  function _dtKey(date) { return DT_PREFIX + date; }
+
+  function _dtLoadApps(date) {
+    try { return JSON.parse(localStorage.getItem(_dtKey(date))) || {}; } catch { return {}; }
+  }
+
+  function _dtSaveApps(date, apps) {
+    try { localStorage.setItem(_dtKey(date), JSON.stringify(apps)); } catch {}
+  }
+
+  async function _dtSyncStaleDays() {
+    if (!window.currentUser) return;
+    const todayKey = _dtKey(_dtToday());
+    for (const key of Object.keys(localStorage)) {
+      if (!key.startsWith(DT_PREFIX) || key === todayKey) continue;
+      let apps;
+      try { apps = JSON.parse(localStorage.getItem(key)); } catch { apps = null; }
+      if (!apps || !Object.keys(apps).length) { localStorage.removeItem(key); continue; }
+      try {
+        const { error } = await window.sb.rpc('upsert_daily_usage_time', { p_date: key.slice(DT_PREFIX.length), p_apps: apps });
+        if (error) throw error;
+        localStorage.removeItem(key);
+      } catch {
+        // Keep it local; retried on the next sign-in/load. Lost only if the
+        // user never reopens the app again (accepted tradeoff).
+      }
+    }
+  }
+
+  function _dtTick() {
+    if (!window.currentUser || document.visibilityState !== 'visible') { _dtLastTick = null; return; }
+    const now = Date.now();
+    if (_dtLastTick == null) { _dtLastTick = now; return; }
+    const delta = Math.min(now - _dtLastTick, DT_TICK_MS * 2);
+    _dtLastTick = now;
+    if (delta <= 0) return;
+    const today = _dtToday();
+    const apps = _dtLoadApps(today);
+    const appId = _dtAppId();
+    apps[appId] = (apps[appId] || 0) + delta;
+    _dtSaveApps(today, apps);
+  }
+
+  function _dtInit() {
+    setInterval(_dtTick, DT_TICK_MS);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') { _dtLastTick = Date.now(); _dtSyncStaleDays(); }
+      else _dtTick();
+    });
+    window.addEventListener('pagehide', _dtTick);
+  }
+
   window.sb.auth.onAuthStateChange(async function (event, session) {
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
+    _dtSyncStaleDays();
     if (event === 'SIGNED_IN' && typeof window.onAuthSignedIn === 'function') {
       await window.onAuthSignedIn();
     }
@@ -731,6 +817,7 @@
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
+    _dtSyncStaleDays();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }
@@ -752,6 +839,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     _renderNavMenu();
     window.updateAuthUI();
+    _dtInit();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }

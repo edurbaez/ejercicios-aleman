@@ -543,6 +543,7 @@
       <div id="det-plan" style="margin-top:16px;"></div>
       <div id="det-srs" style="margin-top:16px;"></div>
       <div id="det-stats" style="margin-top:16px;"></div>
+      <div id="det-tiempo" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
     </div>
@@ -575,6 +576,7 @@
   const grammarByUser = {}; // user_id -> { total, mastered } (grammar rules, reps >= 2)
   const readingByUser = {}; // user_id -> count of reading_texts seen
   const grammarPracticeByUser = {}; // user_id -> count of grammar_practice_exercises seen
+  const dailyTimeByUser = {}; // user_id -> { totalMs, byApp: { appId: ms } } (last 30 days)
 
   let profileMap          = new Map();
   let totalActivityWeight = 0;
@@ -640,6 +642,7 @@
     for (const k of Object.keys(grammarByUser)) delete grammarByUser[k];
     for (const k of Object.keys(readingByUser)) delete readingByUser[k];
     for (const k of Object.keys(grammarPracticeByUser)) delete grammarPracticeByUser[k];
+    for (const k of Object.keys(dailyTimeByUser)) delete dailyTimeByUser[k];
     await loadData();
     btn.innerHTML = orig;
     btn.disabled  = false;
@@ -647,7 +650,7 @@
 
   // ── Data loading ──────────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes] = await Promise.all([
+    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
@@ -665,6 +668,10 @@
       // Requires migration 015 (admin read-all policy) — silently empty otherwise.
       sb.from('user_reading_seen').select('user_id').limit(20000),
       sb.from('user_grammar_practice_seen').select('user_id').limit(20000),
+      // Requires migration 016 (admin read-all policy) — silently empty otherwise.
+      sb.from('daily_usage_time').select('user_id, date, apps')
+        .gte('date', new Date(Date.now() - 30 * 86400 * 1000).toLocaleDateString('sv-SE'))
+        .limit(20000),
     ]);
 
     allProfiles      = profRes.data || [];
@@ -700,6 +707,14 @@
     }
     for (const r of gramPracticeRes.data || []) {
       grammarPracticeByUser[r.user_id] = (grammarPracticeByUser[r.user_id] || 0) + 1;
+    }
+    for (const r of dailyTimeRes.data || []) {
+      if (!dailyTimeByUser[r.user_id]) dailyTimeByUser[r.user_id] = { totalMs: 0, byApp: {} };
+      const t = dailyTimeByUser[r.user_id];
+      for (const [appId, ms] of Object.entries(r.apps || {})) {
+        t.totalMs += ms;
+        t.byApp[appId] = (t.byApp[appId] || 0) + ms;
+      }
     }
 
     renderSummary();
@@ -811,6 +826,10 @@
   const APP_NAMES = {
     'b2': 'Vocabulario B2',
     'b1': 'Vocabulario B1',
+    'a1': 'Vocabulario A1',
+    'a2': 'Vocabulario A2',
+    'c1': 'Vocabulario C1',
+    'c2': 'Vocabulario C2',
     'diccionario': 'Diccionario',
     'chat-voz': 'Chat de Voz',
     'lectura-veloz': 'Entrenamiento de lectura',
@@ -1120,6 +1139,7 @@
     renderDetPlan(userId);
     renderDetSrs(userId);
     renderDetStats(userId);
+    renderDetTiempo(userId);
 
     document.getElementById('det-events').innerHTML = evs.length === 0
       ? '<p class="empty">Sin eventos registrados.</p>'
@@ -1288,6 +1308,32 @@
 
     if (!pills) { el.innerHTML = ''; return; }
     el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#6A1B9A;margin-bottom:8px;">📈 Actividad (últimos 30 días)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
+  }
+
+  function fmtDuration(ms) {
+    const totalMin = Math.round(ms / 60000);
+    if (totalMin < 60) return `${totalMin}min`;
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    return m > 0 ? `${h}h ${m}min` : `${h}h`;
+  }
+
+  function renderDetTiempo(userId) {
+    const el = document.getElementById('det-tiempo');
+    const t  = dailyTimeByUser[userId];
+    if (!t || t.totalMs === 0) { el.innerHTML = ''; return; }
+
+    const topApps = Object.entries(t.byApp)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+
+    const pills = topApps.map(([appId, ms]) =>
+      `<span class="stat-pill">${esc(APP_NAMES[appId] || appId)}: ${fmtDuration(ms)}</span>`
+    ).join('');
+
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">⏱️ Tiempo activo (últimos 30 días)</div>
+      <div style="margin-bottom:6px;font-size:13px;">Total: <strong>${fmtDuration(t.totalMs)}</strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
   }
 

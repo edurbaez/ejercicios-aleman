@@ -739,11 +739,11 @@ Antworte IMMER mit einem JSON-Objekt:
             document.getElementById('recTimer').style.display = 'flex';
             document.getElementById('recordBtn').style.display = 'none';
             document.getElementById('sendBtn').style.display = 'inline-flex';
-            updateRecTimer();
+            updateRecTimer(State.recSeconds);
 
             State.recTimerInterval = setInterval(() => {
                 State.recSeconds++;
-                updateRecTimer();
+                updateRecTimer(State.recSeconds);
                 if (State.recSeconds >= 60) stopRecording();
             }, 1000);
 
@@ -753,10 +753,10 @@ Antworte IMMER mit einem JSON-Objekt:
         }
     }
 
-    function updateRecTimer() {
-        const s = State.recSeconds;
+    function updateRecTimer(seconds, maxSeconds = 60) {
+        const s = seconds ?? State.recSeconds;
         document.getElementById('recTimerText').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-        const pct = s / 60;
+        const pct = s / maxSeconds;
         const hue = Math.round(210 - 90 * pct); // 210° (azul) → 120° (verde)
         const color = `hsl(${hue}, 70%, 42%)`;
         const bar = document.getElementById('recTimerBar');
@@ -1039,8 +1039,12 @@ Antworte IMMER mit einem JSON-Objekt:
             document.getElementById('repetirListenBtn').disabled = true;
             document.getElementById('repetirHint').textContent = 'Grabando... presiona Enviar cuando termines';
 
+            document.getElementById('recTimer').style.display = 'flex';
+            updateRecTimer(RepetirRec.recSeconds, 30);
+
             RepetirRec.timerInterval = setInterval(() => {
                 RepetirRec.recSeconds++;
+                updateRecTimer(RepetirRec.recSeconds, 30);
                 if (RepetirRec.recSeconds >= 30) stopRepetirRecording();
             }, 1000);
         } catch {
@@ -1058,6 +1062,12 @@ Antworte IMMER mit einem JSON-Objekt:
         btn.disabled = true;
         document.getElementById('repetirListenBtn').disabled = true;
         document.getElementById('repetirHint').textContent = 'Transcribiendo...';
+
+        document.getElementById('recTimer').style.display = 'none';
+        const bar = document.getElementById('recTimerBar');
+        bar.style.width = '0%';
+        bar.style.background = '#1e88e5';
+        document.getElementById('recTimerText').style.color = '#1e88e5';
         if (RepetirRec.mediaRecorder && RepetirRec.mediaRecorder.state !== 'inactive') {
             RepetirRec.mediaRecorder.stop();
         }

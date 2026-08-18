@@ -54,6 +54,10 @@ export default async function handler(req, res) {
             messages: system
                 ? [{ role: 'system', content: String(system) }, ...messages]
                 : messages,
+            // Thinking mode is on by default (high effort) and its reasoning tokens eat into
+            // max_tokens, sometimes leaving none for the actual reply (empty `content`, intermittent).
+            // Re-enable with { type: 'enabled' } if a caller ever needs deeper reasoning.
+            thinking: { type: 'disabled' },
         };
         if (json === true) body.response_format = { type: 'json_object' };
 

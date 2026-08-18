@@ -77,6 +77,16 @@
         body.dark .cv2-icon-btn:hover { background: #2a2a2a; }
         body { padding-top: 48px; }
         .cv-app { padding-top: 0; }
+        .cv-lang-select {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 13px;
+            background: #fff;
+            color: #222;
+            cursor: pointer;
+        }
+        body.dark .cv-lang-select { background: #2a2a2a; color: #eee; border-color: #444; }
     </style>
 </head>
 <body id="page-cv2">
@@ -114,6 +124,10 @@
                     <button class="cv-level-btn" data-level="C1">C1</button>
                     <button class="cv-level-btn" data-level="C2">C2</button>
                 </div>
+            </div>
+            <div class="cv-config-group">
+                <label>Idioma:</label>
+                <select id="langSelect" class="cv-lang-select"></select>
             </div>
             <div class="cv-config-actions">
                 <button class="cv-context-btn" id="contextBtn" onclick="openContextModal()">✏️ Personalizar</button>
@@ -205,6 +219,20 @@
     const CHAT_API = '/api/deepseek-chat';
     const STORAGE_PREFIX = 'cv2_';
 
+    // ISO-639-1 code doubles as the Whisper `language` param.
+    const LANGUAGES = {
+        de: { emoji: '🇩🇪', label: 'Alemán',     nameDe: 'Deutsch',     ttsLang: 'de-DE' },
+        en: { emoji: '🇬🇧', label: 'Inglés',      nameDe: 'Englisch',    ttsLang: 'en-US' },
+        fr: { emoji: '🇫🇷', label: 'Francés',     nameDe: 'Französisch', ttsLang: 'fr-FR' },
+        it: { emoji: '🇮🇹', label: 'Italiano',    nameDe: 'Italienisch', ttsLang: 'it-IT' },
+        pt: { emoji: '🇵🇹', label: 'Portugués',   nameDe: 'Portugiesisch', ttsLang: 'pt-PT' },
+        ja: { emoji: '🇯🇵', label: 'Japonés',     nameDe: 'Japanisch',   ttsLang: 'ja-JP' },
+        ru: { emoji: '🇷🇺', label: 'Ruso',        nameDe: 'Russisch',    ttsLang: 'ru-RU' },
+    };
+    const MALE_VOICE_HINTS = {
+        de: /stefan|markus|hans|michael|thomas|otto|karl/i,
+    };
+
     const SCENARIOS = [
         { key: 'libre',       icon: '💬', name: 'Libre',       rol: DEFAULT_ROL, contexto: '',
           mision: 'Preséntate y cuéntale a tu interlocutor al menos 3 cosas sobre tu vida diaria.' },
@@ -236,6 +264,7 @@
 
     const State = {
         level: 'B1',
+        lang: 'de',
         messages: [],
         isRecording: false,
         mediaRecorder: null,
@@ -309,11 +338,28 @@
         if (savedContexto !== null) State.contexto = savedContexto;
         const customized = State.contexto.length > 0 || State.rol !== DEFAULT_ROL;
         document.getElementById('contextBtn').classList.toggle('cv-context-active', customized);
+
+        const savedLang = localStorage.getItem(STORAGE_PREFIX + 'lang');
+        if (savedLang && LANGUAGES[savedLang]) State.lang = savedLang;
     }
 
     async function persistPreferences() {
         localStorage.setItem(STORAGE_PREFIX + 'rol', State.rol);
         localStorage.setItem(STORAGE_PREFIX + 'contexto', State.contexto);
+    }
+
+    // --- Language selection ---
+    function buildLangSelect() {
+        const sel = document.getElementById('langSelect');
+        sel.innerHTML = Object.entries(LANGUAGES)
+            .map(([code, l]) => `<option value="${code}">${l.emoji} ${l.label}</option>`)
+            .join('');
+        sel.value = State.lang;
+        sel.addEventListener('change', () => {
+            State.lang = sel.value;
+            localStorage.setItem(STORAGE_PREFIX + 'lang', State.lang);
+            loadVoices();
+        });
     }
 
     // --- Dark mode ---
@@ -334,7 +380,8 @@
     // --- Voice ---
     function loadVoices() {
         const all = speechSynthesis.getVoices();
-        State.voices = all.filter(v => v.lang.startsWith('de'));
+        const prefix = (LANGUAGES[State.lang] || LANGUAGES.de).ttsLang.split('-')[0];
+        State.voices = all.filter(v => v.lang.startsWith(prefix));
         if (!State.voices.length) State.voices = all;
         selectVoice();
     }
@@ -342,34 +389,35 @@
     function selectVoice() {
         const voices = State.voices;
         if (!voices.length) return;
-        const maleNames = /stefan|markus|hans|michael|thomas|otto|karl/i;
-        State.selectedVoice = voices.find(v => maleNames.test(v.name)) || voices[0];
+        const hint = MALE_VOICE_HINTS[State.lang];
+        State.selectedVoice = (hint && voices.find(v => hint.test(v.name))) || voices[0];
     }
 
     speechSynthesis.onvoiceschanged = loadVoices;
     loadVoices();
 
     // --- System prompt ---
-    function getSystemPrompt(level) {
+    function getSystemPrompt(level, langCode) {
+        const name = (LANGUAGES[langCode] || LANGUAGES.de).nameDe;
         const guides = {
-            A1: 'Verwende sehr einfaches Deutsch: Grundwortschatz (bis 500 Wörter), kurze Sätze (max. 8 Wörter), nur Präsens. Erkläre unbekannte Wörter auf Spanisch in Klammern.',
-            A2: 'Verwende einfaches Deutsch: einfacher Wortschatz, kurze Sätze, Präsens und Perfekt. Füge gelegentlich spanische Übersetzungen schwieriger Wörter in Klammern hinzu.',
-            B1: 'Verwende mittleres Deutsch: normaler Alltagswortschatz, mittelkomplexe Sätze, verschiedene Zeitformen.',
-            B2: 'Verwende fortgeschrittenes Deutsch: reichhaltiger Wortschatz, komplexere Strukturen, Konjunktiv.',
-            C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
-            C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
+            A1: `Verwende sehr einfaches ${name}: Grundwortschatz (bis 500 Wörter), kurze Sätze (max. 8 Wörter), nur Präsens. Erkläre unbekannte Wörter auf Spanisch in Klammern.`,
+            A2: `Verwende einfaches ${name}: einfacher Wortschatz, kurze Sätze, Präsens und Perfekt. Füge gelegentlich spanische Übersetzungen schwieriger Wörter in Klammern hinzu.`,
+            B1: `Verwende mittleres ${name}: normaler Alltagswortschatz, mittelkomplexe Sätze, verschiedene Zeitformen.`,
+            B2: `Verwende fortgeschrittenes ${name}: reichhaltiger Wortschatz, komplexere Strukturen, komplexe Verbformen.`,
+            C1: `Verwende anspruchsvolles ${name}: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.`,
+            C2: `Verwende vollständig natürliches, idiomatisches ${name} auf muttersprachlichem Niveau.`,
         };
         const contexto = (State.contexto || '').slice(0, 300);
         const contextLine = contexto ? `\nKontext über den Benutzer: ${contexto}\n` : '';
         const mision = (State.mision || '').slice(0, 150);
         const misionLine = mision ? `\nZiel des Studenten in dieser Sitzung: ${mision}\n` : '';
         const rol = (State.rol || DEFAULT_ROL).slice(0, 200);
-        let base = `${rol} Der Benutzer lernt Deutsch auf Niveau ${level}.
+        let base = `${rol} Der Benutzer lernt ${name} auf Niveau ${level}.
 ${contextLine}${misionLine}
 ${guides[level]}
 
 Antworte IMMER mit einem JSON-Objekt:
-{"antwort":"deine Antwort auf Deutsch (2-4 Sätze + Frage am Ende)","korrekturen":[{"falsch":"x","richtig":"y","erklaerung":"español"}],"mision_cumplida":false}
+{"antwort":"deine Antwort auf ${name} (2-4 Sätze + Frage am Ende)","korrekturen":[{"falsch":"x","richtig":"y","erklaerung":"español"}],"mision_cumplida":false}
 - "korrekturen": solo si hay errores gramaticales del usuario, si no []
 - "mision_cumplida": true solo si el estudiante cumplió su objetivo`;
         if (State.guidedMode) {
@@ -546,9 +594,10 @@ Antworte IMMER mit einem JSON-Objekt:
         setHint('IA pensando...');
 
         try {
+            const langName = (LANGUAGES[State.lang] || LANGUAGES.de).nameDe;
             const initialMessages = userText
                 ? State.messages.slice(-8)
-                : [{ role: 'user', content: 'Begrüße mich freundlich und stelle mir eine erste Frage auf Deutsch.' }];
+                : [{ role: 'user', content: `Begrüße mich freundlich und stelle mir eine erste Frage auf ${langName}.` }];
 
             const chatToken = await window.getAuthToken?.();
             const resp = await fetch(CHAT_API, {
@@ -558,7 +607,7 @@ Antworte IMMER mit einem JSON-Objekt:
                     ...(chatToken ? { Authorization: `Bearer ${chatToken}` } : {}),
                 },
                 body: JSON.stringify({
-                    system: getSystemPrompt(State.level),
+                    system: getSystemPrompt(State.level, State.lang),
                     messages: initialMessages,
                     json: true,
                 }),
@@ -638,7 +687,7 @@ Antworte IMMER mit einem JSON-Objekt:
         };
 
         const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'de-DE';
+        utter.lang = (LANGUAGES[State.lang] || LANGUAGES.de).ttsLang;
         utter.rate = 1.1;
         if (State.selectedVoice) utter.voice = State.selectedVoice;
         utter.onend = onDone;
@@ -759,7 +808,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function transcribeAndSend(audioBlob) {
         const audioDurationMs = State.recSeconds * 1000;
-        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level || '', duration_ms: audioDurationMs });
+        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level || '', lang: State.lang, duration_ms: audioDurationMs });
         State.dailyUsedMs += audioDurationMs;
         updateDailyUI();
         setHint('Transcribiendo...');
@@ -768,7 +817,7 @@ Antworte IMMER mit einem JSON-Objekt:
         const formData = new FormData();
         formData.append('file', audioBlob, 'audio.webm');
         formData.append('model', 'whisper-1');
-        formData.append('language', 'de');
+        formData.append('language', State.lang);
 
         try {
             const whisperToken = await window.getAuthToken?.();
@@ -918,7 +967,8 @@ Antworte IMMER mit einem JSON-Objekt:
         document.getElementById('repetirListenBtn').disabled = true;
         document.getElementById('repetirRecBtn').disabled = true;
         document.getElementById('repetirRecBtn').textContent = '🎙 Repetir';
-        document.getElementById('repetirNivel').textContent = State.level;
+        const langInfo = LANGUAGES[State.lang] || LANGUAGES.de;
+        document.getElementById('repetirNivel').textContent = `${langInfo.emoji} ${State.level}`;
 
         try {
             const token = await window.getAuthToken?.();
@@ -927,7 +977,7 @@ Antworte IMMER mit einem JSON-Objekt:
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({
-                    system: `Du bist ein Deutschlehrer. Erstelle genau 10 kurze Sätze auf Deutsch (5–10 Wörter) passend für das Niveau ${State.level}. Antworte NUR mit einem JSON-Array der Sätze, ohne weitere Erklärungen. Beispiel: ["Ich gehe heute in die Schule.", "Das Wetter ist sehr schön."]`,
+                    system: `Du bist Lehrer für ${langInfo.nameDe}. Erstelle genau 10 kurze Sätze auf ${langInfo.nameDe} (5–10 Wörter) passend für das Niveau ${State.level}. Antworte NUR mit einem JSON-Array der Sätze, ohne weitere Erklärungen. Beispiel: ["Ich gehe heute in die Schule.", "Das Wetter ist sehr schön."]`,
                     messages: [{ role: 'user', content: 'Erstelle die 10 Sätze.' }],
                 }),
             });
@@ -1032,12 +1082,12 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function transcribeAndCheck(audioBlob) {
         const durationMs = RepetirRec.recSeconds * 1000;
-        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, duration_ms: durationMs });
+        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, lang: State.lang, duration_ms: durationMs });
         State.dailyUsedMs += durationMs;
         const formData = new FormData();
         formData.append('file', audioBlob, 'audio.webm');
         formData.append('model', 'whisper-1');
-        formData.append('language', 'de');
+        formData.append('language', State.lang);
         try {
             const token = await window.getAuthToken?.();
             const resp = await fetch('/api/whisper', {
@@ -1115,6 +1165,7 @@ Antworte IMMER mit einem JSON-Objekt:
         if (localStorage.getItem(STORAGE_PREFIX + 'darkMode') !== '') document.body.classList.add('dark');
         buildScenarioCards();
         loadPreferences();
+        buildLangSelect();
         loadVoices();
         setupRecordButton();
     })();

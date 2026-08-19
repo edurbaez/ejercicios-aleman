@@ -342,3 +342,84 @@ nuevo** (`huecos` nunca se implementó); B2 reutiliza `mcq` y `emparejar` tal cu
   reutilizan `mcq`/`emparejar` — solo falta poblar `READING_TEILE_SPECS.C1`/`.C2` con sus
   propios `promptFragment` y nombres, siguiendo el mismo patrón que esta fase), A1/A2
   (sin cambios, siguen necesitando tipos de tarea nuevos).
+
+**Validación manual en navegador — completada (sesión 2026-08-19).** Mismo recipe que en
+la Fase 1 (Playwright/Chromium headless contra `vercel dev` local, sesión real inyectada en
+`localStorage`). Encontró y corrigió **tres bugs reales**, ninguno visible en la revisión
+estática original:
+
+1. **`modoB_obtenerTexto()` nunca generaba contenido v2 si ya existía algún texto v1 legado
+   sin ver para ese nivel.** En producción B2 solo tenía 1 fila, `format_version: 1` (previa
+   a esta fase) — el primer intento de "Obtener texto" en B2 sirvió ese texto plano legado en
+   vez de generar una sesión por Teile, porque `pool = teileUnseen.length > 0 ? teileUnseen :
+   unseen` caía a `unseen` (que incluía el v1) en vez de generar. El fix de la Fase 1 (§11)
+   solo mitigaba el caso "hay v1 Y v2 sin ver, preferir v2" — no el caso "solo hay v1 sin ver,
+   nunca se ha generado ningún v2". Corregido en `lectura veloz.html`: el pool ahora es
+   `TEIL_NOMBRES[level] ? teileUnseen : unseen` — para un nivel con soporte Teile, nunca cae a
+   texto legado, siempre genera. `TEIL_NOMBRES` (ya existente, claves `B1`/`B2`) se reusa como
+   fuente de verdad en vez de duplicar la lista de niveles.
+2. **Los validadores exigían `explicacion`/`explicaciones` como obligatorios** en los 3 tipos
+   de Teil, pero el frontend (`explicacionHtml()`) ya toleraba su ausencia (renderiza `''`).
+   `gpt-4o-mini` omite este campo con bastante frecuencia en los Teile más pesados de B2,
+   causando rechazos (502 "formato inesperado") de sesiones por lo demás perfectamente
+   utilizables. Se relajó a opcional en `validMcqTeil`/`validRichtigFalschTeil`/
+   `validEmparejarTeil` (`api/chat.js`) — solo se valida el tipo si el campo está presente.
+3. **Bug más serio: `validEmparejarTeil` nunca comprobaba que `textos` estuviera presente**,
+   ni siquiera para los Teile `emparejar` cuyo `promptFragment` sí lo exige (el Lückentext de
+   B2 `teil2`, el foro de B1 `teil3`). Una sesión sin el artículo pasaba la validación igual
+   — confirmado en vivo: una corrida real mostró en pantalla los 5 `<select>` de "Lücke 1..5"
+   sin ningún artículo arriba, un ejercicio literalmente irresoluble. Corregido añadiendo
+   `requiereTextos: true` a esas dos entradas en `READING_TEILE_SPECS` (`api/_reading-topics.js`)
+   y haciendo que `validTeileSession` pase el `expected` spec completo a cada validador (mismo
+   patrón que ya existía para `opcionesCount`) en vez de solo el conteo de opciones, para que
+   `validEmparejarTeil` pueda exigir `textos` cuando corresponda.
+
+**Hallazgo de fiabilidad — encontrado y resuelto en la misma sesión (rediseño de
+arquitectura de generación).** Con los tres fixes de validación aplicados, se hicieron 12
+llamadas reales a OpenAI (mismo prompt/validador que producción) para medir la tasa de éxito
+de B2 con el diseño original de §11/§5 (una sola llamada genera los 5 Teile de golpe). **0 de
+12 pasaron la validación completa** — la mayoría falló específicamente en `teil2`
+(Lückentext): el modelo omitía el artículo, cortaba la sesión después de 1 Teil, o generaba
+un array `teile` corrupto. Reforzar el prompt en el sitio (`teil2` con "OBLIGATORIO", más una
+línea final "no te detengas antes de terminar el último Teil") no dio mejora medible. Antes
+de los fixes de validación, una tasa de aparente "éxito" más alta (3/4 en una muestra
+temprana) era engañosa — esas sesiones habrían pasado el validador viejo con `teil2` roto
+(bug 3 de arriba).
+
+**Cambio de arquitectura (decisión del usuario, no solo mío):** en vez de aceptar esta tasa
+de fallo o seguir parchando el prompt de la llamada combinada, se reemplazó el diseño de "una
+llamada para los 5 Teile" (§5/§11) por **una llamada independiente por Teil, las 5 en
+paralelo (`Promise.allSettled`), con hasta 2 intentos por Teil antes de fallar esa sesión**.
+Revierte deliberadamente la decisión de costo/latencia de §11 (justificada entonces por ser
+"más barato y más simple") a la luz de la evidencia de que la llamada combinada no era
+confiable para B2. Cambios en `api/chat.js`:
+- `buildTeilePrompt`/`validTeileSession` (multi-Teil) eliminados, reemplazados por
+  `buildSingleTeilPrompt`/`schemaEjemploTeil` (prompt + ejemplo de JSON para un solo Teil,
+  derivados de `expected.tipo`/`opcionesCount`/`requiereTextos`) y `generateOneTeil` (llama a
+  `generateOneTeilAttempt` hasta 2 veces, reusando `TEIL_VALIDATORS` sin cambios).
+- `generateReadingTeile` ahora dispara `Promise.allSettled(spec.map(...))`, junta los 5
+  resultados en `{titulo, teile}` y solo entonces hace el INSERT a Supabase — igual que antes
+  desde la perspectiva del frontend (mismo contrato de respuesta, cero cambios en
+  `lectura veloz.html` para esto).
+- `title`/`titulo` de la sesión ya no lo genera la IA (no hay una llamada "dueña" de la
+  sesión completa) — se usa directamente el `tema` elegido por `pick(TEMAS[level])` como
+  título. Es un cambio cosmético sin impacto funcional: se confirmó que `titulo` nunca se
+  muestra como encabezado en la UI, solo se usa internamente (`TeilState.titulo`) para el
+  deep-link "Escribir sobre este tema" hacia `escritura.html?tema=...`, y `TEMAS[level]` ya
+  son frases en español aptas como tema de escritura.
+- `console.error` agregado en el punto de rechazo final (qué Teil falló y por qué) — antes
+  era una caja negra total; diagnosticar el bug de `teil2` requirió replicar el prompt/
+  validador en un script standalone aparte porque no había ninguna visibilidad del lado del
+  servidor.
+
+**Resultado medido:** 13/13 sesiones completas exitosas tras el cambio (10 B2 + 3 B1,
+25+15 Teile individuales, cero reintentos necesarios en la inmensa mayoría), ~7-16s por
+sesión (Promise.allSettled en paralelo, comparable o más rápido que la llamada combinada
+anterior). Confirmado además con una sesión real generada por este camino: se inyectó su
+JSON directamente en el DOM de la app (vía `modoB_iniciarTeilSession`/`modoB_avanzarTeil`,
+sin necesitar login — son funciones puras de render/estado) y se verificó visualmente que el
+artículo de `teil2` ahora sí se renderiza sobre los `<select>` de "Lücke 1..5" (antes, bug 3,
+aparecían vacíos). El flujo completo end-to-end con login real (Comprensión → Por nivel → B2
+→ selector de Teile → 5 Teile respondidos/comprobados → resultado final) ya se había
+confirmado sin errores de consola en una corrida anterior de esta misma sesión (esa corrida
+fue la que expuso visualmente el bug 3, con la arquitectura vieja).

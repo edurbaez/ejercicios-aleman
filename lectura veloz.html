@@ -1590,11 +1590,13 @@
 
                 const seenIds = new Set((seen || []).map(r => r.text_id));
                 const unseen = (allTexts || []).filter(t => !seenIds.has(t.id));
-                // Prefer format_version 2 (Teile) over legacy flat texts left over from before
-                // that level had the Teile format — once a level supports Teile, don't serve
-                // its old plain MCQ texts anymore.
+                // For a level that supports the Teile format (TEIL_NOMBRES keys — must mirror
+                // READING_TEILE_SPECS in api/_reading-topics.js), never fall back to legacy
+                // format_version 1 texts: an unseen legacy row would otherwise satisfy
+                // pool.length > 0 and permanently block generating real Teile content for
+                // that level. Levels without Teile support keep the old any-format pool.
                 const teileUnseen = unseen.filter(t => t.format_version === 2);
-                const pool = teileUnseen.length > 0 ? teileUnseen : unseen;
+                const pool = TEIL_NOMBRES[level] ? teileUnseen : unseen;
 
                 let chosenText;
 

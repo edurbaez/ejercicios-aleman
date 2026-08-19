@@ -59,7 +59,7 @@ export const READING_TEILE_SPECS = {
             promptFragment: '- "teil2" (tipo "emparejar"): sin "textos". 5 personas en "columnaIzquierda" (id "p1".."p5", "texto" describiendo brevemente qué busca/necesita cada una) y 8 anuncios breves en "columnaDerecha" (id "a1".."a8", "texto" el anuncio). "solucion" debe mapear cada "p1".."p5" al id del anuncio que le corresponde; los 3 anuncios restantes son distractores sin solución asociada.',
         },
         {
-            id: 'teil3', tipo: 'emparejar', nombre: 'Teil 3 — Foro de opiniones',
+            id: 'teil3', tipo: 'emparejar', requiereTextos: true, nombre: 'Teil 3 — Foro de opiniones',
             promptFragment: '- "teil3" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." y "contenido" con 5 comentarios cortos de personas distintas (nombre en negrita al inicio de cada uno, separados por saltos de línea). 5 afirmaciones/opiniones en "columnaIzquierda" (id "s1".."s5") que coinciden con lo que dijo una de esas personas, y las 5 personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.',
         },
         {
@@ -77,8 +77,8 @@ export const READING_TEILE_SPECS = {
             promptFragment: '- "teil1" (tipo "mcq"): 4 personas opinando sobre el tema en "textos" (4 elementos, "titulo" = nombre de la persona, "contenido" = su opinión en alemán, 60-90 palabras cada una). 5 afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 4 nombres de las personas, en el mismo orden en todos los items) y "correcta" (índice 0-3 de quién lo dijo). Distintos items pueden compartir la misma persona correcta.',
         },
         {
-            id: 'teil2', tipo: 'emparejar', nombre: 'Teil 2 — Texto con huecos',
-            promptFragment: '- "teil2" (tipo "emparejar"): 1 artículo en alemán (220-300 palabras) en "textos" (1 elemento), con 5 huecos numerados marcados literalmente como "[1]".."[5]" dentro del "contenido" en los puntos donde falta una frase. "columnaIzquierda" son los 5 huecos (id "h1".."h5", "texto" = "Lücke 1".."Lücke 5"). "columnaDerecha" son 8 frases candidatas en alemán (id "f1".."f8", "texto" = la frase completa), de las cuales solo 5 completan correctamente un hueco (3 son distractoras). "solucion" mapea cada "h1".."h5" al id de la frase que le corresponde.',
+            id: 'teil2', tipo: 'emparejar', requiereTextos: true, nombre: 'Teil 2 — Texto con huecos',
+            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (220-300 palabras) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son los 5 huecos (id "h1".."h5", "texto" = "Lücke 1".."Lücke 5") — literalmente marcados como "[1]".."[5]" dentro del "contenido" del artículo, en los puntos donde falta una frase. "columnaDerecha" son 8 frases candidatas en alemán (id "f1".."f8", "texto" = la frase completa), de las cuales solo 5 completan correctamente un hueco (3 son distractoras). "solucion" mapea cada "h1".."h5" al id de la frase que le corresponde.',
         },
         {
             id: 'teil3', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 3 — Preguntas de comprensión',

@@ -1,9 +1,9 @@
 # Plan: adaptar "Comprensión" al formato real del examen (Leseverstehen)
 
-> **Estado: Fase 1 (B1), Fase 2 (B2) y Fase 3 (C1) implementadas** — ver §11, §12 y §13
-> para el detalle de lo hecho y lo que queda pendiente (C2, A1/A2). El resto de este
-> documento describe el diseño original; §11/§12/§13 documentan las decisiones tomadas
-> durante la implementación donde divergieron de lo planificado aquí.
+> **Estado: Fase 1 (B1), Fase 2 (B2), Fase 3 (C1) y Fase 4 (C2) implementadas** — ver
+> §11, §12, §13 y §14 para el detalle de lo hecho y lo que queda pendiente (A1/A2). El
+> resto de este documento describe el diseño original; §11/§12/§13/§14 documentan las
+> decisiones tomadas durante la implementación donde divergieron de lo planificado aquí.
 
 > Documento de planificación, no implementado originalmente. Complementa la "opción ligera" ya
 > implementada (`api/_reading-topics.js` `READING_SPECS`, `api/chat.js` `generateReading()`),
@@ -514,3 +514,81 @@ subió de ~77% a ~94% (15/16). Este fix beneficia también a B1/B2 y a la futura
 el fix de prompt ya aplicado — falta solo investigar la estructura real del Modellsatz C2,
 poblar `READING_TEILE_SPECS.C2` y `TEIL_NOMBRES.C2` siguiendo este mismo patrón), A1/A2 (sin
 cambios, siguen necesitando tipos de tarea nuevos).
+
+## 14. Fase 4 (C2) — implementado
+
+Investigada la estructura real del Leseverstehen del Goethe-Zertifikat C2
+(`bfu.goethe.de/c2_mod/lesen.php`, confirmado). C2 tiene 4 Teile, igual que C1:
+
+1. **Teil 1** — Kommentar (comentario de opinión) + MCQ 4 opciones, 10 preguntas reales.
+2. **Teil 2** — Artículo dividido en secciones numeradas ↔ 8 afirmaciones que resumen cada
+   sección (2 distractoras en el examen real) — emparejar.
+3. **Teil 3** — Reportage con Lückentext: 6 huecos ↔ 7 fragmentos candidatos (1 distractor) —
+   emparejar.
+4. **Teil 4** — 4 anuncios de empleo ↔ 8 afirmaciones sobre el perfil buscado, relación
+   muchos-a-pocos (cada afirmación se asigna a UNO de los 4 anuncios, con anuncios repetibles
+   entre afirmaciones).
+
+Igual que en B2/C1 (§12/§13), **los 4 Teile encajan sin cambios en `mcq`/`emparejar` ya
+construidos**. El Teil 4 real usa una relación muchos-a-pocos (8 afirmaciones → solo 4
+anuncios) que **no encaja en `emparejar`** porque `validEmparejarTeil` exige
+`columnaDerecha.length >= columnaIzquierda.length` (para permitir distractores, no para
+permitir opciones repetidas) — se modela como `mcq` con opciones compartidas/repetibles entre
+items, mismo patrón que B2 teil1 (4 personas/opiniones) y C1 teil4 (3 expertos + "Keiner von
+ihnen"). Se mantienen 5 items por Teil (no los 10/8/6/8 reales), mismo motivo que B1/B2/C1:
+consistencia entre niveles y simplicidad del generador.
+
+- **`READING_TEILE_SPECS.C2`** (`api/_reading-topics.js`): `teil1` mcq `opcionesCount: 4`
+  (comentario de opinión, reutiliza `{minWords}`/`{maxWords}` de `READING_SPECS.C2`, 250-300
+  palabras, mismo patrón que B1 teil1/B2 teil3/C1 teil2), `teil2` emparejar
+  `requiereTextos: true` (artículo de 220-300 palabras dividido en 5 secciones `[1]`.."[5]"` ↔
+  8 afirmaciones-resumen, 3 distractoras — mismo patrón estructural que el Lückentext de B2
+  teil2/C1 teil3, pero secciones completas en vez de huecos puntuales), `teil3` emparejar
+  `requiereTextos: true` (reportaje de 280-350 palabras con 5 huecos ↔ 8 fragmentos
+  candidatos, 3 distractores — mismo patrón que B2 teil2/C1 teil3), `teil4` mcq
+  `opcionesCount: 4` (4 anuncios de empleo, opciones compartidas y repetibles entre items,
+  mismo patrón que B2 teil1/C1 teil4). `TEMAS.C2` y `READING_SPECS.C2` ya existían y no se
+  tocaron.
+- **`TEIL_NOMBRES.C2`** (`lectura veloz.html`): ya estaba presente en el árbol de trabajo antes
+  de iniciar esta fase (añadido en un cambio previo no confirmado en este documento, mismo
+  patrón exacto que B1/B2/C1) — se verificó que los nombres coinciden con los de
+  `READING_TEILE_SPECS.C2` sin necesitar ningún ajuste. Ningún otro cambio en este archivo —
+  `modoB_obtenerTexto()`, los renderers y `TeilState` ya eran genéricos por `tipo`/forma.
+- **`api/chat.js`**: confirmado que el dispatcher, `generateOneTeil`/`generateOneTeilAttempt`,
+  `TEIL_VALIDATORS`, `schemaEjemploTeil` y `buildSingleTeilPrompt` ya eran 100% genéricos por
+  `spec = READING_TEILE_SPECS[level]` — no requirieron ningún cambio de lógica para soportar
+  C2. El fix de nombres de campo en español de la Fase 3 (§13) ya cubre C2 automáticamente por
+  ser genérico. **Ningún cambio en `api/chat.js` en esta fase.**
+- **Migración Supabase**: ninguna — `reading_texts.level` ya permitía `'C2'` en su `CHECK`
+  desde la migración `003_reading_texts.sql`.
+
+**Verificación realizada:**
+- `node --check` de `api/chat.js`/`api/_reading-topics.js`: OK en ambos.
+- Validadores standalone (script temporal en scratchpad, no en el repo, copiado verbatim de
+  `api/chat.js`): 13/13 casos — sesión válida por Teil (4) + variantes rotas por Teil
+  (`opcionesCount` incorrecto, `textos` faltante con `requiereTextos: true`, `solucion`
+  apuntando a un id inexistente, `columnaDerecha` más corta que `columnaIzquierda`) — todas
+  correctamente aceptadas/rechazadas.
+- Llamadas reales a OpenAI (`OPENAI_API_KEY` presente en `.env.local`, replicando
+  `buildSingleTeilPrompt`/`generateOneTeilAttempt` en un script standalone): **24/24** (6
+  intentos por cada uno de los 4 Teile) pasaron la validación estructural — iguala el 24/24 de
+  C1 (§13) tras el fix de nombres de campo en español, confirmando que ese fix beneficia
+  también a C2 sin necesitar ningún ajuste adicional.
+- Revisión manual de contenido (1 muestra completa de los 4 Teile): semánticamente coherente —
+  `teil2` mapea correctamente cada sección `[1]`.."[5]"` a su afirmación-resumen, `teil3`
+  enlaza los fragmentos candidatos en los huecos `[1]`.."[5]"` con sentido narrativo, `teil4`
+  atribuye afirmaciones a los anuncios correctos (incluyendo dos afirmaciones compartiendo el
+  mismo anuncio correcto, como permite el diseño). Sin hallazgos de contenido incorrecto en
+  esta muestra (a diferencia de C1 §13, que sí encontró un hueco léxico mal marcado en una
+  muestra — riesgo general ya aceptado, ningún validador de este proyecto comprueba corrección
+  semántica).
+- **No se hizo prueba manual en navegador con login real** (mismo motivo que en fases
+  anteriores) — antes de dar la fase por completamente cerrada conviene entrar a
+  `/lectura veloz.html` → Comprensión → Por nivel → C2 → Obtener texto, y completar una sesión
+  completa de los 4 Teile una vez desplegado. No se insertó ninguna sesión C2 real en
+  `reading_texts` durante esta verificación (solo generación en memoria, sin llamar al INSERT
+  de Supabase) — a diferencia de C1 (§13), la primera vez que un usuario entre a C2 disparará
+  una generación real.
+
+**Pendiente / no incluido en esta fase**: A1/A2 (necesitan tipos de tarea nuevos —
+emparejar de notas muy cortas, carteles — no modelados aún).

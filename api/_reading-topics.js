@@ -45,9 +45,8 @@ export function pick(arr) {
 // by buildTeilePrompt() in api/chat.js, so the same generic code path works for every
 // level without hardcoding word counts or Teil semantics per id. `opcionesCount`
 // (mcq only) defaults to 3 when omitted.
-// B1, B2 y C1 populated (fases 1-3 del plan); C2 reuses the same task types once
-// implemented, A1/A2 need new ones (emparejar de notas cortas, carteles) not modeled
-// here yet.
+// B1, B2, C1 y C2 populated (fases 1-4 del plan, ver lecturaplan.md); A1/A2 need new
+// task types (emparejar de notas cortas, carteles) not modeled here yet.
 export const READING_TEILE_SPECS = {
     B1: [
         {
@@ -109,6 +108,24 @@ export const READING_TEILE_SPECS = {
         {
             id: 'teil4', tipo: 'mcq', opcionesCount: 4, nombre: 'Teil 4 — Opiniones de expertos',
             promptFragment: '- "teil4" (tipo "mcq"): 3 expertos opinando sobre el tema desde perspectivas distintas en "textos" (3 elementos, "titulo" = nombre del experto, "contenido" = su opinión en alemán, 70-100 palabras cada una). 5 afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 3 nombres de los expertos más una cuarta opción "Keiner von ihnen", en el mismo orden en todos los items) y "correcta" (índice 0-3). Distintos items pueden compartir la misma persona correcta; procura, sin que sea obligatorio, que al menos una afirmación no corresponda a ningún experto (Keiner von ihnen).',
+        },
+    ],
+    C2: [
+        {
+            id: 'teil1', tipo: 'mcq', opcionesCount: 4, nombre: 'Teil 1 — Comentario y preguntas',
+            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, un comentario de opinión (Kommentar) de registro formal y argumentación elaborada) en "textos" (1 elemento con "titulo" y "contenido"), y 5 preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 4 strings) y "correcta" (índice 0-3).',
+        },
+        {
+            id: 'teil2', tipo: 'emparejar', requiereTextos: true, nombre: 'Teil 2 — Artículo por secciones',
+            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (220-300 palabras, tema complejo o científico-divulgativo) dividido en 5 secciones numeradas marcadas literalmente como "[1]".."[5]" dentro del "contenido" (un salto de línea antes de cada número). "columnaIzquierda" son esas 5 secciones (id "s1".."s5", "texto" = "Abschnitt 1".."Abschnitt 5"). "columnaDerecha" son 8 afirmaciones breves en alemán que resumen el contenido de una sección (id "a1".."a8", "texto" = la afirmación), de las cuales solo 5 corresponden a una sección (3 son distractoras). "solucion" mapea cada "s1".."s5" al id de la afirmación que resume esa sección.',
+        },
+        {
+            id: 'teil3', tipo: 'emparejar', requiereTextos: true, nombre: 'Teil 3 — Texto con huecos (fragmentos)',
+            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 reportaje o artículo narrativo en alemán (280-350 palabras, registro formal, estilo periodístico) — sin este texto el ejercicio no se puede resolver. "columnaIzquierda" son 5 huecos (id "h1".."h5", "texto" = "Lücke 1".."Lücke 5") marcados literalmente como "[1]".."[5]" dentro del "contenido", en puntos donde falta un fragmento de texto (una o dos frases). "columnaDerecha" son 8 fragmentos candidatos en alemán (id "f1".."f8", "texto" = el fragmento completo), de los cuales solo 5 completan correctamente un hueco (3 son distractores). "solucion" mapea cada "h1".."h5" al id del fragmento correspondiente.',
+        },
+        {
+            id: 'teil4', tipo: 'mcq', opcionesCount: 4, nombre: 'Teil 4 — Anuncios de empleo',
+            promptFragment: '- "teil4" (tipo "mcq"): 4 anuncios de empleo breves en alemán en "textos" (4 elementos, "titulo" = "Anzeige A".."Anzeige D", "contenido" = el anuncio, 40-70 palabras cada uno). 5 afirmaciones sobre el perfil o requisitos buscados en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — "Anzeige A","Anzeige B","Anzeige C","Anzeige D", en el mismo orden en todos los items) y "correcta" (índice 0-3 del anuncio al que corresponde). Distintos items pueden compartir el mismo anuncio correcto.',
         },
     ],
 };

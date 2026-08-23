@@ -1,9 +1,9 @@
 # Plan: adaptar "Comprensión" al formato real del examen (Leseverstehen)
 
-> **Estado: Fase 1 (B1) y Fase 2 (B2) implementadas** — ver §11 y §12 para el detalle de
-> lo hecho y lo que queda pendiente (C1/C2, A1/A2). El resto de este documento describe
-> el diseño original; §11/§12 documentan las decisiones tomadas durante la
-> implementación donde divergieron de lo planificado aquí.
+> **Estado: Fase 1 (B1), Fase 2 (B2) y Fase 3 (C1) implementadas** — ver §11, §12 y §13
+> para el detalle de lo hecho y lo que queda pendiente (C2, A1/A2). El resto de este
+> documento describe el diseño original; §11/§12/§13 documentan las decisiones tomadas
+> durante la implementación donde divergieron de lo planificado aquí.
 
 > Documento de planificación, no implementado originalmente. Complementa la "opción ligera" ya
 > implementada (`api/_reading-topics.js` `READING_SPECS`, `api/chat.js` `generateReading()`),
@@ -423,3 +423,94 @@ aparecían vacíos). El flujo completo end-to-end con login real (Comprensión �
 → selector de Teile → 5 Teile respondidos/comprobados → resultado final) ya se había
 confirmado sin errores de consola en una corrida anterior de esta misma sesión (esa corrida
 fue la que expuso visualmente el bug 3, con la arquitectura vieja).
+
+## 13. Fase 3 (C1) — implementado
+
+Antes de diseñar se investigó la estructura real del Leseverstehen del Goethe-Zertifikat C1
+(modelo oficial interactivo `bfu.goethe.de/c1mod/`, confirmado con una segunda fuente
+independiente, prepliq.com), en vez de asumir la tabla de §3 tal cual — mismo método que reveló
+que esa tabla estaba equivocada para B2. Hallazgo: **C1 tiene 4 Teile, no 5 como B1/B2**:
+
+1. **Teil 1** — Lückentext léxico-gramatical: 1 texto con 8 huecos, cada uno con sus propias 4
+   opciones múltiple choice independientes (no comparten opciones entre huecos).
+2. **Teil 2** — MCQ de comprensión estándar: artículo + 7 preguntas de 3 opciones.
+3. **Teil 3** — Emparejar frases candidatas a huecos: 8 huecos, 10 frases candidatas (2
+   distractoras).
+4. **Teil 4** — Atribución de afirmaciones a autor: 3 opiniones de expertos, 7-8 afirmaciones a
+   atribuir (algunas sin match — "x").
+
+Igual que en B2 (§12), **los 4 Teile reales encajan sin cambios en `mcq`/`emparejar` ya
+construidos** — no hizo falta ningún tipo de tarea nuevo. Se mantienen 5 items por Teil (no los
+7/8 reales) por el mismo motivo que en B1/B2: consistencia entre niveles y simplicidad del
+generador, sin pretender ser una réplica exacta del examen.
+
+- **`READING_TEILE_SPECS.C1`** (`api/_reading-topics.js`): `teil1` mcq `opcionesCount: 4`
+  (huecos léxicos con opciones independientes por item — variante nueva de *uso* de `mcq`, sin
+  cambio de schema, ya que cada item ya trae su propio array `opciones`), `teil2` mcq
+  `opcionesCount: 3` (reutiliza `{minWords}`/`{maxWords}` de `READING_SPECS.C1`, 200-260
+  palabras, mismo patrón que B1 teil1/B2 teil3), `teil3` emparejar `requiereTextos: true`
+  (Lückentext de frases, mismo patrón que B2 teil2, texto más largo — 250-320 palabras), `teil4`
+  mcq `opcionesCount: 4` (3 expertos + una 4ª opción "Keiner von ihnen" explícita, opciones
+  compartidas entre items, mismo patrón que B2 teil1). `TEMAS.C1` y `READING_SPECS.C1` ya
+  existían y no se tocaron. La longitud de `teil1` se ajustó de un primer borrador de 120-160
+  palabras a **150-200** durante la revisión de diseño (5 huecos léxicos con distractores
+  plausibles necesitan más contexto alrededor). Se decidió, siguiendo el precedente de B2 de
+  relajar validaciones de contenido/distribución poco fiables, **no forzar en el validador** que
+  al menos un item de `teil4` resuelva a "Keiner von ihnen" — solo se pide como sugerencia no
+  vinculante en el prompt.
+- **`TEIL_NOMBRES.C1`** (`lectura veloz.html`): añadido con el mismo patrón que B1/B2. Ningún
+  otro cambio en este archivo — `modoB_obtenerTexto()`, los renderers (`renderMcqTeilHtml`,
+  `renderEmparejarTeilHtml`), `TeilState` y la agregación de resultado final ya eran genéricos
+  por `tipo`/forma y no requirieron ninguna rama nueva.
+- **`api/chat.js`**: confirmado que el dispatcher, `generateOneTeil`/`generateOneTeilAttempt`,
+  `TEIL_VALIDATORS` y `schemaEjemploTeil` ya eran 100% genéricos por `spec =
+  READING_TEILE_SPECS[level]` — no requirieron cambios de lógica para soportar C1.
+- **Migración Supabase**: ninguna — `reading_texts.level` ya permitía `'C1'` en su `CHECK`.
+
+**Hallazgo real durante la verificación (no específico de C1, arquitectura compartida):** al
+correr ~26 llamadas reales a OpenAI contra los 4 Teile de C1, `teil2` (el patrón más simple y ya
+probado, idéntico a B1 teil1/B2 teil3) falló la validación ~23% de las veces — no por un problema
+de C1, sino porque `gpt-4o-mini` ocasionalmente devuelve las claves del JSON en alemán (`frage`,
+`optionen`, `erklaerung`) en vez de español (`pregunta`, `opciones`, `explicacion`), aparentemente
+arrastrado por el idioma del contenido del texto. Este riesgo ya existía en B1/B2 (mismo prompt
+compartido) mitigado únicamente por los 2 reintentos de `generateOneTeil`, pero nunca se había
+diagnosticado explícitamente. **Fix aplicado en `buildSingleTeilPrompt`** (`api/chat.js`, una
+sola línea, genérico para todos los niveles/Teile, no solo C1): se añadió al final del prompt
+"IMPORTANTE: usa EXACTAMENTE los nombres de campo del JSON de ejemplo de arriba (están en
+español) — nunca los traduzcas ni los sustituyas por nombres en alemán, aunque el contenido del
+texto sea en alemán." Verificado con una segunda tanda de 16 llamadas a `teil2`: la tasa de éxito
+subió de ~77% a ~94% (15/16). Este fix beneficia también a B1/B2 y a la futura C2, no solo a C1.
+
+**Verificación realizada:**
+- `node --check` de `api/chat.js`/`api/_reading-topics.js`; parseo de los bloques `<script>` de
+  `lectura veloz.html` con `new Function`.
+- Validadores standalone: 12/12 casos (4 specs de C1 con sesión válida + variantes rotas —
+  `opcionesCount` incorrecto, `teil3` sin `textos`, `solucion` a id inexistente, `columnaDerecha`
+  más corta — todas correctamente aceptadas/rechazadas; regresión de sesiones sintéticas B1/B2
+  sin romper).
+- Llamadas reales a OpenAI por Teil (con el fix de prompt aplicado): **24/24** (6 intentos por
+  cada uno de los 4 Teile) pasaron la validación estructural — iguala el 13/13 post-fix de B2.
+- Sesión completa end-to-end (`generateReadingTeile('C1')` reconstruido, incluyendo el INSERT
+  real a Supabase con el service role, mismo mecanismo que producción): **3/3** sesiones
+  completas insertadas correctamente en `reading_texts` con `format_version: 2` y 4 Teile cada
+  una — esas filas quedan como contenido real utilizable por estudiantes, no se revirtieron.
+- Revisión manual de contenido (2-3 muestras de `teil1`/`teil3`, los Teile más nuevos): `teil2`,
+  `teil3` y `teil4` de las muestras revisadas fueron semánticamente coherentes (huecos-frase
+  bien enlazados, atribuciones a expertos correctas incluyendo un caso correcto de "Keiner von
+  ihnen" sin haberlo forzado). **`teil1` mostró un caso de hueco con respuesta marcada incorrecta**
+  en una muestra (un hueco léxico donde la opción "correcta" no encajaba semánticamente en la
+  frase) — ningún validador de este proyecto comprueba corrección semántica de ningún Teil, en
+  ningún nivel (riesgo ya aceptado y documentado desde B1: la app es una herramienta de práctica
+  de formato, no una réplica exacta ni garantiza contenido semánticamente perfecto en el 100% de
+  los casos). No se consideró bloqueante para cerrar la fase.
+- **No se hizo prueba manual en navegador con login real** (mismo motivo que en fases
+  anteriores) — antes de dar la fase por completamente cerrada conviene entrar a
+  `/lectura veloz.html` → Comprensión → Por nivel → C1 → Obtener texto, y completar una sesión
+  completa de los 4 Teile una vez desplegado. Al ya existir 3 sesiones C1 `format_version: 2`
+  reales en producción (insertadas durante esta verificación), la primera vez que un usuario
+  entre a C1 debería obtener directamente una de ellas sin necesitar generar una nueva.
+
+**Pendiente / no incluido en esta fase**: C2 (mismos tipos de tarea, reutiliza los renderers y
+el fix de prompt ya aplicado — falta solo investigar la estructura real del Modellsatz C2,
+poblar `READING_TEILE_SPECS.C2` y `TEIL_NOMBRES.C2` siguiendo este mismo patrón), A1/A2 (sin
+cambios, siguen necesitando tipos de tarea nuevos).

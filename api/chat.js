@@ -355,7 +355,7 @@ ${fragment}${noRepeat}
 Responde SOLO con JSON válido (sin markdown), un único objeto con exactamente este formato:
 ${schemaEjemploTeil(expected)}
 
-Todo el contenido en alemán debe ser apropiado para nivel ${level}. "instrucciones" va en español, breve, explicando la tarea al estudiante.`;
+Todo el contenido en alemán debe ser apropiado para nivel ${level}. "instrucciones" va en español, breve, explicando la tarea al estudiante. IMPORTANTE: usa EXACTAMENTE los nombres de campo del JSON de ejemplo de arriba (están en español) — nunca los traduzcas ni los sustituyas por nombres en alemán, aunque el contenido del texto sea en alemán.`;
 }
 
 async function generateOneTeilAttempt(level, tema, expected, noRepeat) {

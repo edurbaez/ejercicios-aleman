@@ -45,7 +45,7 @@ export function pick(arr) {
 // by buildTeilePrompt() in api/chat.js, so the same generic code path works for every
 // level without hardcoding word counts or Teil semantics per id. `opcionesCount`
 // (mcq only) defaults to 3 when omitted.
-// B1/B2 populated (fases 1-2 del plan); C1/C2 reuse the same task types once
+// B1, B2 y C1 populated (fases 1-3 del plan); C2 reuses the same task types once
 // implemented, A1/A2 need new ones (emparejar de notas cortas, carteles) not modeled
 // here yet.
 export const READING_TEILE_SPECS = {
@@ -91,6 +91,24 @@ export const READING_TEILE_SPECS = {
         {
             id: 'teil5', tipo: 'emparejar', nombre: 'Teil 5 — Reglamento y párrafos',
             promptFragment: '- "teil5" (tipo "emparejar"): sin "textos". 3 párrafos (30-60 palabras cada uno) de un reglamento o normativa (por ejemplo, normas de una comunidad de vecinos, de una biblioteca universitaria o de una empresa) en "columnaIzquierda" (id "p1".."p3", "texto" = el párrafo) y 8 posibles encabezados cortos en "columnaDerecha" (id "e1".."e8", "texto" = el encabezado). "solucion" mapea cada párrafo al id del encabezado que le corresponde; los encabezados restantes son distractores.',
+        },
+    ],
+    C1: [
+        {
+            id: 'teil1', tipo: 'mcq', opcionesCount: 4, nombre: 'Teil 1 — Texto con huecos (léxico)',
+            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán (150-200 palabras) sobre el tema, en "textos" (1 elemento con "titulo" y "contenido"), con 5 huecos numerados marcados literalmente como "[1]".."[5]" dentro del "contenido", en lugares donde falta una palabra o expresión (verbo, conector, preposición, locución fija — no frases completas). 5 preguntas en "items" (una por hueco, en el mismo orden), cada una con "pregunta" (p.ej. "Lücke 1"), "opciones" (array de EXACTAMENTE 4 strings, alternativas léxicas o gramaticales plausibles y del mismo nivel para ese hueco) y "correcta" (índice 0-3).',
+        },
+        {
+            id: 'teil2', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 2 — Artículo y preguntas',
+            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, artículo periodístico o de opinión) en "textos" (1 elemento con "titulo" y "contenido"), y 5 preguntas de comprensión en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+        },
+        {
+            id: 'teil3', tipo: 'emparejar', requiereTextos: true, nombre: 'Teil 3 — Texto con huecos (frases)',
+            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (250-320 palabras, tema abstracto o de opinión) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son los 5 huecos (id "h1".."h5", "texto" = "Lücke 1".."Lücke 5") marcados literalmente como "[1]".."[5]" dentro del "contenido", en puntos donde falta una frase completa. "columnaDerecha" son 8 frases candidatas en alemán (id "f1".."f8", "texto" = la frase completa), de las cuales solo 5 completan correctamente un hueco (3 son distractoras). "solucion" mapea cada "h1".."h5" al id de la frase correspondiente.',
+        },
+        {
+            id: 'teil4', tipo: 'mcq', opcionesCount: 4, nombre: 'Teil 4 — Opiniones de expertos',
+            promptFragment: '- "teil4" (tipo "mcq"): 3 expertos opinando sobre el tema desde perspectivas distintas en "textos" (3 elementos, "titulo" = nombre del experto, "contenido" = su opinión en alemán, 70-100 palabras cada una). 5 afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 3 nombres de los expertos más una cuarta opción "Keiner von ihnen", en el mismo orden en todos los items) y "correcta" (índice 0-3). Distintos items pueden compartir la misma persona correcta; procura, sin que sea obligatorio, que al menos una afirmación no corresponda a ningún experto (Keiner von ihnen).',
         },
     ],
 };

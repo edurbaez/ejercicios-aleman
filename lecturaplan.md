@@ -1,9 +1,9 @@
 # Plan: adaptar "Comprensión" al formato real del examen (Leseverstehen)
 
-> **Estado: Fase 1 (B1), Fase 2 (B2), Fase 3 (C1) y Fase 4 (C2) implementadas** — ver
-> §11, §12, §13 y §14 para el detalle de lo hecho y lo que queda pendiente (A1/A2). El
-> resto de este documento describe el diseño original; §11/§12/§13/§14 documentan las
-> decisiones tomadas durante la implementación donde divergieron de lo planificado aquí.
+> **Estado: las 6 fases están implementadas (A1, A2, B1, B2, C1, C2)** — ver §11-§15 para
+> el detalle de lo hecho. El resto de este documento describe el diseño original;
+> §11-§15 documentan las decisiones tomadas durante la implementación donde divergieron
+> de lo planificado aquí.
 
 > Documento de planificación, no implementado originalmente. Complementa la "opción ligera" ya
 > implementada (`api/_reading-topics.js` `READING_SPECS`, `api/chat.js` `generateReading()`),
@@ -592,3 +592,95 @@ consistencia entre niveles y simplicidad del generador.
 
 **Pendiente / no incluido en esta fase**: A1/A2 (necesitan tipos de tarea nuevos —
 emparejar de notas muy cortas, carteles — no modelados aún).
+
+## 15. Fase 5 (A1/A2) — implementado
+
+Investigada la estructura real del Leseverstehen de Goethe-Zertifikat A1 (Start Deutsch 1,
+`bfu.goethe.de/a1_sd1/lesen.php`) y A2 (`bfu.goethe.de/a2_mod_2MX5/lesen.php`), en vez de
+asumir la tabla de §3 tal cual — mismo método que reveló que esa tabla estaba equivocada
+para B2. Hallazgo, igual que en fases anteriores: **el §3 original era aproximadamente
+correcto en el tipo de tarea pero no en el detalle**, y ni A1 ni A2 requieren ningún tipo
+de tarea nuevo — la predicción de §14 ("necesitan tipos de tarea nuevos") no se confirmó.
+
+- **A1 — 3 Teile reales, 5 ítems cada uno:**
+  1. Richtig/falsch sobre 2 textos cortos (SMS, cartas breves, anuncios).
+  2. "Wo finden Sie Informationen?" — emparejar una situación/necesidad con la página web
+     o categoría de información correcta.
+  3. Richtig/falsch sobre avisos/carteles públicos (consulta médica, escuela, estación...).
+- **A2 — 4 Teile reales, 5 ítems cada uno:**
+  1. Artículo de revista/periódico + MCQ 3 opciones.
+  2. Directorio/guía (p. ej. plantas de unos grandes almacenes) + MCQ 3 opciones.
+  3. Correo electrónico personal + MCQ 3 opciones.
+  4. Emparejar anuncios con personas — 6 anuncios, 5 personas, 1 anuncio sin match
+     (distractor), igual que en el examen real.
+
+Igual que en B2/C1/C2 (§12/§13/§14), **los 7 Teile combinados encajan sin cambios en
+`mcq`/`richtig_falsch`/`emparejar` ya construidos** — A1 es, de hecho, el segundo y tercer
+consumidor real de `richtig_falsch` (antes solo lo usaba B1 teil4). Se mantienen 5 ítems
+por Teil (no los reales del examen) por el mismo motivo que en niveles anteriores.
+
+- **`READING_TEILE_SPECS.A1`/`.A2`** (`api/_reading-topics.js`): añadidas siguiendo el
+  mismo estilo exacto (`id`, `tipo`, `nombre`, `promptFragment`) que las entradas
+  existentes. A1 reutiliza `{minWords}`/`{maxWords}` de `READING_SPECS.A1` (30-50, ya
+  pensado para textos muy cortos tipo SMS/aviso, apto tal cual para el formato Teile).
+  A2 **no** reutiliza `READING_SPECS.A2` (50-80) para sus tres Teile `mcq` — ese rango
+  está calibrado para el flujo plano v1 (un único mensaje muy breve) y se queda corto
+  para sostener 5 preguntas de comprensión reales; se hardcodearon rangos por Teil en el
+  propio `promptFragment` (90-120 / 60-90 / 100-140 palabras), mismo patrón de
+  calibración manual que se usó para B2 en su momento (§12, punto 5). Ninguna entrada
+  `emparejar` de A1/A2 necesitó `requiereTextos: true` — a diferencia de los Lückentext de
+  B2/C1/C2, ninguno de los dos Teile de emparejar (A1 teil2, A2 teil4) depende de un
+  texto compartido: cada ítem de la columna derecha ya trae su propio contenido breve
+  (igual que B1 teil2, personas↔anuncios).
+- **`TEIL_NOMBRES.A1`/`.A2`** (`lectura veloz.html`): añadidas en paralelo a las specs del
+  backend, mismo patrón que B1-C2 — paso obligatorio para que
+  `modoB_obtenerTexto()` (línea ~1599, `TEIL_NOMBRES[level] ? teileUnseen : unseen`)
+  active el filtro `format_version === 2` para A1/A2; sin esto, ambos niveles habrían
+  seguido sirviendo el formato plano legado indefinidamente sin ningún error visible
+  (mismo bug real ya documentado en §12, bug 1).
+- **Nada más requirió cambios**: dispatcher, validadores (`validMcqTeil`,
+  `validRichtigFalschTeil`, `validEmparejarTeil`), `schemaEjemploTeil`,
+  `buildSingleTeilPrompt`, `generateOneTeil`/`generateReadingTeile`, los 3 renderers de
+  frontend, `TeilState`, navegación de sesión y agregación de resultado final ya eran
+  100% genéricos por `tipo` y ya incluían A1/A2 en `#comp-level-pills`. Ninguna migración
+  de Supabase nueva — el `CHECK` de `level` en `reading_texts` (migración 003) ya
+  permitía A1/A2, y `format_version` (migración 011) no tiene restricción por nivel.
+- **`TEMAS.A1`/`.A2` y `READING_SPECS.A1`/`.A2`**: ya existían (usados por el flujo v1
+  legado) y no se tocaron — la Fase 5 solo añadió las specs Teile, reutilizando `TEMAS`
+  tal cual para el tema de fondo de cada sesión.
+
+**Verificación realizada:**
+- `node --check` de `api/_reading-topics.js`: OK. Ningún cambio de lógica en `api/chat.js`
+  en esta fase (confirmado que el dispatcher/validadores/generador ya eran genéricos), por
+  lo que no hizo falta re-verificar su sintaxis más allá de la comprobación de referencia.
+- Parseo de los bloques `<script>` de `lectura veloz.html` con `new Function`: OK.
+- Validadores standalone (script temporal en scratchpad, no en el repo, copiado verbatim
+  de `api/chat.js`): **7/7** sesiones sintéticas válidas (una por Teil nuevo) aceptadas,
+  más variantes rotas por tipo (`opcionesCount` incorrecto en los 3 `mcq` de A2,
+  `columnaDerecha` más corta que `columnaIzquierda` y `solucion` a id inexistente en los 2
+  `emparejar`) correctamente rechazadas.
+- Llamadas reales a OpenAI (`OPENAI_API_KEY` presente en `.env.local`, replicando
+  `buildSingleTeilPrompt`/`generateOneTeilAttempt` en un script standalone): **42/42** (6
+  intentos por cada uno de los 7 Teile nuevos) pasaron la validación estructural — mejor
+  incluso que el ~90-94% típico de B2/C1 (§12/§13), consistente con que los textos A1/A2
+  son mucho más cortos y el modelo tiene menos superficie donde fallar.
+- Revisión manual de contenido (1 muestra completa de los 7 Teile): semánticamente
+  coherente en todos los casos — el nivel de alemán usado es apropiado para A1/A2, las
+  afirmaciones richtig/falsch de A1 se corresponden con el contenido de los textos, los
+  emparejamientos de A1 teil2/A2 teil4 son lógicos (incluyendo el distractor sin match en
+  A2 teil4). Sin hallazgos de contenido incorrecto en esta muestra (a diferencia de C1
+  §13, que sí encontró un hueco léxico mal marcado) — de todos modos, ningún validador del
+  proyecto comprueba corrección semántica en ningún nivel, riesgo ya aceptado.
+- **No se hizo prueba manual en navegador con login real** (mismo motivo que en fases
+  anteriores) — antes de dar la fase por completamente cerrada conviene entrar a
+  `/lectura veloz.html` → Comprensión → Por nivel → A1 y A2 → Obtener texto, y completar
+  una sesión completa una vez desplegado. No se insertó ninguna sesión A1/A2 real en
+  `reading_texts` durante esta verificación (solo generación en memoria vía script
+  standalone, sin llamar al INSERT de Supabase) — la primera vez que un usuario entre a
+  A1 o A2 disparará la primera generación real con `format_version: 2`.
+
+**Pendiente / no incluido en esta fase**: ninguno — las 6 fases planeadas (§9) están
+completas. Riesgos generales que siguen abiertos para todos los niveles: ningún validador
+comprueba corrección semántica del contenido generado (§10, aceptado desde B1); el costo
+de generación (una llamada IA por Teil, 3-5 Teile por sesión) no se ha revisado bajo
+volumen real de uso (§10, última viñeta).

@@ -45,9 +45,41 @@ export function pick(arr) {
 // by buildTeilePrompt() in api/chat.js, so the same generic code path works for every
 // level without hardcoding word counts or Teil semantics per id. `opcionesCount`
 // (mcq only) defaults to 3 when omitted.
-// B1, B2, C1 y C2 populated (fases 1-4 del plan, ver lecturaplan.md); A1/A2 need new
-// task types (emparejar de notas cortas, carteles) not modeled here yet.
+// Los 6 niveles (A1-C2) están poblados (fases 1-5 del plan, ver lecturaplan.md). Ningún
+// nivel requirió tipos de tarea nuevos: todos encajan en mcq/richtig_falsch/emparejar.
 export const READING_TEILE_SPECS = {
+    A1: [
+        {
+            id: 'teil1', tipo: 'richtig_falsch', nombre: 'Teil 1 — Richtig oder falsch',
+            promptFragment: '- "teil1" (tipo "richtig_falsch"): 2 textos muy cortos en alemán en "textos" (2 elementos, cada uno con "titulo" y "contenido" de {minWords}-{maxWords} palabras — un SMS, una nota o un anuncio muy sencillo, nivel A1), y 5 afirmaciones sobre esos textos en "items", cada una con "afirmacion" (string, en alemán muy simple) y "correcta" (true o false), mezclando verdaderas y falsas y repartidas entre los dos textos.',
+        },
+        {
+            id: 'teil2', tipo: 'emparejar', nombre: 'Teil 2 — ¿Dónde encuentras la información?',
+            promptFragment: '- "teil2" (tipo "emparejar"): sin "textos". 5 situaciones cotidianas muy sencillas en "columnaIzquierda" (id "s1".."s5", "texto" describiendo en alemán muy simple qué información busca una persona, p.ej. horarios de tren, el tiempo, una receta) y 7 páginas web o categorías de información en "columnaDerecha" (id "w1".."w7", "texto" = nombre breve de la web/categoría en alemán, p.ej. "Bahnfahrplan.de"). "solucion" mapea cada situación al id de la web que le corresponde; las 2 webs restantes son distractoras.',
+        },
+        {
+            id: 'teil3', tipo: 'richtig_falsch', nombre: 'Teil 3 — Avisos públicos',
+            promptFragment: '- "teil3" (tipo "richtig_falsch"): 2 carteles o avisos públicos muy breves en alemán en "textos" (2 elementos, "titulo" = dónde está el cartel, p.ej. "Aushang: Bahnhof", "contenido" de {minWords}-{maxWords} palabras cada uno — horarios, normas o información de un lugar público como una estación, una tienda o una escuela), y 5 afirmaciones sobre esos carteles en "items", cada una con "afirmacion" (string) y "correcta" (true o false), mezclando verdaderas y falsas.',
+        },
+    ],
+    A2: [
+        {
+            id: 'teil1', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 1 — Artículo: preguntas',
+            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán (90-120 palabras, un artículo breve de revista o periódico sobre una persona o un tema cotidiano, nivel A2) en "textos" (1 elemento con "titulo" y "contenido"), y 5 preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+        },
+        {
+            id: 'teil2', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 2 — Guía/directorio: preguntas',
+            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán (60-90 palabras) en "textos" (1 elemento, "titulo" = "Wegweiser" o similar, "contenido" = un listado breve tipo directorio, p.ej. las plantas de unos grandes almacenes o el programa de un centro cultural, indicando qué se encuentra en cada sección), y 5 preguntas en "items" del tipo "¿Dónde encuentras...?", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+        },
+        {
+            id: 'teil3', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 3 — Correo electrónico: preguntas',
+            promptFragment: '- "teil3" (tipo "mcq"): 1 correo electrónico personal en alemán (100-140 palabras) en "textos" (1 elemento, "titulo" = "E-Mail von ..." y "contenido" = el correo), y 5 preguntas de comprensión en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+        },
+        {
+            id: 'teil4', tipo: 'emparejar', nombre: 'Teil 4 — Anuncios y personas',
+            promptFragment: '- "teil4" (tipo "emparejar"): sin "textos". 5 personas en "columnaIzquierda" (id "p1".."p5", "texto" describiendo brevemente en alemán simple qué busca cada una, p.ej. un local para una fiesta, un café tranquilo) y 6 anuncios breves en "columnaDerecha" (id "a1".."a6", "texto" = el anuncio, 20-30 palabras cada uno). "solucion" mapea cada persona al id del anuncio que le corresponde; el anuncio restante es un distractor sin solución asociada.',
+        },
+    ],
     B1: [
         {
             id: 'teil1', tipo: 'mcq', nombre: 'Teil 1 — Texto y preguntas',

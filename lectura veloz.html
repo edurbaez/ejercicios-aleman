@@ -1815,7 +1815,7 @@
         }
 
         function renderEmparejarTeilHtml(teil) {
-            const opciones = teil.columnaDerecha.map(d => `<option value="${d.id}">${escHtml(d.texto)}</option>`).join('');
+            const opciones = shuffleArr(teil.columnaDerecha).map(d => `<option value="${d.id}">${escHtml(d.texto)}</option>`).join('');
             return teil.columnaIzquierda.map(izq => `
                 <div class="comp-emparejar-row" data-item="${izq.id}">
                     <div class="comp-emparejar-texto">${escHtml(izq.texto)}</div>

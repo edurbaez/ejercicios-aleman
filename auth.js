@@ -316,6 +316,89 @@
     if (m) m.style.display = 'none';
   };
 
+  function _injectFeedbackButton() {
+    if (document.getElementById('feedback-fab')) return;
+    const btn = document.createElement('button');
+    btn.id = 'feedback-fab';
+    btn.type = 'button';
+    btn.title = 'Reportar un problema o sugerencia';
+    btn.textContent = '💬';
+    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:#1976D2;color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:9998;';
+    btn.onclick = window.openFeedbackModal;
+    document.body.appendChild(btn);
+  }
+
+  function _injectFeedbackModal() {
+    if (document.getElementById('feedback-modal')) return;
+    const el = document.createElement('div');
+    el.id = 'feedback-modal';
+    el.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;';
+    el.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:24px;min-width:280px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+        <h3 style="margin:0 0 16px;color:#222">💬 Reportar</h3>
+        <select id="fb-tipo" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;">
+          <option value="bug">🐛 Reportar un fallo</option>
+          <option value="sugerencia">💡 Sugerencia</option>
+        </select>
+        <textarea id="fb-mensaje" rows="4" placeholder="Contanos qué pasó o qué te gustaría ver..." style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;resize:vertical;"></textarea>
+        <p id="fb-error" style="display:none;color:#c62828;font-size:13px;margin:0 0 10px;"></p>
+        <div style="display:flex;gap:8px;">
+          <button id="fb-send-btn" onclick="window.submitFeedback()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar</button>
+          <button onclick="window.closeFeedbackModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  window.openFeedbackModal = function () {
+    if (!window.currentUser) { window.openAuthModal(); return; }
+    _injectFeedbackModal();
+    document.getElementById('fb-mensaje').value = '';
+    document.getElementById('fb-error').style.display = 'none';
+    document.getElementById('feedback-modal').style.display = 'flex';
+  };
+
+  window.closeFeedbackModal = function () {
+    const m = document.getElementById('feedback-modal');
+    if (m) m.style.display = 'none';
+  };
+
+  window.submitFeedback = async function () {
+    const tipo = document.getElementById('fb-tipo').value;
+    const mensaje = document.getElementById('fb-mensaje').value.trim();
+    const errEl = document.getElementById('fb-error');
+    errEl.style.display = 'none';
+    if (!mensaje) { errEl.textContent = 'Escribí un mensaje antes de enviar.'; errEl.style.display = 'block'; return; }
+
+    const btn = document.getElementById('fb-send-btn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    try {
+      const { data, error } = await window.sb.from('feedback_reports').insert({
+        user_id: window.currentUser.id,
+        tipo,
+        mensaje,
+        pagina: window.location.pathname,
+      }).select('id').single();
+      if (error) throw error;
+
+      window.closeFeedbackModal();
+
+      const token = window.getAuthToken();
+      if (token) {
+        fetch('/api/push-subscribe', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'notify-admins', report_id: data.id }),
+        }).catch(() => {});
+      }
+    } catch (e) {
+      errEl.textContent = 'No se pudo enviar. Intentalo de nuevo.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enviar';
+    }
+  };
+
   const ADMIN_LINKS = [
     { id: 'nav-dashboard-link', href: '/admin/', text: 'Dashboard →', color: '#1976D2' },
     { id: 'nav-marketing-link', href: '/marketing/', text: 'Marketing →', color: '#6A1B9A' },
@@ -838,6 +921,7 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     _renderNavMenu();
+    _injectFeedbackButton();
     window.updateAuthUI();
     _dtInit();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {

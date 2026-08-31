@@ -52,7 +52,7 @@ export default async function handler(req, res) {
             },
             // gpt-image models always return b64_json; response_format is not accepted
             body: JSON.stringify({
-                model: 'gpt-image-1-mini',
+                model: 'gpt-image-2',
                 prompt,
                 n: 1,
                 size: resolvedSize,

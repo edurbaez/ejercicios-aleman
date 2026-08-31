@@ -161,6 +161,13 @@
     body.dark .badge.pending { background: #2a0a1a; color: #f48fb1; }
     .badge.expired { background: #eceff1; color: #455a64; }
     body.dark .badge.expired { background: #20242e; color: #9aa4bf; }
+    .badge.tipo-bug { background: #ffebee; color: #c62828; }
+    body.dark .badge.tipo-bug { background: #2a0a0a; color: #ef9a9a; }
+    .badge.tipo-sugerencia { background: #e0f2f1; color: #00796B; }
+    body.dark .badge.tipo-sugerencia { background: #00302b; color: #4db6ac; }
+
+    /* ── Reportes nav badge ── */
+    .reportes-badge { display: none; background: #e53935; color: #fff; border-radius: 10px; padding: 0 6px; font-size: 10px; font-weight: 700; line-height: 16px; min-width: 16px; text-align: center; margin-left: 2px; }
 
     /* ── Access control ── */
     #det-access { background: #f7f8fc; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; }
@@ -318,6 +325,9 @@
           <a href="/marketing/" style="font-weight:600;color:#ce93d8;border-top:1px solid rgba(255,255,255,.15);margin-top:2px;padding-top:10px">Marketing →</a>
         </div>
       </div>
+      <button class="adm-btn" id="reportes-nav-btn" onclick="scrollToReportes()">
+        📬 Reportes<span id="reportes-badge" class="reportes-badge"></span>
+      </button>
       <button class="adm-btn" id="refresh-btn" onclick="refreshData()">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
         Actualizar
@@ -482,6 +492,23 @@
       <div id="expiring-list"></div>
     </div>
 
+    <!-- 3c. Reportes de usuarios -->
+    <div class="section" id="reportes-section">
+      <div class="section-title with-range">
+        <span class="section-title-text">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          📬 Reportes de usuarios
+        </span>
+        <div class="range-pills" id="reportes-filter">
+          <button class="range-pill active" data-range="todos" onclick="setReportesFilter('todos')">Todos</button>
+          <button class="range-pill" data-range="nuevo" onclick="setReportesFilter('nuevo')">Nuevo</button>
+          <button class="range-pill" data-range="leido" onclick="setReportesFilter('leido')">Leído</button>
+          <button class="range-pill" data-range="resuelto" onclick="setReportesFilter('resuelto')">Resuelto</button>
+        </div>
+      </div>
+      <div id="reportes-list"><p class="empty">Cargando…</p></div>
+    </div>
+
     <!-- 4. Users table -->
     <div class="section">
       <div class="section-title">
@@ -577,6 +604,8 @@
   const readingByUser = {}; // user_id -> count of reading_texts seen
   const grammarPracticeByUser = {}; // user_id -> count of grammar_practice_exercises seen
   const dailyTimeByUser = {}; // user_id -> { totalMs, byApp: { appId: ms } } (last 30 days)
+  let allReports       = [];
+  let reportesFilter   = 'todos';
 
   let profileMap          = new Map();
   let totalActivityWeight = 0;
@@ -650,7 +679,7 @@
 
   // ── Data loading ──────────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes] = await Promise.all([
+    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
@@ -672,12 +701,16 @@
       sb.from('daily_usage_time').select('user_id, date, apps')
         .gte('date', new Date(Date.now() - 30 * 86400 * 1000).toLocaleDateString('sv-SE'))
         .limit(20000),
+      sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, created_at')
+        .order('created_at', { ascending: false })
+        .limit(500),
     ]);
 
     allProfiles      = profRes.data || [];
     allEvents        = evRes.data  || [];
     allExams         = exRes.data  || [];
     marketingSummary = summaryRes?.data || null;
+    allReports       = reportsRes.data || [];
 
     profileMap = new Map(allProfiles.map(p => [p.id, p]));
 
@@ -725,6 +758,8 @@
     renderUsersTable(allProfiles);
     renderExpiringAccess();
     renderGlobalKpis();
+    renderReportsBadge();
+    renderReportsSection();
   }
 
   // ── Global KPIs (marketing_summary view) ──────────────────
@@ -760,6 +795,69 @@
         <span class="badge admin" style="margin-left:auto;">expira ${fmtDate(p.access_expires_at)}</span>
       </div>`;
     }).join('');
+  }
+
+  // ── Reportes (feedback_reports) ───────────────────────────
+  const TIPO_INFO    = { bug: { icon: '🐛', label: 'Bug', cls: 'tipo-bug' }, sugerencia: { icon: '💡', label: 'Sugerencia', cls: 'tipo-sugerencia' } };
+  const ESTADO_BADGE = { nuevo: 'pending', leido: '', resuelto: 'approved' };
+
+  function scrollToReportes() {
+    document.getElementById('reportes-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderReportsBadge() {
+    const badge = document.getElementById('reportes-badge');
+    const count = allReports.filter(r => r.estado === 'nuevo').length;
+    if (count === 0) { badge.style.display = 'none'; return; }
+    badge.textContent = count > 99 ? '99+' : count;
+    badge.style.display = 'inline-block';
+  }
+
+  function setReportesFilter(estado) {
+    reportesFilter = estado;
+    setActiveRangePill('reportes-filter', estado);
+    renderReportsSection();
+  }
+
+  function renderReportsSection() {
+    const el   = document.getElementById('reportes-list');
+    const rows = reportesFilter === 'todos' ? allReports : allReports.filter(r => r.estado === reportesFilter);
+
+    if (rows.length === 0) { el.innerHTML = '<p class="empty">Sin reportes.</p>'; return; }
+
+    el.innerHTML = `<div class="table-scroll"><table class="exam-table">
+      <thead><tr><th>Tipo</th><th>Mensaje</th><th>Usuario</th><th class="col-hide-mobile">Página</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>
+        ${rows.map(r => {
+          const tipo     = TIPO_INFO[r.tipo] || { icon: '❓', label: r.tipo, cls: '' };
+          const p        = profileMap.get(r.user_id);
+          const msgFull  = r.mensaje || '';
+          const msgShort = msgFull.length > 90 ? msgFull.slice(0, 90) + '…' : msgFull;
+          const estadoCls = ESTADO_BADGE[r.estado] ?? '';
+          const actions = [];
+          if (r.estado !== 'leido')    actions.push(`<button class="adm-access-btn" onclick="markReport('${esc(r.id)}','leido')">Marcar leído</button>`);
+          if (r.estado !== 'resuelto') actions.push(`<button class="adm-access-btn ok" onclick="markReport('${esc(r.id)}','resuelto')">Marcar resuelto</button>`);
+          return `<tr>
+            <td><span class="badge ${tipo.cls}">${tipo.icon} ${esc(tipo.label)}</span></td>
+            <td style="max-width:320px" title="${esc(msgFull)}">${esc(msgShort)}</td>
+            <td style="color:#777;font-size:12px">${esc(p?.email || p?.display_name || r.user_id.slice(0, 8))}</td>
+            <td class="col-hide-mobile" style="color:#888;font-size:12px">${esc(r.pagina || '—')}</td>
+            <td style="color:#888;font-size:12px">${fmtDate(r.created_at)}</td>
+            <td><span class="badge ${estadoCls}">${esc(r.estado)}</span></td>
+            <td style="white-space:nowrap;display:flex;gap:6px">${actions.join('')}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+  }
+
+  async function markReport(id, estado) {
+    const { error } = await sb.from('feedback_reports').update({ estado }).eq('id', id);
+    if (error) { console.error(error); return; }
+    const r = allReports.find(x => x.id === id);
+    if (r) r.estado = estado;
+    renderReportsBadge();
+    renderReportsSection();
   }
 
   // ── Summary cards ─────────────────────────────────────────

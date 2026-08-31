@@ -583,6 +583,7 @@
       <div id="det-srs" style="margin-top:16px;"></div>
       <div id="det-stats" style="margin-top:16px;"></div>
       <div id="det-tiempo" style="margin-top:16px;"></div>
+      <div id="det-sessions" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
     </div>
@@ -619,6 +620,7 @@
   const readingByUser = {}; // user_id -> count of reading_texts seen
   const grammarPracticeByUser = {}; // user_id -> count of grammar_practice_exercises seen
   const dailyTimeByUser = {}; // user_id -> { totalMs, byApp: { appId: ms } } (last 30 days)
+  const sessionsByUser = {}; // user_id -> [{ session_id, device, last_seen }] (active_sessions rows)
   let allReports       = [];
   let reportesFilter   = 'todos';
 
@@ -713,6 +715,7 @@
     for (const k of Object.keys(readingByUser)) delete readingByUser[k];
     for (const k of Object.keys(grammarPracticeByUser)) delete grammarPracticeByUser[k];
     for (const k of Object.keys(dailyTimeByUser)) delete dailyTimeByUser[k];
+    for (const k of Object.keys(sessionsByUser)) delete sessionsByUser[k];
     await loadData();
     btn.innerHTML = orig;
     btn.disabled  = false;
@@ -720,7 +723,7 @@
 
   // ── Data loading ──────────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes] = await Promise.all([
+    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes, sessionsRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
@@ -745,6 +748,10 @@
       sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, created_at')
         .order('created_at', { ascending: false })
         .limit(500),
+      // Requires migration 018 (active_sessions + admin read policy) — silently empty otherwise.
+      sb.from('active_sessions').select('user_id, session_id, device, last_seen')
+        .order('last_seen', { ascending: false })
+        .limit(5000),
     ]);
 
     allProfiles      = profRes.data || [];
@@ -789,6 +796,10 @@
         t.totalMs += ms;
         t.byApp[appId] = (t.byApp[appId] || 0) + ms;
       }
+    }
+    for (const r of sessionsRes?.data || []) {
+      if (!sessionsByUser[r.user_id]) sessionsByUser[r.user_id] = [];
+      sessionsByUser[r.user_id].push(r);
     }
 
     renderSummary();
@@ -1279,6 +1290,7 @@
     renderDetSrs(userId);
     renderDetStats(userId);
     renderDetTiempo(userId);
+    renderDetSessions(userId);
 
     document.getElementById('det-events').innerHTML = evs.length === 0
       ? '<p class="empty">Sin eventos registrados.</p>'
@@ -1474,6 +1486,29 @@
     el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">⏱️ Tiempo activo (últimos 30 días)</div>
       <div style="margin-bottom:6px;font-size:13px;">Total: <strong>${fmtDuration(t.totalMs)}</strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
+  }
+
+  function renderDetSessions(userId) {
+    const el = document.getElementById('det-sessions');
+    const rows = sessionsByUser[userId] || [];
+    if (rows.length === 0) { el.innerHTML = ''; return; }
+
+    const now = Date.now();
+    const ACTIVE_MS = 2 * 60 * 1000; // 2x the client's 60s heartbeat
+    const activeRows = rows.filter(r => now - new Date(r.last_seen).getTime() <= ACTIVE_MS);
+    const concurrent = activeRows.length >= 2;
+
+    const list = rows.map(r => {
+      const isActive = now - new Date(r.last_seen).getTime() <= ACTIVE_MS;
+      return `<div class="event-row">
+        <span>${isActive ? '🟢' : '⚪'} ${esc(r.device || 'Dispositivo')}</span>
+        <span style="color:#888;font-size:12px;">${fmtDateFull(r.last_seen)}</span>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">📱 Sesiones (dispositivos)</div>
+      ${concurrent ? `<div style="margin-bottom:8px;padding:8px 10px;border-radius:8px;background:#FFF3E0;color:#E65100;font-size:12px;font-weight:600;">⚠️ Conectado en ${activeRows.length} dispositivos al mismo tiempo</div>` : ''}
+      ${list}`;
   }
 
   function closeDetail() {

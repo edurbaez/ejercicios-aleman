@@ -218,6 +218,12 @@ First-time visitors on `index.html` get a guided tour ([onboarding.js](onboardin
 
 ---
 
+## Legal
+
+[privacidad.html](privacidad.html) — public privacy policy, linked from `index.html`'s footer. Standalone page, no login/navbar (avoids triggering `auth.js`'s auto login modal for visitors reading it before signing up).
+
+---
+
 ## Navigation
 
 All pages share a fixed navbar. **Inicio** is always visible as a standalone link. The remaining pages — Entrenamiento de lectura, Diccionario, B1, Chat de Voz, Corrector — are grouped under a **Menú ▾** dropdown button. The current page's link is marked `.active` inside the dropdown.
@@ -246,6 +252,8 @@ Shared authentication module. Injects the login modal (OTP + Google OAuth) and e
 - **Todo el tiempo** — all-time totals (words, dictionary lookups, audios, sessions).
 
 Also tracks daily active screen time per app: a local heartbeat accumulates it in `localStorage` and syncs to Supabase (`daily_usage_time` table, 60-day retention) once per calendar-day change — no per-session DB calls.
+
+Also tracks active sessions per device (for concurrent-login detection): a device id generated once per browser is upserted into Supabase (`active_sessions` table) every 60 seconds while a tab is visible and signed in. Admins see each user's devices, with a warning when 2+ are active at the same time, in [admin/index.html](admin/index.html)'s user detail panel.
 
 ### `config.js`
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.

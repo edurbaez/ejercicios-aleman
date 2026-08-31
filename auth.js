@@ -882,11 +882,67 @@
     window.addEventListener('pagehide', _dtTick);
   }
 
+  // --- Active session / device tracking (concurrency detection) ---
+  // Each browser gets a stable device id (localStorage), refreshed every 60s
+  // while a tab is visible and a user is signed in, via a security-definer
+  // RPC (see migration 018_active_sessions.sql, table active_sessions).
+  // admin/index.html reads this to flag when a user has 2+ devices active
+  // at the same time.
+  const AS_DEVICE_KEY = 'ejaleman_device_id';
+  const AS_TICK_MS = 60000;
+  let _asLastTick = 0;
+
+  function _asDeviceId() {
+    try {
+      let id = localStorage.getItem(AS_DEVICE_KEY);
+      if (!id) { id = crypto.randomUUID(); localStorage.setItem(AS_DEVICE_KEY, id); }
+      return id;
+    } catch { return null; }
+  }
+
+  function _asDeviceLabel() {
+    const ua = navigator.userAgent || '';
+    let browser = 'Navegador';
+    if (/Edg\//.test(ua)) browser = 'Edge';
+    else if (/OPR\//.test(ua)) browser = 'Opera';
+    else if (/Chrome\//.test(ua)) browser = 'Chrome';
+    else if (/Firefox\//.test(ua)) browser = 'Firefox';
+    else if (/Safari\//.test(ua)) browser = 'Safari';
+    let os = 'Dispositivo';
+    if (/Windows/.test(ua)) os = 'Windows';
+    else if (/Android/.test(ua)) os = 'Android';
+    else if (/iPhone|iPad|iPod/.test(ua)) os = 'iOS';
+    else if (/Mac OS X/.test(ua)) os = 'Mac';
+    else if (/Linux/.test(ua)) os = 'Linux';
+    return `${browser} · ${os}`;
+  }
+
+  async function _asTick() {
+    if (!window.currentUser || document.visibilityState !== 'visible') return;
+    const now = Date.now();
+    if (now - _asLastTick < AS_TICK_MS) return;
+    _asLastTick = now;
+    const sessionId = _asDeviceId();
+    if (!sessionId) return;
+    try {
+      await window.sb.rpc('upsert_active_session', { p_session_id: sessionId, p_device: _asDeviceLabel() });
+    } catch {}
+  }
+
+  function _asForceTick() { _asLastTick = 0; _asTick(); }
+
+  function _asInit() {
+    _asTick();
+    setInterval(_asTick, AS_TICK_MS);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') _asTick(); });
+  }
+
   window.sb.auth.onAuthStateChange(async function (event, session) {
     _cachedToken = session?.access_token || null;
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
     _dtSyncStaleDays();
+    _asForceTick();
     if (event === 'SIGNED_IN' && typeof window.onAuthSignedIn === 'function') {
       await window.onAuthSignedIn();
     }
@@ -901,6 +957,7 @@
     window.currentUser = session ? session.user : null;
     window.updateAuthUI();
     _dtSyncStaleDays();
+    _asForceTick();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }
@@ -924,6 +981,7 @@
     _injectFeedbackButton();
     window.updateAuthUI();
     _dtInit();
+    _asInit();
     if (window.currentUser && typeof window.onAuthSignedIn === 'function') {
       window.onAuthSignedIn();
     }

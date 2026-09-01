@@ -1907,6 +1907,88 @@ body.dark .cv-correction-toggle {
 body.dark .cv-correction-toggle:hover { background: #4a2020; }
 body.dark .cv-correction-body { color: #eee; }
 
+/* History modal */
+.cv-history-modal {
+    width: min(92vw, 520px);
+}
+.cv-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 55vh;
+    overflow-y: auto;
+}
+.cv-history-empty {
+    text-align: center;
+    opacity: 0.6;
+    font-size: 14px;
+    padding: 20px 0;
+}
+.cv-history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+}
+.cv-history-item:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, var(--card-bg, #fff));
+}
+.cv-history-item-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.cv-history-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.cv-history-item-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+.cv-history-item-level {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    padding: 1px 6px;
+    border-radius: 6px;
+}
+.cv-history-item-meta {
+    font-size: 12px;
+    opacity: 0.6;
+}
+.cv-history-back-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 4px;
+}
+.cv-history-detail-chat {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 55vh;
+    overflow-y: auto;
+    padding: 4px 2px;
+}
+
 /* Mission banner */
 .cv-mision-banner {
     display: flex;

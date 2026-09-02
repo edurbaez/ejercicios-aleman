@@ -67,6 +67,21 @@
                     placeholder="Ejemplos:&#10;• Tengo 28 años, soy ingeniero y aprendo alemán para trabajar en Berlín&#10;• Soy estudiante de medicina, me interesan los viajes y la cultura alemana&#10;• Tengo 35 años, trabajo en marketing y quiero vivir en Múnich"></textarea>
                 <p class="cv-modal-label" style="margin-top:14px">Escenario:</p>
                 <div class="cv-scenarios-grid" id="scenariosGrid"></div>
+                <div id="customScenarioForm" class="cv-custom-scenario-form" style="display:none">
+                    <input type="text" id="customScenarioName" class="cv-modal-textarea" maxlength="30"
+                        placeholder="Nombre del escenario (ej. Oficina de extranjería)">
+                    <textarea id="customScenarioContexto" class="cv-modal-textarea" rows="2"
+                        placeholder="Situación (ej. Estoy en el Bürgeramt renovando mi permiso de residencia)"></textarea>
+                    <textarea id="customScenarioRol" class="cv-modal-textarea" rows="2"
+                        placeholder="Perfil de la IA (ej. Eres un funcionario alemán en una oficina pública, formal pero amable)"></textarea>
+                    <textarea id="customScenarioMision" class="cv-modal-textarea" rows="2"
+                        placeholder="Objetivo del estudiante (opcional)"></textarea>
+                    <p id="customScenarioError" class="cv-custom-scenario-error" style="display:none"></p>
+                    <div class="cv-modal-actions">
+                        <button type="button" class="cv-modal-cancel" onclick="cancelCustomScenario()">Cancelar</button>
+                        <button type="button" class="cv-modal-save" onclick="saveCustomScenario()">Crear escenario</button>
+                    </div>
+                </div>
                 <p class="cv-modal-label cv-rol-label-row" style="margin-top:12px">
                     Perfil de la IA:
                     <span id="rolLoadingSpinner" style="display:none;font-size:11px;color:#1976D2;font-weight:400;">✨ generando...</span>
@@ -177,6 +192,23 @@
           mision: 'Pregunta por el alquiler mensual, las habitaciones disponibles y si se admiten mascotas.' },
     ];
 
+    // --- Custom scenarios (user-created, local to this browser) ---
+    const CUSTOM_SCENARIOS_KEY = 'cv_custom_scenarios';
+
+    function loadCustomScenarios() {
+        try {
+            return JSON.parse(localStorage.getItem(CUSTOM_SCENARIOS_KEY) || '[]');
+        } catch { return []; }
+    }
+
+    function persistCustomScenarios() {
+        localStorage.setItem(CUSTOM_SCENARIOS_KEY, JSON.stringify(State.customScenarios));
+    }
+
+    function getAllScenarios() {
+        return [...SCENARIOS, ...State.customScenarios];
+    }
+
     const State = {
         level: 'B1',
         voiceGender: 'male',
@@ -199,6 +231,7 @@
         selectedScenario: 'libre',
         mision: SCENARIOS[0].mision,
         misionCompleted: false,
+        customScenarios: loadCustomScenarios(),
         repetirMode: false,
         repetirFrases: [],
         repetirIndex: 0,
@@ -306,7 +339,7 @@
     }
 
     function buildHistoryItem(session) {
-        const scenario = SCENARIOS.find(sc => sc.key === session.escenario);
+        const scenario = getAllScenarios().find(sc => sc.key === session.escenario);
         const numCorr = session.turns
             .filter(t => t.role === 'ai')
             .reduce((n, t) => n + (t.correcciones?.length || 0), 0);
@@ -347,7 +380,7 @@
     function showHistoryDetail(session) {
         document.getElementById('historyListView').style.display = 'none';
         document.getElementById('historyDetailView').style.display = '';
-        const scenario = SCENARIOS.find(sc => sc.key === session.escenario);
+        const scenario = getAllScenarios().find(sc => sc.key === session.escenario);
         document.getElementById('historyModalTitle').textContent =
             `${scenario?.icon || '💬'} ${scenario?.name || 'Libre'} · ${session.level}`;
 
@@ -520,7 +553,7 @@
             C1: 'Verwende anspruchsvolles Deutsch: breiter Wortschatz, komplexe Syntax, idiomatische Ausdrücke.',
             C2: 'Verwende vollständig natürliches, idiomatisches Deutsch auf muttersprachlichem Niveau.',
         };
-        const scenarioObj = SCENARIOS.find(s => s.key === State.selectedScenario);
+        const scenarioObj = getAllScenarios().find(s => s.key === State.selectedScenario);
         const scenarioContextLine = scenarioObj?.contexto
             ? `\nSituación actual: ${scenarioObj.contexto}\n`
             : '';
@@ -550,19 +583,82 @@ Antworte IMMER mit einem JSON-Objekt:
     // --- Scenarios ---
     function buildScenarioCards() {
         const grid = document.getElementById('scenariosGrid');
-        SCENARIOS.forEach(s => {
+        grid.innerHTML = '';
+        getAllScenarios().forEach(s => {
             const btn = document.createElement('button');
-            btn.className = 'cv-scenario-card' + (s.key === 'libre' ? ' active' : '');
+            btn.className = 'cv-scenario-card' + (s.key === State.selectedScenario ? ' active' : '');
             btn.dataset.key = s.key;
             btn.innerHTML = `<span class="cv-scenario-icon">${s.icon}</span><span class="cv-scenario-name">${s.name}</span>`;
+            if (s.isCustom) {
+                const del = document.createElement('span');
+                del.className = 'cv-scenario-delete';
+                del.textContent = '×';
+                del.title = 'Eliminar escenario';
+                del.addEventListener('click', (e) => { e.stopPropagation(); deleteCustomScenario(s.key); });
+                btn.appendChild(del);
+            }
             btn.addEventListener('click', () => selectScenario(s.key));
             grid.appendChild(btn);
         });
+
+        const addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.className = 'cv-scenario-card cv-scenario-add';
+        addBtn.innerHTML = `<span class="cv-scenario-icon">➕</span><span class="cv-scenario-name">Nuevo</span>`;
+        addBtn.addEventListener('click', () => showCustomScenarioForm());
+        grid.appendChild(addBtn);
+    }
+
+    function showCustomScenarioForm() {
+        document.getElementById('customScenarioForm').style.display = '';
+        document.getElementById('customScenarioError').style.display = 'none';
+        document.getElementById('customScenarioName').focus();
+    }
+
+    function cancelCustomScenario() {
+        document.getElementById('customScenarioForm').style.display = 'none';
+        ['customScenarioName', 'customScenarioContexto', 'customScenarioRol', 'customScenarioMision']
+            .forEach(id => { document.getElementById(id).value = ''; });
+    }
+
+    function saveCustomScenario() {
+        const name = document.getElementById('customScenarioName').value.trim();
+        const rol = document.getElementById('customScenarioRol').value.trim();
+        const contexto = document.getElementById('customScenarioContexto').value.trim();
+        const mision = document.getElementById('customScenarioMision').value.trim();
+        const errEl = document.getElementById('customScenarioError');
+
+        if (!name || !rol) {
+            errEl.textContent = 'Completa al menos el nombre y el perfil de la IA.';
+            errEl.style.display = '';
+            return;
+        }
+
+        const key = `custom_${Date.now()}`;
+        const scenario = { key, icon: '⭐', name, rol, contexto, mision, isCustom: true };
+        State.customScenarios.push(scenario);
+        persistCustomScenarios();
+        localStorage.setItem(`cv_rol_cache_${key}`, rol);
+
+        cancelCustomScenario();
+        buildScenarioCards();
+        selectScenario(key);
+    }
+
+    function deleteCustomScenario(key) {
+        State.customScenarios = State.customScenarios.filter(s => s.key !== key);
+        persistCustomScenarios();
+        localStorage.removeItem(`cv_rol_cache_${key}`);
+        if (State.selectedScenario === key) {
+            selectScenario('libre');
+        }
+        buildScenarioCards();
     }
 
     async function selectScenario(key) {
-        const scenario = SCENARIOS.find(s => s.key === key);
+        const scenario = getAllScenarios().find(s => s.key === key);
         if (!scenario) return;
+        cancelCustomScenario();
         State.selectedScenario = key;
         State.mision = scenario.mision || '';
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
@@ -583,7 +679,7 @@ Antworte IMMER mit einem JSON-Objekt:
     }
 
     async function regenerateRol() {
-        const scenario = SCENARIOS.find(s => s.key === State.selectedScenario);
+        const scenario = getAllScenarios().find(s => s.key === State.selectedScenario);
         if (!scenario || scenario.key === 'libre') return;
         await generateRol(scenario, true);
     }

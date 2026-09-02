@@ -573,9 +573,9 @@ Antworte IMMER mit einem JSON-Objekt:
         if (regenBtn) regenBtn.disabled = (key === 'libre');
 
         if (key === 'libre') {
-            State.scenarioRol = DEFAULT_ROL;
+            State.scenarioRol = localStorage.getItem('cv_rol_cache_libre') || DEFAULT_ROL;
             const rolEl = document.getElementById('rolText');
-            if (rolEl) rolEl.value = DEFAULT_ROL;
+            if (rolEl) rolEl.value = State.scenarioRol;
             return;
         }
 
@@ -1098,6 +1098,7 @@ Antworte IMMER mit einem JSON-Objekt:
     function saveContext() {
         State.userProfile = document.getElementById('contextText').value.trim();
         State.scenarioRol = document.getElementById('rolText').value.trim() || DEFAULT_ROL;
+        localStorage.setItem(`cv_rol_cache_${State.selectedScenario}`, State.scenarioRol);
         document.getElementById('contextBtn').classList.toggle('cv-context-active', State.userProfile.length > 0);
         document.getElementById('contextModal').classList.remove('cv-modal-open');
         persistPreferences();

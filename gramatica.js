@@ -499,18 +499,19 @@ function buildQArticulo(ex) {
 function buildQuizQuestions(rule) {
   const exs = rule.ejemplos.slice().sort(() => Math.random() - 0.5);
   const pool = Array.from({ length: PRACTICE_EXERCISE_COUNT }, (_, i) => exs[i % exs.length]);
-  const used = new Set();
+  let lastType = null;
   return pool.map(ex => {
-    const typeOrder = ['opcion_multiple', 'identificar', 'ordenar', 'articulo'].sort(() => Math.random() - 0.5);
+    const allTypes = ['opcion_multiple', 'identificar', 'ordenar', 'articulo'].sort(() => Math.random() - 0.5);
+    const typeOrder = [...allTypes.filter(t => t !== lastType), ...allTypes.filter(t => t === lastType)];
     for (const t of typeOrder) {
-      if (used.has(t)) continue;
       let q = null;
       if (t === 'opcion_multiple' || t === 'identificar') q = buildQOpcion(rule, ex, t);
       else if (t === 'ordenar') q = buildQOrdenar(ex);
       else if (t === 'articulo') q = buildQArticulo(ex);
-      if (q) { used.add(t); return q; }
+      if (q) { lastType = t; return q; }
     }
-    return buildQOpcion(rule, ex, used.has('opcion_multiple') ? 'identificar' : 'opcion_multiple');
+    lastType = lastType === 'opcion_multiple' ? 'identificar' : 'opcion_multiple';
+    return buildQOpcion(rule, ex, lastType);
   });
 }
 

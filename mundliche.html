@@ -676,6 +676,15 @@ ${esquemaPuntos}${evitarRepetir}`;
             </div>`;
     }
 
+    // iOS Safari doesn't support webm/ogg MediaRecorder output, so it silently falls back to
+    // audio/mp4 — the filename extension sent to Whisper must match or the API rejects the file.
+    function audioFileName(blob) {
+        const type = blob.type || '';
+        if (type.includes('mp4')) return 'audio.m4a';
+        if (type.includes('ogg')) return 'audio.ogg';
+        return 'audio.webm';
+    }
+
     async function startMonologoRecording() {
         if (MpState.isRecording) return;
         if (MpState.dailyUsedMs >= DAILY_LIMIT_MS) { setHint('Límite diario de 60 min alcanzado.'); return; }
@@ -942,7 +951,7 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
     // ── Whisper (compartido monólogo/diálogo) ──────────
     async function transcribeBlob(audioBlob) {
         const formData = new FormData();
-        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'whisper-1');
         formData.append('language', 'de');
         try {

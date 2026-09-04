@@ -738,6 +738,15 @@ Antworte IMMER mit einem JSON-Objekt:
         });
     }
 
+    // iOS Safari doesn't support webm/ogg MediaRecorder output, so it silently falls back to
+    // audio/mp4 — the filename extension sent to Whisper must match or the API rejects the file.
+    function audioFileName(blob) {
+        const type = blob.type || '';
+        if (type.includes('mp4')) return 'audio.m4a';
+        if (type.includes('ogg')) return 'audio.ogg';
+        return 'audio.webm';
+    }
+
     async function startRecording() {
         if (State.isRecording) return;
         if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
@@ -815,7 +824,7 @@ Antworte IMMER mit einem JSON-Objekt:
         disableRecord();
 
         const formData = new FormData();
-        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'whisper-1');
         formData.append('language', State.lang);
 
@@ -1085,7 +1094,7 @@ Antworte IMMER mit einem JSON-Objekt:
         window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, lang: State.lang, duration_ms: durationMs });
         State.dailyUsedMs += durationMs;
         const formData = new FormData();
-        formData.append('file', audioBlob, 'audio.webm');
+        formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'whisper-1');
         formData.append('language', State.lang);
         try {

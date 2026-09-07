@@ -255,6 +255,8 @@ Also tracks daily active screen time per app: a local heartbeat accumulates it i
 
 Also tracks active sessions per device (for concurrent-login detection): a device id generated once per browser is upserted into Supabase (`active_sessions` table) every 60 seconds while a tab is visible and signed in. Admins see each user's devices, with a warning when 2+ are active at the same time, in [admin/index.html](admin/index.html)'s user detail panel.
 
+Also injects a floating 💬 feedback button on every page: a modal with a "✍️ Nuevo" tab (message/bug/suggestion, `mensaje` is the default) and a "📨 Mis mensajes" tab showing the user's own history plus any admin reply (`feedback_reports` table, private to that user via RLS). The button turns green when there's an unread reply, until the user opens "Mis mensajes". Admins reply per-report from [admin/index.html](admin/index.html)'s "📬 Reportes" section.
+
 ### `config.js`
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.
 

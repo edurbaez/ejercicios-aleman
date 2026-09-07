@@ -321,11 +321,40 @@
     const btn = document.createElement('button');
     btn.id = 'feedback-fab';
     btn.type = 'button';
-    btn.title = 'Reportar un problema o sugerencia';
+    btn.title = 'Escribinos un mensaje, problema o sugerencia';
     btn.textContent = '💬';
-    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:#1976D2;color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:9998;';
+    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:#1976D2;color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:9998;transition:background .2s;';
     btn.onclick = window.openFeedbackModal;
     document.body.appendChild(btn);
+    _checkUnreadFeedbackReplies();
+  }
+
+  function _setFeedbackFabState(hasUnread) {
+    window._fbUnread = hasUnread;
+    const btn = document.getElementById('feedback-fab');
+    if (btn) {
+      btn.style.background = hasUnread ? '#2E7D32' : '#1976D2';
+      btn.title = hasUnread ? '¡Tenés una respuesta nueva!' : 'Escribinos un mensaje, problema o sugerencia';
+    }
+    const dot = document.getElementById('fb-tab-dot');
+    if (dot) dot.style.display = hasUnread ? 'block' : 'none';
+  }
+
+  async function _checkUnreadFeedbackReplies() {
+    if (!window.currentUser || !window.sb) return;
+    try {
+      const { data } = await window.sb.from('feedback_reports')
+        .select('id')
+        .eq('user_id', window.currentUser.id)
+        .eq('respuesta_leida', false)
+        .not('respuesta', 'is', null)
+        .limit(1);
+      _setFeedbackFabState(!!(data && data.length));
+    } catch (e) {}
+  }
+
+  function _fbEsc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   function _injectFeedbackModal() {
@@ -334,28 +363,86 @@
     el.id = 'feedback-modal';
     el.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;';
     el.innerHTML = `
-      <div style="background:#fff;border-radius:12px;padding:24px;min-width:280px;max-width:380px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2);">
-        <h3 style="margin:0 0 16px;color:#222">💬 Reportar</h3>
-        <select id="fb-tipo" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;">
-          <option value="bug">🐛 Reportar un fallo</option>
-          <option value="sugerencia">💡 Sugerencia</option>
-        </select>
-        <textarea id="fb-mensaje" rows="4" placeholder="Contanos qué pasó o qué te gustaría ver..." style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;resize:vertical;"></textarea>
-        <p id="fb-error" style="display:none;color:#c62828;font-size:13px;margin:0 0 10px;"></p>
-        <div style="display:flex;gap:8px;">
-          <button id="fb-send-btn" onclick="window.submitFeedback()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar</button>
-          <button onclick="window.closeFeedbackModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+      <div style="background:#fff;border-radius:12px;padding:24px;min-width:280px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <h3 style="margin:0;color:#222">💬 Contacto</h3>
+          <button onclick="window.closeFeedbackModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#666;line-height:1;">✕</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:16px;">
+          <button id="fb-tab-nuevo" onclick="window._fbSwitchView('compose')" style="flex:1;padding:8px;border:1px solid #1976D2;border-radius:6px;background:#1976D2;color:#fff;cursor:pointer;font-size:13px;">✍️ Nuevo</button>
+          <button id="fb-tab-historial" onclick="window._fbSwitchView('history')" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:13px;position:relative;">📨 Mis mensajes<span id="fb-tab-dot" style="display:none;position:absolute;top:4px;right:6px;width:8px;height:8px;border-radius:50%;background:#2E7D32;"></span></button>
+        </div>
+        <div id="fb-compose">
+          <select id="fb-tipo" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;">
+            <option value="mensaje">💬 Mensaje</option>
+            <option value="bug">🐛 Reportar un fallo</option>
+            <option value="sugerencia">💡 Sugerencia</option>
+          </select>
+          <textarea id="fb-mensaje" rows="4" placeholder="Escribí tu mensaje, duda, problema o sugerencia..." style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;resize:vertical;"></textarea>
+          <p id="fb-error" style="display:none;color:#c62828;font-size:13px;margin:0 0 10px;"></p>
+          <div style="display:flex;gap:8px;">
+            <button id="fb-send-btn" onclick="window.submitFeedback()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar</button>
+            <button onclick="window.closeFeedbackModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+          </div>
+        </div>
+        <div id="fb-history" style="display:none;">
+          <div id="fb-history-list" style="display:flex;flex-direction:column;gap:10px;"></div>
         </div>
       </div>`;
     document.body.appendChild(el);
   }
 
+  window._fbSwitchView = function (view) {
+    const isCompose = view === 'compose';
+    document.getElementById('fb-compose').style.display = isCompose ? 'block' : 'none';
+    document.getElementById('fb-history').style.display = isCompose ? 'none' : 'block';
+    const tabNuevo = document.getElementById('fb-tab-nuevo');
+    const tabHist  = document.getElementById('fb-tab-historial');
+    tabNuevo.style.background = isCompose ? '#1976D2' : '#fff';
+    tabNuevo.style.color      = isCompose ? '#fff' : '#333';
+    tabHist.style.background  = isCompose ? '#fff' : '#1976D2';
+    tabHist.style.color       = isCompose ? '#333' : '#fff';
+    if (!isCompose) _fbLoadHistory();
+  };
+
+  async function _fbLoadHistory() {
+    const list = document.getElementById('fb-history-list');
+    if (!window.currentUser || !window.sb) return;
+    list.innerHTML = '<p style="color:#888;font-size:13px;">Cargando…</p>';
+    const { data, error } = await window.sb.from('feedback_reports')
+      .select('id, tipo, mensaje, respuesta, respuesta_leida, created_at')
+      .eq('user_id', window.currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(30);
+    if (error || !data || !data.length) {
+      list.innerHTML = '<p style="color:#888;font-size:13px;">Todavía no enviaste ningún mensaje.</p>';
+      return;
+    }
+    const ICONS = { bug: '🐛', sugerencia: '💡', mensaje: '💬' };
+    list.innerHTML = data.map(r => `
+      <div style="border:1px solid #e0e0e0;border-radius:8px;padding:10px 12px;">
+        <div style="font-size:12px;color:#888;margin-bottom:4px;">${ICONS[r.tipo] || '💬'} ${new Date(r.created_at).toLocaleDateString()}</div>
+        <div style="font-size:14px;color:#333;margin-bottom:${r.respuesta ? '8px' : '0'};">${_fbEsc(r.mensaje)}</div>
+        ${r.respuesta
+          ? `<div style="background:#e8f5e9;border-radius:6px;padding:8px 10px;font-size:13px;color:#2e7d32;"><strong>Respuesta:</strong> ${_fbEsc(r.respuesta)}</div>`
+          : `<div style="font-size:12px;color:#aaa;">Sin respuesta todavía.</div>`}
+      </div>`).join('');
+
+    const unreadIds = data.filter(r => r.respuesta && !r.respuesta_leida).map(r => r.id);
+    if (unreadIds.length) {
+      await Promise.all(unreadIds.map(id => window.sb.rpc('mark_feedback_seen', { p_report_id: id })));
+      _setFeedbackFabState(false);
+    }
+  }
+
   window.openFeedbackModal = function () {
     if (!window.currentUser) { window.openAuthModal(); return; }
     _injectFeedbackModal();
+    document.getElementById('fb-tipo').value = 'mensaje';
     document.getElementById('fb-mensaje').value = '';
     document.getElementById('fb-error').style.display = 'none';
     document.getElementById('feedback-modal').style.display = 'flex';
+    window._fbSwitchView(window._fbUnread ? 'history' : 'compose');
   };
 
   window.closeFeedbackModal = function () {
@@ -528,12 +615,14 @@
       } else {
         window.hideAccessBlockedModal();
       }
+      _checkUnreadFeedbackReplies();
     } else {
       btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
       btn.title = 'Iniciar sesión';
       btn.onclick = window.openAuthModal;
       _removeDashboardLink();
       window.hideAccessBlockedModal();
+      _setFeedbackFabState(false);
     }
   };
 

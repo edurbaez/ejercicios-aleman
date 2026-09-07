@@ -168,6 +168,8 @@
     body.dark .badge.tipo-bug { background: #2a0a0a; color: #ef9a9a; }
     .badge.tipo-sugerencia { background: #e0f2f1; color: #00796B; }
     body.dark .badge.tipo-sugerencia { background: #00302b; color: #4db6ac; }
+    .badge.tipo-mensaje { background: #ede7f6; color: #5e35b1; }
+    body.dark .badge.tipo-mensaje { background: #241a3a; color: #b39ddb; }
 
     /* ── Reportes nav badge ── */
     .reportes-badge { display: none; background: #e53935; color: #fff; border-radius: 10px; padding: 0 6px; font-size: 10px; font-weight: 700; line-height: 16px; min-width: 16px; text-align: center; margin-left: 2px; }
@@ -745,7 +747,7 @@
       sb.from('daily_usage_time').select('user_id, date, apps')
         .gte('date', new Date(Date.now() - 30 * 86400 * 1000).toLocaleDateString('sv-SE'))
         .limit(20000),
-      sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, created_at')
+      sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, respuesta, respuesta_at, created_at')
         .order('created_at', { ascending: false })
         .limit(500),
       // Requires migration 018 (active_sessions + admin read policy) — silently empty otherwise.
@@ -850,8 +852,9 @@
   }
 
   // ── Reportes (feedback_reports) ───────────────────────────
-  const TIPO_INFO    = { bug: { icon: '🐛', label: 'Bug', cls: 'tipo-bug' }, sugerencia: { icon: '💡', label: 'Sugerencia', cls: 'tipo-sugerencia' } };
+  const TIPO_INFO    = { bug: { icon: '🐛', label: 'Bug', cls: 'tipo-bug' }, sugerencia: { icon: '💡', label: 'Sugerencia', cls: 'tipo-sugerencia' }, mensaje: { icon: '💬', label: 'Mensaje', cls: 'tipo-mensaje' } };
   const ESTADO_BADGE = { nuevo: 'pending', leido: '', resuelto: 'approved' };
+  let replyingId = null;
 
   function scrollToReportes() {
     document.getElementById('reportes-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -868,6 +871,25 @@
   function setReportesFilter(estado) {
     reportesFilter = estado;
     setActiveRangePill('reportes-filter', estado);
+    renderReportsSection();
+  }
+
+  function toggleReplyBox(id) {
+    replyingId = (replyingId === id) ? null : id;
+    renderReportsSection();
+  }
+
+  async function sendReply(id) {
+    const ta = document.getElementById('fb-reply-input-' + id);
+    const texto = ta.value.trim();
+    if (!texto) return;
+    const { error } = await sb.from('feedback_reports')
+      .update({ respuesta: texto, respuesta_at: new Date().toISOString(), respuesta_leida: false })
+      .eq('id', id);
+    if (error) { console.error(error); return; }
+    const r = allReports.find(x => x.id === id);
+    if (r) { r.respuesta = texto; r.respuesta_at = new Date().toISOString(); }
+    replyingId = null;
     renderReportsSection();
   }
 
@@ -889,15 +911,28 @@
           const actions = [];
           if (r.estado !== 'leido')    actions.push(`<button class="adm-access-btn" onclick="markReport('${esc(r.id)}','leido')">Marcar leído</button>`);
           if (r.estado !== 'resuelto') actions.push(`<button class="adm-access-btn ok" onclick="markReport('${esc(r.id)}','resuelto')">Marcar resuelto</button>`);
+          actions.push(`<button class="adm-access-btn" onclick="toggleReplyBox('${esc(r.id)}')">${r.respuesta ? 'Editar respuesta' : 'Responder'}</button>`);
+          const mensajeCell = r.respuesta
+            ? `${esc(msgShort)}<div style="margin-top:6px;padding:6px 8px;background:#e8f5e9;border-radius:5px;font-size:12px;color:#2e7d32;" title="${esc(r.respuesta)}"><strong>↳ Respondido:</strong> ${esc(r.respuesta.length > 80 ? r.respuesta.slice(0, 80) + '…' : r.respuesta)}</div>`
+            : esc(msgShort);
+          const replyRow = replyingId === r.id
+            ? `<tr><td colspan="7" style="background:#fafafa;padding:10px 14px;">
+                <textarea id="fb-reply-input-${esc(r.id)}" rows="3" placeholder="Escribí tu respuesta para este usuario..." style="width:100%;max-width:500px;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box;">${esc(r.respuesta || '')}</textarea>
+                <div style="margin-top:6px;display:flex;gap:6px;">
+                  <button class="adm-access-btn ok" onclick="sendReply('${esc(r.id)}')">Enviar respuesta</button>
+                  <button class="adm-access-btn" onclick="toggleReplyBox('${esc(r.id)}')">Cancelar</button>
+                </div>
+              </td></tr>`
+            : '';
           return `<tr>
             <td><span class="badge ${tipo.cls}">${tipo.icon} ${esc(tipo.label)}</span></td>
-            <td style="max-width:320px" title="${esc(msgFull)}">${esc(msgShort)}</td>
+            <td style="max-width:320px" title="${esc(msgFull)}">${mensajeCell}</td>
             <td style="color:#777;font-size:12px">${esc(p?.email || p?.display_name || r.user_id.slice(0, 8))}</td>
             <td class="col-hide-mobile" style="color:#888;font-size:12px">${esc(r.pagina || '—')}</td>
             <td style="color:#888;font-size:12px">${fmtDate(r.created_at)}</td>
             <td><span class="badge ${estadoCls}">${esc(r.estado)}</span></td>
-            <td style="white-space:nowrap;display:flex;gap:6px">${actions.join('')}</td>
-          </tr>`;
+            <td style="white-space:nowrap;display:flex;gap:6px;flex-wrap:wrap">${actions.join('')}</td>
+          </tr>${replyRow}`;
         }).join('')}
       </tbody>
     </table></div>`;

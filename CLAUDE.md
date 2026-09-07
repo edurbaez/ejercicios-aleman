@@ -114,6 +114,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 | `supabase/migrations/016_daily_usage_time.sql` | Crea `daily_usage_time` (tiempo activo en pantalla por usuario/día/app, PK `(user_id, date)`, RLS: SELECT propio + SELECT admin) y la función `upsert_daily_usage_time(p_date, p_apps)` (`security definer`, sin policies de INSERT/UPDATE en la tabla — solo esta función escribe). Suma `apps` por clave contra el valor existente (multi-dispositivo no se pisa) y borra filas de más de 60 días para ese usuario en cada llamada. Usada por el tracking de tiempo activo de `auth.js`. |
 | `supabase/migrations/017_feedback_reports.sql` | Crea `feedback_reports` (reportes de bug/sugerencia de los usuarios, PK `id`). RLS: INSERT/SELECT propio (`auth.uid() = user_id`) más SELECT/UPDATE admin (`profiles.role = 'admin'`, mismo patrón que 004/014/015/016) para que `admin/index.html` pueda listarlos y cambiar `estado`. Usada por el botón de feedback global de `auth.js` y la acción `notify-admins` de `api/push-subscribe.js`. |
 | `supabase/migrations/018_active_sessions.sql` | Crea `active_sessions` (detección de uso concurrente: `session_id` uuid PK = id de dispositivo generado en el navegador, `user_id`, `device` texto corto tipo "Chrome · Windows", `last_seen`). RLS: SELECT propio + SELECT admin (mismo patrón 014-017). Escritura solo vía función `upsert_active_session(p_session_id, p_device)` (`security definer`, sin policies de INSERT/UPDATE en la tabla) — hace upsert por `session_id` y borra las filas del propio usuario con `last_seen` de más de 7 días. Usada por el heartbeat de `auth.js` (cada 60s) y leída por `admin/index.html` para mostrar sesiones activas y marcar "conectado en N dispositivos a la vez". |
+| `supabase/migrations/019_feedback_reports_respuesta.sql` | Añade `tipo = 'mensaje'` al CHECK de `feedback_reports.tipo` (junto a `bug`/`sugerencia`, ahora el default en el modal de `auth.js`) y las columnas `respuesta`/`respuesta_at`/`respuesta_leida` para que el admin pueda responderle a un reporte y el usuario vea esa respuesta. Crea `mark_feedback_seen(p_report_id)` (`security definer`, mismo patrón que `upsert_active_session`) para que el propio usuario pueda marcar una respuesta como leída sin necesitar una policy de UPDATE genérica. |
 
 ### PWA & Deploy
 
@@ -470,13 +471,16 @@ PK compuesta: `(user_id, date)`. RLS: cada usuario solo lee sus propias filas (m
 |--------|------|-------------|
 | `id` | uuid | PK, auto-generated |
 | `user_id` | uuid | FK → auth.users — quien reportó |
-| `tipo` | text | `bug` \| `sugerencia` |
+| `tipo` | text | `mensaje` (default en el modal) \| `bug` \| `sugerencia` |
 | `mensaje` | text | Texto libre del reporte |
 | `pagina` | text | `location.pathname` de origen (nullable) |
 | `estado` | text | `nuevo` (default) \| `leido` \| `resuelto` |
+| `respuesta` | text | Respuesta del admin (nullable) — añadida en migración `019` |
+| `respuesta_at` | timestamptz | Cuándo respondió el admin (nullable) |
+| `respuesta_leida` | boolean | Si el usuario ya vio la respuesta (default `false`); se marca `true` vía la función `mark_feedback_seen()` cuando el usuario abre la pestaña "Mis mensajes" |
 | `created_at` | timestamptz | Auto |
 
-RLS: cada usuario inserta/lee solo sus propias filas; admins (`profiles.role = 'admin'`) leen y actualizan todas. Ver migración `017_feedback_reports.sql`. Escrito por el botón de feedback global de `auth.js`; leído/actualizado por la sección "📬 Reportes" de `admin/index.html`; dispara push a admins vía `api/push-subscribe.js` (acción `notify-admins`).
+RLS: cada usuario inserta/lee solo sus propias filas (por lo tanto solo el autor del reporte ve su propia `respuesta`); admins (`profiles.role = 'admin'`) leen y actualizan todas. Ver migraciones `017_feedback_reports.sql` y `019_feedback_reports_respuesta.sql`. Escrito por el botón de feedback global de `auth.js` (modal con pestañas "✍️ Nuevo" / "📨 Mis mensajes"); leído/respondido por la sección "📬 Reportes" de `admin/index.html` (botón "Responder" por fila); dispara push a admins vía `api/push-subscribe.js` (acción `notify-admins`). El ícono flotante 💬 (`#feedback-fab`) se pone verde cuando el usuario tiene una respuesta sin leer (`_checkUnreadFeedbackReplies()` en `auth.js`, revisado en cada cambio de sesión).
 
 ### Supabase table: `active_sessions`
 | Column | Type | Description |

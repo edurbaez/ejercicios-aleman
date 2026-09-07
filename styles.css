@@ -4653,6 +4653,18 @@ body.dark .cr-setup-header h1 { color: #ce93d8; }
 .cr-rule-info > div { display: flex; flex-direction: column; min-width: 0; }
 .cr-rule-info strong { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cr-rule-progress { font-size: 11px; opacity: 0.5; margin-top: 1px; }
+.cr-rule-srs-status { font-size: 11px; opacity: 0.5; }
+
+.cr-srs-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1.5px solid var(--border);
+}
+.cr-srs-dot.cr-srs-amber { background: #ffa000; border-color: #ffa000; }
+.cr-srs-dot.cr-srs-green { background: #43a047; border-color: #43a047; }
 
 .cr-hint-toggle-btn {
     padding: 5px 10px;
@@ -4985,6 +4997,39 @@ body.dark .cr-results-title { color: #ce93d8; }
 }
 
 .cr-hist-rule-score { opacity: 0.7; flex-shrink: 0; }
+
+.cr-hist-weak {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-cr) 6%, transparent);
+    border: 1px solid var(--color-cr);
+}
+
+.cr-hist-weak-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+
+.cr-hist-turns { margin-top: 4px; font-size: 12px; }
+.cr-hist-turns summary { cursor: pointer; opacity: 0.7; }
+.cr-hist-turns summary:hover { opacity: 1; }
+
+.cr-hist-turn {
+    margin-top: 6px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border-left: 3px solid var(--border);
+}
+.cr-hist-turn-source { opacity: 0.8; margin-bottom: 2px; }
+.cr-hist-turn-answer { font-style: italic; margin-bottom: 2px; }
+.cr-hist-turn-fb { opacity: 0.9; }
+
+.cr-hist-turn-correct   { background: #e8f5e9; border-left-color: #43a047; }
+.cr-hist-turn-partial   { background: #fff8e1; border-left-color: #ffa000; }
+.cr-hist-turn-incorrect { background: #ffebee; border-left-color: #e53935; }
+body.dark .cr-hist-turn-correct   { background: #1b3a1f; border-left-color: #66bb6a; }
+body.dark .cr-hist-turn-partial   { background: #2d2200; border-left-color: #ffca28; }
+body.dark .cr-hist-turn-incorrect { background: #2c0a0a; border-left-color: #ef5350; }
 
 /* ========================
    Plan diario

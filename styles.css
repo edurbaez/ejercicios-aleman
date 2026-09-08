@@ -2065,6 +2065,29 @@ body.dark .cv-mision-banner.completed {
 }
 body.dark .cv-mision-banner.completed strong { color: #66bb6a; }
 
+/* Grammar focus banner (chatvoz2) */
+.cv-focus-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: #e0f2f1;
+    border: 1.5px solid #4db6ac;
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #004d40;
+    line-height: 1.4;
+}
+.cv-focus-banner .cv-focus-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.cv-focus-banner strong { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 2px; color: #00796b; }
+body.dark .cv-focus-banner {
+    background: #0d2b28;
+    border-color: #00796b;
+    color: #80cbc4;
+}
+body.dark .cv-focus-banner strong { color: #4db6ac; }
+
 /* Repetir mode panel */
 .cv-repetir-panel {
     background: #fff;

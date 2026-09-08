@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="../config.js"></script>
     <script src="../auth.js"></script>
+    <script src="../grammar-data.js"></script>
     <style>
         .cv2-navbar {
             position: fixed;
@@ -175,6 +176,14 @@
             </div>
         </div>
 
+        <div class="cv-focus-banner" id="focusBanner" style="display:none">
+            <span class="cv-focus-icon">📐</span>
+            <div>
+                <strong>Foco gramatical</strong>
+                <span id="focusText"></span>
+            </div>
+        </div>
+
         <div id="repetirPanel" class="cv-repetir-panel" style="display:none">
             <div class="cv-repetir-header">
                 <span class="cv-repetir-counter" id="repetirCounter">1 / 10</span>
@@ -287,6 +296,8 @@
         repetirMode: false,
         repetirFrases: [],
         repetirIndex: 0,
+        grammarFocus: null,
+        levelVocab: [],
     };
 
     // --- Daily limit ---
@@ -423,8 +434,62 @@ Antworte IMMER mit einem JSON-Objekt:
         if (State.guidedMode) {
             base += `\n- En "antwort", tras tu pregunta añade entre paréntesis una respuesta modelo breve en alemán. Ej: "Wie heißt du? (Ich heiße Ana.)"`;
         }
+        if (State.grammarFocus) {
+            const rule = State.grammarFocus;
+            const titulo = (rule.titulo || '').slice(0, 80);
+            const explicacion = (rule.explicacion || '').slice(0, 400);
+            base += `\n\nGrammatikschwerpunkt dieser Sitzung: ${titulo} — ${explicacion}\nStelle mindestens 1-2 Fragen, die diese Struktur natürlich hervorrufen. Achte in "korrekturen" besonders auf Fehler bei dieser Struktur.`;
+        }
+        if (State.levelVocab.length) {
+            base += `\n\nBevorzuge diesen Wortschatz, wenn möglich: ${State.levelVocab.join(', ')}. Vermeide fortgeschrittenere Wörter, außer der Student benutzt sie zuerst.`;
+        }
         return base;
     }
+
+    // --- Grammar focus & vocab (German target only) ---
+    function pickGrammarFocus(level) {
+        const rules = (window.GRAMMAR_DATA && window.GRAMMAR_DATA[level]) || [];
+        if (!rules.length) return null;
+        const recentKey = STORAGE_PREFIX + 'recent_rules_' + level;
+        let recent = [];
+        try { recent = JSON.parse(localStorage.getItem(recentKey) || '[]'); } catch { recent = []; }
+        let candidates = rules.filter(r => !recent.includes(r.id));
+        if (!candidates.length) candidates = rules;
+        const rule = candidates[Math.floor(Math.random() * candidates.length)];
+        recent = [rule.id, ...recent.filter(id => id !== rule.id)].slice(0, 5);
+        localStorage.setItem(recentKey, JSON.stringify(recent));
+        return rule;
+    }
+
+    async function pickLevelVocab(level) {
+        try {
+            const resp = await fetch('../Data' + level + '.json');
+            if (!resp.ok) return [];
+            const data = await resp.json();
+            const categories = ['esenciales', 'verbos', 'sustantivos', 'adjetivos'];
+            let words = [];
+            categories.forEach(cat => {
+                if (data[cat] && Array.isArray(data[cat].de)) words = words.concat(data[cat].de);
+            });
+            if (!words.length) return [];
+            for (let i = words.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [words[i], words[j]] = [words[j], words[i]];
+            }
+            return words.slice(0, 8);
+        } catch {
+            return [];
+        }
+    }
+
+    function showFocusBanner() {
+        const banner = document.getElementById('focusBanner');
+        if (!State.grammarFocus) { banner.style.display = 'none'; return; }
+        banner.style.display = 'flex';
+        document.getElementById('focusText').textContent = State.grammarFocus.titulo || '';
+    }
+
+    function hideFocusBanner() { document.getElementById('focusBanner').style.display = 'none'; }
 
     // --- Scenarios ---
     function buildScenarioCards() {
@@ -554,12 +619,20 @@ Antworte IMMER mit einem JSON-Objekt:
         State.messages = [];
         State.started = true;
         State.misionCompleted = false;
+        if (State.lang === 'de') {
+            State.grammarFocus = pickGrammarFocus(State.level);
+            State.levelVocab = await pickLevelVocab(State.level);
+        } else {
+            State.grammarFocus = null;
+            State.levelVocab = [];
+        }
         document.getElementById('startBtn').style.display = 'none';
         document.getElementById('recordBtn').style.display = 'inline-flex';
         disableRecord();
         const empty = document.getElementById('chatEmpty');
         if (empty) empty.remove();
         showMisionBanner();
+        showFocusBanner();
         await sendToAI(null);
     }
 
@@ -576,6 +649,7 @@ Antworte IMMER mit einem JSON-Objekt:
         State.misionCompleted = false;
         document.getElementById('chatArea').innerHTML = '<div class="cv-empty" id="chatEmpty"><p>Presiona <strong>Iniciar</strong> para comenzar</p></div>';
         hideMisionBanner();
+        hideFocusBanner();
         document.getElementById('startBtn').style.display = 'inline-flex';
         document.getElementById('recordBtn').style.display = 'none';
         document.getElementById('recTimer').style.display = 'none';

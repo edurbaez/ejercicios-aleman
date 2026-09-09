@@ -47,44 +47,48 @@ export default async function handler(req, res) {
             ? max_tokens
             : 500;
 
-    try {
-        const body = {
-            model: 'deepseek-v4-flash',
-            max_tokens: resolvedMaxTokens,
-            messages: system
-                ? [{ role: 'system', content: String(system) }, ...messages]
-                : messages,
-            // Thinking mode is on by default (high effort) and its reasoning tokens eat into
-            // max_tokens, sometimes leaving none for the actual reply (empty `content`, intermittent).
-            // Re-enable with { type: 'enabled' } if a caller ever needs deeper reasoning.
-            thinking: { type: 'disabled' },
-        };
-        if (json === true) body.response_format = { type: 'json_object' };
+    const body = {
+        model: 'deepseek-v4-flash',
+        max_tokens: resolvedMaxTokens,
+        messages: system
+            ? [{ role: 'system', content: String(system) }, ...messages]
+            : messages,
+        // Thinking mode is on by default (high effort) and its reasoning tokens eat into
+        // max_tokens, sometimes leaving none for the actual reply (empty `content`, intermittent).
+        // Re-enable with { type: 'enabled' } if a caller ever needs deeper reasoning.
+        thinking: { type: 'disabled' },
+    };
+    if (json === true) body.response_format = { type: 'json_object' };
 
-        const response = await fetchWithRetry('https://api.deepseek.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
-
-        if (!response.ok) {
-            const err = await response.json().catch(() => ({}));
-            return res.status(response.status).json({ error: err?.error?.message || 'Error de DeepSeek' });
-        }
-
-        const data = await response.json();
-        const reply = (data.choices?.[0]?.message?.content || '').trim();
-        if (!reply) {
-            return res.status(500).json({
-                error: 'DeepSeek devolvió respuesta vacía',
-                debug: JSON.stringify(data).slice(0, 300),
+    // DeepSeek occasionally returns HTTP 200 with an empty/whitespace-only content (unrelated
+    // to the retryable-status handling in fetchWithRetry, which never sees this as a failure).
+    // One retry clears it in practice; only surface the error if it happens twice in a row.
+    let lastDebug = '';
+    for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+            const response = await fetchWithRetry('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body),
             });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                return res.status(response.status).json({ error: err?.error?.message || 'Error de DeepSeek' });
+            }
+
+            const data = await response.json();
+            const reply = (data.choices?.[0]?.message?.content || '').trim();
+            if (reply) {
+                return res.status(200).json({ reply });
+            }
+            lastDebug = JSON.stringify(data).slice(0, 300);
+        } catch (e) {
+            return res.status(500).json({ error: 'Error interno', debug: e?.message });
         }
-        return res.status(200).json({ reply });
-    } catch (e) {
-        return res.status(500).json({ error: 'Error interno', debug: e?.message });
     }
+    return res.status(500).json({ error: 'DeepSeek devolvió respuesta vacía', debug: lastDebug });
 }

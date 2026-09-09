@@ -723,6 +723,10 @@ Antworte IMMER mit einem JSON-Objekt:
                 }
             }
 
+            if (!displayReply || !displayReply.trim()) {
+                throw new Error('DeepSeek devolvió una respuesta vacía');
+            }
+
             if (!State.misionCompleted && misionCumplida) {
                 State.misionCompleted = true;
                 showMisionCompleted();

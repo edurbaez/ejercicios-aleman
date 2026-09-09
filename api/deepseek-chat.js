@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
-        const reply = data.choices?.[0]?.message?.content || '';
+        const reply = (data.choices?.[0]?.message?.content || '').trim();
         if (!reply) {
             return res.status(500).json({
                 error: 'DeepSeek devolvió respuesta vacía',

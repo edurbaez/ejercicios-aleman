@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gramática C1 — Referencia completa</title>
+<style>
+  :root {
+    --accent: #00838F;
+    --accent-dark: #006064;
+    --bg: #F4F8F8;
+    --card-bg: #FFFFFF;
+    --text: #212121;
+    --text-muted: #5F6B6B;
+    --border: #DCEAEA;
+    --warn-bg: #FFF3E0;
+    --warn-border: #FFB74D;
+    --tip-bg: #E0F2F1;
+    --tip-border: var(--accent);
+    --de-color: #004D40;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    padding: 40px 20px 32px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 2rem; }
+  header p { margin: 0; opacity: 0.92; font-size: 1.05rem; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  nav.index {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  nav.index h2 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    color: var(--accent-dark);
+  }
+  nav.index ol {
+    columns: 2;
+    -webkit-columns: 2;
+    column-gap: 24px;
+    margin: 0;
+    padding-left: 20px;
+  }
+  nav.index li { break-inside: avoid; margin-bottom: 4px; }
+  nav.index a { color: var(--text); text-decoration: none; font-size: 0.92rem; }
+  nav.index a:hover { color: var(--accent-dark); text-decoration: underline; }
+
+  section.rule {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    scroll-margin-top: 16px;
+  }
+  section.rule .rule-id {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  section.rule h2 { margin: 0 0 2px; font-size: 1.35rem; color: var(--accent-dark); }
+  section.rule .subtitulo { margin: 0 0 14px; color: var(--text-muted); font-style: italic; font-size: 0.95rem; }
+
+  .regla-base {
+    background: #EDF7F7;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.97rem;
+  }
+  .regla-base strong { color: var(--accent-dark); }
+
+  table.gram-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  table.gram-table th, table.gram-table td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  table.gram-table th { background: var(--accent); color: #fff; font-weight: 600; }
+  table.gram-table tr:nth-child(even) td { background: #F7FBFB; }
+
+  .box-warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 0.92rem;
+  }
+  .box-warn strong { color: #E65100; }
+
+  .explicacion { margin-bottom: 16px; font-size: 0.97rem; }
+
+  .ejemplos { list-style: none; margin: 0 0 16px; padding: 0; }
+  .ejemplos li {
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: #F7FBFB;
+    margin-bottom: 6px;
+    border-radius: 0 6px 6px 0;
+  }
+  .ejemplos .de { color: var(--de-color); font-weight: 600; }
+  .ejemplos .es { color: var(--text-muted); font-size: 0.9rem; }
+
+  .box-tip {
+    background: var(--tip-bg);
+    border-left: 4px solid var(--tip-border);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+  .box-tip strong { color: var(--accent-dark); }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 20px;
+  }
+  footer a { color: var(--accent-dark); }
+
+  @media (max-width: 600px) {
+    nav.index ol { columns: 1; }
+    header h1 { font-size: 1.5rem; }
+    section.rule { padding: 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gramática C1</h1>
+  <p>Las 17 reglas gramaticales del nivel C1 — referencia estática, sin ejercicios</p>
+</header>
+
+<div class="wrap">
+
+  <nav class="index" aria-label="Índice de reglas">
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#c1-01">lassen + sich</a></li>
+      <li><a href="#c1-02">sein + zu + Infinitivo</a></li>
+      <li><a href="#c1-03">Gerundivum</a></li>
+      <li><a href="#c1-04">Atributo participial extendido</a></li>
+      <li><a href="#c1-05">Irrealis del pasado con modales</a></li>
+      <li><a href="#c1-06">Strukturen mit Ersatzinfinitiv</a></li>
+      <li><a href="#c1-07">Partículas de evidencialidad</a></li>
+      <li><a href="#c1-08">Wiedergabe von Aufforderungen und Gerüchten</a></li>
+      <li><a href="#c1-09">Formación de palabras: compuestos</a></li>
+      <li><a href="#c1-10">Trennbare und untrennbare Verben</a></li>
+      <li><a href="#c1-11">Compuestos con irgend-</a></li>
+      <li><a href="#c1-12">Kausale Nebensätze mit da und wobei</a></li>
+      <li><a href="#c1-13">Modale Nebensätze mit indem</a></li>
+      <li><a href="#c1-14">Colocaciones verbonominales</a></li>
+      <li><a href="#c1-15">Cohesión textual</a></li>
+      <li><a href="#c1-16">Inversión estilística</a></li>
+      <li><a href="#c1-17">Es como placeholder / sujeto formal</a></li>
+    </ol>
+  </nav>
+
+  <section class="rule" id="c1-01">
+    <span class="rule-id">C1-01</span>
+    <h2>lassen + sich</h2>
+    <p class="subtitulo">posibilidad pasiva activa</p>
+    <div class="regla-base"><strong>Regla base:</strong> lassen+sich+Inf. expresa posibilidad o factibilidad (algo puede hacerse). Más conciso y elegante que la pasiva con werden.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> En negativo: lässt sich nicht+Inf. = imposibilidad. "Das lässt sich nicht rechtfertigen" = eso no tiene justificación. Muy usado en el habla culta formal.</div>
+    <p class="explicacion">"Lassen + sich + Infinitivo" es una construcción activa con valor pasivo-modal que expresa posibilidad o factibilidad: algo es posible de hacer (o no). Equivale a "se puede + Infinitivo" o "es posible + Infinitivo". A diferencia de la pasiva con "werden", esta construcción tiene un tono más general e impersonal y es muy frecuente en el alemán formal hablado y escrito. Comparar las tres opciones disponibles: "Man kann es machen" / "Es kann gemacht werden" (pasiva plena) / "Es lässt sich machen" (más concisa y elegante).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das lässt sich machen.</span><br><span class="es">Eso se puede hacer / es factible.</span></li>
+      <li><span class="de">Das lässt sich nicht beweisen.</span><br><span class="es">Eso no se puede demostrar.</span></li>
+      <li><span class="de">Der Fehler lässt sich leicht beheben.</span><br><span class="es">El error se puede corregir fácilmente.</span></li>
+      <li><span class="de">Diese Frage lässt sich nicht so einfach beantworten.</span><br><span class="es">Esta pregunta no es fácil de responder.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> En negativo "lässt sich nicht + Inf." expresa imposibilidad o inviabilidad: "Das lässt sich nicht rechtfertigen" (Eso no tiene justificación). Es una expresión muy elegante para evitar la pasiva en el habla culta.</div>
+  </section>
+
+  <section class="rule" id="c1-02">
+    <span class="rule-id">C1-02</span>
+    <h2>sein + zu + Infinitivo</h2>
+    <p class="subtitulo">obligación o posibilidad pasiva</p>
+    <div class="regla-base"><strong>Regla base:</strong> sein+zu+Inf. expresa obligación (debe hacerse) o posibilidad (puede hacerse) según contexto. Propio del registro formal y escrito.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Positivo: obligación o posibilidad. Negativo (nicht zu): imposibilidad o algo no recomendable. El contexto y la semántica del verbo determinan la interpretación.</div>
+    <p class="explicacion">"sein + zu + Infinitivo" es una construcción pasiva impersonal muy frecuente en textos legales, técnicos, administrativos y periodísticos. Expresa obligación (algo debe hacerse) o posibilidad (algo puede hacerse) según el contexto semántico. Es más concisa que "müssen/können + Passiv" y suena más formal. En negativo ("nicht zu + Inf.") expresa imposibilidad o algo no recomendable. La declinación de "sein" sigue el paradigma normal.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das ist zu beachten.</span><br><span class="es">Esto hay que tener en cuenta. (obligación)</span></li>
+      <li><span class="de">Die Aufgabe ist bis morgen zu erledigen.</span><br><span class="es">La tarea hay que terminarla para mañana.</span></li>
+      <li><span class="de">Der Fehler ist kaum zu übersehen.</span><br><span class="es">El error es difícil de pasar por alto. (posibilidad)</span></li>
+      <li><span class="de">Diese Lösung ist nicht zu empfehlen.</span><br><span class="es">Esta solución no es recomendable.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Positivo: "ist zu + Inf." → obligación o posibilidad. Negativo: "ist nicht zu + Inf." → imposibilidad o algo no recomendable. El contexto y la semántica del verbo determinan la interpretación.</div>
+  </section>
+
+  <section class="rule" id="c1-03">
+    <span class="rule-id">C1-03</span>
+    <h2>Gerundivum</h2>
+    <p class="subtitulo">zu + Partizip I con valor pasivo</p>
+    <div class="regla-base"><strong>Regla base:</strong> [artículo] + zu + Partizip I (declinado como adjetivo) + [sustantivo]. Expresa obligación o necesidad con matiz pasivo: "das zu lösende Problem" = el problema que debe resolverse.</div>
+    <table class="gram-table">
+      <tr><th>Forma</th><th>Ejemplo</th></tr>
+      <tr><td>Gerundivum</td><td>das zu lösende Problem</td></tr>
+      <tr><td>sein + zu + Inf.</td><td>das Problem, das zu lösen ist</td></tr>
+      <tr><td>Nebensatz mit müssen + Passiv</td><td>das Problem, das gelöst werden muss</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> A diferencia de "sein + zu + Inf." (c1-02), que según el verbo podía expresar obligación o simple posibilidad, el Gerundivum SIEMPRE implica obligación o necesidad, nunca mera posibilidad. Es la tercera gran alternativa a la pasiva (junto con lassen+sich y sein+zu), pero en forma de atributo antepuesto al sustantivo, no de predicado.</div>
+    <p class="explicacion">El Gerundivum es una forma adjetival construida con "zu" + Partizip I (Infinitivo + -d), declinada como cualquier adjetivo atributivo, que se coloca entre el artículo y el sustantivo. Expresa que algo debe o tiene que sufrir la acción indicada, con un matiz claramente pasivo y de obligación: "das zu lösende Problem" (el problema que hay que resolver) equivale a "das Problem, das gelöst werden muss" o "das Problem, das zu lösen ist". Al igual que el atributo participial extendido con Partizip II, el Gerundivum puede llevar sus propios complementos antepuestos al participio: "die schnell zu lösenden Probleme" (los problemas que hay que resolver rápidamente). Es una estructura de registro muy formal y escrito, típica de textos legales, técnicos y académicos; apenas se usa en el habla coloquial.</p>
+    <ul class="ejemplos">
+      <li><span class="de">die zu verkaufenden Bücher</span><br><span class="es">los libros que hay que vender / que deben venderse</span></li>
+      <li><span class="de">das zu lösende Problem</span><br><span class="es">el problema que hay que resolver</span></li>
+      <li><span class="de">die schnell zu erledigenden Aufgaben</span><br><span class="es">las tareas que hay que terminar rápidamente</span></li>
+      <li><span class="de">ein nicht zu unterschätzendes Risiko</span><br><span class="es">un riesgo que no hay que subestimar</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> El Gerundivum ("zu + Partizip I" declinado) siempre expresa obligación/necesidad, nunca simple posibilidad, a diferencia de "sein + zu + Inf." que podía ser ambiguo. Puede llevar complementos propios antes del participio: "die schnell zu lösenden Probleme".</div>
+  </section>
+
+  <section class="rule" id="c1-04">
+    <span class="rule-id">C1-04</span>
+    <h2>Atributo participial extendido</h2>
+    <p class="subtitulo">das von X beschlossene Gesetz</p>
+    <div class="regla-base"><strong>Regla base:</strong> [artículo] + [complementos + participio] + [sustantivo]. Comprime una oración de relativo. Leer de derecha a izquierda: el sustantivo es el núcleo.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Para producirlo: toma la relativa → quita el pronombre relativo y auxiliar → convierte el verbo al participio → insértalo. "die Frage, die seit Jahren diskutiert wird" → "die seit Jahren diskutierte Frage". Compárese con el Gerundivum (c1-03, zu + Partizip I), que expresa obligación en vez de un resultado o estado ya producido.</div>
+    <p class="explicacion">El atributo participial extendido (erweitertes Partizipialattribut) inserta entre el artículo y el sustantivo un participio acompañado de sus propios complementos. Es una estructura que "comprime" una oración de relativo en un grupo nominal. La estrategia de lectura: identificar el artículo, saltar al sustantivo (al final del grupo) y luego interpretar todo lo intermedio como un modificador de ese sustantivo. Esta estructura es omnipresente en el alemán escrito culto y en los textos de examen.</p>
+    <ul class="ejemplos">
+      <li><span class="de">das von der Regierung beschlossene Gesetz</span><br><span class="es">la ley aprobada por el gobierno</span></li>
+      <li><span class="de">ein in Deutschland hergestelltes Produkt</span><br><span class="es">un producto fabricado en Alemania</span></li>
+      <li><span class="de">die seit Jahren diskutierte Frage</span><br><span class="es">la cuestión debatida desde hace años</span></li>
+      <li><span class="de">der auf dem Tisch liegende Brief</span><br><span class="es">la carta que está sobre la mesa</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Para producirlo: toma la oración de relativo → quita el pronombre relativo y el auxiliar → convierte el verbo al participio correspondiente → insértalo entre artículo y sustantivo. "die Frage, die seit Jahren diskutiert wird" → "die seit Jahren diskutierte Frage".</div>
+  </section>
+
+  <section class="rule" id="c1-05">
+    <span class="rule-id">C1-05</span>
+    <h2>Irrealis del pasado con modales</h2>
+    <p class="subtitulo">hätte … können/müssen/sollen</p>
+    <div class="regla-base"><strong>Regla base:</strong> hätte + Infinitivo + Modal (siempre al final). Evalúa retrospectivamente posibilidades u obligaciones no cumplidas.</div>
+    <table class="gram-table">
+      <tr><th>Estructura</th><th>Matiz</th></tr>
+      <tr><td>hätte … können</td><td>posibilidad desperdiciada</td></tr>
+      <tr><td>hätte … müssen</td><td>obligación incumplida</td></tr>
+      <tr><td>hätte … sollen</td><td>reproche</td></tr>
+      <tr><td>wäre … geworden</td><td>transformación no ocurrida</td></tr>
+    </table>
+    <p class="explicacion">Cuando se combina el Konjunktiv II del pasado con verbos modales se expresan valoraciones retrospectivas: algo que podría, debería o tendría que haber ocurrido pero no ocurrió. La estructura es "hätte + Infinitivo + Modal". El orden en la subordinada puede variar pero el modal siempre va al final. En frases principales: "Er hätte kommen können" (Podría haber venido). "Hätte … sollen" implica reproche; "hätte … können" implica posibilidad desperdiciada; "hätte … müssen" implica obligación no cumplida.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Wenn ich das gewusst hätte, wäre ich nicht gegangen.</span><br><span class="es">Si lo hubiera sabido, no habría ido.</span></li>
+      <li><span class="de">Du hättest mich anrufen sollen!</span><br><span class="es">¡Deberías haberme llamado! (reproche)</span></li>
+      <li><span class="de">Er hätte das vermeiden können.</span><br><span class="es">Podría haberlo evitado. (posibilidad perdida)</span></li>
+      <li><span class="de">Wäre ich früher aufgestanden, hätte ich den Zug nicht verpasst.</span><br><span class="es">Si me hubiera levantado antes, no habría perdido el tren.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Modal en pasado irreal: hätte + Inf. + können/sollen/müssen. El modal va SIEMPRE al final. "hätte sollen" = reproche. "hätte können" = posibilidad perdida. "hätte müssen" = obligación incumplida.</div>
+  </section>
+
+  <section class="rule" id="c1-06">
+    <span class="rule-id">C1-06</span>
+    <h2>Strukturen mit Ersatzinfinitiv</h2>
+    <p class="subtitulo">hat sehen / hat lassen / hat können</p>
+    <div class="regla-base"><strong>Regla base:</strong> Modales, lassen, sehen, hören en Perfekt usan infinitivo en lugar de Partizip II (Ersatzinfinitiv): hat kommen können, hat tun lassen.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Produce doble infinitivo al final: "Er hat es tun lassen." En subordinada el orden: objeto + inf. + auxiliar + modal → "weil er es hat tun müssen."</div>
+    <p class="explicacion">Cuando los verbos modales, "lassen", "sehen", "hören" y "fühlen" aparecen en Perfekt o Plusquamperfekt, no forman un Partizip II normal sino que usan el infinitivo como sustituto (Ersatzinfinitiv). Por eso aparecen dos infinitivos seguidos al final de la frase: "hat kommen können", "hat es tun lassen", "hat ihn kommen sehen". Esto produce el complejo "Verbklammeranhäufung" (acumulación de verbos al final) típico del alemán formal escrito. El orden en subordinadas con modal: objeto → P.II/Inf. → auxiliar → modal.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Er hat es nicht kommen sehen.</span><br><span class="es">No lo vio venir. (sehen → Ersatzinf.)</span></li>
+      <li><span class="de">Sie hat ihn gehen lassen.</span><br><span class="es">Ella lo dejó irse. (lassen → Ersatzinf.)</span></li>
+      <li><span class="de">Ich habe das tun wollen.</span><br><span class="es">Quise hacer eso. (wollen → Ersatzinf.)</span></li>
+      <li><span class="de">Weil er es hat tun müssen, …</span><br><span class="es">Porque tuvo que hacerlo, … (subordinada)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Regla del Ersatzinfinitiv: si un modal/lassen/sehen/hören funciona como auxiliar en Perfekt, usa infinitivo, no Partizip II. "hat gemacht" (normal) vs. "hat machen lassen" (Ersatzinf.).</div>
+  </section>
+
+  <section class="rule" id="c1-07">
+    <span class="rule-id">C1-07</span>
+    <h2>Partículas de evidencialidad</h2>
+    <p class="subtitulo">soll, will, dürfte — fuente de información</p>
+    <div class="regla-base"><strong>Regla base:</strong> Modales como marcadores de fuente: soll = otros dicen · will = el sujeto afirma · dürfte = el hablante estima · müsste = cálculo lógico.</div>
+    <table class="gram-table">
+      <tr><th>Modal</th><th>Fuente de info.</th><th>Ejemplo</th></tr>
+      <tr><td>soll</td><td>fuentes externas</td><td>Er soll sehr reich sein.</td></tr>
+      <tr><td>will</td><td>el propio sujeto afirma</td><td>Sie will das nicht gewusst haben.</td></tr>
+      <tr><td>dürfte</td><td>estimación del hablante</td><td>Das dürfte schwierig sein.</td></tr>
+      <tr><td>müsste</td><td>lógicamente debería</td><td>Es müsste jetzt fertig sein.</td></tr>
+    </table>
+    <p class="explicacion">Algunos verbos modales en Indikativ o Konjunktiv II expresan de dónde proviene la información del hablante, no solo modalidad. "Soll" (se dice que, según fuentes externas): "Er soll sehr reich sein" (Dicen que es muy rico). "Will" (según afirma el propio sujeto): "Sie will das nicht gewusst haben" (Ella afirma que no lo sabía). "Dürfte" (Konj.II de dürfen, estimación probabilística del hablante): "Das dürfte schwierig sein". "Müsste" (estimación lógica del hablante): "Es müsste jetzt fertig sein". Muy frecuentes en prensa y textos académicos.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Er soll sehr reich sein.</span><br><span class="es">Dicen que es muy rico. (fuente externa)</span></li>
+      <li><span class="de">Sie will das nicht gewusst haben.</span><br><span class="es">Ella afirma que no lo sabía. (fuente: ella misma)</span></li>
+      <li><span class="de">Das dürfte schwierig sein.</span><br><span class="es">Eso probablemente sea difícil. (estimación)</span></li>
+      <li><span class="de">Es müsste jetzt fertig sein.</span><br><span class="es">Ya debería estar listo. (cálculo lógico)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "soll" = otros dicen. "will" = él/ella afirma. "dürfte" = yo calculo/estimo. "müsste" = lógicamente debería. En prensa: "Die Kosten sollen stark gestiegen sein" no significa que deban subir, sino que según se informa habrían subido.</div>
+  </section>
+
+  <section class="rule" id="c1-08">
+    <span class="rule-id">C1-08</span>
+    <h2>Wiedergabe von Aufforderungen und Gerüchten</h2>
+    <p class="subtitulo">sollen para órdenes · will + Perfekt Konj. I para autoafirmaciones dudosas</p>
+    <div class="regla-base"><strong>Regla base:</strong> Discurso indirecto pleno: una orden se reproduce con sollen (no existe Konj.I del imperativo); un rumor sin fuente con Konjunktiv I normal; una autoafirmación dudosa del sujeto con will + Perfekt Konjunktiv I.</div>
+    <table class="gram-table">
+      <tr><th>Caso</th><th>Estructura</th><th>Ejemplo</th></tr>
+      <tr><td>Orden/petición (Aufforderung)</td><td>sollen en Konj.I/Indikativ</td><td>„Geh nach Hause!" → Er sagte, ich solle nach Hause gehen.</td></tr>
+      <tr><td>Rumor sin fuente</td><td>Konjunktiv I (man sagt, …)</td><td>Man sagt, er sei im Ausland.</td></tr>
+      <tr><td>Autoafirmación dudosa del sujeto</td><td>will + Partizip II + Konj.I von haben/sein</td><td>Er will das nie gesagt haben.</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> En el primer caso, "sollen" no funciona aquí como partícula evidencial (a diferencia de c1-07): es el sustituto obligatorio del imperativo al pasarlo a discurso indirecto, porque el imperativo no tiene forma propia de Konjunktiv I. No confundir con el "soll" de rumor de c1-07 ni con el "will" evidencial ya visto: aquí "will" se despliega en una construcción completa de Perfekt (haben/sein + Partizip II, en Konjunktiv I) para reportar que el propio sujeto afirma algo sobre su pasado, típicamente con matiz de duda del hablante.</div>
+    <p class="explicacion">Esta regla retoma el discurso indirecto (Konjunktiv I, ya visto en B2) para dos usos específicos que van más allá de reportar simples afirmaciones. Primero, reproducir una orden o petición (Aufforderung): como el imperativo no tiene Konjunktiv I propio, se usa "sollen" como sustituto: "Geh nach Hause!" → "Er sagte, ich solle (o sollte) nach Hause gehen." Segundo, reproducir un rumor sin fuente identificada con la maquinaria plena del discurso indirecto: "Man sagt, er sei im Ausland" (Se dice que está en el extranjero) — aquí el Konjunktiv I es el mecanismo general de discurso reportado, no el "soll" evidencial suelto de c1-07. Tercero, y el uso más característico de C1: "will" combinado con un Perfekt en Konjunktiv I (haben/sein + Partizip II) para reproducir una afirmación que el propio sujeto hace sobre sí mismo, marcando que el hablante duda de su veracidad: "Er will das nie gesagt haben" (Él afirma que nunca dijo eso, pero yo no estoy tan seguro). A diferencia de c1-07, que trata partículas evidenciales sueltas en una frase, aquí el foco está en cómo se construye el discurso indirecto completo para órdenes y autoafirmaciones dudosas.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Er sagte, ich solle nach Hause gehen.</span><br><span class="es">Dijo que me fuera a casa. (orden → sollen)</span></li>
+      <li><span class="de">Der Chef sagte, wir sollten pünktlich kommen.</span><br><span class="es">El jefe dijo que llegáramos puntuales. (orden → sollen)</span></li>
+      <li><span class="de">Man sagt, er sei im Ausland.</span><br><span class="es">Se dice que está en el extranjero. (rumor, Konj.I)</span></li>
+      <li><span class="de">Er will das nie gesagt haben.</span><br><span class="es">Él afirma que nunca dijo eso. (autoafirmación dudosa, will + Perfekt Konj.I)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Tres pistas: si reproduces una ORDEN, usa "sollen" (no hay Konj.I del imperativo). Si reproduces un RUMOR general, usa Konjunktiv I normal ("man sagt, … sei …"). Si el propio sujeto afirma algo dudoso sobre sí mismo, usa "will" + Partizip II + haben/sein: "Er will es nicht bemerkt haben."</div>
+  </section>
+
+  <section class="rule" id="c1-09">
+    <span class="rule-id">C1-09</span>
+    <h2>Formación de palabras: compuestos</h2>
+    <p class="subtitulo">Komposita — cómo interpretar la cadena</p>
+    <div class="regla-base"><strong>Regla base:</strong> Género = el del último elemento (núcleo). Significado = modificador + núcleo. Para interpretar, lee de derecha a izquierda.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Fugenzeichen (vocal/consonante de enlace): -s- (Bundestagswahl), -en- (Kinderwagen), -e- (Hundeleine). No añaden significado; son puramente fonéticos.</div>
+    <p class="explicacion">El alemán puede crear sustantivos compuestos casi sin límite uniendo dos o más palabras. El género del compuesto es siempre el del último elemento (el núcleo). El primer elemento modifica al segundo. Para interpretarlos, ve de derecha a izquierda: el núcleo está al final. Entre los elementos puede aparecer una vocal o consonante de enlace (Fugenzeichen): -s- (Bundestagswahl), -en- (Kinderwagen), -e- (Hundeleine). Los compuestos permiten comprimir oraciones enteras en una sola palabra, lo que los hace omnipresentes en el alemán técnico, periodístico y administrativo.</p>
+    <ul class="ejemplos">
+      <li><span class="de">die Haustür</span><br><span class="es">la puerta de la casa (Haus + Tür → fem.)</span></li>
+      <li><span class="de">der Krankenversicherungsbeitrag</span><br><span class="es">la cotización al seguro de enfermedad</span></li>
+      <li><span class="de">die Bundestagswahl</span><br><span class="es">las elecciones al Bundestag (-s- de enlace)</span></li>
+      <li><span class="de">das Handtuch</span><br><span class="es">la toalla (Hand + Tuch → neutro)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Cuando encuentres un compuesto desconocido, divídelo por sus partes morfológicas. El sentido global es [modificador + núcleo]. "Krankenversicherung" = Kranken + Versicherung = seguro para enfermos.</div>
+  </section>
+
+  <section class="rule" id="c1-10">
+    <span class="rule-id">C1-10</span>
+    <h2>Trennbare und untrennbare Verben</h2>
+    <p class="subtitulo">mitkommen, ankommen, bekommen, entkommen — el prefijo cambia el sentido</p>
+    <div class="regla-base"><strong>Regla base:</strong> Los prefijos separables (mit-, an-, auf-, aus-…, acento en el prefijo) y los inseparables (be-, ge-, ent-, er-, ver-, zer-, emp-, miss-, sin acento, sin "ge-" en Partizip II) transforman radicalmente el significado del verbo base.</div>
+    <table class="gram-table">
+      <tr><th>Verbo</th><th>Tipo</th><th>Significado</th></tr>
+      <tr><td>mitkommen</td><td>separable</td><td>venir con, acompañar</td></tr>
+      <tr><td>ankommen</td><td>separable</td><td>llegar</td></tr>
+      <tr><td>bekommen</td><td>inseparable</td><td>recibir, obtener</td></tr>
+      <tr><td>entkommen</td><td>inseparable</td><td>escapar, huir</td></tr>
+      <tr><td>umfahren (Akk.)</td><td>inseparable</td><td>rodear/esquivar algo conduciendo: er umfährt den Baum</td></tr>
+      <tr><td>umfahren (trennbar)</td><td>separable</td><td>atropellar/tirar algo al pasar: er fährt die Mülltonne um</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Pista práctica del acento tónico: si el acento cae sobre el prefijo, el verbo es separable (ÚMfahren = atropellar: "er fährt … um"). Si el acento cae sobre la raíz, es inseparable (umFAHren = rodear/esquivar: "er umfährt …", sin separar el prefijo ni al final de la frase). Esta es la única pista fiable para prefijos que pueden ser ambos, como "umfahren", "übersetzen" o "durchfahren".</div>
+    <p class="explicacion">Muchos verbos alemanes comparten una raíz pero cambian completamente de significado según el prefijo que llevan: "kommen" (venir) da lugar a "mitkommen" (venir con, acompañar), "ankommen" (llegar), "bekommen" (recibir/obtener) y "entkommen" (escapar) — cuatro significados distintos sobre la misma base. Los prefijos separables (trennbar: mit-, an-, auf-, aus-…) llevan el acento tónico y se separan del verbo, yendo al final de la frase en tiempo presente/pasado simple: "Er kommt mit." Los prefijos inseparables (untrennbar: be-, ge-, ent-, er-, ver-, zer-, emp-, miss-) nunca se separan, no llevan acento y no toman "ge-" en el Partizip II: "bekommen → bekommen" (no "gebekommen"). El caso más interesante son los verbos con prefijos que pueden ser AMBOS según el sentido: "umfahren" separable significa atropellar o tirar algo al pasar conduciendo ("Er fährt die Mülltonne um" — el prefijo se separa y va al final), mientras que "umfahren" inseparable significa rodear o esquivar algo conduciendo ("Er umfährt den Baum" — el prefijo no se separa). Entre los prefijos inseparables más productivos: "zer-" indica destrucción (zerbrechen, zerreißen), "ent-" alejamiento o pérdida (entkommen, entfernen), "miss-" algo mal hecho (missverstehen, misslingen) y "ver-" a menudo un cambio negativo o de estado (verlaufen, verschlafen).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Kommst du mit ins Kino?</span><br><span class="es">¿Vienes conmigo al cine? (mitkommen, separable)</span></li>
+      <li><span class="de">Er ist gestern in Berlin angekommen.</span><br><span class="es">Llegó ayer a Berlín. (ankommen, separable)</span></li>
+      <li><span class="de">Er fährt die Mülltonne um.</span><br><span class="es">Él tira/atropella el cubo de basura al pasar. (umfahren separable)</span></li>
+      <li><span class="de">Er umfährt den Baum.</span><br><span class="es">Él rodea/esquiva el árbol conduciendo. (umfahren inseparable)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Escucha el acento: prefijo acentuado = separable (va al final: "…fährt … um"). Raíz acentuada = inseparable (prefijo pegado siempre: "umfährt …"). Los prefijos be-, ent-, er-, ver-, zer-, emp-, miss- son SIEMPRE inseparables, sin excepción.</div>
+  </section>
+
+  <section class="rule" id="c1-11">
+    <span class="rule-id">C1-11</span>
+    <h2>Compuestos con irgend-</h2>
+    <p class="subtitulo">irgendjemand, irgendetwas, irgendwo, irgendwann, irgendwie, irgendein</p>
+    <div class="regla-base"><strong>Regla base:</strong> El prefijo "irgend-" se antepone a pronombres y adverbios para añadir indeterminación total: no importa quién, qué, dónde, cuándo, cómo o cuál.</div>
+    <table class="gram-table">
+      <tr><th>Forma</th><th>Significado</th></tr>
+      <tr><td>irgendjemand</td><td>alguien, quienquiera que sea</td></tr>
+      <tr><td>irgendetwas / irgendwas</td><td>algo, sea lo que sea</td></tr>
+      <tr><td>irgendwo</td><td>en algún lugar, no importa dónde</td></tr>
+      <tr><td>irgendwann</td><td>en algún momento, cuando sea</td></tr>
+      <tr><td>irgendwie</td><td>de algún modo, como sea</td></tr>
+      <tr><td>irgendein/irgendeine</td><td>algún/alguna (sin especificar cuál), se declina como "ein"</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Las formas sin "irgend-" (jemand, etwas, wo, wann, wie, ein) ya implican cierta indeterminación, pero "irgend-" la refuerza hasta la indiferencia total sobre la identidad/lugar/momento/modo: "Ruf jemanden an" (llama a alguien, cualquiera vale más o menos) vs. "Ruf irgendjemanden an" (llama a quien sea, de verdad no importa a quién). Muy usado en preguntas retóricas o para expresar indiferencia.</div>
+    <p class="explicacion">El prefijo "irgend-" convierte pronombres y adverbios indefinidos en formas de indeterminación absoluta: no aporta ninguna pista sobre la identidad, el lugar, el momento o el modo. "Irgendjemand" (alguien, quienquiera), "irgendetwas/irgendwas" (algo, lo que sea), "irgendwo" (en algún lugar), "irgendwann" (en algún momento), "irgendwie" (de algún modo) y "irgendein/irgendeine" (algún/alguna) son muy frecuentes en el alemán hablado y escrito culto para señalar que la elección concreta es irrelevante. "Irgendein" funciona como artículo indefinido y se declina exactamente igual que "ein" (irgendein Buch, irgendeine Idee, irgendeinem Problem).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Hat irgendjemand irgendetwas gesehen?</span><br><span class="es">¿Ha visto alguien algo (lo que sea)?</span></li>
+      <li><span class="de">Wir treffen uns irgendwo in der Stadt.</span><br><span class="es">Nos vemos en algún lugar de la ciudad (no importa dónde).</span></li>
+      <li><span class="de">Ruf mich irgendwann an, wenn du Zeit hast.</span><br><span class="es">Llámame en algún momento cuando tengas tiempo.</span></li>
+      <li><span class="de">Er wird das Problem irgendwie lösen.</span><br><span class="es">Resolverá el problema de algún modo.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "Irgendein" se declina como "ein": irgendein Buch, irgendeine Idee, irgendeinem Kollegen. Úsalo cuando de verdad no importa cuál, no como simple sinónimo de "ein".</div>
+  </section>
+
+  <section class="rule" id="c1-12">
+    <span class="rule-id">C1-12</span>
+    <h2>Kausale Nebensätze mit da und wobei</h2>
+    <p class="subtitulo">da (causa conocida) vs. wobei (inciso causal-concesivo)</p>
+    <div class="regla-base"><strong>Regla base:</strong> "Da" introduce una causa ya conocida o esperable, va antepuesto y es más formal que "weil". "Wobei" añade un comentario o matización lateral, casi un inciso.</div>
+    <table class="gram-table">
+      <tr><th>Conector</th><th>Registro/posición</th><th>Matiz</th></tr>
+      <tr><td>weil</td><td>neutro, puede responder a "Warum?"</td><td>causa nueva o enfatizada</td></tr>
+      <tr><td>da</td><td>formal, casi siempre antepuesto</td><td>causa ya conocida/esperable, nunca responde a "Warum?"</td></tr>
+      <tr><td>wobei</td><td>culto, se pospone como inciso</td><td>observación o matización causal-concesiva lateral</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> "Da" no puede usarse para responder directamente a una pregunta con "Warum?" — en ese caso solo cabe "weil". "Wobei" no es intercambiable con "da": no introduce la causa principal, sino un comentario añadido que matiza o relativiza lo dicho, con un matiz entre causal y concesivo.</div>
+    <p class="explicacion">Además del "weil" básico, el alemán culto usa "da" y "wobei" para matizar relaciones causales. "Da" (verbo al final, como "weil") introduce una causa que el oyente ya conoce o puede esperar, y por eso suele colocarse al principio de la oración, antes de la principal: "Da es regnete, blieben wir zu Hause." Es de registro más formal y escrito que "weil". "Wobei" no introduce una causa pura, sino una observación o matización lateral —a menudo con un matiz causal-concesivo— que se añade casi como un inciso a lo que se acaba de afirmar: "Er hat die Prüfung bestanden, wobei er sich kaum vorbereitet hatte."</p>
+    <ul class="ejemplos">
+      <li><span class="de">Da es regnete, blieben wir zu Hause.</span><br><span class="es">Como llovía, nos quedamos en casa.</span></li>
+      <li><span class="de">Da du das schon weißt, muss ich es nicht erklären.</span><br><span class="es">Como ya lo sabes, no hace falta que lo explique.</span></li>
+      <li><span class="de">Er hat die Prüfung bestanden, wobei er sich kaum vorbereitet hatte.</span><br><span class="es">Aprobó el examen, aunque apenas se había preparado.</span></li>
+      <li><span class="de">Das Projekt war erfolgreich, wobei es auch einige Probleme gab.</span><br><span class="es">El proyecto tuvo éxito, si bien también hubo algunos problemas.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Ante "Warum?" responde siempre con "weil", nunca con "da". "Wobei" no sustituye a "da": es un inciso que matiza, no la causa principal del enunciado.</div>
+  </section>
+
+  <section class="rule" id="c1-13">
+    <span class="rule-id">C1-13</span>
+    <h2>Modale Nebensätze mit indem</h2>
+    <p class="subtitulo">indem, dadurch dass, wodurch — el medio o método</p>
+    <div class="regla-base"><strong>Regla base:</strong> "Indem" + Nebensatz expresa el medio/método por el cual se logra algo. "Dadurch dass" es variante enfática. "Wodurch" retoma retrospectivamente una idea anterior con valor instrumental-consecutivo.</div>
+    <table class="gram-table">
+      <tr><th>Estructura</th><th>Función</th><th>Ejemplo breve</th></tr>
+      <tr><td>indem + Nebensatz</td><td>medio/método simultáneo</td><td>indem er jeden Tag übte</td></tr>
+      <tr><td>dadurch, dass + Nebensatz</td><td>medio/método enfatizado</td><td>dadurch, dass er jeden Tag übte</td></tr>
+      <tr><td>wodurch (relativo)</td><td>retoma lo anterior como causa/medio</td><td>Er übte, wodurch er besser wurde</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> "Indem" introduce el medio de forma explícita, con la subordinada aportando el mismo peso informativo que la principal y valor de simultaneidad. "Wodurch" no introduce una subordinada nueva de medio, sino que retoma retrospectivamente toda la oración anterior con un matiz consecutivo-instrumental ("por lo cual"), de forma paralela a "wobei"/"was" ya conocidos.</div>
+    <p class="explicacion">"Indem" + Nebensatz (verbo al final) expresa el medio o método por el que se consigue algo, respondiendo a "¿cómo?": "Er verbesserte seine Aussprache, indem er jeden Tag laut las." "Dadurch, dass" + Nebensatz es una variante equivalente pero más explícita y enfática, útil para retomar o subrayar una explicación de causa-método; puede anticiparse "dadurch" en la oración principal y retomarse con "dass" en la subordinada: "Dadurch, dass er jeden Tag übte, wurde er immer besser." "Wodurch" es un relativo que retoma toda una oración anterior con valor de medio/instrumento causal: "Er las jeden Tag, wodurch sich seine Aussprache verbesserte."</p>
+    <ul class="ejemplos">
+      <li><span class="de">Er verbesserte seine Aussprache, indem er jeden Tag laut las.</span><br><span class="es">Mejoró su pronunciación leyendo en voz alta cada día.</span></li>
+      <li><span class="de">Dadurch, dass er jeden Tag übte, wurde er immer besser.</span><br><span class="es">Debido a que practicaba cada día, mejoraba cada vez más.</span></li>
+      <li><span class="de">Er las jeden Tag, wodurch sich seine Aussprache verbesserte.</span><br><span class="es">Leía cada día, por lo cual mejoró su pronunciación.</span></li>
+      <li><span class="de">Man spart Energie, indem man das Licht ausschaltet.</span><br><span class="es">Se ahorra energía apagando la luz.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "Indem" = medio explícito y simultáneo a la acción principal. "Wodurch" = retoma como consecuencia lo que ya se dijo antes. No los confundas: "indem" abre la explicación, "wodurch" la cierra retrospectivamente.</div>
+  </section>
+
+  <section class="rule" id="c1-14">
+    <span class="rule-id">C1-14</span>
+    <h2>Colocaciones verbonominales</h2>
+    <p class="subtitulo">Funktionsverbgefüge</p>
+    <div class="regla-base"><strong>Regla base:</strong> Verbo+sustantivo formando unidad de significado equivalente a un verbo simple. Propios del registro formal. No se traducen literalmente.</div>
+    <table class="gram-table">
+      <tr><th>FVG</th><th>Equivalente simple</th></tr>
+      <tr><td>in Frage stellen</td><td>bezweifeln (cuestionar)</td></tr>
+      <tr><td>zur Verfügung stehen</td><td>verfügbar sein (estar disponible)</td></tr>
+      <tr><td>eine Entscheidung treffen</td><td>entscheiden (decidir)</td></tr>
+      <tr><td>in Betracht ziehen</td><td>berücksichtigen (considerar)</td></tr>
+      <tr><td>zum Ausdruck bringen</td><td>ausdrücken (expresar)</td></tr>
+    </table>
+    <p class="explicacion">Los Funktionsverbgefüge son combinaciones fijas de verbo + sustantivo (en acusativo o con preposición) que forman una unidad de significado equivalente a un verbo simple. Son muy frecuentes en el registro formal y administrativo. La ventaja sobre el verbo simple es la precisión de matiz o el registro más elevado que aportan. No admiten sustitución de sus partes ni traducción literal. El sustantivo nuclear es siempre el semánticamente relevante; el verbo (stellen, bringen, nehmen, kommen, stehen, treffen…) aporta el aspecto o la dirección de la acción.</p>
+    <ul class="ejemplos">
+      <li><span class="de">in Frage stellen</span><br><span class="es">cuestionar, poner en tela de juicio</span></li>
+      <li><span class="de">zur Verfügung stehen/stellen</span><br><span class="es">estar/poner a disposición</span></li>
+      <li><span class="de">Kritik üben an + Dat.</span><br><span class="es">ejercer crítica sobre, criticar</span></li>
+      <li><span class="de">eine Entscheidung treffen</span><br><span class="es">tomar una decisión</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Aprende estos bloques como unidades léxicas: "in Frage stellen", "in Betracht ziehen", "zum Ausdruck bringen", "unter Druck setzen". En escritura formal suenan más precisos que el verbo simple equivalente.</div>
+  </section>
+
+  <section class="rule" id="c1-15">
+    <span class="rule-id">C1-15</span>
+    <h2>Cohesión textual</h2>
+    <p class="subtitulo">referencia anafórica, elipsis, pronombres adverbiales</p>
+    <div class="regla-base"><strong>Regla base:</strong> Pronombres adverbiales (da(r)+prep.) remiten a cosas o ideas. Para personas siempre pronombre personal+prep. (über ihn, für sie).</div>
+    <div class="box-warn"><strong>Excepciones:</strong> darüber, dafür, daran, damit → solo para cosas. Para personas: über ihn, für sie, mit ihr. Mezclarlos es un error C1 muy visible.</div>
+    <p class="explicacion">Un texto C1 bien construido evita repeticiones usando mecanismos de cohesión: pronombres (er, sie, es), pronombres demostrativos (dieser, jener, derjenige), pronombres adverbiales (dabei, dazu, darüber, dafür…) y elipsis (omisión de elementos recuperables del contexto). Los pronombres adverbiales (da(r)- + preposición) remiten a ideas, cosas o hechos mencionados antes — nunca a personas. Para personas se usan pronombres personales con preposición: "für ihn", "mit ihr".</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das Problem ist bekannt. Dieses wurde bereits diskutiert.</span><br><span class="es">El problema es conocido. Este ya fue debatido.</span></li>
+      <li><span class="de">Er sprach über Klimawandel. Dabei betonte er…</span><br><span class="es">Habló sobre el cambio climático. Al respecto subrayó…</span></li>
+      <li><span class="de">Sie lehnte den Vorschlag ab. Dazu sagte sie, dass…</span><br><span class="es">Rechazó la propuesta. Sobre eso dijo que…</span></li>
+      <li><span class="de">Ich habe das Buch gelesen. Du auch? — Ja, ich auch.</span><br><span class="es">¿Tú también? — Sí, yo también. (elipsis)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "Darüber" (sobre ello), "dafür" (para ello), "damit" (con ello), "daran" (en ello): siempre para cosas o ideas. Para personas: "über ihn" (sobre él), "für sie" (para ella). Mezclarlos es un error C1 muy visible.</div>
+  </section>
+
+  <section class="rule" id="c1-16">
+    <span class="rule-id">C1-16</span>
+    <h2>Inversión estilística</h2>
+    <p class="subtitulo">Kaum…als, Erst wenn, inicio con adverbial</p>
+    <div class="regla-base"><strong>Regla base:</strong> Un elemento no-sujeto en posición 1 fuerza inversión V2. Kaum…als: ambos verbos en Präteritum. Nie/Selten+inversión crean énfasis retórico.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Si la subordinada va primero, la principal comienza directamente con el verbo (no con el sujeto). Kaum…als es estructura fija literaria — no mezclar con "sobald" o "wenn".</div>
+    <p class="explicacion">La inversión estilística coloca un elemento no sujeto en la primera posición para lograr énfasis o un efecto narrativo. "Kaum hatte er … als …" (apenas hubo … cuando) usa ambos verbos en Präteritum y es una estructura fija literaria. "Erst wenn/als" (solo cuando) desplaza la condición al inicio. Iniciar con una subordinada adverbial fuerza automáticamente la inversión en la principal. "Nie/Selten/Kaum + hätte/wäre…" con inversión crean énfasis retórico: "Nie hätte ich das gedacht."</p>
+    <ul class="ejemplos">
+      <li><span class="de">Kaum hatte er das Zimmer betreten, als das Licht ausging.</span><br><span class="es">Apenas había entrado cuando se fue la luz.</span></li>
+      <li><span class="de">Nie hätte ich das gedacht.</span><br><span class="es">Jamás lo habría pensado.</span></li>
+      <li><span class="de">Erst wenn du fertig bist, können wir gehen.</span><br><span class="es">Solo cuando hayas terminado podremos irnos.</span></li>
+      <li><span class="de">So groß war die Überraschung, dass er sprachlos war.</span><br><span class="es">Tan grande fue la sorpresa que se quedó sin palabras.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "Kaum…als": ambos verbos en Präteritum. "Als es regnete, blieb er zu Hause" → la principal comienza directamente con el verbo (blieb), no con el sujeto. La inversión es automática cuando la subordinada va primera.</div>
+  </section>
+
+  <section class="rule" id="c1-17">
+    <span class="rule-id">C1-17</span>
+    <h2>Es como placeholder / sujeto formal</h2>
+    <p class="subtitulo">Cuándo "es" es puramente gramatical y no se puede traducir ni omitir</p>
+    <div class="regla-base"><strong>Regla base:</strong> Además del "es" pronombre real (que sustituye a un neutro concreto), existe un "es" formal: sujeto obligatorio con verbos impersonales, placeholder de posición 1 cuando el sujeto real va después, y objeto acusativo fijo en ciertas expresiones.</div>
+    <table class="gram-table">
+      <tr><th>Uso</th><th>Ejemplo</th><th>Nota</th></tr>
+      <tr><td>Impersonal meteorológico/sensorial</td><td>Es regnet. / Es ist kalt. / Mir ist (es) kalt.</td><td>Sujeto formal obligatorio; con "mir" en posición 1, "es" puede omitirse.</td></tr>
+      <tr><td>Placeholder de posición 1</td><td>Es freut mich, dass du kommst.</td><td>El sujeto real es la subordinada "dass du kommst"; "es" desaparece si esta ocupa la posición 1.</td></tr>
+      <tr><td>Pasiva impersonal sin sujeto</td><td>Es wird hier viel gelacht.</td><td>Ver regla b2-06: "es" desaparece si otro elemento ocupa la posición 1.</td></tr>
+      <tr><td>Objeto acusativo fijo</td><td>Ich habe es eilig. / Sie meint es gut mit dir. / Er hat es schwer.</td><td>"es" es parte fija de la expresión; nunca se omite ni se sustituye.</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El "es" placeholder de posición 1 desaparece en cuanto otro elemento (la subordinada, "mir", etc.) ocupa esa posición, porque su única función es rellenar el hueco gramatical. En cambio, el "es" objeto fijo de expresiones como "es eilig haben", "es gut meinen" o "es schwer haben" NUNCA desaparece, sin importar el orden de la frase, porque no es un placeholder posicional sino parte fija e inseparable de la expresión.</div>
+    <p class="explicacion">El "es" gramatical se distingue del "es" pronombre real (que reemplaza un sustantivo neutro concreto, p. ej. "Das Kind schläft. Es ist müde."). Primero, como sujeto formal obligatorio con verbos impersonales de clima o sensación: "Es regnet.", "Es ist kalt."; en construcciones con dativo como "Mir ist (es) kalt", "es" puede omitirse porque "mir" ya ocupa la posición 1. Segundo, como placeholder de la posición 1 cuando el sujeto gramatical real es una subordinada o un infinitivo que aparece después: "Es freut mich, dass du kommst." — aquí lo que realmente "alegra" es "dass du kommst"; si esa subordinada se antepone, "es" desaparece: "Dass du kommst, freut mich." Tercero, brevemente, en la pasiva impersonal sin sujeto (ya visto en B2): "Es wird hier viel gelacht" pierde el "es" en cuanto otro elemento ocupa la posición 1. Cuarto, como objeto acusativo obligatorio en expresiones fijas donde "es" no señala nada concreto y no puede omitirse ni sustituirse: "Ich habe es eilig." (Tengo prisa), "Sie meint es gut mit dir." (Ella tiene buenas intenciones contigo), "Er hat es schwer." (Lo tiene difícil). El reto para el estudiante es reconocer cuándo "es" es un pronombre real con referencia y cuándo es solo un elemento gramatical/formal.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Es schneit seit heute Morgen.</span><br><span class="es">Está nevando desde esta mañana.</span></li>
+      <li><span class="de">Es freut mich, dass du kommst.</span><br><span class="es">Me alegra que vengas.</span></li>
+      <li><span class="de">Dass du kommst, freut mich.</span><br><span class="es">Que vengas me alegra.</span></li>
+      <li><span class="de">Er hat es im Leben nicht leicht gehabt.</span><br><span class="es">No lo ha tenido fácil en la vida.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Pregúntate: ¿puedo mover algo a la posición 1 y "es" desaparece? Entonces era un placeholder ("Es freut mich, dass…" → "Dass…, freut mich"). ¿"es" sigue ahí sin importar el orden? Entonces es objeto fijo de la expresión ("es eilig haben", "es gut meinen", "es schwer haben") y jamás se quita.</div>
+  </section>
+
+</div>
+
+<footer>
+  <p><a href="gramatica.html">← Volver a Gramática (todos los niveles)</a></p>
+</footer>
+
+</body>
+</html>

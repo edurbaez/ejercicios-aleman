@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gramática A1 — Referencia completa</title>
+<style>
+  :root {
+    --accent: #B71C1C;
+    --accent-dark: #8B0000;
+    --bg: #FAF5F5;
+    --card-bg: #FFFFFF;
+    --text: #212121;
+    --text-muted: #6B5F5F;
+    --border: #E6DCDC;
+    --warn-bg: #FFF3E0;
+    --warn-border: #FFB74D;
+    --tip-bg: #FBE9E9;
+    --tip-border: var(--accent);
+    --de-color: #7A0000;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    padding: 40px 20px 32px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 2rem; }
+  header p { margin: 0; opacity: 0.92; font-size: 1.05rem; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  nav.index {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  nav.index h2 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    color: var(--accent-dark);
+  }
+  nav.index ol {
+    columns: 2;
+    -webkit-columns: 2;
+    column-gap: 24px;
+    margin: 0;
+    padding-left: 20px;
+  }
+  nav.index li { break-inside: avoid; margin-bottom: 4px; }
+  nav.index a { color: var(--text); text-decoration: none; font-size: 0.92rem; }
+  nav.index a:hover { color: var(--accent-dark); text-decoration: underline; }
+
+  section.rule {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    scroll-margin-top: 16px;
+  }
+  section.rule .rule-id {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  section.rule h2 { margin: 0 0 2px; font-size: 1.35rem; color: var(--accent-dark); }
+  section.rule .subtitulo { margin: 0 0 14px; color: var(--text-muted); font-style: italic; font-size: 0.95rem; }
+
+  .regla-base {
+    background: #FBF1F1;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.97rem;
+  }
+  .regla-base strong { color: var(--accent-dark); }
+
+  table.gram-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  table.gram-table th, table.gram-table td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  table.gram-table th { background: var(--accent); color: #fff; font-weight: 600; }
+  table.gram-table tr:nth-child(even) td { background: #FDFAFA; }
+
+  .box-warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 0.92rem;
+  }
+  .box-warn strong { color: #E65100; }
+
+  .explicacion { margin-bottom: 16px; font-size: 0.97rem; }
+
+  .ejemplos { list-style: none; margin: 0 0 16px; padding: 0; }
+  .ejemplos li {
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: #FDFAFA;
+    margin-bottom: 6px;
+    border-radius: 0 6px 6px 0;
+  }
+  .ejemplos .de { color: var(--de-color); font-weight: 600; }
+  .ejemplos .es { color: var(--text-muted); font-size: 0.9rem; }
+
+  .box-tip {
+    background: var(--tip-bg);
+    border-left: 4px solid var(--tip-border);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+  .box-tip strong { color: var(--accent-dark); }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 20px;
+  }
+  footer a { color: var(--accent-dark); }
+
+  @media (max-width: 600px) {
+    nav.index ol { columns: 1; }
+    header h1 { font-size: 1.5rem; }
+    section.rule { padding: 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gramática A1</h1>
+  <p>Las 21 reglas gramaticales del nivel A1 — referencia estática, sin ejercicios</p>
+</header>
+
+<div class="wrap">
+
+  <nav class="index" aria-label="Índice de reglas">
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#a1-01">Artículos definidos</a></li>
+      <li><a href="#a1-02">Pronombres personales</a></li>
+      <li><a href="#a1-03">Verbos sein y haben</a></li>
+      <li><a href="#a1-04">Presente verbos regulares</a></li>
+      <li><a href="#a1-05">Negación: nicht y kein</a></li>
+      <li><a href="#a1-06">Acusativo básico</a></li>
+      <li><a href="#a1-07">W-Fragen</a></li>
+      <li><a href="#a1-08">Orden de palabras</a></li>
+      <li><a href="#a1-09">Plurales</a></li>
+      <li><a href="#a1-10">Artículo indefinido y su negación</a></li>
+      <li><a href="#a1-11">Verben mit Vokalwechsel</a></li>
+      <li><a href="#a1-12">Possessivartikel</a></li>
+      <li><a href="#a1-13">Artikel interrogativ und demonstrativ</a></li>
+      <li><a href="#a1-14">Personalpronomen: Akkusativ und Dativ</a></li>
+      <li><a href="#a1-15">Temporale Präpositionen</a></li>
+      <li><a href="#a1-16">Hauptsätze verbinden: Position 0</a></li>
+      <li><a href="#a1-17">Komposita</a></li>
+      <li><a href="#a1-18">Zusammengesetzte Verben</a></li>
+      <li><a href="#a1-19">Genusregeln</a></li>
+      <li><a href="#a1-20">Verbos separables</a></li>
+      <li><a href="#a1-21">Imperativo</a></li>
+    </ol>
+  </nav>
+
+  <section class="rule" id="a1-01">
+    <span class="rule-id">A1-01</span>
+    <h2>Artículos definidos</h2>
+    <p class="subtitulo">der, die, das</p>
+    <div class="regla-base"><strong>Regla base:</strong> Cada sustantivo tiene un género gramatical fijo: der (masculino), die (femenino), das (neutro). En plural todos usan die, sin excepción.</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Nominativo</td><td>der</td><td>die</td><td>das</td><td>die</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El género no sigue la biología: das Mädchen es neutro. Patrones fiables: -ung/-heit/-keit → die; -chen/-lein → das; infinitivos sustantivados → das.</div>
+    <p class="explicacion">En alemán cada sustantivo tiene un género gramatical: masculino (der), femenino (die) o neutro (das). El género no siempre sigue una lógica natural — "das Mädchen" (la chica) es neutro aunque se refiere a una persona femenina — y debe aprenderse junto con cada palabra nueva. En plural todos los géneros usan "die", sin excepción. Algunos patrones ayudan: las palabras terminadas en -ung, -heit, -keit, -schaft son casi siempre femeninas; las terminadas en -chen o -lein son siempre neutras; los infinitivos nominalizados son siempre neutros (das Essen, das Lernen).</p>
+    <ul class="ejemplos">
+      <li><span class="de">der Mann</span><br><span class="es">el hombre (masc.)</span></li>
+      <li><span class="de">die Frau</span><br><span class="es">la mujer (fem.)</span></li>
+      <li><span class="de">das Kind</span><br><span class="es">el niño (neutro)</span></li>
+      <li><span class="de">die Kinder</span><br><span class="es">los niños (plural → siempre die)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Aprende siempre el artículo junto con el sustantivo: no "Tisch", sino "der Tisch". Memorizarlos por separado es mucho más difícil y te costará errores de declinación más adelante.</div>
+  </section>
+
+  <section class="rule" id="a1-02">
+    <span class="rule-id">A1-02</span>
+    <h2>Pronombres personales</h2>
+    <p class="subtitulo">ich, du, er/sie/es…</p>
+    <div class="regla-base"><strong>Regla base:</strong> El pronombre sujeto es obligatorio en alemán. Sie (mayúscula) = tratamiento formal de respeto; sie (minúscula) = ella o ellos/ellas — el contexto y la conjugación lo distinguen.</div>
+    <table class="gram-table">
+      <tr><th>Singular</th><th></th><th>Plural</th><th></th></tr>
+      <tr><td>ich</td><td>yo</td><td>wir</td><td>nosotros</td></tr>
+      <tr><td>du</td><td>tú</td><td>ihr</td><td>vosotros</td></tr>
+      <tr><td>er/sie/es</td><td>él/ella/ello</td><td>sie / Sie</td><td>ellos / usted</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> "sie" minúscula puede ser ella o ellos; solo el contexto aclara cuál. Con Sie formal el verbo va siempre en forma de ellos (kommen, nicht kommt).</div>
+    <p class="explicacion">Los pronombres personales alemanes son: ich (yo), du (tú), er (él), sie (ella), es (ello/eso), wir (nosotros), ihr (vosotros/ustedes informal), sie (ellos/ellas), Sie (usted/es formal). La forma "Sie" formal se escribe siempre con mayúscula para distinguirla de "sie" (ella/ellos). En alemán el pronombre sujeto es obligatorio, a diferencia del español donde puede omitirse. La elección entre "du" y "Sie" depende del contexto social: con desconocidos adultos se usa "Sie"; con amigos, familia y niños se usa "du".</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich bin müde.</span><br><span class="es">Yo estoy cansado.</span></li>
+      <li><span class="de">Er kommt aus Spanien.</span><br><span class="es">Él viene de España.</span></li>
+      <li><span class="de">Wir lernen Deutsch.</span><br><span class="es">Nosotros aprendemos alemán.</span></li>
+      <li><span class="de">Sie sind Lehrerin. / Sie sind Lehrer.</span><br><span class="es">Ella es profesora. / Ustedes son profesores.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "sie" (minúscula) puede significar "ella" o "ellos/as"; solo el contexto y la conjugación del verbo aclaran cuál es. "Sie" (mayúscula) en medio de frase es siempre el tratamiento formal de respeto.</div>
+  </section>
+
+  <section class="rule" id="a1-03">
+    <span class="rule-id">A1-03</span>
+    <h2>Verbos sein y haben</h2>
+    <p class="subtitulo">ser/estar y tener en presente</p>
+    <div class="regla-base"><strong>Regla base:</strong> Sein y haben son completamente irregulares. Además de su significado propio, son los auxiliares que forman el Perfekt y el Plusquamperfekt.</div>
+    <table class="gram-table">
+      <tr><th></th><th>sein</th><th>haben</th></tr>
+      <tr><td>ich</td><td>bin</td><td>habe</td></tr>
+      <tr><td>du</td><td>bist</td><td>hast</td></tr>
+      <tr><td>er/sie/es</td><td>ist</td><td>hat</td></tr>
+      <tr><td>wir</td><td>sind</td><td>haben</td></tr>
+      <tr><td>ihr</td><td>seid</td><td>habt</td></tr>
+      <tr><td>sie/Sie</td><td>sind</td><td>haben</td></tr>
+    </table>
+    <p class="explicacion">"Sein" (ser/estar) y "haben" (tener) son los dos verbos más importantes del alemán y ambos son completamente irregulares. No solo se usan para expresar identidad, estado y posesión, sino también como verbos auxiliares para formar el Perfekt y el Plusquamperfekt. La distinción español ser/estar no existe en alemán: "sein" cubre ambos significados según el contexto. Hay que memorizar toda la conjugación de los dos verbos antes de avanzar.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich bin / du bist / er ist</span><br><span class="es">soy-estoy / eres-estás / es-está</span></li>
+      <li><span class="de">wir sind / ihr seid / sie sind</span><br><span class="es">somos / sois / son</span></li>
+      <li><span class="de">Ich habe / du hast / er hat</span><br><span class="es">tengo / tienes / tiene</span></li>
+      <li><span class="de">wir haben / ihr habt / sie haben</span><br><span class="es">tenemos / tenéis / tienen</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Practica estas conjugaciones hasta que salgan automáticas. Las necesitarás para construir casi cualquier frase en alemán y para todos los tiempos compuestos que aprenderás después.</div>
+  </section>
+
+  <section class="rule" id="a1-04">
+    <span class="rule-id">A1-04</span>
+    <h2>Presente verbos regulares</h2>
+    <p class="subtitulo">terminaciones -e, -st, -t, -en, -t, -en</p>
+    <div class="regla-base"><strong>Regla base:</strong> Raíz (infinitivo sin -en) + terminación según el pronombre: ich -e · du -st · er/sie/es -t · wir -en · ihr -t · sie -en.</div>
+    <table class="gram-table">
+      <tr><th>Pronombre</th><th>Terminación</th><th>lernen</th></tr>
+      <tr><td>ich</td><td>-e</td><td>lerne</td></tr>
+      <tr><td>du</td><td>-st</td><td>lernst</td></tr>
+      <tr><td>er/sie/es</td><td>-t</td><td>lernt</td></tr>
+      <tr><td>wir</td><td>-en</td><td>lernen</td></tr>
+      <tr><td>ihr</td><td>-t</td><td>lernt</td></tr>
+      <tr><td>sie/Sie</td><td>-en</td><td>lernen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Si la raíz termina en -t/-d (arbeiten), se inserta -e-: du arbeitest, er arbeitet. Si termina en -s/-ß/-z (reisen), du solo añade -t: du reist.</div>
+    <p class="explicacion">Los verbos regulares alemanes siguen un patrón fijo: se quita la terminación "-en" del infinitivo para obtener la raíz (lernen → lern-) y se añaden las terminaciones -e / -st / -t / -en / -t / -en para ich/du/er/wir/ihr/sie respectivamente. Este sistema es muy regular comparado con el español. Hay dos ajustes fonéticos importantes: si la raíz termina en -t/-d (arbeiten, reden), se inserta una -e- antes de -st y -t para facilitar la pronunciación (du arbeitest, er arbeitet). Si la raíz termina en -s/-ß/-z, la forma "du" solo añade -t en vez de -st (reisen → du reist).</p>
+    <ul class="ejemplos">
+      <li><span class="de">ich lerne / du lernst</span><br><span class="es">aprendo / aprendes</span></li>
+      <li><span class="de">er lernt / wir lernen</span><br><span class="es">aprende / aprendemos</span></li>
+      <li><span class="de">ihr lernt / sie lernen</span><br><span class="es">aprendéis / aprenden</span></li>
+      <li><span class="de">du arbeitest / er arbeitet</span><br><span class="es">trabajas / trabaja (raíz en -t)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> La forma "ich" siempre termina en -e (lerne, spiele, kaufe). La forma "er/sie/es" siempre termina en -t (lernt, spielt, kauft). Estas dos son las más frecuentes y son totalmente regulares.</div>
+  </section>
+
+  <section class="rule" id="a1-05">
+    <span class="rule-id">A1-05</span>
+    <h2>Negación: nicht y kein</h2>
+    <p class="subtitulo">cuándo usar cada uno</p>
+    <div class="regla-base"><strong>Regla base:</strong> nicht niega verbos, adjetivos y sustantivos con artículo definido/posesivo. kein niega sustantivos que llevarían ein o que van sin artículo.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> kein se declina exactamente igual que ein: keinen (masc. Akk.), keiner (fem. Gen./Dat.), keinem (Dat.), keine (fem. Nom./Akk. y plural).</div>
+    <p class="explicacion">"Nicht" niega verbos, adjetivos, adverbios, y sustantivos que van con artículo definido (der/die/das) o con pronombre posesivo (mein, dein…). "Kein/keine/kein" niega sustantivos que llevarían artículo indefinido (ein/eine) o que van sin artículo. "Nicht" se coloca generalmente al final de la frase, antes del elemento que niega con más énfasis, o antes de un adjetivo/adverbio. "Kein" sigue exactamente la misma declinación que "ein" y debe concordar con el género y el caso del sustantivo.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich komme nicht.</span><br><span class="es">No vengo.</span></li>
+      <li><span class="de">Das ist nicht gut.</span><br><span class="es">Eso no es bueno.</span></li>
+      <li><span class="de">Ich habe kein Auto.</span><br><span class="es">No tengo coche.</span></li>
+      <li><span class="de">Sie trinkt keinen Kaffee.</span><br><span class="es">Ella no bebe café. (masc. acus. → keinen)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Regla rápida: ¿podrías poner "un/una" o nada delante del sustantivo en positivo? → usa kein. ¿Niegas el verbo, un adjetivo o un sustantivo con "el/la"? → usa nicht.</div>
+  </section>
+
+  <section class="rule" id="a1-06">
+    <span class="rule-id">A1-06</span>
+    <h2>Acusativo básico</h2>
+    <p class="subtitulo">cambio del artículo masculino (der → den)</p>
+    <div class="regla-base"><strong>Regla base:</strong> El acusativo marca el objeto directo (¿qué? / ¿a quién?). Solo el artículo masculino cambia: der→den, ein→einen. Femenino, neutro y plural son idénticos al nominativo.</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Nominativo</td><td>der / ein</td><td>die / eine</td><td>das / ein</td><td>die / —</td></tr>
+      <tr><td>Acusativo</td><td>den / einen</td><td>die / eine</td><td>das / ein</td><td>die / —</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El pronombre también cambia: er (nom.) → ihn (acus.). Pero sie (ella) y es permanecen igual en ambos casos.</div>
+    <p class="explicacion">El acusativo es el caso del objeto directo, es decir, la persona o cosa que recibe directamente la acción del verbo (¿a quién? / ¿qué?). En alemán solo el artículo masculino cambia de forma visible en acusativo: "der" se convierte en "den" y "ein" en "einen". Los artículos femenino, neutro y plural son idénticos en nominativo y acusativo. Este cambio afecta también a los pronombres personales: er (nom.) → ihn (acus.), sie/es permanecen igual.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich sehe den Mann.</span><br><span class="es">Veo al hombre. (der → den)</span></li>
+      <li><span class="de">Ich kaufe einen Apfel.</span><br><span class="es">Compro una manzana. (ein → einen)</span></li>
+      <li><span class="de">Sie liest die Zeitung.</span><br><span class="es">Lee el periódico. (fem. sin cambio)</span></li>
+      <li><span class="de">Er hat das Buch.</span><br><span class="es">Tiene el libro. (neutro sin cambio)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "den" es la señal visual del acusativo masculino. Si ves "den" en una frase, ese sustantivo es el objeto directo y es masculino. Con femenino, neutro y plural el artículo es idéntico al nominativo — el caso lo determina el contexto.</div>
+  </section>
+
+  <section class="rule" id="a1-07">
+    <span class="rule-id">A1-07</span>
+    <h2>W-Fragen</h2>
+    <p class="subtitulo">palabras interrogativas</p>
+    <div class="regla-base"><strong>Regla base:</strong> Estructura: [W-Wort] + [verbo] + [sujeto] + [resto]. Casi todas las palabras interrogativas empiezan con W.</div>
+    <table class="gram-table">
+      <tr><th>Pregunta</th><th>Significado</th></tr>
+      <tr><td>wer</td><td>quién</td></tr>
+      <tr><td>was</td><td>qué</td></tr>
+      <tr><td>wo</td><td>dónde (posición)</td></tr>
+      <tr><td>wohin</td><td>adónde (dirección)</td></tr>
+      <tr><td>woher</td><td>de dónde</td></tr>
+      <tr><td>wann</td><td>cuándo</td></tr>
+      <tr><td>wie</td><td>cómo</td></tr>
+      <tr><td>warum</td><td>por qué</td></tr>
+      <tr><td>wie viel/viele</td><td>cuánto/cuántos</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> No confundas wo (posición), wohin (dirección) y woher (origen). wer se declina: wen (Akk.), wem (Dat.), wessen (Gen.).</div>
+    <p class="explicacion">Las W-Fragen son preguntas abiertas que comienzan con una palabra interrogativa (casi todas empiezan con W en alemán). La estructura es: [W-Wort] + [verbo conjugado] + [sujeto si no es la propia W-palabra] + [resto]. Las principales son: wer (quién), was (qué), wo (dónde), wann (cuándo), wie (cómo), warum (por qué), woher (de dónde), wohin (hacia dónde), wie viel (cuánto), wie viele (cuántos). "Wer" se declina igual que el artículo definido masculino: wen (acus.), wem (dat.), wessen (gen.).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Wer ist das?</span><br><span class="es">¿Quién es ese?</span></li>
+      <li><span class="de">Wo wohnst du?</span><br><span class="es">¿Dónde vives?</span></li>
+      <li><span class="de">Warum lernst du Deutsch?</span><br><span class="es">¿Por qué aprendes alemán?</span></li>
+      <li><span class="de">Wie heißt du?</span><br><span class="es">¿Cómo te llamas?</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> No confundas "wo" (¿dónde?/posición estática), "woher" (¿de dónde?/origen) y "wohin" (¿adónde?/dirección). La distinción posición/movimiento es fundamental en alemán.</div>
+  </section>
+
+  <section class="rule" id="a1-08">
+    <span class="rule-id">A1-08</span>
+    <h2>Orden de palabras</h2>
+    <p class="subtitulo">el verbo siempre en posición 2</p>
+    <div class="regla-base"><strong>Regla base:</strong> El verbo conjugado ocupa siempre la posición 2 (V2) en frases declarativas, sin importar qué elemento vaya en primera posición. Si el sujeto no abre la frase, se invierte: [Elemento 1] + [Verbo] + [Sujeto] + [Resto].</div>
+    <div class="box-warn"><strong>Excepciones:</strong> En subordinadas (weil, dass, wenn…) el verbo va al final. Los prefijos separables e infinitivos van también al final de la frase principal, creando el "marco verbal" (Satzklammer).</div>
+    <p class="explicacion">La regla más importante del alemán: en una frase declarativa el verbo conjugado ocupa SIEMPRE la segunda posición (V2), independientemente de qué elemento esté en la primera posición. Si el sujeto no abre la frase, el verbo y el sujeto se invierten (inversión sujeto-verbo). Esto da al alemán gran flexibilidad para enfatizar distintos elementos al colocarlos al inicio. Los verbos modales, auxiliares y los verbos con prefijo separable siguen esta misma regla: el verbo conjugado en V2, el infinitivo o el prefijo al final.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich lerne jeden Tag Deutsch.</span><br><span class="es">Aprendo alemán cada día.</span></li>
+      <li><span class="de">Jeden Tag lerne ich Deutsch.</span><br><span class="es">Cada día aprendo alemán. (inversión)</span></li>
+      <li><span class="de">Heute gehe ich ins Kino.</span><br><span class="es">Hoy voy al cine. (inversión)</span></li>
+      <li><span class="de">Morgen kann ich nicht kommen.</span><br><span class="es">Mañana no puedo venir. (modal en V2)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Visualiza la frase como dos bloques: [posición 1 — cualquier elemento] + [VERBO — siempre aquí] + [resto]. El verbo es el ancla fija. Si algo distinto al sujeto va primero, el sujeto salta después del verbo.</div>
+  </section>
+
+  <section class="rule" id="a1-09">
+    <span class="rule-id">A1-09</span>
+    <h2>Plurales</h2>
+    <p class="subtitulo">las 5 formas más frecuentes</p>
+    <div class="regla-base"><strong>Regla base:</strong> No existe una sola regla de plural: debe aprenderse con cada sustantivo. Hay 5 patrones principales.</div>
+    <table class="gram-table">
+      <tr><th>Patrón</th><th>Ejemplo</th></tr>
+      <tr><td>Sin cambio / umlaut</td><td>der Lehrer → die Lehrer · die Mutter → die Mütter</td></tr>
+      <tr><td>+e / umlaut+e</td><td>der Tag → die Tage · die Hand → die Hände</td></tr>
+      <tr><td>+er / umlaut+er</td><td>das Kind → die Kinder · das Haus → die Häuser</td></tr>
+      <tr><td>+en / -n</td><td>die Frau → die Frauen · die Blume → die Blumen</td></tr>
+      <tr><td>+s (extranjerismos)</td><td>das Auto → die Autos · das Hotel → die Hotels</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> En dativo plural siempre se añade -n si el plural no termina ya en -n o -s: den Kindern, den Männern.</div>
+    <p class="explicacion">El plural en alemán no tiene una regla única; cada sustantivo tiene su propio plural que debe aprenderse. Hay cinco patrones principales: (1) sin cambio o con umlaut (der Lehrer / die Lehrer); (2) +e o con umlaut +e (der Tag / die Tage, die Hand / die Hände); (3) +er o con umlaut +er (das Kind / die Kinder); (4) +en/-n (die Frau / die Frauen); (5) +s para palabras extranjeras (das Auto / die Autos). En dativo plural siempre se añade una -n si el plural no termina ya en -n o -s.</p>
+    <ul class="ejemplos">
+      <li><span class="de">der Tag → die Tage (+e)</span><br><span class="es">el día → los días</span></li>
+      <li><span class="de">die Hand → die Hände (umlaut +e)</span><br><span class="es">la mano → las manos</span></li>
+      <li><span class="de">das Kind → die Kinder (+er)</span><br><span class="es">el niño → los niños</span></li>
+      <li><span class="de">die Frau → die Frauen (+en)</span><br><span class="es">la mujer → las mujeres</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Los diccionarios siempre indican el plural junto al artículo: "der Tag, -e". Aprende ambos desde el principio: artículo + singular + plural. Intentar deducirlos después es mucho más difícil.</div>
+  </section>
+
+  <section class="rule" id="a1-10">
+    <span class="rule-id">A1-10</span>
+    <h2>Artículo indefinido y su negación</h2>
+    <p class="subtitulo">ein/eine/ein — kein/keine/kein</p>
+    <div class="regla-base"><strong>Regla base:</strong> ein/eine/ein para masc./fem./neutro. kein sigue exactamente la misma declinación. ein no tiene plural: en positivo sin artículo, en negativo keine.</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Nom.</td><td>ein / kein</td><td>eine / keine</td><td>ein / kein</td><td>— / keine</td></tr>
+      <tr><td>Akk.</td><td>einen / keinen</td><td>eine / keine</td><td>ein / kein</td><td>— / keine</td></tr>
+    </table>
+    <p class="explicacion">El artículo indefinido en alemán es "ein" para masculino y neutro, y "eine" para femenino. En acusativo el masculino cambia a "einen" (igual que der → den). "Kein" es la negación del artículo indefinido y sigue exactamente la misma declinación que "ein": kein/keine/kein en nominativo, keinen para masculino acusativo, etc. Importante: "ein" no tiene forma plural — en positivo se usa el sustantivo sin artículo (Ich habe Bücher), y en negativo "keine" (Ich habe keine Bücher).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das ist ein Hund.</span><br><span class="es">Eso es un perro.</span></li>
+      <li><span class="de">Ich habe eine Katze.</span><br><span class="es">Tengo una gata.</span></li>
+      <li><span class="de">Ich habe kein Auto.</span><br><span class="es">No tengo coche.</span></li>
+      <li><span class="de">Ich habe keine Bücher.</span><br><span class="es">No tengo libros. (plural)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> "kein" se declina exactamente como "ein". Si sabes declinar "ein", sabes declinar "kein". Añade simplemente "k-" al inicio.</div>
+  </section>
+
+  <section class="rule" id="a1-11">
+    <span class="rule-id">A1-11</span>
+    <h2>Verben mit Vokalwechsel</h2>
+    <p class="subtitulo">cambio vocálico en presente, du/er</p>
+    <div class="regla-base"><strong>Regla base:</strong> Algunos verbos irregulares cambian la vocal de la raíz SOLO en las formas du y er/sie/es. Tres patrones: e→i, e→ie, a→ä.</div>
+    <table class="gram-table">
+      <tr><th>Patrón</th><th>Infinitiv</th><th>du</th><th>er/sie/es</th></tr>
+      <tr><td>e → i</td><td>essen</td><td>isst</td><td>isst</td></tr>
+      <tr><td>e → i</td><td>sprechen</td><td>sprichst</td><td>spricht</td></tr>
+      <tr><td>e → i</td><td>geben</td><td>gibst</td><td>gibt</td></tr>
+      <tr><td>e → ie</td><td>lesen</td><td>liest</td><td>liest</td></tr>
+      <tr><td>e → ie</td><td>sehen</td><td>siehst</td><td>sieht</td></tr>
+      <tr><td>a → ä</td><td>fahren</td><td>fährst</td><td>fährt</td></tr>
+      <tr><td>a → ä</td><td>schlafen</td><td>schläfst</td><td>schläft</td></tr>
+      <tr><td>a → ä</td><td>tragen</td><td>trägst</td><td>trägt</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El cambio nunca afecta a ich, wir, ihr ni sie/Sie (plural). Solo du y er/sie/es cambian la vocal; el resto de la conjugación es totalmente regular.</div>
+    <p class="explicacion">En presente, un grupo de verbos irregulares alemanes cambia la vocal de la raíz, pero únicamente en las formas "du" y "er/sie/es" — nunca en ich, wir, ihr o sie/Sie. Hay tres patrones principales: e→i (essen → du isst, er isst; sprechen → du sprichst; geben → du gibst), e→ie (lesen → du liest, er liest; sehen → du siehst, er sieht) y a→ä (fahren → du fährst, er fährt; schlafen → du schläfst; tragen → du trägst). Fuera de esa vocal, las terminaciones son las normales del presente regular (-st, -t). No hay una regla que prediga qué verbos cambian: hay que aprenderlos junto con su forma "er", igual que se aprende el artículo con el sustantivo.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich esse Brot, aber er isst Reis.</span><br><span class="es">Yo como pan, pero él come arroz.</span></li>
+      <li><span class="de">Sprichst du Deutsch?</span><br><span class="es">¿Hablas alemán?</span></li>
+      <li><span class="de">Er liest ein Buch, ich lese eine Zeitung.</span><br><span class="es">Él lee un libro, yo leo un periódico.</span></li>
+      <li><span class="de">Sie fährt nach Berlin, wir fahren nach München.</span><br><span class="es">Ella viaja a Berlín, nosotros viajamos a Múnich.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> El cambio vocálico solo aparece en du y er/sie/es. Si dudas, revisa la forma "ich": si es regular (ich esse, ich fahre), memoriza aparte la forma "er" del mismo verbo, que es la que más varía.</div>
+  </section>
+
+  <section class="rule" id="a1-12">
+    <span class="rule-id">A1-12</span>
+    <h2>Possessivartikel</h2>
+    <p class="subtitulo">mein, dein, sein, ihr, unser, euer, ihr/Ihr</p>
+    <div class="regla-base"><strong>Regla base:</strong> Los artículos posesivos (mein, dein, sein, ihr, unser, euer, ihr, Ihr) se declinan exactamente igual que ein/kein: mismas terminaciones según género y caso.</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Nom.</td><td>mein</td><td>meine</td><td>mein</td><td>meine</td></tr>
+      <tr><td>Akk.</td><td>meinen</td><td>meine</td><td>mein</td><td>meine</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> euer pierde la -e- de la raíz cuando lleva terminación: euer Vater, pero eure Mutter (no "euere").</div>
+    <p class="explicacion">Los artículos posesivos indican a quién pertenece algo: mein (mi), dein (tu), sein (su, de él), ihr (su, de ella), unser (nuestro), euer (vuestro), ihr (su, de ellos) e Ihr (su, formal). Se declinan exactamente con el mismo patrón de terminaciones que "ein" y "kein": sin terminación en masculino y neutro nominativo, -e en femenino y plural, -en en masculino acusativo, etc. Al igual que "ein", no llevan terminación en nominativo/acusativo neutro y masculino singular, pero sí la añaden en los demás casos y géneros. "Euer" es una excepción ortográfica: al añadir una terminación pierde la segunda -e- (euer → eure, no "euere").</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das ist mein Vater.</span><br><span class="es">Este es mi padre. (masc.)</span></li>
+      <li><span class="de">Das ist meine Mutter.</span><br><span class="es">Esta es mi madre. (fem.)</span></li>
+      <li><span class="de">Das ist mein Kind.</span><br><span class="es">Este es mi hijo/hija. (neutro)</span></li>
+      <li><span class="de">Das sind unsere Kinder.</span><br><span class="es">Estos son nuestros hijos. (plural)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Si ya sabes declinar "ein" y "kein", ya sabes declinar todos los posesivos: la terminación depende del género/caso del sustantivo que sigue, no de la persona que posee.</div>
+  </section>
+
+  <section class="rule" id="a1-13">
+    <span class="rule-id">A1-13</span>
+    <h2>Artikel interrogativ und demonstrativ</h2>
+    <p class="subtitulo">welcher? — dieser!</p>
+    <div class="regla-base"><strong>Regla base:</strong> welcher/welche/welches (¿cuál?) y dieser/diese/dieses (este/esta) se declinan igual que el artículo definido der/die/das (der-Wörter).</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Nom.</td><td>welcher / dieser</td><td>welche / diese</td><td>welches / dieses</td><td>welche / diese</td></tr>
+      <tr><td>Akk.</td><td>welchen / diesen</td><td>welche / diese</td><td>welches / dieses</td><td>welche / diese</td></tr>
+    </table>
+    <p class="explicacion">"Welcher/welche/welches" (¿cuál?, ¿qué...?) se usa para preguntar por una opción entre varias, y "dieser/diese/dieses" (este/esta/esto) para señalar algo específico. Ambos pertenecen al grupo de los llamados "der-Wörter": se declinan con exactamente las mismas terminaciones que el artículo definido der/die/das, tanto en género como en caso. Por eso, si dominas la declinación de der/die/das, welcher y dieser no presentan dificultad adicional: solo hay que sustituir la raíz (welch-, dies-) y mantener la misma terminación.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Welcher Mantel gefällt dir?</span><br><span class="es">¿Qué abrigo te gusta? (masc.)</span></li>
+      <li><span class="de">Dieser Mantel ist schön.</span><br><span class="es">Este abrigo es bonito. (masc.)</span></li>
+      <li><span class="de">Welches Buch liest du?</span><br><span class="es">¿Qué libro lees? (neutro)</span></li>
+      <li><span class="de">Dieses Buch ist sehr interessant.</span><br><span class="es">Este libro es muy interesante. (neutro)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> welcher y dieser copian exactamente las terminaciones de der/die/das. Aprende una sola tabla de declinación (la del artículo definido) y aplícala a los tres: der, welcher, dieser.</div>
+  </section>
+
+  <section class="rule" id="a1-14">
+    <span class="rule-id">A1-14</span>
+    <h2>Personalpronomen: Akkusativ und Dativ</h2>
+    <p class="subtitulo">mich, dir, ihn, ihr...</p>
+    <div class="regla-base"><strong>Regla base:</strong> Los pronombres personales cambian de forma en acusativo y dativo; deben aprenderse como un bloque junto al pronombre de nominativo.</div>
+    <table class="gram-table">
+      <tr><th>Nominativ</th><th>Akkusativ</th><th>Dativ</th></tr>
+      <tr><td>ich</td><td>mich</td><td>mir</td></tr>
+      <tr><td>du</td><td>dich</td><td>dir</td></tr>
+      <tr><td>er</td><td>ihn</td><td>ihm</td></tr>
+      <tr><td>sie (ella)</td><td>sie</td><td>ihr</td></tr>
+      <tr><td>es</td><td>es</td><td>ihm</td></tr>
+      <tr><td>wir</td><td>uns</td><td>uns</td></tr>
+      <tr><td>ihr</td><td>euch</td><td>euch</td></tr>
+      <tr><td>sie (ellos)</td><td>sie</td><td>ihnen</td></tr>
+      <tr><td>Sie</td><td>Sie</td><td>Ihnen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> wir, ihr(objeto) y du(dat.) coinciden parcialmente con formas ya conocidas (uns/euch son iguales en acus. y dat.); es y er comparten la misma forma de dativo: ihm.</div>
+    <p class="explicacion">Al igual que los artículos, los pronombres personales cambian de forma según el caso gramatical. En acusativo (objeto directo) y dativo (objeto indirecto) las formas son distintas del nominativo: ich → mich (acus.) / mir (dat.), du → dich / dir, er → ihn / ihm, sie (ella) → sie / ihr, es → es / ihm, wir → uns / uns, ihr → euch / euch, sie (ellos) → sie / ihnen, Sie → Sie / Ihnen. Estas formas no siguen un patrón derivable de la raíz, por lo que conviene memorizar la tabla completa como un bloque, igual que se hizo con sein/haben.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich sehe dich.</span><br><span class="es">Te veo. (acusativo)</span></li>
+      <li><span class="de">Er hilft mir.</span><br><span class="es">Él me ayuda. (dativo)</span></li>
+      <li><span class="de">Sie gibt es ihm.</span><br><span class="es">Ella se lo da a él. (acus. + dat.)</span></li>
+      <li><span class="de">Wir danken euch.</span><br><span class="es">Os damos las gracias. (dativo)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Muchos verbos alemanes exigen dativo aunque en español se traduzcan con objeto directo (helfen = ayudar a alguien → dativo). Aprende el verbo junto con el caso que exige, no lo traduzcas mecánicamente.</div>
+  </section>
+
+  <section class="rule" id="a1-15">
+    <span class="rule-id">A1-15</span>
+    <h2>Temporale Präpositionen</h2>
+    <p class="subtitulo">im, am, um, von...bis, nach, vor</p>
+    <div class="regla-base"><strong>Regla base:</strong> Cada preposición temporal se usa con un tipo concreto de expresión de tiempo: im (meses/estaciones), am (días/fechas), um (hora exacta), von...bis (periodo), nach/vor (después/antes de).</div>
+    <table class="gram-table">
+      <tr><th>Preposición</th><th>Uso</th><th>Ejemplo</th></tr>
+      <tr><td>im</td><td>meses y estaciones</td><td>im Januar, im Winter</td></tr>
+      <tr><td>am</td><td>días y fechas</td><td>am Montag, am 3. Mai</td></tr>
+      <tr><td>um</td><td>hora exacta</td><td>um 8 Uhr</td></tr>
+      <tr><td>von...bis</td><td>periodo</td><td>von Montag bis Freitag</td></tr>
+      <tr><td>nach</td><td>después de</td><td>nach der Arbeit</td></tr>
+      <tr><td>vor</td><td>antes de</td><td>vor dem Essen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> im es la contracción de in + dem (dativo neutro): por eso se usa con meses y estaciones (neutros). am es la contracción de an + dem: por eso se usa con días (también neutros/masculinos en dativo).</div>
+    <p class="explicacion">El alemán usa preposiciones distintas según el tipo de expresión temporal. "Im" (contracción de in dem) se usa con meses y estaciones del año: im Januar, im Winter. "Am" (contracción de an dem) se usa con días de la semana y fechas: am Montag, am 3. Mai. "Um" se usa para la hora exacta: um 8 Uhr. "Von...bis" expresa un periodo con inicio y fin: von Montag bis Freitag. "Nach" indica que algo ocurre después de un momento o evento, y "vor" que ocurre antes. Estas preposiciones son fijas y no se pueden intercambiar libremente; hay que aprenderlas asociadas al tipo de expresión temporal que acompañan.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Im Sommer fahre ich nach Spanien.</span><br><span class="es">En verano viajo a España.</span></li>
+      <li><span class="de">Am Montag habe ich Deutschkurs.</span><br><span class="es">El lunes tengo clase de alemán.</span></li>
+      <li><span class="de">Der Kurs beginnt um 9 Uhr.</span><br><span class="es">El curso empieza a las 9.</span></li>
+      <li><span class="de">Ich arbeite von Montag bis Freitag.</span><br><span class="es">Trabajo de lunes a viernes.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Asocia cada preposición con su categoría: im = mes/estación, am = día/fecha, um = hora exacta. Si memorizas esta correspondencia como bloque, evitarás el error más común de mezclar im/am.</div>
+  </section>
+
+  <section class="rule" id="a1-16">
+    <span class="rule-id">A1-16</span>
+    <h2>Hauptsätze verbinden: Position 0</h2>
+    <p class="subtitulo">und, aber, oder, denn</p>
+    <div class="regla-base"><strong>Regla base:</strong> und (y), aber (pero), oder (o) y denn (porque/pues) unen dos frases principales sin ocupar una posición en la frase: van en "posición 0" y no cuentan para la regla V2, así que el verbo de la segunda frase sigue justo después de su sujeto.</div>
+    <table class="gram-table">
+      <tr><th>Conjunción</th><th>Significado</th></tr>
+      <tr><td>und</td><td>y</td></tr>
+      <tr><td>aber</td><td>pero</td></tr>
+      <tr><td>oder</td><td>o</td></tr>
+      <tr><td>denn</td><td>porque / pues</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> No confundas denn (posición 0, orden normal) con weil (subordinante, verbo al final): "Ich bleibe zu Hause, denn ich bin krank" vs. "Ich bleibe zu Hause, weil ich krank bin".</div>
+    <p class="explicacion">Und, aber, oder y denn son conjunciones coordinantes: unen dos frases principales de igual nivel sin alterar el orden de palabras de la segunda frase. A diferencia de conectores como "deshalb" (por eso), que sí ocupan la posición 1 y provocan la inversión sujeto-verbo, estas cuatro conjunciones van en la llamada "posición 0": no cuentan como un elemento de la frase, así que después de ellas el sujeto de la segunda frase aparece primero y el verbo sigue en su posición 2 normal. Esto las hace muy fáciles de usar: basta con escribir la conjunción y continuar la segunda frase con su orden habitual (sujeto + verbo + resto). "Denn" (porque/pues) introduce una causa, igual que "weil", pero sin mandar el verbo al final, a diferencia de "weil" que sí es subordinante.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich lerne Deutsch, und ich lerne Englisch.</span><br><span class="es">Aprendo alemán, y aprendo inglés.</span></li>
+      <li><span class="de">Er ist müde, aber er arbeitet weiter.</span><br><span class="es">Está cansado, pero sigue trabajando.</span></li>
+      <li><span class="de">Möchtest du Tee oder Kaffee?</span><br><span class="es">¿Quieres té o café?</span></li>
+      <li><span class="de">Ich komme nicht, denn ich bin krank.</span><br><span class="es">No vengo, porque estoy enfermo.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Después de und, aber, oder y denn el orden es siempre normal: sujeto + verbo. Si el verbo aparece al final, esa conjunción no era una de estas cuatro (probablemente era weil, dass o wenn, que sí son subordinantes).</div>
+  </section>
+
+  <section class="rule" id="a1-17">
+    <span class="rule-id">A1-17</span>
+    <h2>Komposita</h2>
+    <p class="subtitulo">Kinderarzt oder Arztkinder?</p>
+    <div class="regla-base"><strong>Regla base:</strong> Las palabras compuestas (Komposita) se forman uniendo dos o más palabras, normalmente sustantivos. El género y el número de toda la palabra los determina siempre la ÚLTIMA palabra (Grundwort), no la primera.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> A veces se inserta una letra de enlace (Fugenelement) entre las dos partes: -s- (Arbeitszeit) o -n- (Straßenname). No hay regla fija para saber cuándo aparece: se aprende con cada palabra.</div>
+    <p class="explicacion">El alemán forma palabras nuevas uniendo dos o más sustantivos (o combinaciones de adjetivo+sustantivo, verbo+sustantivo) en una sola palabra compuesta, llamada Kompositum. La regla clave es que el género y el número de toda la palabra compuesta los determina siempre la última parte (el Grundwort o "palabra base"), no la primera (el Bestimmungswort o "palabra determinante"). Además, el orden de las partes cambia completamente el significado: "der Kinderarzt" (el pediatra, literalmente "médico de niños") es muy distinto de "die Arztkinder" (los hijos del médico). A veces, entre las dos partes se inserta una letra de enlace (Fugenelement) como -s- o -n- para facilitar la pronunciación, por ejemplo en "die Arbeitszeit" (Arbeit + s + Zeit) o "der Straßenname" (Straße + n + Name).</p>
+    <ul class="ejemplos">
+      <li><span class="de">das Kinderzimmer</span><br><span class="es">la habitación infantil (Kind + Zimmer, neutro por Zimmer)</span></li>
+      <li><span class="de">die Hausaufgabe</span><br><span class="es">la tarea (Haus + Aufgabe, femenino por Aufgabe)</span></li>
+      <li><span class="de">der Fußball</span><br><span class="es">el fútbol (Fuß + Ball, masculino por Ball)</span></li>
+      <li><span class="de">der Kinderarzt / die Arztkinder</span><br><span class="es">el pediatra / los hijos del médico (el orden cambia el significado)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Para saber el género de una palabra compuesta, mira solo la ÚLTIMA parte: das Zimmer → das Kinderzimmer. Ignora el género de la primera parte, aunque sea distinto.</div>
+  </section>
+
+  <section class="rule" id="a1-18">
+    <span class="rule-id">A1-18</span>
+    <h2>Zusammengesetzte Verben</h2>
+    <p class="subtitulo">verbos formados con sustantivo/adjetivo + verbo</p>
+    <div class="regla-base"><strong>Regla base:</strong> Además de los prefijos separables clásicos (an-, auf-, aus-...), hay verbos formados con un sustantivo o adjetivo + verbo (Rad fahren, fernsehen, spazieren gehen) que se comportan igual que los separables: la parte no verbal salta al final de la frase.</div>
+    <div class="box-warn"><strong>Excepciones:</strong> Estos verbos se escriben en dos palabras en el infinitivo (Rad fahren, spazieren gehen) o en una sola (fernsehen), pero el comportamiento sintáctico —parte no verbal al final— es idéntico en ambos casos.</div>
+    <p class="explicacion">Ya conoces los verbos con prefijo separable como "aufstehen" (an-, auf-, aus-...). Existe un grupo similar formado combinando un sustantivo o un adjetivo con un verbo, que se comporta exactamente igual: Rad fahren (montar en bici), spazieren gehen (ir de paseo), fernsehen (ver la tele), kennenlernen (conocer a alguien). En la frase principal, el verbo conjugado ocupa la posición 2 como siempre, y la parte no verbal (Rad, spazieren, fern, kennen) salta al final de la frase, formando el mismo "marco verbal" (Satzklammer) que los prefijos separables clásicos. En el Perfekt, el participio se forma como una sola palabra: ferngesehen, kennengelernt.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich fahre gern Rad.</span><br><span class="es">Me gusta montar en bici.</span></li>
+      <li><span class="de">Wir gehen jeden Abend spazieren.</span><br><span class="es">Salimos a pasear cada noche.</span></li>
+      <li><span class="de">Sie sieht viel fern.</span><br><span class="es">Ella ve mucho la tele.</span></li>
+      <li><span class="de">Ich habe ihn letztes Jahr kennengelernt.</span><br><span class="es">Lo conocí el año pasado.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Pregúntate: ¿el verbo va acompañado de un sustantivo o adjetivo "pegado" a su significado (Rad, fern, spazieren, kennen)? Si es así, esa parte casi siempre salta al final de la frase, igual que un prefijo separable.</div>
+  </section>
+
+  <section class="rule" id="a1-19">
+    <span class="rule-id">A1-19</span>
+    <h2>Genusregeln</h2>
+    <p class="subtitulo">patrones para adivinar der/die/das</p>
+    <div class="regla-base"><strong>Regla base:</strong> El género gramatical debe aprenderse con cada palabra, pero hay patrones fiables por terminación o categoría semántica que ayudan a predecirlo en la mayoría de los casos.</div>
+    <table class="gram-table">
+      <tr><th>Género</th><th>Patrón</th><th>Ejemplo</th></tr>
+      <tr><td>der</td><td>días, meses, estaciones</td><td>der Montag, der Mai, der Sommer</td></tr>
+      <tr><td>der</td><td>agentes en -er</td><td>der Lehrer</td></tr>
+      <tr><td>der</td><td>terminados en -ismus</td><td>der Tourismus</td></tr>
+      <tr><td>die</td><td>terminados en -e</td><td>die Blume</td></tr>
+      <tr><td>die</td><td>-ung, -heit, -keit, -schaft</td><td>die Zeitung, die Freiheit</td></tr>
+      <tr><td>die</td><td>-tion, -ie</td><td>die Nation, die Familie</td></tr>
+      <tr><td>das</td><td>diminutivos -chen/-lein</td><td>das Mädchen</td></tr>
+      <tr><td>das</td><td>infinitivos sustantivados</td><td>das Essen</td></tr>
+      <tr><td>das</td><td>letras y colores</td><td>das Rot</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Hay excepciones frecuentes: "der Junge" (el chico) termina en -e pero es masculino. Los patrones son una guía útil, no una regla absoluta; ante la duda, aprende el artículo con cada palabra.</div>
+    <p class="explicacion">Aunque en principio el género de cada sustantivo debe memorizarse individualmente, existen patrones de terminación bastante fiables que ayudan a adivinarlo. Son masculinos (der) los días de la semana, los meses y las estaciones del año (der Montag, der Mai, der Sommer), los agentes terminados en -er (der Lehrer) y las palabras en -ismus. Son femeninos (die) la mayoría de las palabras terminadas en -e (die Blume, con excepciones como "der Junge"), y casi todas las terminadas en -ung, -heit, -keit, -schaft, -tion o -ie. Son neutros (das) todos los diminutivos terminados en -chen o -lein, sin excepción (das Mädchen), los infinitivos usados como sustantivo (das Essen, del verbo essen) y las letras, colores e idiomas usados como sustantivo (das Rot, das Deutsch).</p>
+    <ul class="ejemplos">
+      <li><span class="de">der Donnerstag, der Winter</span><br><span class="es">el jueves, el invierno (día/estación → der)</span></li>
+      <li><span class="de">die Wohnung, die Freundschaft</span><br><span class="es">el piso, la amistad (-ung/-schaft → die)</span></li>
+      <li><span class="de">das Brötchen</span><br><span class="es">el panecillo (-chen → das, siempre)</span></li>
+      <li><span class="de">das Lesen ist wichtig</span><br><span class="es">leer es importante (infinitivo sustantivado → das)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Los sufijos -chen y -lein son la regla más fiable de todas: SIEMPRE neutro, sin ninguna excepción (das Mädchen, das Brötchen). Apóyate en ella cuando dudes de un diminutivo.</div>
+  </section>
+
+  <section class="rule" id="a1-20">
+    <span class="rule-id">A1-20</span>
+    <h2>Verbos separables</h2>
+    <p class="subtitulo">prefijo al final en frase principal</p>
+    <div class="regla-base"><strong>Regla base:</strong> En frases principales el prefijo salta al final (marco verbal). En subordinadas, infinitivo y Partizip II permanece unido al verbo.</div>
+    <table class="gram-table">
+      <tr><th>Contexto</th><th>Posición del prefijo</th><th>Ejemplo (anrufen)</th></tr>
+      <tr><td>Frase principal</td><td>Al final</td><td>Ich rufe dich an.</td></tr>
+      <tr><td>Subordinada</td><td>Unido al verbo (final)</td><td>…weil ich dich anrufe.</td></tr>
+      <tr><td>Infinitivo</td><td>Unido</td><td>…dich anzurufen</td></tr>
+      <tr><td>Partizip II</td><td>ge- insertado</td><td>angerufen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> En Partizip II el ge- se inserta entre el prefijo y la raíz: an-ge-rufen, aus-ge-gangen. Los prefijos inseparables (be-, ver-, er-…) son átonos y nunca se separan.</div>
+    <p class="explicacion">Muchos verbos alemanes tienen un prefijo separable (auf-, an-, ein-, aus-, mit-, zurück-, vor-, ab-…) que aporta significado adicional al verbo base. En una frase principal en presente o imperativo, el prefijo se separa y salta al final de la oración, creando el típico "marco verbal" (Satzklammer). En infinitivo, subordinada y Partizip II van unidos. Los prefijos separables son siempre tónicos (se acentúan) al pronunciarlos, lo que ayuda a distinguirlos de los inseparables (be-, ver-, er-, ge-, zer-, mis-…) que son átonos y nunca se separan.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich rufe dich an.</span><br><span class="es">Te llamo. (an|rufen)</span></li>
+      <li><span class="de">Der Laden macht um 9 auf.</span><br><span class="es">La tienda abre a las 9. (auf|machen)</span></li>
+      <li><span class="de">Wir steigen am Bahnhof aus.</span><br><span class="es">Bajamos en la estación. (aus|steigen)</span></li>
+      <li><span class="de">Er hat das Licht ausgemacht.</span><br><span class="es">Apagó la luz. (P.II: aus+ge+macht)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> En Partizip II el "ge-" se inserta entre el prefijo y la raíz: aus-ge-macht, ein-ge-kauft, an-ge-rufen. Si ves una forma larga con "ge-" en el medio, es un verbo separable en Perfekt.</div>
+  </section>
+
+  <section class="rule" id="a1-21">
+    <span class="rule-id">A1-21</span>
+    <h2>Imperativo</h2>
+    <p class="subtitulo">formas du / ihr / Sie</p>
+    <div class="regla-base"><strong>Regla base:</strong> du: raíz sola (sin -e ni pronombre) · ihr: raíz + -t · Sie: infinitivo + Sie pospuesto.</div>
+    <table class="gram-table">
+      <tr><th>Forma</th><th>Estructura</th><th>kommen</th><th>lesen (e→ie)</th></tr>
+      <tr><td>du</td><td>raíz</td><td>Komm!</td><td>Lies!</td></tr>
+      <tr><td>ihr</td><td>raíz + -t</td><td>Kommt!</td><td>Lest!</td></tr>
+      <tr><td>Sie</td><td>inf. + Sie</td><td>Kommen Sie!</td><td>Lesen Sie!</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El cambio e→i/ie en presente (du) se mantiene en el imperativo: lesen → Lies!, sprechen → Sprich!. El cambio a→ä NO se mantiene: fahren → Fahr! (no *Fähr!).</div>
+    <p class="explicacion">El imperativo alemán tiene tres formas según el interlocutor. Para "du" (informal singular): raíz del verbo sin terminación ni pronombre — "Komm!", "Lern!". Para "ihr" (informal plural): raíz + -t, sin pronombre — "Kommt!", "Lernt!". Para "Sie" (formal): infinitivo + Sie después del verbo — "Kommen Sie!", "Lernen Sie!". Los verbos irregulares con cambio vocálico en "du" presente (e→i/ie: lesen→liest, sprechen→spricht) mantienen ese cambio en el imperativo: "Lies!", "Sprich!". Los verbos con cambio a→ä (fahren→fährst) NO lo mantienen: "Fahr!".</p>
+    <ul class="ejemplos">
+      <li><span class="de">Komm her! (du)</span><br><span class="es">¡Ven aquí!</span></li>
+      <li><span class="de">Kommt her! (ihr)</span><br><span class="es">¡Venid aquí!</span></li>
+      <li><span class="de">Kommen Sie herein! (Sie)</span><br><span class="es">¡Entre usted!</span></li>
+      <li><span class="de">Lies das Buch! (du — lesen → lies)</span><br><span class="es">¡Lee el libro!</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Forma "du" de verbos irregulares: si en presente "du" tiene e→i o e→ie, el imperativo lo mantiene. Si solo tiene a→ä, el imperativo vuelve a la "a" original. "Sei ruhig!" y "Hab Geduld!" son las formas irregulares de sein y haben.</div>
+  </section>
+
+</div>
+
+<footer>
+  <p><a href="gramatica.html">← Volver a Gramática (todos los niveles)</a></p>
+</footer>
+
+</body>
+</html>

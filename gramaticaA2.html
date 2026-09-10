@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gramática A2 — Referencia completa</title>
+<style>
+  :root {
+    --accent: #E64A19;
+    --accent-dark: #BF360C;
+    --bg: #FBF5F3;
+    --card-bg: #FFFFFF;
+    --text: #212121;
+    --text-muted: #6B5F5C;
+    --border: #F0DCD6;
+    --warn-bg: #FFF3E0;
+    --warn-border: #FFB74D;
+    --tip-bg: #FBE9E7;
+    --tip-border: var(--accent);
+    --de-color: #BF360C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    padding: 40px 20px 32px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 2rem; }
+  header p { margin: 0; opacity: 0.92; font-size: 1.05rem; }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  nav.index {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+  }
+  nav.index h2 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+    color: var(--accent-dark);
+  }
+  nav.index ol {
+    columns: 2;
+    -webkit-columns: 2;
+    column-gap: 24px;
+    margin: 0;
+    padding-left: 20px;
+  }
+  nav.index li { break-inside: avoid; margin-bottom: 4px; }
+  nav.index a { color: var(--text); text-decoration: none; font-size: 0.92rem; }
+  nav.index a:hover { color: var(--accent-dark); text-decoration: underline; }
+
+  section.rule {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--accent);
+    border-radius: 10px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+    scroll-margin-top: 16px;
+  }
+  section.rule .rule-id {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #fff;
+    background: var(--accent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  section.rule h2 { margin: 0 0 2px; font-size: 1.35rem; color: var(--accent-dark); }
+  section.rule .subtitulo { margin: 0 0 14px; color: var(--text-muted); font-style: italic; font-size: 0.95rem; }
+
+  .regla-base {
+    background: #FDF1EE;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.97rem;
+  }
+  .regla-base strong { color: var(--accent-dark); }
+
+  table.gram-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  table.gram-table th, table.gram-table td {
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  table.gram-table th { background: var(--accent); color: #fff; font-weight: 600; }
+  table.gram-table tr:nth-child(even) td { background: #FDF8F6; }
+
+  .box-warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 0.92rem;
+  }
+  .box-warn strong { color: #E65100; }
+
+  .explicacion { margin-bottom: 16px; font-size: 0.97rem; }
+
+  .ejemplos { list-style: none; margin: 0 0 16px; padding: 0; }
+  .ejemplos li {
+    padding: 8px 12px;
+    border-left: 3px solid var(--accent);
+    background: #FDF8F6;
+    margin-bottom: 6px;
+    border-radius: 0 6px 6px 0;
+  }
+  .ejemplos .de { color: var(--de-color); font-weight: 600; }
+  .ejemplos .es { color: var(--text-muted); font-size: 0.9rem; }
+
+  .box-tip {
+    background: var(--tip-bg);
+    border-left: 4px solid var(--tip-border);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 0.92rem;
+  }
+  .box-tip strong { color: var(--accent-dark); }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 20px;
+  }
+  footer a { color: var(--accent-dark); }
+
+  @media (max-width: 600px) {
+    nav.index ol { columns: 1; }
+    header h1 { font-size: 1.5rem; }
+    section.rule { padding: 16px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gramática A2</h1>
+  <p>Las 21 reglas gramaticales del nivel A2 — referencia estática, sin ejercicios</p>
+</header>
+
+<div class="wrap">
+
+  <nav class="index" aria-label="Índice de reglas">
+    <h2>Índice</h2>
+    <ol>
+      <li><a href="#a2-01">Verbos modales</a></li>
+      <li><a href="#a2-02">Pretérito perfecto (Perfekt)</a></li>
+      <li><a href="#a2-03">Dativo</a></li>
+      <li><a href="#a2-04">Preposiciones + Acusativo</a></li>
+      <li><a href="#a2-05">Preposiciones + Dativo</a></li>
+      <li><a href="#a2-06">Wechselpräpositionen</a></li>
+      <li><a href="#a2-09">Comparativo y superlativo</a></li>
+      <li><a href="#a2-10">Verbos reflexivos</a></li>
+      <li><a href="#a2-11">Zwei feste Positionen im Satz</a></li>
+      <li><a href="#a2-12">Verben mit Akkusativ und Dativ</a></li>
+      <li><a href="#a2-13">Verben mit Dativ</a></li>
+      <li><a href="#a2-14">Frage nach Personen und Sachen</a></li>
+      <li><a href="#a2-15">Präteritum: sein und haben</a></li>
+      <li><a href="#a2-16">Präteritum: Modalverben</a></li>
+      <li><a href="#a2-17">Zeitgebrauch</a></li>
+      <li><a href="#a2-18">Lokale Präpositionen: Wohin?</a></li>
+      <li><a href="#a2-19">Lokale Präpositionen: Wo?</a></li>
+      <li><a href="#a2-20">Lokale Präpositionen: Woher?</a></li>
+      <li><a href="#a2-21">Hauptsätze verbinden: Position 1</a></li>
+      <li><a href="#a2-22">Nebensätze mit weil, wenn und dass</a></li>
+      <li><a href="#a2-23">Partikeln und Wortbildung</a></li>
+    </ol>
+  </nav>
+
+  <section class="rule" id="a2-01">
+    <span class="rule-id">A2-01</span>
+    <h2>Verbos modales</h2>
+    <p class="subtitulo">können, müssen, wollen, sollen, dürfen, mögen</p>
+    <div class="regla-base"><strong>Regla base:</strong> Los modales van en V2; el infinitivo principal va al final. En singular 1.ª y 3.ª persona no llevan terminación. La vocal de la raíz cambia en singular.</div>
+    <table class="gram-table">
+      <tr><th></th><th>können</th><th>müssen</th><th>wollen</th><th>sollen</th><th>dürfen</th><th>mögen</th></tr>
+      <tr><td>ich/er</td><td>kann</td><td>muss</td><td>will</td><td>soll</td><td>darf</td><td>mag</td></tr>
+      <tr><td>du</td><td>kannst</td><td>musst</td><td>willst</td><td>sollst</td><td>darfst</td><td>magst</td></tr>
+      <tr><td>wir/sie</td><td>können</td><td>müssen</td><td>wollen</td><td>sollen</td><td>dürfen</td><td>mögen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> En pasado hablado se prefiere el Präteritum de los modales (musste, konnte, wollte) al Perfekt. Mögen raramente acompaña infinitivo; su forma de cortesía es möchte (querría).</div>
+    <p class="explicacion">Los verbos modales expresan actitudes hacia una acción: posibilidad (können), obligación (müssen), deseo (wollen), mandato externo (sollen), permiso/prohibición (dürfen) y gusto/suposición (mögen). Siempre van acompañados de un infinitivo que se coloca al final de la frase. En presente son irregulares: la vocal de la raíz cambia en singular y la primera y tercera persona singular no llevan terminación (-Ø, no -e ni -t). En pasado hablado se prefiere el Präteritum de los modales (musste, konnte) al Perfekt.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich kann schwimmen.</span><br><span class="es">Sé nadar / Puedo nadar.</span></li>
+      <li><span class="de">Du musst arbeiten.</span><br><span class="es">Tienes que trabajar.</span></li>
+      <li><span class="de">Er will Arzt werden.</span><br><span class="es">Él quiere ser médico.</span></li>
+      <li><span class="de">Darf ich hier rauchen?</span><br><span class="es">¿Puedo / Se puede fumar aquí?</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Paradigma de können: ich kann / du kannst / er kann / wir können / ihr könnt / sie können. Fíjate: ich y er tienen la misma forma (sin terminación). Este patrón se repite en todos los modales.</div>
+  </section>
+
+  <section class="rule" id="a2-02">
+    <span class="rule-id">A2-02</span>
+    <h2>Pretérito perfecto (Perfekt)</h2>
+    <p class="subtitulo">haben/sein + Partizip II</p>
+    <div class="regla-base"><strong>Regla base:</strong> haben/sein en V2 + Partizip II al final. Movimiento o cambio de estado → sein; el resto → haben.</div>
+    <table class="gram-table">
+      <tr><th>Tipo</th><th>Formación P.II</th><th>Ejemplo</th></tr>
+      <tr><td>Regular</td><td>ge- + raíz + -(e)t</td><td>gemacht, gearbeitet</td></tr>
+      <tr><td>Irregular</td><td>ge- + raíz modif. + -en</td><td>gegessen, gefahren</td></tr>
+      <tr><td>Prefijo insep.</td><td>sin ge-</td><td>bestellt, verkauft, erzählt</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Los verbos con prefijo inseparable (be-, ver-, er-, ge-, zer-, mis-) nunca llevan ge-: bestellt, nicht *gebestellt. Con prefijos separables, el ge- se inserta: ausgegangen, eingekauft.</div>
+    <p class="explicacion">El Perfekt es el tiempo pasado más usado en la lengua hablada alemana para referirse a acciones pasadas. Se forma con el auxiliar "haben" o "sein" en presente más el Partizip II al final. Los verbos de movimiento o cambio de estado (gehen, kommen, fahren, aufwachen, werden…) usan "sein"; la gran mayoría usa "haben". El Partizip II de verbos regulares se forma con el prefijo "ge-" + raíz + -(e)t (gemacht, gearbeitet). Los irregulares añaden "ge-" + raíz modificada + -en (gegessen, gefahren). Los verbos con prefijo inseparable (be-, ver-, er-…) no toman "ge-".</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich habe gegessen.</span><br><span class="es">He comido / Comí.</span></li>
+      <li><span class="de">Er hat gearbeitet.</span><br><span class="es">Ha trabajado / Trabajó.</span></li>
+      <li><span class="de">Sie ist nach Berlin gefahren.</span><br><span class="es">Ha ido a Berlín (bewegung → sein).</span></li>
+      <li><span class="de">Wir sind aufgewacht.</span><br><span class="es">Nos hemos despertado (cambio de estado → sein).</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Truco para sein vs. haben: si el verbo expresa movimiento de A a B o un cambio de estado (nacer, morir, crecer, despertar), usa sein. En caso de duda, usa haben — es el auxiliar más frecuente.</div>
+  </section>
+
+  <section class="rule" id="a2-03">
+    <span class="rule-id">A2-03</span>
+    <h2>Dativo</h2>
+    <p class="subtitulo">artículos y pronombres en dativo</p>
+    <div class="regla-base"><strong>Regla base:</strong> El dativo marca el objeto indirecto (¿a quién? / ¿para quién?). Artículos: dem (masc./neutro), der (fem.), den+n (plural).</div>
+    <table class="gram-table">
+      <tr><th></th><th>Masc.</th><th>Fem.</th><th>Neutro</th><th>Plural</th></tr>
+      <tr><td>Art. def.</td><td>dem</td><td>der</td><td>dem</td><td>den+n</td></tr>
+      <tr><td>Art. indef.</td><td>einem</td><td>einer</td><td>einem</td><td>—</td></tr>
+      <tr><td>Pron. pers.</td><td>ihm</td><td>ihr</td><td>ihm</td><td>ihnen</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Verbos que rigen dativo aunque parecen transitivos: helfen, danken, gefallen, gehören, passen, glauben, folgen, begegnen. Apréndelos como lista.</div>
+    <p class="explicacion">El dativo es el caso del objeto indirecto: responde a ¿a quién? o ¿para quién? Los artículos definidos en dativo son: dem (masc. y neutro), der (fem.), den+n (plural — todos los sustantivos en dativo plural añaden -n si no terminan ya en -n). Los artículos indefinidos: einem (masc./neutro), einer (fem.). Los pronombres personales cambian completamente: mir (yo), dir (tú), ihm (él/eso), ihr (ella), uns (nosotros), euch (vosotros), ihnen/Ihnen (ellos/usted). Ciertos verbos "de dativo" como helfen, danken, gefallen, gehören, passen siempre rigen dativo aunque parezcan querer acusativo.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich gebe dem Mann das Buch.</span><br><span class="es">Le doy el libro al hombre.</span></li>
+      <li><span class="de">Er hilft der Frau.</span><br><span class="es">Él ayuda a la mujer. (helfen + Dat)</span></li>
+      <li><span class="de">Sie schreibt mir eine E-Mail.</span><br><span class="es">Ella me escribe un correo.</span></li>
+      <li><span class="de">Das gefällt mir sehr.</span><br><span class="es">Eso me gusta mucho. (gefallen + Dat)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Los verbos que "se sienten" como transitivos pero rigen dativo son una trampa clásica: helfen, danken, gratulieren, schaden, folgen, begegnen. Aprende cada uno con su caso.</div>
+  </section>
+
+  <section class="rule" id="a2-04">
+    <span class="rule-id">A2-04</span>
+    <h2>Preposiciones + Acusativo</h2>
+    <p class="subtitulo">durch, für, gegen, ohne, um</p>
+    <div class="regla-base"><strong>Regla base:</strong> Cinco preposiciones rigen siempre acusativo. Mnemónico: DOGFU — Durch, Ohne, Gegen, Für, Um.</div>
+    <table class="gram-table">
+      <tr><th>Prep.</th><th>Significado principal</th></tr>
+      <tr><td>durch</td><td>a través de / por</td></tr>
+      <tr><td>ohne</td><td>sin</td></tr>
+      <tr><td>gegen</td><td>contra / hacia (hora aprox.)</td></tr>
+      <tr><td>für</td><td>para / durante</td></tr>
+      <tr><td>um</td><td>alrededor de / a las (hora exacta)</td></tr>
+    </table>
+    <p class="explicacion">Cinco preposiciones rigen siempre acusativo: durch (a través de / por medio de), für (para / durante), gegen (contra / hacia / alrededor de [hora aproximada]), ohne (sin), um (alrededor de / a las [hora exacta] / para [con infinitivo]). El artículo que sigue a estas preposiciones toma la forma acusativa. En la lengua coloquial se producen contracciones: fürs (für das), durchs (durch das), ums (um das).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Das ist für dich.</span><br><span class="es">Esto es para ti.</span></li>
+      <li><span class="de">Wir fahren durch den Tunnel.</span><br><span class="es">Pasamos por el túnel.</span></li>
+      <li><span class="de">Ohne einen Plan geht es nicht.</span><br><span class="es">Sin un plan no funciona.</span></li>
+      <li><span class="de">Er läuft um den See.</span><br><span class="es">Corre alrededor del lago.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Mnemotécnico: DOGFU — Durch, Ohne, Gegen, Für, Um. Todas llevan Acusativo. Si memorizas estas cinco, no las confundirás con las de dativo.</div>
+  </section>
+
+  <section class="rule" id="a2-05">
+    <span class="rule-id">A2-05</span>
+    <h2>Preposiciones + Dativo</h2>
+    <p class="subtitulo">aus, bei, mit, nach, seit, von, zu, gegenüber</p>
+    <div class="regla-base"><strong>Regla base:</strong> Ocho preposiciones rigen siempre dativo. Rima: "aus, bei, mit, nach, seit, von, zu — diese Wörter regier'n den Dativ nu!"</div>
+    <table class="gram-table">
+      <tr><th>Prep.</th><th>Significado</th><th>Contracción</th></tr>
+      <tr><td>aus</td><td>de / desde (origen)</td><td>—</td></tr>
+      <tr><td>bei</td><td>en / junto a</td><td>beim (bei dem)</td></tr>
+      <tr><td>mit</td><td>con / en (transporte)</td><td>—</td></tr>
+      <tr><td>nach</td><td>hacia / después de</td><td>—</td></tr>
+      <tr><td>seit</td><td>desde (hasta ahora)</td><td>—</td></tr>
+      <tr><td>von</td><td>de / por (agente)</td><td>vom (von dem)</td></tr>
+      <tr><td>zu</td><td>a / hacia (destino)</td><td>zum / zur</td></tr>
+      <tr><td>gegenüber</td><td>frente a</td><td>—</td></tr>
+    </table>
+    <p class="explicacion">Estas ocho preposiciones rigen siempre dativo: aus (de / desde [origen o material]), bei (en casa de / en [empresa o lugar]), mit (con / en [medio de transporte]), nach (después de / hacia [ciudad o país sin artículo]), seit (desde [punto en el tiempo hasta ahora — presente o pasado]), von (de / desde / por [agente en pasiva]), zu (a / hacia [destino]), gegenüber (frente a — puede ir antes o después del sustantivo). Se producen contracciones frecuentes: beim (bei dem), vom (von dem), zum (zu dem), zur (zu der).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich komme aus der Schweiz.</span><br><span class="es">Soy de Suiza.</span></li>
+      <li><span class="de">Sie wohnt bei ihrer Mutter.</span><br><span class="es">Vive en casa de su madre.</span></li>
+      <li><span class="de">Ich fahre mit dem Bus.</span><br><span class="es">Voy en autobús.</span></li>
+      <li><span class="de">Seit einem Jahr lerne ich Deutsch.</span><br><span class="es">Llevo un año aprendiendo alemán.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Rima para recordarlas: "aus, bei, mit, nach, seit, von, zu — diese Wörter regier'n den Dativ nu!" Cántala hasta memorizarla.</div>
+  </section>
+
+  <section class="rule" id="a2-06">
+    <span class="rule-id">A2-06</span>
+    <h2>Wechselpräpositionen</h2>
+    <p class="subtitulo">Akk. (¿adónde?) vs. Dat. (¿dónde?)</p>
+    <div class="regla-base"><strong>Regla base:</strong> 9 preposiciones (an, auf, in, über, unter, vor, hinter, neben, zwischen): wohin? (movimiento) → Acusativo · wo? (posición) → Dativo.</div>
+    <table class="gram-table">
+      <tr><th>Pregunta</th><th>Caso</th><th>Par de verbos típico</th></tr>
+      <tr><td>Wohin? (movimiento)</td><td>Acusativo</td><td>legen, stellen, hängen (activo)</td></tr>
+      <tr><td>Wo? (posición)</td><td>Dativo</td><td>liegen, stehen, hängen (estado)</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Contracciones frecuentes: im (in dem), am (an dem), ins (in das), ans (an das). hängen es el mismo verbo tanto para movimiento como para estado — el caso lo diferencia.</div>
+    <p class="explicacion">Nueve preposiciones admiten tanto acusativo como dativo según el significado: an, auf, in, über, unter, vor, hinter, neben, zwischen. La regla fundamental: si la frase expresa movimiento hacia un destino (¿wohin?) → acusativo; si expresa posición o estado en un lugar (¿wo?) → dativo. Los pares de verbos legen/liegen, stellen/stehen, hängen/hängen, setzen/sitzen ilustran bien la distinción: los primeros son de acción/movimiento (acusativo) y los segundos de estado (dativo). Contracciones frecuentes: im (in dem), am (an dem), ins (in das), ans (an das).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich lege das Buch auf den Tisch.</span><br><span class="es">Pongo el libro en la mesa. (Akk — movimiento)</span></li>
+      <li><span class="de">Das Buch liegt auf dem Tisch.</span><br><span class="es">El libro está en la mesa. (Dat — posición)</span></li>
+      <li><span class="de">Sie geht in die Stadt.</span><br><span class="es">Va al centro. (Akk — dirección)</span></li>
+      <li><span class="de">Sie ist in der Stadt.</span><br><span class="es">Está en el centro. (Dat — ubicación)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> ¿Puedes preguntar "¿adónde?" (wohin)? → Acusativo. ¿Solo "¿dónde?" (wo)? → Dativo. Los verbos legen/stellen/hängen siempre piden Akk; liegen/stehen/hängen (estado) siempre piden Dat.</div>
+  </section>
+
+  <section class="rule" id="a2-09">
+    <span class="rule-id">A2-09</span>
+    <h2>Comparativo y superlativo</h2>
+    <p class="subtitulo">schneller / am schnellsten</p>
+    <div class="regla-base"><strong>Regla base:</strong> Comparativo: adjetivo + -er (schneller). Superlativo predicativo: am …-sten. Para comparar usa "als" (que).</div>
+    <table class="gram-table">
+      <tr><th>Base</th><th>Comparativo</th><th>Superlativo pred.</th></tr>
+      <tr><td>schnell</td><td>schneller</td><td>am schnellsten</td></tr>
+      <tr><td>alt</td><td>älter</td><td>am ältesten</td></tr>
+      <tr><td>groß</td><td>größer</td><td>am größten</td></tr>
+      <tr><td>gut</td><td>besser</td><td>am besten</td></tr>
+      <tr><td>viel</td><td>mehr</td><td>am meisten</td></tr>
+      <tr><td>gern</td><td>lieber</td><td>am liebsten</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> gut, viel y gern son completamente irregulares. Los adjetivos monosílabos frecuentemente añaden umlaut: alt→älter, jung→jünger, groß→größer.</div>
+    <p class="explicacion">El comparativo se forma añadiendo el sufijo -er al adjetivo (schnell → schneller). Para hacer comparaciones se usa "als" (que): "Er ist größer als ich". El superlativo atributivo añade -(e)sten con terminación de adjetivo: "der schnellste Zug". El superlativo predicativo usa "am … -sten": "Er läuft am schnellsten". Muchos adjetivos monosílabos añaden umlaut en comparativo y superlativo (alt→älter, groß→größer, jung→jünger). Hay formas completamente irregulares que deben memorizarse: gut/besser/best-, viel/mehr/meist-, gern/lieber/liebst-.</p>
+    <ul class="ejemplos">
+      <li><span class="de">schnell → schneller → am schnellsten</span><br><span class="es">rápido → más rápido → el más rápido</span></li>
+      <li><span class="de">alt → älter → am ältesten</span><br><span class="es">viejo → más viejo → el más viejo</span></li>
+      <li><span class="de">gut → besser → am besten</span><br><span class="es">bueno → mejor → el mejor</span></li>
+      <li><span class="de">Er ist größer als sein Bruder.</span><br><span class="es">Es más alto que su hermano.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> No confundas el comparativo predicativo ("Er ist schneller") con el atributivo ("der schnellere Läufer" — con declinación de adjetivo). El atributivo necesita la terminación de caso.</div>
+  </section>
+
+  <section class="rule" id="a2-10">
+    <span class="rule-id">A2-10</span>
+    <h2>Verbos reflexivos</h2>
+    <p class="subtitulo">sich waschen, sich freuen…</p>
+    <div class="regla-base"><strong>Regla base:</strong> El pronombre reflexivo concuerda con el sujeto. Acusativo si es el único objeto; dativo si ya hay un acusativo en la frase.</div>
+    <table class="gram-table">
+      <tr><th>Pronombre</th><th>Reflexivo Akk.</th><th>Reflexivo Dat.</th></tr>
+      <tr><td>ich</td><td>mich</td><td>mir</td></tr>
+      <tr><td>du</td><td>dich</td><td>dir</td></tr>
+      <tr><td>er/sie/es/Sie</td><td>sich</td><td>sich</td></tr>
+      <tr><td>wir</td><td>uns</td><td>uns</td></tr>
+      <tr><td>ihr</td><td>euch</td><td>euch</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Ich wasche mich (acus. — solo objeto) vs. Ich wasche mir die Hände (dat. — las manos son el objeto directo). Muchos verbos son reflexivos en alemán pero no en español: sich erinnern, sich freuen, sich befinden.</div>
+    <p class="explicacion">Los verbos reflexivos usan un pronombre reflexivo que concuerda con el sujeto: mich (ich), dich (du), sich (er/sie/es/sie/Sie), uns (wir), euch (ihr). Algunos verbos son reflexivos en alemán pero no en español (sich erinnern = recordar) y viceversa. Cuando el reflexivo actúa como objeto directo (acusativo), se usa mich/dich/sich/uns/euch. Cuando es objeto indirecto (dativo) y hay ya un acusativo, cambia: mir/dir/sich/uns/euch. Ejemplo: "Ich wasche mich" (acus.) vs. "Ich wasche mir die Hände" (dat. — las manos son el acusativo).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich wasche mich. / Ich wasche mir die Hände.</span><br><span class="es">Me lavo. / Me lavo las manos.</span></li>
+      <li><span class="de">Du freust dich.</span><br><span class="es">Te alegras.</span></li>
+      <li><span class="de">Er erinnert sich nicht.</span><br><span class="es">Él no se acuerda / no recuerda.</span></li>
+      <li><span class="de">Wir setzen uns.</span><br><span class="es">Nos sentamos.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Lista de verbos reflexivos frecuentes: sich freuen (auf/über), sich erinnern (an), sich interessieren (für), sich kümmern (um), sich treffen (mit). Apréndelos con su preposición desde el principio.</div>
+  </section>
+
+  <section class="rule" id="a2-11">
+    <span class="rule-id">A2-11</span>
+    <h2>Zwei feste Positionen im Satz</h2>
+    <p class="subtitulo">verbo conjugado + segunda parte al final, ej. gehen + infinitivo</p>
+    <div class="regla-base"><strong>Regla base:</strong> Además de V2 (verbo conjugado en posición 2), muchas construcciones tienen una segunda posición fija al final: gehen + infinitivo de actividad, modal + infinitivo, o prefijo separable.</div>
+    <table class="gram-table">
+      <tr><th>Posición 2</th><th>Final de la frase</th><th>Ejemplo</th></tr>
+      <tr><td>gehe</td><td>schwimmen</td><td>Ich gehe schwimmen.</td></tr>
+      <tr><td>kann</td><td>schwimmen</td><td>Ich kann schwimmen.</td></tr>
+      <tr><td>rufe</td><td>an</td><td>Ich rufe dich an.</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> gehen + infinitivo solo funciona con verbos de actividad física o de ocio (schwimmen, einkaufen, tanzen, joggen); no se usa para cualquier infinitivo (no *Ich gehe arbeiten en el sentido de "voy a trabajar" como intención, aunque sí como actividad concreta).</div>
+    <p class="explicacion">La sintaxis alemana se organiza en torno a dos posiciones fijas dentro de la frase principal: el verbo conjugado siempre ocupa la posición 2 (V2), y el resto del predicado —cuando lo hay— se coloca al final, formando lo que se llama el "marco verbal" (Satzklammer). Este patrón aparece con "gehen" seguido de un infinitivo que indica la actividad a la que se va (Ich gehe schwimmen = voy a nadar), con los verbos modales seguidos de infinitivo (Ich kann schwimmen), y con los verbos separables cuyo prefijo salta al final (Ich rufe dich an). Entender esta estructura de "dos posiciones" es clave para construir frases alemanas correctas desde el nivel A2, porque se repite en Perfekt (haben/sein … Partizip II), modales, y verbos separables. Todo lo que no sea el verbo conjugado en P2 tiende a desplazarse al final de la oración.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich gehe heute Abend tanzen.</span><br><span class="es">Esta noche voy a bailar.</span></li>
+      <li><span class="de">Wir gehen im Sommer schwimmen.</span><br><span class="es">En verano vamos a nadar.</span></li>
+      <li><span class="de">Er geht jeden Tag joggen.</span><br><span class="es">Él va a correr todos los días.</span></li>
+      <li><span class="de">Gehst du morgen einkaufen?</span><br><span class="es">¿Vas a hacer la compra mañana?</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Piensa en la frase alemana como un marco (Satzklammer): el verbo conjugado abre el marco en posición 2, y todo lo demás —infinitivo, participio, prefijo separable— cierra el marco al final.</div>
+  </section>
+
+  <section class="rule" id="a2-12">
+    <span class="rule-id">A2-12</span>
+    <h2>Verben mit Akkusativ und Dativ</h2>
+    <p class="subtitulo">geben, schenken, zeigen, schicken — doble objeto</p>
+    <div class="regla-base"><strong>Regla base:</strong> Con dos sustantivos: Dativo antes de Acusativo. Con un pronombre: el pronombre va primero. Con dos pronombres: Acusativo antes de Dativo.</div>
+    <table class="gram-table">
+      <tr><th>Caso</th><th>Orden</th><th>Ejemplo</th></tr>
+      <tr><td>2 sustantivos</td><td>Dat. + Akk.</td><td>Ich schenke meinem Vater ein Buch.</td></tr>
+      <tr><td>1 pronombre (Akk.)</td><td>Pron. + sust.</td><td>Ich schenke es meinem Vater.</td></tr>
+      <tr><td>1 pronombre (Dat.)</td><td>Pron. + sust.</td><td>Ich schenke ihm ein Buch.</td></tr>
+      <tr><td>2 pronombres</td><td>Akk. + Dat.</td><td>Ich schenke es ihm.</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> El orden Akk. antes de Dat. con dos pronombres es la excepción a la regla general de "Dativo antes de Acusativo" — memorízalo como caso aparte.</div>
+    <p class="explicacion">Verbos como geben (dar), schenken (regalar), zeigen (mostrar), schicken (enviar), bringen (traer), erzählen (contar), erklären (explicar) y kaufen (comprar) rigen dos objetos: uno en dativo (la persona, ¿a quién?) y otro en acusativo (la cosa, ¿qué?). El orden depende de si los objetos son sustantivos o pronombres. Si ambos son sustantivos, el dativo va antes que el acusativo (Ich schenke meinem Vater ein Buch). Si uno de los dos es un pronombre, el pronombre se adelanta, sea cual sea su caso (Ich schenke es meinem Vater / Ich schenke ihm ein Buch). Si ambos son pronombres, el orden se invierte respecto a la regla general: acusativo antes de dativo (Ich schenke es ihm).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich schenke meinem Vater ein Buch.</span><br><span class="es">Le regalo un libro a mi padre.</span></li>
+      <li><span class="de">Ich schenke es meinem Vater.</span><br><span class="es">Se lo regalo a mi padre.</span></li>
+      <li><span class="de">Ich schenke ihm ein Buch.</span><br><span class="es">Le regalo un libro (a él).</span></li>
+      <li><span class="de">Ich schenke es ihm.</span><br><span class="es">Se lo regalo (a él).</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Regla mnemotécnica: "sustantivos: Dat-Akk; con un pronombre, el pronombre salta al frente; con dos pronombres: Akk-Dat" — el único orden que se invierte es cuando ambos objetos son pronombres.</div>
+  </section>
+
+  <section class="rule" id="a2-13">
+    <span class="rule-id">A2-13</span>
+    <h2>Verben mit Dativ</h2>
+    <p class="subtitulo">helfen, danken, gefallen, gehören...</p>
+    <div class="regla-base"><strong>Regla base:</strong> Ciertos verbos rigen siempre dativo, aunque en español parezcan transitivos (llevar objeto directo).</div>
+    <table class="gram-table">
+      <tr><th>Verbo</th><th>Significado</th></tr>
+      <tr><td>helfen</td><td>ayudar</td></tr>
+      <tr><td>danken</td><td>agradecer</td></tr>
+      <tr><td>gefallen</td><td>gustar</td></tr>
+      <tr><td>gehören</td><td>pertenecer</td></tr>
+      <tr><td>passen</td><td>quedar bien / sentar</td></tr>
+      <tr><td>schmecken</td><td>saber a / gustar (comida)</td></tr>
+      <tr><td>gratulieren</td><td>felicitar</td></tr>
+      <tr><td>folgen</td><td>seguir</td></tr>
+      <tr><td>antworten</td><td>responder</td></tr>
+      <tr><td>glauben</td><td>creer</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> En español estos verbos suelen construirse con objeto directo ("ayudar a alguien", "responder algo"), lo que lleva a errores frecuentes al traducir literalmente al acusativo alemán.</div>
+    <p class="explicacion">Un grupo de verbos alemanes de uso muy frecuente rige exclusivamente el caso dativo, no el acusativo, aunque su traducción al español sugiera un objeto directo. Entre los más comunes en A2 están: helfen (ayudar), danken (agradecer), gefallen (gustar), gehören (pertenecer), passen (quedar bien, sentar), schmecken (saber a, gustar en el sentido de sabor), gratulieren (felicitar), folgen (seguir), antworten (responder) y glauben (creer). Como estos verbos no llevan objeto en acusativo, no tienen forma pasiva personal (solo impersonal). Es recomendable memorizarlos como lista cerrada, ya que no siguen una regla predecible desde el significado.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich helfe dir.</span><br><span class="es">Te ayudo.</span></li>
+      <li><span class="de">Das gehört mir.</span><br><span class="es">Eso es mío / me pertenece.</span></li>
+      <li><span class="de">Es schmeckt ihm gut.</span><br><span class="es">Le sabe bien (a él).</span></li>
+      <li><span class="de">Wir danken Ihnen für die Hilfe.</span><br><span class="es">Le agradecemos la ayuda.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Aprende cada verbo con un pronombre dativo pegado, como si fuera parte de la palabra: "helfen + dir", "danken + Ihnen", "gefallen + mir" — así el caso se memoriza junto al verbo.</div>
+  </section>
+
+  <section class="rule" id="a2-14">
+    <span class="rule-id">A2-14</span>
+    <h2>Frage nach Personen und Sachen</h2>
+    <p class="subtitulo">wer/wen/wem vs. was</p>
+    <div class="regla-base"><strong>Regla base:</strong> Para personas, "wer" se declina según el caso (wer/wen/wem/wessen). Para cosas se usa "was", invariable salvo con preposición (wo(r)+prep).</div>
+    <table class="gram-table">
+      <tr><th>Caso</th><th>Persona</th><th>Cosa</th></tr>
+      <tr><td>Nominativ</td><td>wer</td><td>was</td></tr>
+      <tr><td>Akkusativ</td><td>wen</td><td>was</td></tr>
+      <tr><td>Dativ</td><td>wem</td><td>(kein Fall)</td></tr>
+      <tr><td>Genitiv</td><td>wessen</td><td>—</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Con preposición + cosa se usa la forma fusionada "wo(r)+preposición": Womit schreibst du? (¿con qué escribes?), Wofür interessierst du dich? (¿por qué te interesas?). Con personas se usa preposición + wen/wem: Mit wem sprichst du?</div>
+    <p class="explicacion">Para preguntar por personas, el pronombre interrogativo "wer" se declina según la función que cumple en la frase: wer en nominativo (sujeto, ¿quién?), wen en acusativo (objeto directo, ¿a quién?), wem en dativo (objeto indirecto, ¿a quién/para quién?) y wessen en genitivo (posesión, ¿de quién?). Para preguntar por cosas se usa "was", que es invariable en nominativo y acusativo; en combinación con preposiciones no se dice "für was" o "mit was" en el registro cuidado, sino la forma fusionada "wo(r)+preposición": Womit (¿con qué?), Wofür (¿para qué?), Worüber (¿sobre qué?). Esta distinción persona/cosa es clave para no confundir "wen" (persona, acusativo) con "was" (cosa).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Wer kommt heute?</span><br><span class="es">¿Quién viene hoy?</span></li>
+      <li><span class="de">Wen siehst du dort?</span><br><span class="es">¿A quién ves allí?</span></li>
+      <li><span class="de">Wem hilfst du?</span><br><span class="es">¿A quién ayudas?</span></li>
+      <li><span class="de">Was machst du gerade?</span><br><span class="es">¿Qué estás haciendo ahora?</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Si la respuesta esperada es una persona, usa wer/wen/wem/wessen según el caso; si es una cosa, usa was (o wo(r)+preposición si hay preposición de por medio).</div>
+  </section>
+
+  <section class="rule" id="a2-15">
+    <span class="rule-id">A2-15</span>
+    <h2>Präteritum: sein und haben</h2>
+    <p class="subtitulo">war, hatte...</p>
+    <div class="regla-base"><strong>Regla base:</strong> Aunque el Perfekt domina en el habla, sein y haben casi siempre se usan en Präteritum incluso en conversación: war, hatte en vez de bin gewesen, habe gehabt.</div>
+    <table class="gram-table">
+      <tr><th></th><th>sein</th><th>haben</th></tr>
+      <tr><td>ich</td><td>war</td><td>hatte</td></tr>
+      <tr><td>du</td><td>warst</td><td>hattest</td></tr>
+      <tr><td>er/sie/es</td><td>war</td><td>hatte</td></tr>
+      <tr><td>wir</td><td>waren</td><td>hatten</td></tr>
+      <tr><td>ihr</td><td>wart</td><td>hattet</td></tr>
+      <tr><td>sie/Sie</td><td>waren</td><td>hatten</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Con otros verbos, el Perfekt es la norma en el habla; sein y haben (junto a los modales) son la excepción donde se prefiere el Präteritum incluso hablando.</div>
+    <p class="explicacion">En alemán hablado, el Perfekt es el tiempo pasado más habitual para la mayoría de los verbos. Sin embargo, "sein" y "haben" son una excepción notable: incluso en conversación cotidiana se usan casi siempre en Präteritum (war, hatte) en lugar de su forma de Perfekt (bin gewesen, habe gehabt), que suena forzada o poco natural. Las conjugaciones son: sein → war, warst, war, waren, wart, waren; haben → hatte, hattest, hatte, hatten, hattet, hatten. Merece la pena memorizar estas dos conjugaciones desde el principio, ya que se usan constantemente para describir estados y posesiones en el pasado.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich war müde.</span><br><span class="es">Yo estaba cansado.</span></li>
+      <li><span class="de">Wir hatten keine Zeit.</span><br><span class="es">No teníamos tiempo.</span></li>
+      <li><span class="de">Er war in Berlin.</span><br><span class="es">Él estuvo en Berlín.</span></li>
+      <li><span class="de">Hattest du Hunger?</span><br><span class="es">¿Tenías hambre?</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Regla práctica: para "sein" y "haben" (y también para los modales), usa siempre el Präteritum al hablar, no el Perfekt — es la forma natural incluso en conversación informal.</div>
+  </section>
+
+  <section class="rule" id="a2-16">
+    <span class="rule-id">A2-16</span>
+    <h2>Präteritum: Modalverben</h2>
+    <p class="subtitulo">musste, konnte, wollte...</p>
+    <div class="regla-base"><strong>Regla base:</strong> Los modales en Präteritum pierden el cambio vocálico del presente (vuelven a la vocal del infinitivo) y toman terminaciones regulares de pasado.</div>
+    <table class="gram-table">
+      <tr><th></th><th>können</th><th>müssen</th><th>wollen</th><th>sollen</th><th>dürfen</th><th>mögen</th></tr>
+      <tr><td>ich/er</td><td>konnte</td><td>musste</td><td>wollte</td><td>sollte</td><td>durfte</td><td>mochte</td></tr>
+      <tr><td>du</td><td>konntest</td><td>musstest</td><td>wolltest</td><td>solltest</td><td>durftest</td><td>mochtest</td></tr>
+      <tr><td>wir/sie</td><td>konnten</td><td>mussten</td><td>wollten</td><td>sollten</td><td>durften</td><td>mochten</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> A diferencia del presente, en Präteritum la 1.ª y 3.ª persona singular vuelven a coincidir (konnte/konnte) pero sin la vocal modificada del presente (kann → konnte, no *könnte, que es el Konjunktiv II).</div>
+    <p class="explicacion">Los verbos modales forman su Präteritum de manera regular en cuanto a terminaciones (-te, -test, -te, -ten, -tet, -ten), pero recuperan la vocal del infinitivo en lugar de la vocal modificada que usan en presente. Así, können (presente: kann) pasa a konnte; müssen (muss) a musste; wollen (will) a wollte; sollen (soll) a sollte; dürfen (darf) a durfte; mögen (mag) a mochte. Este Präteritum de los modales se usa constantemente también en el habla coloquial, no solo en textos escritos, a diferencia del Präteritum de la mayoría de los demás verbos. Es una de las excepciones más importantes a la preferencia general por el Perfekt al hablar.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich konnte nicht kommen.</span><br><span class="es">No pude venir.</span></li>
+      <li><span class="de">Er musste arbeiten.</span><br><span class="es">Tuvo que trabajar.</span></li>
+      <li><span class="de">Wir wollten ins Kino gehen.</span><br><span class="es">Queríamos ir al cine.</span></li>
+      <li><span class="de">Sie durfte als Kind nicht fernsehen.</span><br><span class="es">De niña no le dejaban ver la tele.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> No confundas konnte (Präteritum, "pude/podía") con könnte (Konjunktiv II, "podría") — la diferencia de un umlaut cambia completamente el significado.</div>
+  </section>
+
+  <section class="rule" id="a2-17">
+    <span class="rule-id">A2-17</span>
+    <h2>Zeitgebrauch</h2>
+    <p class="subtitulo">¿Präteritum o Perfekt?</p>
+    <div class="regla-base"><strong>Regla base:</strong> En alemán hablado se usa casi siempre el Perfekt, EXCEPTO con sein, haben y los modales, que casi siempre van en Präteritum incluso hablando.</div>
+    <table class="gram-table">
+      <tr><th>Contexto</th><th>Tiempo preferido</th><th>Ejemplo</th></tr>
+      <tr><td>Habla general</td><td>Perfekt</td><td>Ich habe gearbeitet.</td></tr>
+      <tr><td>sein / haben (habla)</td><td>Präteritum</td><td>Ich war müde.</td></tr>
+      <tr><td>Modales (habla)</td><td>Präteritum</td><td>Ich konnte nicht.</td></tr>
+      <tr><td>Narración escrita</td><td>Präteritum</td><td>Er ging langsam nach Hause.</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> La distinción no es absoluta: en el sur de Alemania, Austria y Suiza el Präteritum casi no se usa ni siquiera con sein/haben en el habla informal, prefiriendo también ahí el Perfekt.</div>
+    <p class="explicacion">Una duda muy frecuente en A2 es cuándo usar Präteritum y cuándo Perfekt. La regla práctica es: en alemán hablado se usa casi siempre el Perfekt para referirse al pasado, salvo con sein, haben y los verbos modales, que casi siempre aparecen en Präteritum (war, hatte, konnte, musste) incluso en una conversación informal, porque su forma de Perfekt (bin gewesen, habe gehabt, habe gekonnt) suena forzada. El Präteritum "puro" con el resto de verbos es propio sobre todo de la lengua escrita y narrativa: novelas, cuentos, noticias, biografías. Al hablar, decir "Ich arbeitete gestern" en vez de "Ich habe gestern gearbeitet" suena artificial o literario.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich war gestern krank.</span><br><span class="es">Ayer estaba enfermo. (no "bin gewesen")</span></li>
+      <li><span class="de">Ich habe gestern gearbeitet.</span><br><span class="es">Ayer trabajé. (Perfekt, no *arbeitete)</span></li>
+      <li><span class="de">Er konnte nicht kommen, weil er krank war.</span><br><span class="es">No pudo venir porque estaba enfermo.</span></li>
+      <li><span class="de">In der Geschichte ging der Mann langsam nach Hause.</span><br><span class="es">En la historia, el hombre iba caminando despacio a casa. (narración escrita)</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Al hablar: usa Perfekt para casi todo, pero Präteritum para sein/haben/modales. Al escribir una narración o leer un texto, espera encontrar Präteritum con todos los verbos.</div>
+  </section>
+
+  <section class="rule" id="a2-18">
+    <span class="rule-id">A2-18</span>
+    <h2>Lokale Präpositionen: Wohin?</h2>
+    <p class="subtitulo">in, an, auf, nach, zu + movimiento</p>
+    <div class="regla-base"><strong>Regla base:</strong> Para expresar destino (¿adónde?) la preposición depende del tipo de lugar: nach (ciudades/países), zu (personas/edificios), in/an/auf + Akkusativ (espacios/límites/superficies).</div>
+    <table class="gram-table">
+      <tr><th>Preposición</th><th>Se usa con</th><th>Ejemplo</th></tr>
+      <tr><td>nach</td><td>ciudades/países sin artículo</td><td>nach Berlin, nach Deutschland</td></tr>
+      <tr><td>zu</td><td>personas / edificios-instituciones</td><td>zum Arzt, zur Schule</td></tr>
+      <tr><td>in + Akk.</td><td>espacios cerrados/delimitados</td><td>ins Kino, in die Stadt</td></tr>
+      <tr><td>an + Akk.</td><td>límites, orillas</td><td>ans Meer</td></tr>
+      <tr><td>auf + Akk.</td><td>superficies / eventos</td><td>auf den Markt</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Países y ciudades con artículo (die Schweiz, die Türkei) no usan nach sino in + Akkusativ: in die Schweiz, no *nach die Schweiz.</div>
+    <p class="explicacion">Para preguntar y responder sobre la dirección o el destino de un movimiento (¿wohin?) el alemán distingue varias preposiciones según el tipo de lugar. "Nach" se usa con ciudades y países sin artículo (nach Berlin, nach Deutschland, nach Spanien). "Zu" se usa cuando el destino es una persona o un edificio/institución concebido como punto de referencia (zum Arzt = a la consulta del médico, zur Schule = al colegio). "In" + acusativo se usa para espacios cerrados o delimitados en los que se entra (ins Kino, in die Stadt). "An" + acusativo se usa para límites o líneas, como orillas (ans Meer, an die Grenze). "Auf" + acusativo se usa para superficies o eventos concebidos como superficie abierta (auf den Markt, auf die Party).</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich fahre nach Berlin.</span><br><span class="es">Voy a Berlín.</span></li>
+      <li><span class="de">Ich gehe zum Arzt.</span><br><span class="es">Voy al médico.</span></li>
+      <li><span class="de">Wir gehen ins Kino.</span><br><span class="es">Vamos al cine.</span></li>
+      <li><span class="de">Sie fahren ans Meer.</span><br><span class="es">Van a la costa/al mar.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Pregúntate qué tipo de destino es: ¿ciudad/país? → nach. ¿persona o edificio-institución? → zu. ¿espacio cerrado? → in + Akk. ¿orilla/límite? → an + Akk. ¿superficie/evento? → auf + Akk.</div>
+  </section>
+
+  <section class="rule" id="a2-19">
+    <span class="rule-id">A2-19</span>
+    <h2>Lokale Präpositionen: Wo?</h2>
+    <p class="subtitulo">in, an, auf, bei + Dativ</p>
+    <div class="regla-base"><strong>Regla base:</strong> Para expresar ubicación (¿dónde?) se usan las mismas preposiciones que para el destino, pero con dativo en vez de acusativo.</div>
+    <table class="gram-table">
+      <tr><th>Preposición</th><th>Se usa con</th><th>Ejemplo</th></tr>
+      <tr><td>in + Dat.</td><td>espacios cerrados/delimitados</td><td>im Kino, in der Stadt</td></tr>
+      <tr><td>an + Dat.</td><td>límites, orillas</td><td>am Meer</td></tr>
+      <tr><td>auf + Dat.</td><td>superficies / eventos</td><td>auf dem Markt</td></tr>
+      <tr><td>bei + Dat.</td><td>personas</td><td>bei meiner Mutter, beim Arzt</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> "Bei" con una institución (beim Arzt) significa estar físicamente en ese lugar en el momento presente; no debe confundirse con "zu", que expresa dirección hacia allí.</div>
+    <p class="explicacion">Para expresar dónde está algo o alguien (¿wo?), es decir una posición estática sin movimiento, el alemán usa en dativo las mismas preposiciones que en acusativo se usaban para el destino: "in" + dativo para espacios cerrados o delimitados (im Kino, in der Stadt), "an" + dativo para límites u orillas (am Meer), "auf" + dativo para superficies o eventos (auf dem Markt). Además, "bei" + dativo se usa para expresar que alguien está en casa de una persona o junto a ella (bei meiner Mutter, bei einem Freund) o en la consulta/local de un profesional (beim Arzt, beim Friseur). Esta pareja Wohin/Wo con las mismas preposiciones pero distinto caso es una de las Wechselpräpositionen vistas en a2-06, aplicada específicamente al contraste destino/ubicación.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich bin im Kino.</span><br><span class="es">Estoy en el cine.</span></li>
+      <li><span class="de">Er ist beim Arzt.</span><br><span class="es">Está en el médico.</span></li>
+      <li><span class="de">Wir sind auf dem Markt.</span><br><span class="es">Estamos en el mercado.</span></li>
+      <li><span class="de">Sie wohnt bei ihrer Mutter.</span><br><span class="es">Vive en casa de su madre.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Compara siempre con a2-18: la misma preposición (in, an, auf) cambia de Akkusativ a Dativ según si hay movimiento (wohin) o solo ubicación (wo). "Bei" es exclusiva de Wo, no tiene par de movimiento con la misma preposición (se usa "zu" en su lugar).</div>
+  </section>
+
+  <section class="rule" id="a2-20">
+    <span class="rule-id">A2-20</span>
+    <h2>Lokale Präpositionen: Woher?</h2>
+    <p class="subtitulo">aus, von</p>
+    <div class="regla-base"><strong>Regla base:</strong> Para expresar origen/procedencia (¿de dónde?) se usan aus (de dentro de un lugar) y von (desde un punto, alejándose).</div>
+    <table class="gram-table">
+      <tr><th>Preposición</th><th>Se usa con</th><th>Ejemplo</th></tr>
+      <tr><td>aus</td><td>origen / nacionalidad / interior de un lugar</td><td>aus Spanien, aus dem Haus</td></tr>
+      <tr><td>von</td><td>punto de partida, alejándose de</td><td>vom Arzt, von der Arbeit</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Con personas o instituciones a las que se fue con "zu"/"bei", el regreso se expresa con "von": Ich war beim Arzt → Ich komme vom Arzt (no *aus dem Arzt).</div>
+    <p class="explicacion">Para preguntar y responder sobre el origen o la procedencia de algo o alguien (¿woher?), el alemán distingue principalmente entre "aus" y "von". "Aus" indica el origen desde dentro de un lugar, incluida la nacionalidad o procedencia geográfica: aus Spanien (de España), aus dem Haus (de dentro de la casa). "Von" indica un punto de partida del que uno se aleja, sin implicar que se estuviera "dentro": vom Arzt (de la consulta del médico, volviendo de allí), von der Arbeit (del trabajo). Estas dos preposiciones forman parejas simétricas con las de dirección vistas en a2-18: nach/zu (wohin) se corresponden con aus/von (woher) — el destino con zu se corresponde con el origen con von, y el destino con nach/in se corresponde con el origen con aus.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich komme aus Spanien.</span><br><span class="es">Soy/Vengo de España.</span></li>
+      <li><span class="de">Er kommt vom Arzt.</span><br><span class="es">Viene del médico.</span></li>
+      <li><span class="de">Sie kommt aus den Bergen.</span><br><span class="es">Ella viene de las montañas.</span></li>
+      <li><span class="de">Wir kommen gerade von der Arbeit.</span><br><span class="es">Acabamos de venir del trabajo.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Parejas simétricas wohin↔woher: nach↔aus (ciudades/países), zu↔von (personas/instituciones-edificios como el médico), in↔aus (espacios cerrados). Aprenderlas en pareja ayuda a no confundirlas.</div>
+  </section>
+
+  <section class="rule" id="a2-21">
+    <span class="rule-id">A2-21</span>
+    <h2>Hauptsätze verbinden: Position 1</h2>
+    <p class="subtitulo">deshalb, sonst, dann, danach</p>
+    <div class="regla-base"><strong>Regla base:</strong> A diferencia de und/aber/oder/denn (posición 0), conectores como deshalb, sonst, dann, danach ocupan la posición 1: provocan inversión, el verbo va en posición 2 y el sujeto pasa a la posición 3.</div>
+    <table class="gram-table">
+      <tr><th>Conector</th><th>Significado</th><th>Posición</th></tr>
+      <tr><td>deshalb</td><td>por eso</td><td>Posición 1 (con inversión)</td></tr>
+      <tr><td>sonst</td><td>si no / de lo contrario</td><td>Posición 1 (con inversión)</td></tr>
+      <tr><td>dann</td><td>entonces / luego</td><td>Posición 1 (con inversión)</td></tr>
+      <tr><td>danach</td><td>después de eso</td><td>Posición 1 (con inversión)</td></tr>
+      <tr><td>und/aber/oder/denn</td><td>(ver a1-16)</td><td>Posición 0 (sin inversión)</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> No confundir con und, aber, oder, denn (a1-16), que ocupan la posición 0 y no cuentan como elemento de la frase, por lo que el sujeto sigue justo después del verbo sin inversión.</div>
+    <p class="explicacion">Para unir dos frases principales el alemán tiene dos estrategias distintas. Los conectores und, aber, oder, denn (vistos en a1-16) van en posición 0: no cuentan como un elemento de la frase, así que el orden interno de la segunda frase no cambia. En cambio, conectores como deshalb (por eso), sonst (si no), dann (entonces/luego) y danach (después de eso) sí ocupan la posición 1, es decir, cuentan como el primer elemento de la frase. Esto obliga a que el verbo conjugado vaya justo después, en posición 2, y el sujeto se desplace a la posición 3. Esta inversión sujeto-verbo es la señal más clara para distinguir ambos grupos de conectores. Dominar esta diferencia es esencial para escribir frases compuestas naturales en alemán desde el nivel A2.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Es regnet, deshalb bleibe ich zu Hause.</span><br><span class="es">Llueve, por eso me quedo en casa.</span></li>
+      <li><span class="de">Beeil dich, sonst kommst du zu spät.</span><br><span class="es">Date prisa, si no llegarás tarde.</span></li>
+      <li><span class="de">Wir essen, dann gehen wir ins Kino.</span><br><span class="es">Comemos, luego vamos al cine.</span></li>
+      <li><span class="de">Wir kaufen ein, danach kochen wir.</span><br><span class="es">Compramos, después de eso cocinamos.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Truco rápido: si después del conector el sujeto NO va justo detrás (el verbo se cuela primero), es un conector de posición 1 (deshalb, sonst, dann, danach). Si el sujeto va justo después del conector, es de posición 0 (und, aber, oder, denn).</div>
+  </section>
+
+  <section class="rule" id="a2-22">
+    <span class="rule-id">A2-22</span>
+    <h2>Nebensätze mit weil, wenn und dass</h2>
+    <p class="subtitulo">el verbo va al final</p>
+    <div class="regla-base"><strong>Regla base:</strong> weil, wenn y dass introducen subordinadas donde el verbo conjugado va al final. La coma separa siempre principal y subordinada.</div>
+    <table class="gram-table">
+      <tr><th>Conjunción</th><th>Significado</th><th>Función</th></tr>
+      <tr><td>weil</td><td>porque</td><td>causa (subordinada, verbo al final)</td></tr>
+      <tr><td>wenn</td><td>si / cuando</td><td>condición o repetición (subordinada, verbo al final)</td></tr>
+      <tr><td>dass</td><td>que</td><td>subordinada sustantiva (verbo al final)</td></tr>
+      <tr><td>denn</td><td>porque (ver a1-16)</td><td>posición 0, sin cambiar el orden</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> weil (causa, subordinada) no debe confundirse con denn (también "porque" pero de posición 0, ver a1-16, sin alterar el orden). wenn (condicional o repetido en alemán) se distingue de als (una sola vez en pasado), que se estudia en niveles superiores.</div>
+    <p class="explicacion">weil (porque), wenn (si/cuando) y dass (que) introducen frases subordinadas, en las que el verbo conjugado se coloca al final de la subordinada, un orden distinto al de la frase principal. La coma separa siempre la frase principal de la subordinada. weil expresa causa y no debe confundirse con denn, que también significa "porque" pero es una conjunción de posición 0 que no cambia el orden de la frase que introduce (ver a1-16): "Ich bleibe zu Hause, denn ich bin krank" (orden normal) frente a "..., weil ich krank bin" (verbo al final). wenn se usa para condiciones o para acciones que se repiten en cualquier tiempo verbal; se diferencia de als, que en alemán se reserva para un único evento en pasado (contenido de niveles superiores). dass introduce subordinadas sustantivas, muy frecuentes tras verbos de opinión o percepción como glauben, denken, wissen, hoffen.</p>
+    <ul class="ejemplos">
+      <li><span class="de">Ich bleibe zu Hause, weil ich krank bin.</span><br><span class="es">Me quedo en casa porque estoy enfermo.</span></li>
+      <li><span class="de">Wenn ich Zeit habe, rufe ich dich an.</span><br><span class="es">Si tengo tiempo, te llamo.</span></li>
+      <li><span class="de">Ich glaube, dass er recht hat.</span><br><span class="es">Creo que él tiene razón.</span></li>
+      <li><span class="de">Wenn es regnet, bleiben wir zu Hause.</span><br><span class="es">Cuando llueve, nos quedamos en casa.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Regla de oro de las subordinadas: verbo conjugado al FINAL. Para comprobarlo rápido, busca el verbo conjugado en la subordinada y verifica que sea la última palabra antes de la coma o el punto.</div>
+  </section>
+
+  <section class="rule" id="a2-23">
+    <span class="rule-id">A2-23</span>
+    <h2>Partikeln und Wortbildung</h2>
+    <p class="subtitulo">doch, mal, ja... + -chen, -lein, -er, -in, -ung</p>
+    <div class="regla-base"><strong>Regla base:</strong> Partículas modales (doch, mal, ja, denn, eigentlich, einfach) matizan el tono sin cambiar el significado literal. Sufijos de formación de palabras: -chen/-lein (diminutivo, neutro), -er (agente masc.), -in (agente fem.), -ung (sustantivo fem. desde verbo).</div>
+    <table class="gram-table">
+      <tr><th>Sufijo</th><th>Función</th><th>Género</th><th>Ejemplo</th></tr>
+      <tr><td>-chen / -lein</td><td>diminutivo</td><td>siempre neutro</td><td>das Häuschen, das Büchlein</td></tr>
+      <tr><td>-er</td><td>agente (persona que hace algo)</td><td>masculino</td><td>der Lehrer, der Arbeiter</td></tr>
+      <tr><td>-in</td><td>agente femenino (se añade a -er)</td><td>femenino</td><td>die Lehrerin</td></tr>
+      <tr><td>-ung</td><td>convierte verbo en sustantivo</td><td>femenino</td><td>die Übung, die Zeitung</td></tr>
+    </table>
+    <div class="box-warn"><strong>Excepciones:</strong> Los diminutivos con -chen/-lein suelen llevar Umlaut si es posible (Haus→Häuschen, Buch→Büchlein) y son siempre neutros aunque la palabra base sea masculina o femenina (der Mann → das Männchen).</div>
+    <p class="explicacion">Este tema combina dos aspectos del alemán natural. Por un lado, las partículas modales (doch, mal, ja, denn, eigentlich, einfach) son palabras cortas que matizan el tono emocional o la intención de una frase sin alterar su significado literal; son imprescindibles para sonar natural: "Komm doch mal her!" (anima o insiste), "Was machst du denn?" (curiosidad/sorpresa en preguntas), "Das ist ja toll!" (sorpresa/énfasis). Por otro lado, ciertos sufijos permiten formar palabras nuevas de manera productiva: -chen y -lein forman diminutivos, siempre de género neutro sea cual sea el género de la palabra base (das Häuschen, das Büchlein); -er forma sustantivos de agente masculino a partir de verbos (der Lehrer de lehren, der Arbeiter de arbeiten); -in se añade a la forma en -er para crear el femenino correspondiente (die Lehrerin); -ung convierte verbos en sustantivos femeninos abstractos (die Übung de üben, die Zeitung de la raíz de "berichten/Zeit").</p>
+    <ul class="ejemplos">
+      <li><span class="de">Komm doch mal her, ich zeige dir die Übung.</span><br><span class="es">Ven aquí anda, te enseño el ejercicio.</span></li>
+      <li><span class="de">Was machst du denn mit dem Häuschen?</span><br><span class="es">¿Qué haces con la casita?</span></li>
+      <li><span class="de">Das ist ja meine Lehrerin!</span><br><span class="es">¡Anda, si es mi profesora!</span></li>
+      <li><span class="de">Lies einfach die Zeitung, das ist gut für dein Deutsch.</span><br><span class="es">Simplemente lee el periódico, es bueno para tu alemán.</span></li>
+    </ul>
+    <div class="box-tip"><strong>Tip:</strong> Las partículas modales no se traducen palabra por palabra: aprende su "sabor" (doch = insistencia/contradicción, mal = suaviza una petición, ja = sorpresa/evidencia) escuchando ejemplos, no buscando una traducción fija.</div>
+  </section>
+
+</div>
+
+<footer>
+  <p><a href="gramatica.html">← Volver a Gramática (todos los niveles)</a></p>
+</footer>
+
+</body>
+</html>

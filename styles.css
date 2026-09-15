@@ -1055,7 +1055,7 @@ th, td {
 
 .comp-emparejar-texto {
     flex: 1;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .comp-emparejar-select {
@@ -1066,7 +1066,11 @@ th, td {
     border-radius: var(--radius, 8px);
     background: var(--card, #fff);
     color: var(--text, #222);
-    font-size: 14px;
+    font-size: 16px;
+}
+
+.comp-emparejar-select option {
+    font-size: 16px;
 }
 
 .comp-emparejar-select.correcta { border-color: #28a745; background: rgba(40, 167, 69, 0.12); }

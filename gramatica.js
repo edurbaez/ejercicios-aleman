@@ -824,7 +824,8 @@ async function getPracticeSentences(rule, level) {
   const { data: existingSets, error: setsErr } = await window.sb
     .from('grammar_practice_exercises')
     .select('id, oraciones')
-    .eq('rule_id', rule.id);
+    .eq('rule_id', rule.id)
+    .eq('oculto', false);
   if (setsErr) throw new Error('db_error');
 
   const { data: seen, error: seenErr } = await window.sb

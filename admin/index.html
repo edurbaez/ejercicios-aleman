@@ -202,6 +202,27 @@
     body.dark #det-access-msg.err { background: #2a0a0a; color: #ef9a9a; }
     body.dark #det-access-msg.saving { background: #181a2e; color: #6a7090; }
 
+    /* ── Content audit ── */
+    .audit-controls { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .audit-solo-ocultos-label { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #777; cursor: pointer; }
+    body.dark .audit-solo-ocultos-label { color: #8a90aa; }
+    .audit-item { border: 1px solid #eef0f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; }
+    body.dark .audit-item { border-color: #2e3050; }
+    .audit-item summary { cursor: pointer; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; list-style: none; }
+    .audit-item summary::-webkit-details-marker { display: none; }
+    .audit-item-title { font-size: 13px; font-weight: 600; flex: 1; min-width: 120px; }
+    .audit-item-date { font-size: 11px; color: #888; white-space: nowrap; }
+    body.dark .audit-item-date { color: #6a7090; }
+    .audit-item-body { margin-top: 12px; font-size: 13px; line-height: 1.5; }
+    .audit-text-block { white-space: pre-wrap; background: #f7f8fc; border-radius: 6px; padding: 10px 12px; margin: 6px 0 10px; font-size: 12.5px; }
+    body.dark .audit-text-block { background: #181a2e; }
+    .audit-item-body ol, .audit-item-body ul { margin: 6px 0 12px; padding-left: 20px; }
+    .audit-item-body li { margin-bottom: 6px; }
+    .audit-correct { color: #2e7d32; font-weight: 700; }
+    body.dark .audit-correct { color: #81c784; }
+    .audit-teil-heading { font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .4px; color: #555; margin: 14px 0 6px; }
+    body.dark .audit-teil-heading { color: #9aa0c0; }
+
     /* ── Detail panel ── */
     #detail-panel { display: none; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 18px; border-top: 3px solid #1565C0; }
     body.dark #detail-panel { background: #1e2035; border-top-color: #64b5f6; }
@@ -554,6 +575,38 @@
       </div>
     </div>
 
+    <!-- 10b. Auditoría de contenido -->
+    <div class="section collapsible" id="content-audit-section">
+      <div class="section-title with-range" onclick="toggleSection('content-audit-section', event)">
+        <span class="section-title-text">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          🔍 Auditoría de contenido
+          <span class="section-toggle-icon">▾</span>
+        </span>
+        <div class="audit-controls">
+          <div class="range-pills" id="audit-type-filter">
+            <button class="range-pill active" data-range="reading" onclick="setAuditType('reading')">📖 Lectura</button>
+            <button class="range-pill" data-range="practice" onclick="setAuditType('practice')">📝 Práctica gramatical</button>
+          </div>
+          <div class="range-pills" id="audit-level-filter">
+            <button class="range-pill active" data-range="todos" onclick="setAuditLevel('todos')">Todos</button>
+            <button class="range-pill" data-range="a1" onclick="setAuditLevel('a1')">A1</button>
+            <button class="range-pill" data-range="a2" onclick="setAuditLevel('a2')">A2</button>
+            <button class="range-pill" data-range="b1" onclick="setAuditLevel('b1')">B1</button>
+            <button class="range-pill" data-range="b2" onclick="setAuditLevel('b2')">B2</button>
+            <button class="range-pill" data-range="c1" onclick="setAuditLevel('c1')">C1</button>
+            <button class="range-pill" data-range="c2" onclick="setAuditLevel('c2')">C2</button>
+          </div>
+          <label class="range-pills audit-solo-ocultos-label">
+            <input type="checkbox" id="audit-solo-ocultos" onchange="renderAuditSection()"> Solo ocultos
+          </label>
+        </div>
+      </div>
+      <div class="section-body">
+      <div id="content-audit-list"><p class="empty">Abrí esta sección para cargar el contenido.</p></div>
+      </div>
+    </div>
+
     <!-- User detail -->
     <div id="detail-panel">
       <div class="detail-header">
@@ -626,6 +679,12 @@
   let allReports       = [];
   let reportesFilter   = 'todos';
 
+  let allAuditReading  = [];
+  let allAuditPractice = [];
+  let auditLoaded      = false;
+  let auditType        = 'reading'; // 'reading' | 'practice'
+  let auditLevel       = 'todos';
+
   let profileMap          = new Map();
   let totalActivityWeight = 0;
   let marketingSummary    = null; // { total_users, active_7d, active_30d, retained_2w, active_8w }
@@ -662,6 +721,7 @@
     'examrecent-section': true,
     'expiring-section': false,
     'reportes-section': false,
+    'content-audit-section': true,
     'invite-section': true,
   };
   function toggleSection(id, ev) {
@@ -669,6 +729,7 @@
     const el = document.getElementById(id);
     const collapsed = el.classList.toggle('collapsed');
     localStorage.setItem('adm_collapsed_' + id, collapsed ? '1' : '0');
+    if (id === 'content-audit-section' && !collapsed && !auditLoaded) loadAuditData();
   }
   function initCollapsibleSections() {
     for (const [id, defaultCollapsed] of Object.entries(COLLAPSIBLE_DEFAULTS)) {
@@ -679,6 +740,8 @@
     }
   }
   initCollapsibleSections();
+  // Covers the case where localStorage remembers the audit section already expanded
+  if (!document.getElementById('content-audit-section').classList.contains('collapsed') && !auditLoaded) loadAuditData();
 
   // ── Auth ──────────────────────────────────────────────────
   async function signOut() {
@@ -945,6 +1008,141 @@
     if (r) r.estado = estado;
     renderReportsBadge();
     renderReportsSection();
+  }
+
+  // ── Content audit (reading_texts / grammar_practice_exercises) ──
+  async function loadAuditData() {
+    auditLoaded = true;
+    const list = document.getElementById('content-audit-list');
+    list.innerHTML = '<p class="empty">Cargando…</p>';
+    const [readingRes, practiceRes] = await Promise.all([
+      sb.from('reading_texts').select('id, level, title, content, questions, format_version, oculto, created_at').order('created_at', { ascending: false }),
+      sb.from('grammar_practice_exercises').select('id, rule_id, level, oraciones, oculto, created_at').order('created_at', { ascending: false }),
+    ]);
+    if (readingRes.error) console.error(readingRes.error);
+    if (practiceRes.error) console.error(practiceRes.error);
+    allAuditReading  = readingRes.data  || [];
+    allAuditPractice = practiceRes.data || [];
+    renderAuditSection();
+  }
+
+  function setAuditType(type) {
+    auditType = type;
+    setActiveRangePill('audit-type-filter', type);
+    renderAuditSection();
+  }
+
+  function setAuditLevel(level) {
+    auditLevel = level;
+    setActiveRangePill('audit-level-filter', level);
+    renderAuditSection();
+  }
+
+  function renderAuditSection() {
+    const el = document.getElementById('content-audit-list');
+    if (!auditLoaded) return;
+    const soloOcultos = document.getElementById('audit-solo-ocultos').checked;
+    const source = auditType === 'reading' ? allAuditReading : allAuditPractice;
+    let rows = auditLevel === 'todos' ? source : source.filter(r => (r.level || '').toLowerCase() === auditLevel);
+    if (soloOcultos) rows = rows.filter(r => r.oculto);
+
+    if (rows.length === 0) { el.innerHTML = '<p class="empty">Sin resultados.</p>'; return; }
+
+    el.innerHTML = rows.map(r => auditType === 'reading' ? renderAuditReadingItem(r) : renderAuditPracticeItem(r)).join('');
+  }
+
+  function auditItemHeader(table, r, titleText) {
+    const ocultoBadge = r.oculto ? `<span class="badge blocked">OCULTO</span>` : '';
+    const toggleBtn = r.oculto
+      ? `<button class="adm-access-btn ok" onclick="event.stopPropagation(); toggleOculto('${esc(table)}','${esc(r.id)}', false)">Mostrar</button>`
+      : `<button class="adm-access-btn danger" onclick="event.stopPropagation(); toggleOculto('${esc(table)}','${esc(r.id)}', true)">Ocultar</button>`;
+    return `<summary>
+      <span class="badge">${esc((r.level || '?').toUpperCase())}</span>
+      <span class="audit-item-title">${esc(titleText)}</span>
+      <span class="audit-item-date">${fmtDate(r.created_at)}</span>
+      ${ocultoBadge}
+      ${toggleBtn}
+    </summary>`;
+  }
+
+  function renderAuditReadingItem(r) {
+    return `<details class="audit-item">
+      ${auditItemHeader('reading_texts', r, r.title || 'Sin título')}
+      <div class="audit-item-body">${renderAuditReadingBody(r)}</div>
+    </details>`;
+  }
+
+  function renderAuditReadingBody(r) {
+    if (r.format_version === 2 && r.questions && Array.isArray(r.questions.teile)) {
+      return r.questions.teile.map(teil => renderAuditTeil(teil)).join('');
+    }
+    // format_version 1 (legacy): flat text + array of MCQ questions
+    const preguntas = Array.isArray(r.questions) ? r.questions : [];
+    const textoBlock = r.content ? `<div class="audit-text-block">${esc(r.content)}</div>` : '';
+    const preguntasList = preguntas.map(p => {
+      const opciones = Array.isArray(p.opciones) ? p.opciones : [];
+      const opcionesList = opciones.map((op, i) => {
+        const isCorrect = i === p.correcta;
+        return `<li${isCorrect ? ' class="audit-correct"' : ''}>${isCorrect ? '✓ ' : ''}${esc(op)}</li>`;
+      }).join('');
+      return `<li>${esc(p.pregunta || '')}<ul>${opcionesList}</ul></li>`;
+    }).join('');
+    return `${textoBlock}<ol>${preguntasList}</ol>`;
+  }
+
+  function renderAuditTeil(teil) {
+    const textos = Array.isArray(teil.textos)
+      ? teil.textos.map(t => `${t.titulo ? `<strong>${esc(t.titulo)}</strong>` : ''}<div class="audit-text-block">${esc(t.contenido || '')}</div>`).join('')
+      : '';
+    let itemsHtml = '';
+    if (teil.tipo === 'mcq') {
+      const items = Array.isArray(teil.items) ? teil.items : [];
+      itemsHtml = `<ol>${items.map(it => {
+        const opciones = Array.isArray(it.opciones) ? it.opciones : [];
+        const opcionesList = opciones.map((op, i) => {
+          const isCorrect = i === it.correcta;
+          return `<li${isCorrect ? ' class="audit-correct"' : ''}>${isCorrect ? '✓ ' : ''}${esc(op)}</li>`;
+        }).join('');
+        return `<li>${esc(it.pregunta || '')}<ul>${opcionesList}</ul></li>`;
+      }).join('')}</ol>`;
+    } else if (teil.tipo === 'richtig_falsch') {
+      const items = Array.isArray(teil.items) ? teil.items : [];
+      itemsHtml = `<ol>${items.map(it => {
+        const richtig = it.correcta === true;
+        return `<li>${esc(it.afirmacion || '')}<ul>
+          <li${richtig ? ' class="audit-correct"' : ''}>${richtig ? '✓ ' : ''}Richtig</li>
+          <li${!richtig ? ' class="audit-correct"' : ''}>${!richtig ? '✓ ' : ''}Falsch</li>
+        </ul></li>`;
+      }).join('')}</ol>`;
+    } else if (teil.tipo === 'emparejar') {
+      const izq = Array.isArray(teil.columnaIzquierda) ? teil.columnaIzquierda : [];
+      const der = Array.isArray(teil.columnaDerecha) ? teil.columnaDerecha : [];
+      const solucion = teil.solucion || {};
+      itemsHtml = `<ul>${izq.map(i => {
+        const derId = solucion[i.id];
+        const match = der.find(d => d.id === derId);
+        return `<li>${esc(i.texto || '')} → <strong>${esc(match ? match.texto : '?')}</strong></li>`;
+      }).join('')}</ul>`;
+    }
+    return `<div class="audit-teil-heading">${esc(teil.tipo || '')} — ${esc(teil.instrucciones || '')}</div>${textos}${itemsHtml}`;
+  }
+
+  function renderAuditPracticeItem(r) {
+    const oraciones = Array.isArray(r.oraciones) ? r.oraciones : [];
+    const body = `<ul>${oraciones.map(o => `<li>${esc(o.de || '')} — ${esc(o.es || '')}</li>`).join('')}</ul>`;
+    return `<details class="audit-item">
+      ${auditItemHeader('grammar_practice_exercises', r, r.rule_id || 'Sin id')}
+      <div class="audit-item-body">${body}</div>
+    </details>`;
+  }
+
+  async function toggleOculto(table, id, newVal) {
+    const { error } = await sb.from(table).update({ oculto: newVal }).eq('id', id);
+    if (error) { console.error(error); return; }
+    const arr = table === 'reading_texts' ? allAuditReading : allAuditPractice;
+    const r = arr.find(x => x.id === id);
+    if (r) r.oculto = newVal;
+    renderAuditSection();
   }
 
   // ── Summary cards ─────────────────────────────────────────

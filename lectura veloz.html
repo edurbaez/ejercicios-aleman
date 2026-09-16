@@ -1579,7 +1579,8 @@
                 const { data: allTexts, error: textsErr } = await window.sb
                     .from('reading_texts')
                     .select('id, title, content, questions, format_version')
-                    .eq('level', level);
+                    .eq('level', level)
+                    .eq('oculto', false);
                 if (textsErr) throw new Error('Error al cargar textos: ' + textsErr.message);
 
                 const { data: seen, error: seenErr } = await window.sb

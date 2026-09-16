@@ -69,7 +69,7 @@ export const READING_TEILE_SPECS = {
         },
         {
             id: 'teil2', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 2 — Guía/directorio: preguntas',
-            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán (60-90 palabras) en "textos" (1 elemento, "titulo" = "Wegweiser" o similar, "contenido" = un listado breve tipo directorio, p.ej. las plantas de unos grandes almacenes o el programa de un centro cultural, indicando qué se encuentra en cada sección), y 5 preguntas en "items" del tipo "¿Dónde encuentras...?", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán (60-90 palabras) en "textos" (1 elemento, "titulo" = "Wegweiser" o similar, "contenido" = un listado breve tipo directorio, p.ej. las plantas de unos grandes almacenes o el programa de un centro cultural, indicando qué se encuentra en cada sección), y 5 preguntas en "items" sobre dónde encontrar algo (en alemán, p.ej. "Wo finden Sie...?"), cada una con "pregunta" (en alemán), "opciones" (array de EXACTAMENTE 3 strings, en alemán) y "correcta" (índice 0-2).',
         },
         {
             id: 'teil3', tipo: 'mcq', opcionesCount: 3, nombre: 'Teil 3 — Correo electrónico: preguntas',

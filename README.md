@@ -251,11 +251,12 @@ Push to `main` → Vercel redeploys automatically.
 ## Shared modules
 
 ### `auth.js`
-Shared authentication module. Injects the login modal (OTP + Google OAuth) and exposes auth helpers (`openAuthModal`, `logout`, `logEvent`, `getAuthToken`). `getAuthToken()` returns a cached token updated automatically on every Supabase token refresh — it never calls `getSession()` at request time, so it can't hang. Also renders the **progress panel** — a right-side drawer users open by clicking their name in the navbar. It shows:
+Shared authentication module. Injects the login modal (email+contraseña, OTP y Google OAuth) and exposes auth helpers (`openAuthModal`, `signInPassword`, `savePassword`, `logout`, `logEvent`, `getAuthToken`). El camino principal es email+contraseña; el código por correo queda como enlace secundario y como vía de recuperación (se entra con código y se reescribe la contraseña en el panel de progreso), por lo que no existe `signUp` ni página de reset. `getAuthToken()` returns a cached token updated automatically on every Supabase token refresh — it never calls `getSession()` at request time, so it can't hang. Also renders the **progress panel** — a right-side drawer users open by clicking their name in the navbar. It shows:
 - **HOY** — two cards side by side: words answered + accuracy %, and audios sent today.
 - **Últimos 30 días** — bar chart with one bar per day. Hover over any bar to see the date, word count, and audio count.
 - **Racha** — streak of consecutive days with at least one word answered.
 - **Todo el tiempo** — all-time totals (words, dictionary lookups, audios, sessions).
+- **🔑 Contraseña** — create or change the account password (`updateUser({ password })` over the active session). This is where users who signed in with a code or with Google set a password for future logins.
 
 Also tracks daily active screen time per app: a local heartbeat accumulates it in `localStorage` and syncs to Supabase (`daily_usage_time` table, 60-day retention) once per calendar-day change — no per-session DB calls.
 

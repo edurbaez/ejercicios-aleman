@@ -1,4 +1,4 @@
-const CACHE = "palabrasa2-v2";
+const CACHE = "palabrasa2-v3";
 const ASSETS = ["/A2.html", "/styles.css", "/manifest-a2.json", "/icon-a2.svg", "/DataA2.json", "/config.js", "/auth.js", "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"];
 
 self.addEventListener("install", (e) => {

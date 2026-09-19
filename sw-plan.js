@@ -1,4 +1,4 @@
-const CACHE = "plan30-v1";
+const CACHE = "plan30-v2";
 const ASSETS = [
   "/plan.html",
   "/styles.css",

@@ -13,6 +13,43 @@
     return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
   }
 
+  function _renderPassSection() {
+    const el = document.getElementById('pass-section');
+    if (!el) return;
+    const inputCss = 'width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;';
+    el.innerHTML = `
+      <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">🔑 Contraseña</div>
+      <div style="font-size:12px;color:#777;line-height:1.4;margin-bottom:10px;">Créala una vez y entra sin abrir el correo.</div>
+      <input id="pass-new" type="password" autocomplete="new-password" placeholder="Nueva contraseña (mín. 8)" style="${inputCss}">
+      <input id="pass-new2" type="password" autocomplete="new-password" placeholder="Repetir contraseña" style="${inputCss}">
+      <div id="pass-msg" style="display:none;font-size:12px;line-height:1.4;margin-bottom:8px;"></div>
+      <button id="pass-save-btn" onclick="window.savePassword()" style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Guardar contraseña</button>`;
+  }
+
+  function _passMsg(text, ok) {
+    const el = document.getElementById('pass-msg');
+    if (!el) return;
+    el.textContent = text || '';
+    el.style.color = ok ? '#2e7d32' : '#c62828';
+    el.style.display = text ? 'block' : 'none';
+  }
+
+  window.savePassword = async function () {
+    const p1 = document.getElementById('pass-new').value;
+    const p2 = document.getElementById('pass-new2').value;
+    if (p1.length < 8) { _passMsg('La contraseña debe tener al menos 8 caracteres.'); return; }
+    if (p1 !== p2) { _passMsg('Las contraseñas no coinciden.'); return; }
+    _passMsg('');
+    const btn = document.getElementById('pass-save-btn');
+    btn.disabled = true; btn.textContent = 'Guardando...';
+    const { error } = await window.sb.auth.updateUser({ password: p1 });
+    btn.disabled = false; btn.textContent = 'Guardar contraseña';
+    if (error) { _passMsg('No se pudo guardar: ' + error.message); return; }
+    document.getElementById('pass-new').value = '';
+    document.getElementById('pass-new2').value = '';
+    _passMsg('Listo. Ya puedes entrar con tu email y esta contraseña.', true);
+  };
+
   async function _renderNotifSection() {
     const el = document.getElementById('notif-section');
     if (!el) return;
@@ -203,12 +240,16 @@
           <span style="font-size:12px;color:#999;">o</span>
           <div style="flex:1;height:1px;background:#e0e0e0;"></div>
         </div>
+        <div id="auth-error" style="display:none;background:#ffebee;color:#c62828;font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:6px;margin-bottom:12px;"></div>
         <div id="auth-email-step">
-          <input id="auth-email" type="email" placeholder="tu@email.com" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
+          <input id="auth-email" type="email" placeholder="tu@email.com" autocomplete="email" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;box-sizing:border-box;font-size:15px;">
+          <input id="auth-pass" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')window.signInPassword()" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
           <div style="display:flex;gap:8px;">
-            <button id="auth-send-btn" onclick="window.sendOtp()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Enviar código</button>
+            <button id="auth-login-btn" onclick="window.signInPassword()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Entrar</button>
             <button onclick="window.closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
           </div>
+          <button id="auth-send-btn" onclick="window.sendOtp()" style="width:100%;margin-top:10px;padding:6px;background:none;border:none;color:#1976D2;cursor:pointer;font-size:12.5px;text-decoration:underline;">Entrar con un código al correo</button>
+          <p style="margin:8px 0 0;font-size:11.5px;color:#999;line-height:1.4;">¿Primera vez o no tienes contraseña? Entra con un código y créala desde «Mi progreso».</p>
         </div>
         <div id="auth-otp-step" style="display:none">
           <p id="auth-otp-label" style="margin:0 0 12px;font-size:13px;color:#555;"></p>
@@ -228,6 +269,8 @@
     document.getElementById('auth-email-step').style.display = 'block';
     document.getElementById('auth-otp-step').style.display = 'none';
     document.getElementById('auth-email').value = '';
+    document.getElementById('auth-pass').value = '';
+    _authError('');
   };
 
   window.closeAuthModal = function () {
@@ -235,14 +278,42 @@
     if (m) m.style.display = 'none';
   };
 
+  function _authError(msg) {
+    const el = document.getElementById('auth-error');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.style.display = msg ? 'block' : 'none';
+  }
+
+  window.signInPassword = async function () {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-pass').value;
+    if (!email || !password) { _authError('Escribe tu email y tu contraseña.'); return; }
+    _authError('');
+    const btn = document.getElementById('auth-login-btn');
+    btn.disabled = true; btn.textContent = 'Entrando...';
+    const { error } = await window.sb.auth.signInWithPassword({ email, password });
+    btn.disabled = false; btn.textContent = 'Entrar';
+    if (error) {
+      // Las cuentas creadas con código o con Google no tienen contraseña: el mensaje debe
+      // señalar cómo crearla, no dejar al usuario en un callejón sin salida.
+      _authError(/not confirmed/i.test(error.message)
+        ? 'Tu email todavía no está confirmado. Revisa tu correo.'
+        : 'Email o contraseña incorrectos. Si antes entrabas con Google o con un código, entra así y crea tu contraseña desde «Mi progreso».');
+      return;
+    }
+    window.closeAuthModal();
+  };
+
   window.sendOtp = async function () {
     const email = document.getElementById('auth-email').value.trim();
-    if (!email) return;
+    if (!email) { _authError('Escribe tu email.'); return; }
+    _authError('');
     const btn = document.getElementById('auth-send-btn');
     btn.disabled = true; btn.textContent = 'Enviando...';
     const { error } = await window.sb.auth.signInWithOtp({ email });
-    btn.disabled = false; btn.textContent = 'Enviar código';
-    if (error) { alert('Error: ' + error.message); return; }
+    btn.disabled = false; btn.textContent = 'Entrar con un código al correo';
+    if (error) { _authError('No se pudo enviar el código: ' + error.message); return; }
     _otpEmail = email;
     document.getElementById('auth-email-step').style.display = 'none';
     document.getElementById('auth-otp-step').style.display = 'block';
@@ -258,7 +329,7 @@
     btn.disabled = true; btn.textContent = 'Verificando...';
     const { error } = await window.sb.auth.verifyOtp({ email: _otpEmail, token, type: 'email' });
     btn.disabled = false; btn.textContent = 'Verificar';
-    if (error) { alert('Código incorrecto o expirado'); return; }
+    if (error) { _authError('Código incorrecto o expirado.'); return; }
     window.closeAuthModal();
   };
 
@@ -647,6 +718,7 @@
         </div>
         <div id="stats-user-info" style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;font-size:13px;color:#555;"></div>
         <div id="stats-content" style="font-size:14px;color:#333;"></div>
+        <div id="pass-section" style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;"></div>
         <div id="notif-section" style="margin-top:20px;padding-top:16px;border-top:1px solid #eee;"></div>
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eee;">
           <button onclick="window.logout();window.closeStatsPanel();" style="width:100%;padding:9px;background:#f44336;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Cerrar sesión</button>
@@ -847,6 +919,7 @@
       ${examHtml}
     `;
 
+    _renderPassSection();
     _renderNotifSection();
   };
 

@@ -1,4 +1,4 @@
-const CACHE = "palabrasb2-v5";
+const CACHE = "palabrasb2-v6";
 const ASSETS = [
   "/B2.html",
   "/styles.css",

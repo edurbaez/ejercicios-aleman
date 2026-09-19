@@ -668,6 +668,159 @@ th, td {
 }
 #display .orp { color: #e63946; font-weight: bold; }
 
+/* --- Lectura veloz: fuente de textos del sistema --- */
+#lv-source {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    font-size: 14px;
+}
+.lv-source-label { font-weight: 600; }
+#lv-source-level {
+    padding: 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background-color: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+}
+#lv-source-msg { font-size: 13px; opacity: 0.7; }
+
+/* --- Lectura veloz: cobertura léxica --- */
+#lv-analisis {
+    margin: 10px 0;
+    padding: 14px 16px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    box-shadow: 0 1px 3px var(--shadow);
+}
+.lv-an-cargando { margin: 0; font-size: 14px; opacity: 0.7; }
+.lv-an-head { display: flex; align-items: center; gap: 16px; }
+.lv-an-pct {
+    flex-shrink: 0;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+    padding: 12px 14px;
+    border-radius: var(--radius, 8px);
+    color: #fff;
+}
+.lv-an-pct.verde { background-color: #2e7d32; }
+.lv-an-pct.naranja { background-color: #ef6c00; }
+.lv-an-pct.rojo { background-color: #c62828; }
+.lv-an-txt { min-width: 0; }
+.lv-an-txt b { font-size: 15px; }
+.lv-an-txt p { margin: 3px 0 4px; font-size: 14px; line-height: 1.4; }
+.lv-an-txt small { font-size: 12px; opacity: 0.6; line-height: 1.4; display: block; }
+.lv-an-chips { margin-top: 12px; }
+.lv-an-chips-label { display: block; font-size: 13px; opacity: 0.7; margin-bottom: 6px; }
+.lv-chip {
+    display: inline-block;
+    margin: 0 5px 5px 0;
+    padding: 5px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background-color: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+}
+.lv-chip:hover { border-color: var(--btn); }
+.lv-chip i { opacity: 0.55; font-style: normal; font-size: 12px; }
+.lv-chip.lv-chip-listo { cursor: default; border-color: var(--btn); }
+
+/* --- Lectura veloz: fin de pasada --- */
+#lv-finish {
+    margin: 10px 0;
+    padding: 16px;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid #2e7d32;
+    border-radius: var(--radius, 8px);
+    box-shadow: 0 1px 3px var(--shadow);
+}
+.lv-finish-head { font-size: 16px; font-weight: 700; margin-bottom: 10px; }
+.lv-finish-stats { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 10px; }
+.lv-finish-stats div { display: flex; flex-direction: column; }
+.lv-finish-stats b { font-size: 24px; line-height: 1.1; }
+.lv-finish-stats span { font-size: 12px; opacity: 0.6; }
+.lv-finish-nota { margin: 0 0 12px; font-size: 13px; line-height: 1.5; opacity: 0.85; }
+.lv-finish-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* --- Lectura veloz: velocidad efectiva tras el test de comprensión --- */
+#lv-efectivo {
+    margin: 10px 0 0;
+    padding: 12px 14px;
+    background-color: var(--card);
+    border-left: 4px solid var(--btn);
+    border-radius: var(--radius, 8px);
+    font-size: 15px;
+    text-align: left;
+}
+.lv-efectivo-consejo { font-size: 13px; opacity: 0.75; }
+
+/* --- Lectura veloz: historial --- */
+#lv-historial { margin-top: 24px; }
+#lv-historial h3 { margin-bottom: 8px; }
+.lv-hist-vacio { font-size: 14px; opacity: 0.55; line-height: 1.5; margin: 0; }
+.lv-hist-resumen { display: flex; flex-wrap: wrap; gap: 22px; margin-bottom: 12px; }
+.lv-hist-resumen div { display: flex; flex-direction: column; }
+.lv-hist-resumen b { font-size: 22px; line-height: 1.1; }
+.lv-hist-resumen span { font-size: 12px; opacity: 0.6; }
+.lv-hist-tabla-wrap { overflow-x: auto; }
+.lv-hist-tabla { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lv-hist-tabla th, .lv-hist-tabla td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+.lv-hist-tabla th { font-size: 12px; opacity: 0.6; font-weight: 600; }
+.lv-hist-tabla td.verde { color: #2e7d32; font-weight: 600; }
+.lv-hist-tabla td.naranja { color: #ef6c00; font-weight: 600; }
+.lv-hist-tabla td.rojo { color: #c62828; font-weight: 600; }
+
+/* --- Etiquetas de los textos guardados --- */
+.saved-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 10px;
+    background-color: var(--border);
+    color: var(--text);
+    vertical-align: middle;
+}
+.saved-badge-nivel { margin: 0 6px 0 0; background-color: var(--btn); color: #fff; }
+
+/* --- Blog view: velocidad de voz y traducción al vuelo --- */
+#blog-rate-wrap { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+#blog-rate { width: 90px; }
+#blog-rate-val { min-width: 42px; opacity: 0.7; }
+.blog-w { cursor: pointer; border-radius: 3px; }
+.blog-w:hover { background-color: rgba(25, 118, 210, 0.18); }
+#lv-tooltip {
+    position: absolute;
+    z-index: 9500;
+    max-width: 260px;
+    padding: 7px 10px;
+    font-size: 14px;
+    border-radius: 6px;
+    background-color: rgba(0, 0, 0, 0.88);
+    color: #fff;
+    pointer-events: auto;
+    display: none;
+}
+
 #saved-section { margin-top: 20px; }
 #saved-section h3 { margin-bottom: 8px; }
 

@@ -402,12 +402,8 @@
             words = text.split(/\s+/).filter(Boolean);
             const startVal = parseInt(document.getElementById('startIndex').value) || 1;
             index = Math.max(0, Math.min(startVal - 1, words.length - 1));
-            // Iniciar (a diferencia de reanudar, que va por pauseReading) arranca una
-            // medición nueva desde la posición actual: si no, el tiempo ya consumido se
-            // sumaría a un tramo más corto y el WPM saldría por debajo del real.
             lvEnsureSesion(text);
             lvSesion.desde = index;
-            lvSesion.transcurridoMs = 0;
             lvSesion.inicio = Date.now();
             isRunning = true;
             lvOcultarFinish();

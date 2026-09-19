@@ -34,14 +34,20 @@ Speed-reading tool (RSVP — Rapid Serial Visual Presentation). Three mutually e
 
 **Features:**
 - Paste text or upload a file (`.txt`, `.pdf`, `.doc`, `.docx`)
-- Words flash one at a time at a configurable WPM (persisted across sessions)
+- Or bring a levelled text straight from the app's own reading bank (`reading_texts`), preferring ones you haven't seen
+- Words flash at a configurable WPM whose starting value matches your CEFR level (A1 120 → C2 300), persisted across sessions
 - ORP highlighting — focal letter shown in red for faster recognition
-- Option to show 2 words at a time
+- Three grouping modes: 1 word, 2 words, or **Sinneinheiten** — sense groups of up to 5 words that keep prepositional phrases and clauses intact instead of splitting them by position
+- Long compounds get proportionally more time on screen and shrink to fit the box
 - Jump to any word position; rewind 5 words with `«5` / `ArrowLeft`
 - Natural pause on punctuation (`.`, `!`, `?`, `,`)
 - Progress bar and word counter
-- **Save texts** — stored in IndexedDB, resumes from last position
-- **Blog view** — read the full text as a paragraph with TTS narration; chunks highlight as they're read
+- **🔍 Analizar vocabulario** — estimates how much of the text's vocabulary you already know (your level's word lists plus what you've mastered in the SRS) and flags it against the 95% fluent-reading threshold, listing the unknown words to review, each translatable on tap
+- **Velocidad efectiva** — when a text ends you get words, time and real WPM, and one click turns the text into comprehension questions; the score becomes your effective rate (real WPM × % correct)
+- **Lectura repetida** — reread the same text at +10% WPM and watch whether comprehension holds
+- **📈 Mi progreso de lectura** — every finished pass is kept locally (IndexedDB): mean and best effective WPM plus the last 10 passes
+- **Save texts** — stored in IndexedDB with level and word count, resumes from last position
+- **Blog view** — read the full text as a paragraph with TTS narration (German by default, adjustable voice speed); chunks highlight as they're read and any word can be tapped for its translation
 - **Sprint de vocabulario** — RSVP flash of known words with adaptive WPM: source selector (SRS-mastered words by default, system level lists A1–C2, or personal lists), surprise MCQ every 10 words, pace goes up on correct answers and down on mistakes. A "Preguntas sorpresa" toggle (persisted as `lv_sprint_quiz`) lets the student flash words with no quiz interruptions
 - Dark mode toggle
 

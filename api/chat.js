@@ -232,7 +232,7 @@ async function generatePractice(req, res) {
             },
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
-                max_tokens: 400,
+                max_tokens: 1500,
                 messages: system
                     ? [{ role: 'system', content: String(system) }, { role: 'user', content: prompt }]
                     : [{ role: 'user', content: prompt }],
@@ -256,6 +256,27 @@ async function generatePractice(req, res) {
         const valid = Array.isArray(oraciones) && oraciones.length > 0
             && oraciones.every(o => o && typeof o.de === 'string' && typeof o.es === 'string');
         if (!valid) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+
+        // Los distractores de par mínimo son opcionales: se guardan solo si vienen completos,
+        // para que el cliente pueda distinguirlos de las filas antiguas (que no los tienen).
+        oraciones = oraciones.map(o => {
+            const row = { de: o.de, es: o.es };
+            const ds = Array.isArray(o.distractores)
+                ? o.distractores.filter(d => typeof d === 'string' && d.trim() && d.trim() !== o.de.trim())
+                : [];
+            if (ds.length >= 3) {
+                row.distractores = ds.slice(0, 3);
+                const ws = Array.isArray(o.por_que_mal)
+                    ? o.por_que_mal.filter(w => typeof w === 'string' && w.trim())
+                    : [];
+                if (ws.length >= 3) row.por_que_mal = ws.slice(0, 3);
+            }
+            const ordenes = Array.isArray(o.ordenes_validos)
+                ? o.ordenes_validos.filter(x => typeof x === 'string' && x.trim())
+                : [];
+            if (ordenes.length) row.ordenes_validos = ordenes.slice(0, 3);
+            return row;
+        });
 
         const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/grammar_practice_exercises`, {
             method: 'POST',

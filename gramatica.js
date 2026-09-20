@@ -26,6 +26,7 @@ let examCurrentIndex = 0;
 let examSelectedRules = [];
 let examTotalExpected = 0;
 let examIsMixed = false;
+let examMixedLabel = '';
 
 // ─── Flashcard state ──────────────────────────────────────────────────────────
 let fcRules = [];
@@ -465,7 +466,27 @@ function safeAttr(s) {
   return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+// Devuelve los 3 distractores de par mínimo de una oración generada por IA, o null
+// para las filas antiguas (y para rule.ejemplos), que no los llevan.
+function exDistractores(ex) {
+  if (!ex || !Array.isArray(ex.distractores)) return null;
+  const d = ex.distractores.filter(x => typeof x === 'string' && x.trim() && x.trim() !== String(ex.de).trim());
+  return d.length >= 3 ? d.slice(0, 3) : null;
+}
+
 function buildQOpcion(rule, ex, type) {
+  if (type === 'opcion_multiple') {
+    const mins = exDistractores(ex);
+    if (mins) {
+      const why = Array.isArray(ex.por_que_mal) ? ex.por_que_mal : [];
+      const porQueMal = {};
+      mins.forEach((d, i) => { if (typeof why[i] === 'string' && why[i].trim()) porQueMal[d] = why[i]; });
+      return {
+        type, example: ex, correct: ex.de, porQueMal,
+        options: [ex.de, ...mins].sort(() => Math.random() - 0.5)
+      };
+    }
+  }
   const lvl = LEVELS.find(l => GRAMMAR_DATA[l].some(r => r.id === rule.id));
   let pool = [];
   GRAMMAR_DATA[lvl].forEach(r => { if (r.id !== rule.id) r.ejemplos.forEach(e => pool.push(e)); });
@@ -477,6 +498,52 @@ function buildQOpcion(rule, ex, type) {
   return { type, example: ex, correct: ex.es, options: [ex.es, ...dist.map(d => d.es)].sort(() => Math.random() - 0.5) };
 }
 
+// El hueco sale del propio par mínimo: la posición en la que los 3 distractores
+// difieren de la oración correcta es, por construcción, el punto que evalúa la regla
+// (y sus alternativas son incorrectas *en esta frase*, no artículos sueltos al azar).
+function huecoDesdePares(ex) {
+  const mins = exDistractores(ex);
+  if (!mins) return null;
+  const base = String(ex.de).split(/\s+/);
+  const tramos = [];
+  for (const d of mins) {
+    const w = String(d).split(/\s+/);
+    if (w.length !== base.length) return null;
+    const diff = [];
+    for (let k = 0; k < base.length; k++) if (w[k] !== base[k]) diff.push(k);
+    // Cada distractor debe cambiar un tramo contiguo (p. ej. "des Mannes").
+    if (!diff.length || diff[diff.length - 1] - diff[0] + 1 !== diff.length) return null;
+    tramos.push([diff[0], diff[diff.length - 1], w]);
+  }
+  // El hueco es la unión de esos tramos, para que las 4 formas encajen en él.
+  const ini = Math.min(...tramos.map(t => t[0]));
+  const fin = Math.max(...tramos.map(t => t[1]));
+  if (fin - ini + 1 > 4) return null;
+  if (ini === 0 && fin === base.length - 1) return null;
+  const correct = base.slice(ini, fin + 1).join(' ');
+  const alt = tramos.map(t => t[2].slice(ini, fin + 1).join(' '));
+  if (alt.some(x => x === correct) || new Set(alt).size !== alt.length) return null;
+  const sentence = [...base.slice(0, ini), '___', ...base.slice(fin + 1)].join(' ');
+  return { ini, fin, correct, alt, sentence };
+}
+
+function buildQHueco(ex) {
+  const h = huecoDesdePares(ex);
+  if (!h) return null;
+  return {
+    type: 'hueco', example: ex, sentence: h.sentence, correct: h.correct,
+    prompt: 'Completa el hueco:',
+    options: [h.correct, ...h.alt].sort(() => Math.random() - 0.5)
+  };
+}
+
+// Producción controlada: el mismo hueco, pero escribiendo en vez de elegir.
+function buildQEscribir(ex) {
+  const h = huecoDesdePares(ex);
+  if (!h) return null;
+  return { type: 'escribir_hueco', example: ex, sentence: h.sentence, correct: h.correct };
+}
+
 function buildQOrdenar(ex) {
   const raw = ex.de.replace(/[.!?,]$/, '');
   const words = raw.split(/\s+/);
@@ -484,7 +551,10 @@ function buildQOrdenar(ex) {
   let shuffled = words.slice().sort(() => Math.random() - 0.5);
   let tries = 0;
   while (shuffled.join(' ') === words.join(' ') && ++tries < 10) shuffled.sort(() => Math.random() - 0.5);
-  return { type: 'ordenar', example: ex, words: shuffled, correct: words.join(' ') };
+  const alt = (Array.isArray(ex.ordenes_validos) ? ex.ordenes_validos : [])
+    .filter(o => typeof o === 'string' && o.trim())
+    .map(o => o.replace(/[.!?,]$/, '').trim());
+  return { type: 'ordenar', example: ex, words: shuffled, correct: words.join(' '), accepted: [words.join(' '), ...alt] };
 }
 
 function buildQArticulo(ex) {
@@ -496,23 +566,44 @@ function buildQArticulo(ex) {
   return { type: 'articulo', example: ex, sentence: parts.join(' '), correct: art.clean, options: [art.clean, ...pool.slice(0, 3)].sort(() => Math.random() - 0.5) };
 }
 
+// La comparación depende del tipo: el alemán admite varios órdenes correctos y en
+// producción escrita no se debe penalizar la mayúscula o el umlaut escrito ue/ae/oe.
+function quizIsCorrect(q, chosen) {
+  if (q.type === 'escribir_hueco') return examNormalize(chosen) === examNormalize(q.correct);
+  if (q.type === 'ordenar') {
+    return (q.accepted || [q.correct]).some(a => examNormalize(a) === examNormalize(chosen));
+  }
+  return chosen === q.correct;
+}
+
+// Dificultad creciente dentro de la sesión: reconocer -> completar -> reordenar ->
+// producir. Empezar por lo más exigente desanima y no prepara la producción.
+const QUIZ_RANK = { opcion_multiple: 0, identificar: 0, articulo: 1, hueco: 1, ordenar: 2, escribir_hueco: 3 };
+
 function buildQuizQuestions(rule) {
   const exs = rule.ejemplos.slice().sort(() => Math.random() - 0.5);
   const pool = Array.from({ length: PRACTICE_EXERCISE_COUNT }, (_, i) => exs[i % exs.length]);
   let lastType = null;
   return pool.map(ex => {
-    const allTypes = ['opcion_multiple', 'identificar', 'ordenar', 'articulo'].sort(() => Math.random() - 0.5);
+    // Con pares mínimos, 'identificar' (DE a ES) se descarta: sus opciones vienen
+    // de otras reglas y se resuelven por vocabulario, no aplicando la regla.
+    const hasMin = !!exDistractores(ex);
+    const allTypes = (hasMin
+      ? ['opcion_multiple', 'hueco', 'escribir_hueco', 'ordenar']
+      : ['opcion_multiple', 'identificar', 'ordenar', 'articulo']).sort(() => Math.random() - 0.5);
     const typeOrder = [...allTypes.filter(t => t !== lastType), ...allTypes.filter(t => t === lastType)];
     for (const t of typeOrder) {
       let q = null;
       if (t === 'opcion_multiple' || t === 'identificar') q = buildQOpcion(rule, ex, t);
       else if (t === 'ordenar') q = buildQOrdenar(ex);
+      else if (t === 'hueco') q = buildQHueco(ex);
+      else if (t === 'escribir_hueco') q = buildQEscribir(ex);
       else if (t === 'articulo') q = buildQArticulo(ex);
       if (q) { lastType = t; return q; }
     }
-    lastType = lastType === 'opcion_multiple' ? 'identificar' : 'opcion_multiple';
+    lastType = (hasMin || lastType !== 'opcion_multiple') ? 'opcion_multiple' : 'identificar';
     return buildQOpcion(rule, ex, lastType);
-  });
+  }).sort((a, b) => (QUIZ_RANK[a.type] || 0) - (QUIZ_RANK[b.type] || 0));
 }
 
 async function startQuiz(ruleId) {
@@ -528,14 +619,18 @@ async function startQuiz(ruleId) {
   wrap.innerHTML = '<div class="gram-quiz-loading">Generando práctica…</div>';
 
   let practicaEjs;
+  let fallback = false;
   try {
     practicaEjs = await getPracticeSentences(rule, level);
   } catch(e) {
+    // Sin sesión o sin red se practica con los ejemplos de la regla: son paradigmas,
+    // no oraciones de práctica, así que se avisa en vez de degradar en silencio.
     practicaEjs = rule.ejemplos;
+    fallback = true;
   }
 
   const practiceRule = Object.assign({}, rule, { ejemplos: practicaEjs });
-  quizSession = { ruleId, rule, questions: buildQuizQuestions(practiceRule), currentIndex: 0, results: [] };
+  quizSession = { ruleId, rule, fallback, questions: buildQuizQuestions(practiceRule), currentIndex: 0, results: [] };
   ordenarSelected = [];
   renderQuizQuestion();
 }
@@ -559,12 +654,18 @@ function renderQuizQuestion() {
     ).join('');
     bodyHtml = '<div class="gram-quiz-question"><small>¿Qué significa en español?</small>' + q.example.de + '</div>' +
       '<div class="gram-quiz-options">' + opts + '</div>';
-  } else if (q.type === 'articulo') {
+  } else if (q.type === 'articulo' || q.type === 'hueco') {
     const opts = q.options.map(o =>
       '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
     ).join('');
-    bodyHtml = '<div class="gram-quiz-question"><small>Completa con el artículo correcto:</small>' + q.sentence + '</div>' +
+    bodyHtml = '<div class="gram-quiz-question"><small>' + (q.prompt || 'Completa con el artículo correcto:') + '</small>' + q.sentence + '</div>' +
       '<div class="gram-quiz-options gram-quiz-opts-4">' + opts + '</div>';
+  } else if (q.type === 'escribir_hueco') {
+    bodyHtml = '<div class="gram-quiz-question"><small>Escribe la forma correcta en el hueco:</small>' + q.sentence + '</div>' +
+      '<div class="gram-quiz-input-wrap">' +
+        '<input id="quiz-input" class="gram-quiz-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe aquí…" onkeydown="if(event.key===&quot;Enter&quot;)submitQuizInput()">' +
+        '<button class="gram-quiz-btn primary" id="submit-escribir" onclick="submitQuizInput()">Comprobar</button>' +
+      '</div>';
   } else if (q.type === 'ordenar') {
     const wordBtns = q.words.map((w, i) =>
       '<button class="gram-quiz-word" onclick="ordenarClick(this,' + i + ')">' + w + '</button>'
@@ -579,6 +680,9 @@ function renderQuizQuestion() {
   }
 
   wrap.innerHTML =
+    (quizSession.fallback
+      ? '<div class="gram-quiz-note">⚡ Practicando con los ejemplos de la regla (sin sesión o sin conexión). Inicia sesión para ejercicios generados.</div>'
+      : '') +
     '<div class="gram-quiz-progress">' +
       '<div class="gram-quiz-progress-track">' +
         '<div class="gram-quiz-progress-bar" style="width:' + pct + '%"></div>' +
@@ -587,14 +691,24 @@ function renderQuizQuestion() {
     '</div>' +
     bodyHtml +
     '<div class="gram-quiz-feedback" id="qfb-' + ruleId + '"></div>';
+
+  if (q.type === 'escribir_hueco') {
+    setTimeout(() => { const inp = document.getElementById('quiz-input'); if (inp) inp.focus(); }, 50);
+  }
+}
+
+function submitQuizInput() {
+  const inp = document.getElementById('quiz-input');
+  if (!inp || !inp.value.trim()) return;
+  checkQuizAnswer(inp.value.trim());
 }
 
 function checkQuizAnswer(chosen) {
   const { ruleId, questions, currentIndex, rule } = quizSession;
   const q = questions[currentIndex];
-  const isCorrect = chosen === q.correct;
+  const isCorrect = quizIsCorrect(q, chosen);
 
-  document.querySelectorAll('#quiz-' + ruleId + ' .gram-quiz-opt, #submit-ordenar').forEach(b => { b.disabled = true; });
+  document.querySelectorAll('#quiz-' + ruleId + ' .gram-quiz-opt, #submit-ordenar, #submit-escribir, #quiz-input').forEach(b => { b.disabled = true; });
   document.querySelectorAll('#quiz-' + ruleId + ' .gram-quiz-opt').forEach(b => {
     if (b.dataset.val === q.correct) b.classList.add('correct');
     else if (b.dataset.val === chosen && !isCorrect) b.classList.add('wrong');
@@ -605,9 +719,13 @@ function checkQuizAnswer(chosen) {
 
   const isLast = currentIndex >= questions.length - 1;
   const fb = document.getElementById('qfb-' + ruleId);
+  // Con pares mínimos sabemos qué error concreto cometió: eso enseña más que el tip genérico.
+  const motivo = !isCorrect && q.porQueMal ? q.porQueMal[chosen] : null;
   fb.innerHTML =
     (isCorrect ? '<span class="qfb-correct">✓ ¡Correcto!</span>' : '<span class="qfb-wrong">✗ Era: <strong>' + q.correct + '</strong></span>') +
-    '<div class="qfb-tip">💡 ' + rule.tip + '</div>' +
+    (motivo
+      ? '<div class="qfb-motivo">⚠️ ' + motivo + '</div>'
+      : '<div class="qfb-tip">💡 ' + rule.tip + '</div>') +
     '<div class="gram-quiz-actions">' +
     (isLast
       ? '<button class="gram-quiz-btn primary" onclick="showQuizResult()">Ver resultado →</button>'
@@ -626,7 +744,8 @@ function showQuizResult() {
   const { ruleId, results } = quizSession;
   const correct = results.filter(Boolean).length;
   const total = results.length;
-  updateSRSEntry(ruleId, correct === total ? 4 : correct >= 2 ? 3 : 1);
+  const ratio = total ? correct / total : 0;
+  updateSRSEntry(ruleId, ratio === 1 ? 4 : ratio >= 0.8 ? 3 : ratio >= 0.6 ? 2 : 1);
   if (window.logEvent) window.logEvent('gramatica', 'quiz_completed', { rule_id: ruleId, correct, total });
   const stars = ['☆☆☆','★☆☆','★★☆','★★★'][correct] || '★★★';
   const rachaHtml = correct === total ? '<div class="gram-quiz-racha">⚡ ¡Racha perfecta!</div>' : '';
@@ -797,8 +916,12 @@ const PRACTICE_EXERCISE_COUNT = 5;
 
 const PRACTICE_SYSTEM_PROMPT =
   'Eres un profesor de alemán. Genera exactamente ' + PRACTICE_EXERCISE_COUNT + ' oraciones de práctica en JSON para una regla gramatical.\n' +
-  'Responde ÚNICAMENTE con un array JSON válido: [{"de":"...","es":"..."},...]\n' +
-  'Sin texto adicional ni bloques de código markdown.\n' +
+  'Responde ÚNICAMENTE con un array JSON válido, sin texto adicional ni bloques de código markdown:\n' +
+  '[{"de":"...","es":"...","distractores":["...","...","..."],"por_que_mal":["...","...","..."]},...]\n' +
+  '"de": la oración correcta en alemán. "es": su traducción al español.\n' +
+  '"distractores": exactamente 3 variantes INCORRECTAS de esa MISMA oración. Cada una idéntica a "de" salvo en el punto gramatical que evalúa la regla (el caso, la terminación, la posición del verbo, el auxiliar). No cambies el vocabulario, el tema ni la longitud: solo el rasgo gramatical. Ninguna puede ser correcta en alemán.\n' +
+  '"por_que_mal": exactamente 3 explicaciones en español, una por distractor y en el mismo orden, de máximo 15 palabras, diciendo qué error concreto contiene.\n' +
+  '"ordenes_validos" (opcional): otros órdenes de palabras de "de" igualmente correctos, con las MISMAS palabras (p. ej. anteponer un complemento manteniendo el verbo en 2ª posición). Omite el campo si no hay ninguno.\n' +
   'Las oraciones deben ser distintas entre sí y distintas a los ejemplos ya usados en la explicación.\n' +
   'Usa vocabulario y temas apropiados al nivel CEFR indicado.';
 
@@ -887,7 +1010,9 @@ const EXAM_RULES_COUNT = 5;
 const EXAM_MIXED_RULES_PER_LEVEL = 2;
 
 const EXAM_SYSTEM_PROMPT =
-  'Eres un profesor de alemán. Genera exactamente 2 ejercicios de gramática alemana en JSON para la regla indicada.\n\n' +
+  'Eres un profesor de alemán. Genera exactamente 2 ejercicios de gramática alemana en JSON para la regla indicada.\n' +
+  'Adapta el vocabulario y los temas al nivel CEFR y a los temas indicados en el mensaje.\n' +
+  'La "instruccion" debe decir SIEMPRE y de forma explícita cuánto se escribe: "Escribe solo el artículo.", "Escribe solo el verbo conjugado.", "Escribe la frase completa." El alumno escribe a ciegas y no puede adivinar el alcance esperado.\n\n' +
   'TIPO "completar":\n' +
   '  instruccion: frase corta en español que indica qué escribir.\n' +
   '    Ejemplos: "Escribe el artículo en Akkusativ." / "Conjuga el verbo en Präsens (ich)."\n' +
@@ -913,21 +1038,63 @@ const EXAM_SYSTEM_PROMPT =
   'PARA TODOS:\n' +
   '  explicacion: 2-3 frases explicando POR QUÉ esa es la respuesta correcta.\n' +
   '  regla_id: el id de la regla evaluada.\n\n' +
-  'Campos obligatorios: tipo, instruccion, enunciado, respuesta_correcta, explicacion, regla_id.\n' +
+  '  respuestas_aceptadas: array con TODAS las formas igualmente correctas de respuesta_correcta (variantes de orden, de grafía o sinónimos gramaticalmente válidos). Si solo hay una, repite respuesta_correcta.\n\n' +
+  'Campos obligatorios: tipo, instruccion, enunciado, respuesta_correcta, respuestas_aceptadas, explicacion, regla_id.\n' +
   'Para "elegir": incluye también opciones.\n' +
   'Usa tipos variados — los 2 ejercicios deben ser de tipos distintos si es posible.\n\n' +
   'Responde ÚNICAMENTE con un array JSON válido. Sin texto adicional ni bloques de código markdown.';
+
+// Compara respuestas del examen sin castigar la tipografía: ignora mayúsculas,
+// puntuación final y espacios de más, y equipara los umlauts escritos ae/oe/ue/ss.
+function examNormalize(v) {
+  return String(v == null ? '' : v)
+    .trim()
+    .toLowerCase()
+    .replace(/[.!?;,]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss');
+}
+
+function examAccepted(q) {
+  var list = [q && q.respuesta_correcta];
+  if (q && Array.isArray(q.respuestas_aceptadas)) list = list.concat(q.respuestas_aceptadas);
+  return list.filter(function(a) { return typeof a === 'string' && a.trim(); });
+}
+
+// { correct, grafia }: grafia avisa (sin penalizar) de que la forma escrita difiere
+// de la canónica — mayúsculas de sustantivo, umlaut escrito como ue/ae/oe.
+function examCheck(q, value) {
+  // En 'elegir' solo vale la clave: admitir alternativas pintaría dos opciones como correctas.
+  var accepted = (q && q.tipo === 'elegir')
+    ? [q.respuesta_correcta].filter(function(a) { return typeof a === 'string' && a.trim(); })
+    : examAccepted(q);
+  var norm = examNormalize(value);
+  if (!accepted.some(function(a) { return examNormalize(a) === norm; })) return { correct: false, grafia: false };
+  var tidy = String(value == null ? '' : value).trim().replace(/\s+/g, ' ');
+  var exact = accepted.some(function(a) { return String(a).trim().replace(/\s+/g, ' ') === tidy; });
+  return { correct: true, grafia: !exact };
+}
 
 function pickRandomRules(level, count) {
   const rules = GRAMMAR_DATA[level];
   return [...rules].sort(function() { return Math.random() - 0.5; }).slice(0, count);
 }
 
+// El nivel sale del prefijo del id ('b1-04' -> 'B1'); en el examen mixto cada regla
+// puede ser de un nivel distinto, así que no sirve currentLevel.
+function ruleLevel(rule) {
+  var pref = String(rule.id || '').split('-')[0].toUpperCase();
+  return GRAMMAR_DATA[pref] ? pref : currentLevel;
+}
+
 function buildExamPromptForRule(rule) {
   var ejemplos = rule.ejemplos.slice(0, 2).map(function(e) {
     return '     • ' + e.de + ' → ' + e.es;
   }).join('\n');
+  var level = ruleLevel(rule);
   return 'Genera 2 ejercicios sobre esta regla:\n\n' +
+    'Nivel CEFR: ' + level + '\n' +
+    'Temas apropiados: ' + (LEVEL_TOPICS[level] || LEVEL_TOPICS.A1) + '\n' +
     '[regla_id: ' + rule.id + '] ' + rule.titulo + ' — ' + rule.subtitulo + '\n' +
     'Clave: ' + rule.tip + '\n' +
     'Ejemplos:\n' + ejemplos;
@@ -962,12 +1129,20 @@ async function startExam() {
 
 async function startMixedExam() {
   examIsMixed = true;
-  var levels = ['A1', 'A2', 'B1', 'B2'];
+  // Repaso acumulativo: el nivel actual y hasta tres por debajo, en vez de un
+  // A1-B2 fijo que dejaba fuera a C1/C2 y sobraba a un alumno de A1.
+  var idx = LEVELS.indexOf(currentLevel);
+  if (idx === -1) idx = LEVELS.length - 1;
+  var levels = LEVELS.slice(Math.max(0, idx - 3), idx + 1);
+  examMixedLabel = levels.length > 1 ? levels[0] + '–' + levels[levels.length - 1] : levels[0];
   examSelectedRules = [];
+  // Se reparten ~8 reglas entre los niveles elegidos, para que el examen dure lo
+  // mismo tanto si el alumno tiene un solo nivel por debajo como cuatro.
+  var perLevel = Math.max(EXAM_MIXED_RULES_PER_LEVEL, Math.ceil(8 / levels.length));
   levels.forEach(function(lvl) {
     var rules = GRAMMAR_DATA[lvl] || [];
     var shuffled = [...rules].sort(function() { return Math.random() - 0.5; });
-    examSelectedRules = examSelectedRules.concat(shuffled.slice(0, EXAM_MIXED_RULES_PER_LEVEL));
+    examSelectedRules = examSelectedRules.concat(shuffled.slice(0, perLevel));
   });
   startExamWithRules();
 }
@@ -992,6 +1167,7 @@ async function startExamWithRules() {
     var firstBatch = await fetchRuleQuestions(examSelectedRules[0]);
     examQuestions[0] = firstBatch[0] || null;
     examQuestions[1] = firstBatch[1] || null;
+    verifyExamBatch([examQuestions[0], examQuestions[1]]);
 
     hideAllExamOverlays();
     renderExamQuestion(0);
@@ -1007,6 +1183,7 @@ async function startExamWithRules() {
       fetchRuleQuestions(rule).then(function(batch) {
         examQuestions[baseIdx] = batch[0] || null;
         examQuestions[baseIdx + 1] = batch[1] || null;
+        verifyExamBatch([examQuestions[baseIdx], examQuestions[baseIdx + 1]]);
         if (examCurrentIndex === baseIdx || examCurrentIndex === baseIdx + 1) {
           renderExamQuestion(examCurrentIndex);
         }
@@ -1045,6 +1222,7 @@ async function retryRuleBatch(ruleIdx) {
     var batch = await fetchRuleQuestions(examSelectedRules[ruleIdx]);
     examQuestions[baseIdx] = batch[0] || null;
     examQuestions[baseIdx + 1] = batch[1] || null;
+    verifyExamBatch([examQuestions[baseIdx], examQuestions[baseIdx + 1]]);
   } catch(e) {
     examQuestions[baseIdx] = { _state: 'error', ruleIdx: ruleIdx };
     examQuestions[baseIdx + 1] = { _state: 'error', ruleIdx: ruleIdx };
@@ -1106,17 +1284,21 @@ function renderExamQuestion(index) {
   }
 }
 
-function showExamFeedback(isCorrect, q) {
+function showExamFeedback(isCorrect, q, grafia) {
   var fb = document.getElementById('exam-feedback');
   if (!fb) return;
   fb.className = 'exam-feedback ' + (isCorrect ? 'correct' : 'wrong');
   var expText = q.explicacion ? '<span class="exam-fb-exp">' + esc(q.explicacion) + '</span>' : '';
+  var grafiaText = (isCorrect && grafia)
+    ? '<br><span class="exam-fb-exp">✏️ Ojo con la grafía exacta: <strong>' + esc(q.respuesta_correcta) + '</strong></span>'
+    : '';
   fb.innerHTML =
     '<span class="exam-fb-icon">' + (isCorrect ? '✓' : '✗') + '</span>' +
     '<div class="exam-fb-text">' +
     (isCorrect
       ? '<strong>Correcto</strong>'
       : 'Incorrecto — la respuesta era <strong>' + esc(q.respuesta_correcta) + '</strong>') +
+    grafiaText +
     (expText ? '<br>' + expText : '') +
     '</div>';
   fb.style.display = 'flex';
@@ -1130,17 +1312,15 @@ function showExamFeedback(isCorrect, q) {
 function selectExamOption(btn, value) {
   if (btn.classList.contains('selected')) return;
   var q = examQuestions[examCurrentIndex];
-  var isCorrect = value.trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
+  var verdict = examCheck(q, value);
 
   document.querySelectorAll('.exam-option-btn').forEach(function(b) {
     b.disabled = true;
-    if (b.textContent.trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase()) {
-      b.classList.add('exam-opt-correct');
-    }
+    if (examCheck(q, b.textContent).correct) b.classList.add('exam-opt-correct');
   });
-  btn.classList.add('selected', isCorrect ? 'exam-opt-correct' : 'exam-opt-wrong');
+  btn.classList.add('selected', verdict.correct ? 'exam-opt-correct' : 'exam-opt-wrong');
   examAnswers[examCurrentIndex] = value;
-  showExamFeedback(isCorrect, q);
+  showExamFeedback(verdict.correct, q, verdict.grafia);
 }
 
 function submitExamInput() {
@@ -1152,9 +1332,9 @@ function submitExamInput() {
   var submitBtn = document.querySelector('.exam-submit-btn');
   if (submitBtn) submitBtn.disabled = true;
   var q = examQuestions[examCurrentIndex];
-  var isCorrect = val.toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
+  var verdict = examCheck(q, val);
   examAnswers[examCurrentIndex] = val;
-  showExamFeedback(isCorrect, q);
+  showExamFeedback(verdict.correct, q, verdict.grafia);
 }
 
 function examNext() {
@@ -1167,31 +1347,41 @@ function examNext() {
 
 function showExamResults() {
   hideAllExamOverlays();
-  var total = examTotalExpected;
   var correct = 0;
   var items = [];
-  for (var i = 0; i < total; i++) {
+  for (var i = 0; i < examTotalExpected; i++) {
     var q = examQuestions[i];
+    // Una pregunta que no llegó a cargarse no es un fallo del alumno: queda fuera
+    // de la nota en vez de contar como incorrecta.
     if (!q || q._state) {
-      items.push({ q: { enunciado: '—', respuesta_correcta: '—', regla_id: null }, userAnswer: '', isCorrect: false });
+      items.push({ q: { enunciado: '—', respuesta_correcta: '—', regla_id: null }, userAnswer: '', isCorrect: false, unavailable: true });
       continue;
     }
-    var userAnswer = (examAnswers[i] || '').trim().toLowerCase();
-    var correctAnswer = (q.respuesta_correcta || '').trim().toLowerCase();
-    var isCorrect = userAnswer === correctAnswer;
+    var isCorrect = examCheck(q, examAnswers[i] || '').correct;
     if (isCorrect) correct++;
-    items.push({ q: q, userAnswer: examAnswers[i] || '', isCorrect: isCorrect });
+    items.push({ q: q, userAnswer: examAnswers[i] || '', isCorrect: isCorrect, unavailable: false });
   }
 
-  var pct = Math.round((correct / total) * 100);
+  var answered = items.filter(function(it) { return !it.unavailable; });
+  var total = answered.length;
+  var skipped = items.length - total;
+  var pct = total ? Math.round((correct / total) * 100) : 0;
   var emoji = pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚';
-  var levelLabel = examIsMixed ? 'Mixto A1–B2' : 'Nivel ' + currentLevel;
+  var levelLabel = examIsMixed ? 'Mixto ' + examMixedLabel : 'Nivel ' + currentLevel;
   var rulesLabel = examSelectedRules.length + ' reglas';
 
   var html = '<h2 class="exam-score">' + emoji + ' ' + correct + ' / ' + total + '</h2>' +
-    '<p class="exam-score-sub">' + levelLabel + ' · ' + rulesLabel + ' · ' + pct + '%</p>' +
+    '<p class="exam-score-sub">' + levelLabel + ' · ' + rulesLabel + ' · ' + pct + '%' +
+      (skipped ? ' · ' + skipped + ' pregunta' + (skipped > 1 ? 's' : '') + ' no disponible' + (skipped > 1 ? 's' : '') : '') +
+    '</p>' +
     '<div class="exam-results-list">';
   items.forEach(function(item) {
+    if (item.unavailable) {
+      html += '<div class="exam-result-item">' +
+        '<span class="exam-result-icon">⏳</span>' +
+        '<div class="exam-result-detail"><p class="exam-result-q">Pregunta no disponible — no cuenta para la nota.</p></div></div>';
+      return;
+    }
     html += '<div class="exam-result-item ' + (item.isCorrect ? 'correct' : 'wrong') + '">' +
       '<span class="exam-result-icon">' + (item.isCorrect ? '✅' : '❌') + '</span>' +
       '<div class="exam-result-detail">' +
@@ -1257,7 +1447,7 @@ function showExamResults() {
       score: correct,
       total: total,
       rules: examSelectedRules.map(function(r) { return r.id; }),
-      answers: items.map(function(it) {
+      answers: answered.map(function(it) {
         return {
           enunciado: it.q.enunciado,
           respuesta_correcta: it.q.respuesta_correcta,
@@ -1288,7 +1478,7 @@ function examShowFailedRules() {
   for (var i = 0; i < examTotalExpected; i++) {
     var q = examQuestions[i];
     if (!q || q._state) continue;
-    var isCorrect = (examAnswers[i] || '').trim().toLowerCase() === (q.respuesta_correcta || '').trim().toLowerCase();
+    var isCorrect = examCheck(q, examAnswers[i] || '').correct;
     items.push({ reglaId: q.regla_id, isCorrect: isCorrect });
   }
   var failedIds = items
@@ -1300,6 +1490,59 @@ function examShowFailedRules() {
 
 function examConfirmExit() {
   if (confirm('¿Salir del examen? Se perderá el progreso.')) hideAllExamOverlays();
+}
+
+const EXAM_VERIFY_SYSTEM_PROMPT =
+  'Eres un profesor de alemán. Resuelve cada ejercicio de forma independiente, sin ver ninguna solución.\n' +
+  'Responde ÚNICAMENTE con un array JSON de strings, uno por ejercicio y en el mismo orden: ["...","..."]\n' +
+  'Cada string es solo la respuesta que pide la instrucción, sin explicaciones ni comillas extra.';
+
+// Segunda resolución independiente del ítem (mismo patrón que kasus.html). Si las dos
+// respuestas discrepan, el ítem es ambiguo o su clave es dudosa: en vez de penalizar
+// al alumno se acepta también esa otra respuesta. No se aplica a los de opción
+// múltiple, donde dar dos opciones por buenas rompería el ejercicio.
+async function verifyExamBatch(batch) {
+  try {
+    var solvable = (batch || []).filter(function(q) {
+      return q && !q._state && q.tipo !== 'elegir' && q.enunciado && q.respuesta_correcta;
+    });
+    if (!solvable.length) return;
+    var token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
+    if (!token) return;
+
+    var prompt = solvable.map(function(q, i) {
+      return (i + 1) + '. ' + (q.instruccion || '') + ' || ' + q.enunciado;
+    }).join('\n');
+
+    var resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        system: EXAM_VERIFY_SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 300,
+        temperature: 0
+      })
+    });
+    if (!resp.ok) return;
+    var data = JSON.parse(await resp.text());
+    var reply = data.reply || '';
+    var sols;
+    try { sols = JSON.parse(reply); }
+    catch (e) {
+      var m = reply.match(/\[[\s\S]*\]/);
+      if (!m) return;
+      sols = JSON.parse(m[0]);
+    }
+    if (!Array.isArray(sols)) return;
+
+    solvable.forEach(function(q, i) {
+      var sol = sols[i];
+      if (typeof sol !== 'string' || !sol.trim()) return;
+      if (examNormalize(sol) === examNormalize(q.respuesta_correcta)) return;
+      q.respuestas_aceptadas = (Array.isArray(q.respuestas_aceptadas) ? q.respuestas_aceptadas : []).concat(sol.trim());
+    });
+  } catch (e) { /* la verificación es best-effort: nunca debe tumbar el examen */ }
 }
 
 async function fetchRuleQuestions(rule) {

@@ -22,6 +22,7 @@
       <div style="font-size:12px;color:#777;line-height:1.4;margin-bottom:10px;">Créala una vez y entra sin abrir el correo.</div>
       <input id="pass-new" type="password" autocomplete="new-password" placeholder="Nueva contraseña (mín. 8)" style="${inputCss}">
       <input id="pass-new2" type="password" autocomplete="new-password" placeholder="Repetir contraseña" style="${inputCss}">
+      <button type="button" onclick="window.suggestPassword()" style="background:none;border:none;padding:0;margin-bottom:8px;color:#1976D2;cursor:pointer;font-size:12px;text-decoration:underline;">🎲 Sugerir una contraseña segura</button>
       <div id="pass-msg" style="display:none;font-size:12px;line-height:1.4;margin-bottom:8px;"></div>
       <button id="pass-save-btn" onclick="window.savePassword()" style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Guardar contraseña</button>`;
   }
@@ -33,6 +34,33 @@
     el.style.color = ok ? '#2e7d32' : '#c62828';
     el.style.display = text ? 'block' : 'none';
   }
+
+  // Sin l/I/1 ni O/0: la contraseña tiene que poder dictarse o copiarse a mano sin ambigüedad.
+  const PASS_ALPHABET = 'abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%&*?';
+
+  function _generatePassword() {
+    const need = [/[a-z]/, /[A-Z]/, /[0-9]/, /[^a-zA-Z0-9]/];
+    for (;;) {
+      const bytes = new Uint32Array(16);
+      crypto.getRandomValues(bytes);
+      const pass = [...bytes].map(n => PASS_ALPHABET[n % PASS_ALPHABET.length]).join('');
+      if (need.every(re => re.test(pass))) return pass;
+    }
+  }
+
+  window.suggestPassword = async function () {
+    const p1 = document.getElementById('pass-new');
+    const p2 = document.getElementById('pass-new2');
+    if (!p1 || !p2) return;
+    const pass = _generatePassword();
+    p1.value = p2.value = pass;
+    p1.type = p2.type = 'text';
+    let copied = false;
+    try { await navigator.clipboard.writeText(pass); copied = true; } catch (e) { /* sin permiso de portapapeles */ }
+    _passMsg(copied
+      ? 'Generada y copiada al portapapeles. Guárdala en tu gestor de contraseñas y pulsa «Guardar contraseña».'
+      : 'Generada. Cópiala y guárdala antes de pulsar «Guardar contraseña».', true);
+  };
 
   window.savePassword = async function () {
     const p1 = document.getElementById('pass-new').value;
@@ -47,6 +75,8 @@
     if (error) { _passMsg('No se pudo guardar: ' + error.message); return; }
     document.getElementById('pass-new').value = '';
     document.getElementById('pass-new2').value = '';
+    document.getElementById('pass-new').type = 'password';
+    document.getElementById('pass-new2').type = 'password';
     _passMsg('Listo. Ya puedes entrar con tu email y esta contraseña.', true);
   };
 

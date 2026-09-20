@@ -367,7 +367,7 @@ async function generateOneTeilAttempt(level, tema, expected, noRepeat) {
         },
         body: JSON.stringify({
             model: 'gpt-4o-mini',
-            max_tokens: 2000,
+            max_tokens: expected.maxTokens || 2000,
             response_format: { type: 'json_object' },
             messages: [{ role: 'user', content: buildSingleTeilPrompt(level, tema, expected, noRepeat) }],
         }),

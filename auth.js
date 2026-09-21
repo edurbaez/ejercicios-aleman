@@ -727,6 +727,29 @@
     }
   };
 
+  // Mirrors admin/index.html's APP_NAMES/INFRA_EVENTS (admin doesn't load auth.js).
+  const _APP_NAMES = {
+    'a1': 'Vocabulario A1', 'a2': 'Vocabulario A2', 'b1': 'Vocabulario B1',
+    'b2': 'Vocabulario B2', 'c1': 'Vocabulario C1', 'c2': 'Vocabulario C2',
+    'diccionario': 'Diccionario',
+    'chat-voz': 'Chat de Voz',
+    'chatvoz2': 'Chat de Voz 2',
+    'lectura-veloz': 'Entrenamiento de lectura',
+    'corrector': 'Corrector',
+    'kasus': 'Kasus Trainer',
+    'gramatica': 'Gramática',
+    'chat-reformulaciones': 'Reformulaciones',
+    'plan': 'Plan 30 días',
+    'mundliche': 'Práctica Oral',
+    'escritura': 'Escritura',
+    'auth': 'Acceso / Autenticación',
+  };
+  const _INFRA_EVENTS = new Set(['session_start', 'session_end', 'mode_change', 'auto_session_end']);
+
+  function _escHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   window.closeStatsPanel = function () {
     const p = document.getElementById('stats-panel');
     if (p) p.style.display = 'none';
@@ -767,32 +790,32 @@
     content.innerHTML = '<p style="color:#999;font-size:13px;">Cargando estadísticas…</p>';
 
     const token = window.getAuthToken();
-    let data, examData = [];
+    const last5Cutoff = new Date();
+    last5Cutoff.setHours(0, 0, 0, 0);
+    last5Cutoff.setDate(last5Cutoff.getDate() - 4); // today + 4 previous days
+    let data, recentEvents = [];
     try {
-      const [evRes, exRes] = await Promise.all([
+      const [evRes, recentRes] = await Promise.all([
         fetch(
-          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,session_start,lookup,text_evaluated,photo_evaluated,kasus_answered,revision,sprint_end,comp_completed,quiz_completed)&order=created_at.asc&limit=10000`,
+          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,text_evaluated,photo_evaluated,kasus_answered,revision,sprint_end,comp_completed,quiz_completed)&order=created_at.asc&limit=10000`,
           { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
         ),
-        window.sb.from('exam_results').select('created_at,level,score,total').order('created_at', { ascending: false }).limit(20)
+        window.sb.from('usage_events').select('app,event_type,payload,created_at')
+          .eq('user_id', window.currentUser.id)
+          .gte('created_at', last5Cutoff.toISOString())
+          .order('created_at', { ascending: false })
+          .limit(5000)
       ]);
       if (!evRes.ok) throw new Error(await evRes.text());
       data = await evRes.json();
-      examData = exRes.data || [];
+      recentEvents = recentRes.data || [];
     } catch (err) {
       content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
       return;
     }
 
     const quizSessions = data.filter(e => e.event_type === 'quiz_session_end');
-    const totalWords   = quizSessions.reduce((s, e) => s + (e.payload?.total || 0), 0);
-    const totalCorrect = quizSessions.reduce((s, e) => s + (e.payload?.correct || 0), 0);
-    const pct          = totalWords > 0 ? Math.round(totalCorrect / totalWords * 100) : null;
-    const lookups  = data.filter(e => e.event_type === 'lookup').length;
-    const audios   = data.filter(e => e.event_type === 'audio_sent').length;
-    const sessions = data.filter(e => e.event_type === 'session_start').length;
     const escrituras = data.filter(e => e.event_type === 'text_evaluated' || e.event_type === 'photo_evaluated');
-    const totalEscrituras = escrituras.length;
 
     const localDay = e => new Date(e.created_at).toLocaleDateString('sv-SE');
 
@@ -871,32 +894,30 @@
     while (si >= 0 && activityCounts[si] === 0) si--; // skip trailing empty days
     while (si >= 0 && activityCounts[si] > 0) { streak++; si--; }
 
-    function row(label, value) {
-      return `<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f0f0f0;">
-        <span style="color:#555;">${label}</span>
-        <strong>${value}</strong>
-      </div>`;
+    // Last 5 days, same weighting as admin/index.html's renderLast5Days():
+    // quiz sessions count their words, infra events count 0, everything else 1.
+    const byDay = {};
+    for (const e of recentEvents) {
+      const w = e.event_type === 'quiz_session_end' ? (e.payload?.total || 0)
+        : _INFRA_EVENTS.has(e.event_type) ? 0 : 1;
+      if (!w) continue;
+      const day = localDay(e);
+      const name = _APP_NAMES[e.app] || e.app || '?';
+      byDay[day] = byDay[day] || {};
+      byDay[day][name] = (byDay[day][name] || 0) + w;
     }
-
-    // Exam stats
-    let examHtml;
-    if (examData.length === 0) {
-      examHtml = '<div style="color:#aaa;font-size:13px;padding:6px 0;">Sin exámenes completados.</div>';
-    } else {
-      const examAvg = Math.round(examData.reduce((s, e) => s + e.score / e.total, 0) / examData.length * 100);
-      const examRows = examData.slice(0, 5).map(e => {
-        const p = Math.round(e.score / e.total * 100);
-        const col = p >= 80 ? '#2e7d32' : p >= 60 ? '#e65100' : '#c62828';
-        const d = new Date(e.created_at).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        return `<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:13px;">
-          <span style="color:#555;">${d} · <strong>${e.level}</strong></span>
-          <strong style="color:${col}">${e.score}/${e.total}</strong>
-        </div>`;
-      }).join('');
-      examHtml = row('Total completados', examData.length) +
-        row('Promedio', examAvg + '%') +
-        `<div style="margin-top:10px;"><div style="font-size:11px;color:#999;letter-spacing:.5px;margin-bottom:5px;">ÚLTIMOS 5</div>${examRows}</div>`;
-    }
+    const last5Html = Object.keys(byDay).length === 0
+      ? '<div style="color:#aaa;font-size:13px;padding:6px 0;">Sin actividad en los últimos 5 días.</div>'
+      : Object.keys(byDay).sort().reverse().map(day => {
+          const [y, m, d] = day.split('-');
+          const pills = Object.entries(byDay[day]).sort((a, b) => b[1] - a[1])
+            .map(([name, n]) => `<span style="background:#f0f6ff;color:#1565C0;padding:1px 8px;border-radius:20px;font-size:11px;font-weight:500;">${_escHtml(name)}: ${n}</span>`)
+            .join('');
+          return `<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid #f0f0f0;">
+            <span style="font-size:11px;color:#aaa;width:72px;flex-shrink:0;padding-top:1px;">${d}/${m}/${y}</span>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">${pills}</div>
+          </div>`;
+        }).join('');
 
     const bars = days30.map((day, i) => {
       const count    = counts[i];
@@ -918,12 +939,12 @@
         <div style="font-size:11px;font-weight:600;color:#1565C0;letter-spacing:.5px;margin-bottom:6px;">HOY</div>
         <div style="display:flex;gap:8px;">
           <div style="flex:1;padding:12px 10px;background:#E3F2FD;border-radius:8px;text-align:center;">
-            <div style="font-size:32px;font-weight:700;color:#1976D2;line-height:1;">${todayWords}</div>
+            <div style="font-size:14px;font-weight:700;color:#1976D2;line-height:1;">${todayWords}</div>
             <div style="font-size:11px;color:#555;margin-top:4px;">palabra${todayWords !== 1 ? 's' : ''}</div>
             <div style="font-size:11px;color:#1565C0;margin-top:2px;">${todayPct !== null ? `${todayPct}% ✓` : '—'}</div>
           </div>
           <div style="flex:1;padding:12px 10px;background:#E8F5E9;border-radius:8px;text-align:center;">
-            <div style="font-size:32px;font-weight:700;color:#388E3C;line-height:1;">${todayAudios}</div>
+            <div style="font-size:14px;font-weight:700;color:#388E3C;line-height:1;">${todayAudios}</div>
             <div style="font-size:11px;color:#555;margin-top:4px;">audio${todayAudios !== 1 ? 's' : ''}</div>
             <div style="font-size:11px;color:#2E7D32;margin-top:2px;">enviado${todayAudios !== 1 ? 's' : ''}</div>
           </div>
@@ -939,14 +960,8 @@
           <span>${days30[0].slice(5).replace('-','/')}</span><span>hoy</span>
         </div>
       </div>
-      <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:4px;">TODO EL TIEMPO</div>
-      ${row('Palabras respondidas', totalWords > 0 ? `${totalWords} (${pct}% ✓)` : '—')}
-      ${row('Búsquedas en diccionario', lookups || '—')}
-      ${row('Audios enviados (Chat)', audios || '—')}
-      ${row('Sesiones de estudio', sessions || '—')}
-      ${row('Ejercicios de escritura', totalEscrituras || '—')}
-      <div style="font-size:11px;font-weight:600;color:#E65100;letter-spacing:.5px;margin:16px 0 4px;">EXÁMENES DE GRAMÁTICA</div>
-      ${examHtml}
+      <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:4px;">ACTIVIDAD ÚLTIMOS 5 DÍAS</div>
+      ${last5Html}
     `;
 
     _renderPassSection();

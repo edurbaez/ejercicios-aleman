@@ -1650,9 +1650,65 @@
   const STREAK_EVENT_TYPES = new Set(['quiz_session_end', 'text_evaluated', 'photo_evaluated',
     'kasus_answered', 'revision', 'audio_sent', 'sprint_end', 'comp_completed', 'auto_session_end', 'quiz_completed']);
 
+  const VOICE_APPS = new Set(['chat-voz', 'chatvoz2', 'mundliche', 'chat-reformulaciones']);
+
+  function summarizeApp(app, evs) {
+    const count = type => evs.filter(e => e.event_type === type).length;
+    const sum   = (type, key) => evs.filter(e => e.event_type === type)
+      .reduce((s, e) => s + (Number(e.payload?.[key]) || 0), 0);
+    const avgScore = types => {
+      const scores = evs.filter(e => types.includes(e.event_type) && typeof e.payload?.score === 'number')
+        .map(e => e.payload.score);
+      return scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null;
+    };
+    const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+    const parts = [];
+
+    if (VOICE_APPS.has(app)) {
+      const n = count('audio_sent');
+      if (n) parts.push(`${plural(n, 'audio', 'audios')} / ${(sum('audio_sent', 'duration_ms') / 60000).toFixed(1)} min`);
+    }
+    if (/^[abc][12]$/.test(app)) {
+      const total = sum('quiz_session_end', 'total');
+      if (total) parts.push(`${plural(total, 'palabra', 'palabras')} · ${Math.round(sum('quiz_session_end', 'correct') / total * 100)}% acierto`);
+    }
+    if (app === 'mundliche') {
+      const n = count('attempt_evaluated'), avg = avgScore(['attempt_evaluated']);
+      if (n) parts.push(`${plural(n, 'intento evaluado', 'intentos evaluados')}${avg !== null ? ` · media ${avg}` : ''}`);
+    }
+    if (app === 'lectura-veloz') {
+      const lect = count('session_completed'), spr = count('sprint_end'), comp = count('comp_completed');
+      if (lect) parts.push(plural(lect, 'lectura', 'lecturas'));
+      if (spr)  parts.push(plural(spr, 'sprint', 'sprints'));
+      if (comp) parts.push(plural(comp, 'comprensión', 'comprensiones'));
+    }
+    if (app === 'kasus') {
+      const answered = evs.filter(e => e.event_type === 'kasus_answered');
+      if (answered.length) parts.push(`${plural(answered.length, 'ejercicio', 'ejercicios')} · ${Math.round(answered.filter(e => e.payload?.correct).length / answered.length * 100)}% acierto`);
+    }
+    if (app === 'gramatica') {
+      const n = count('quiz_completed'), total = sum('quiz_completed', 'total');
+      if (n) parts.push(`${plural(n, 'quiz', 'quizzes')}${total ? ` · ${Math.round(sum('quiz_completed', 'correct') / total * 100)}% acierto` : ''}`);
+    }
+    if (app === 'escritura') {
+      const n = count('text_evaluated') + count('photo_evaluated'), avg = avgScore(['text_evaluated', 'photo_evaluated']);
+      if (n) parts.push(`${plural(n, 'texto evaluado', 'textos evaluados')}${avg !== null ? ` · media ${avg}` : ''}`);
+    }
+    if (app === 'corrector')   { const n = count('revision');     if (n) parts.push(plural(n, 'corrección', 'correcciones')); }
+    if (app === 'diccionario') { const n = count('lookup');       if (n) parts.push(plural(n, 'búsqueda', 'búsquedas')); }
+    if (app === 'plan')        { const n = count('day_complete'); if (n) parts.push(plural(n, 'día completado', 'días completados')); }
+
+    if (parts.length === 0) {
+      const n = evs.filter(e => !INFRA_EVENTS.has(e.event_type)).length;
+      if (n) parts.push(plural(n, 'evento', 'eventos'));
+    }
+    return parts.join(' · ');
+  }
+
   function renderDetStats(userId) {
     const el  = document.getElementById('det-stats');
-    const evs = eventsByUser[userId] || [];
+    const cutoff30 = rangeCutoffISO('30d');
+    const evs = (eventsByUser[userId] || []).filter(e => e.created_at >= cutoff30);
     if (evs.length === 0) { el.innerHTML = ''; return; }
 
     const localDay = e => new Date(e.created_at).toLocaleDateString('sv-SE');
@@ -1690,9 +1746,22 @@
       audioMinutes > 0 ? `<span class="stat-pill">🎧 Audio: ${audioMinutes} min</span>` : '',
     ].filter(Boolean).join('');
 
-    if (!pills) { el.innerHTML = ''; return; }
+    const byApp = {};
+    for (const e of evs) {
+      if (e.app === 'auth') continue;
+      (byApp[e.app] ||= []).push(e);
+    }
+    const summaryRows = Object.entries(byApp)
+      .map(([app, appEvs]) => [app, summarizeApp(app, appEvs), appEvs.length])
+      .filter(([, text]) => text)
+      .sort((a, b) => b[2] - a[2])
+      .map(([app, text]) => `<li><strong>${esc(APP_NAMES[app] || app)}:</strong> ${esc(text)}</li>`)
+      .join('');
+
+    if (!pills && !summaryRows) { el.innerHTML = ''; return; }
     el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#6A1B9A;margin-bottom:8px;">📈 Actividad (últimos 30 días)</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
+      ${pills ? `<div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>` : ''}
+      ${summaryRows ? `<ul style="margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6;">${summaryRows}</ul>` : ''}`;
   }
 
   function fmtDuration(ms) {

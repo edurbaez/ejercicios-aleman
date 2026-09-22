@@ -1673,6 +1673,8 @@
       if (total) parts.push(`${plural(total, 'palabra', 'palabras')} · ${Math.round(sum('quiz_session_end', 'correct') / total * 100)}% acierto`);
     }
     if (app === 'mundliche') {
+      const gen = count('task_generated');
+      if (gen) parts.push(plural(gen, 'tarea generada', 'tareas generadas'));
       const n = count('attempt_evaluated'), avg = avgScore(['attempt_evaluated']);
       if (n) parts.push(`${plural(n, 'intento evaluado', 'intentos evaluados')}${avg !== null ? ` · media ${avg}` : ''}`);
     }
@@ -1691,8 +1693,10 @@
       if (n) parts.push(`${plural(n, 'quiz', 'quizzes')}${total ? ` · ${Math.round(sum('quiz_completed', 'correct') / total * 100)}% acierto` : ''}`);
     }
     if (app === 'escritura') {
+      const gen = count('task_generated');
       const n = count('text_evaluated') + count('photo_evaluated'), avg = avgScore(['text_evaluated', 'photo_evaluated']);
-      if (n) parts.push(`${plural(n, 'texto evaluado', 'textos evaluados')}${avg !== null ? ` · media ${avg}` : ''}`);
+      if (gen) parts.push(plural(gen, 'tarea generada', 'tareas generadas'));
+      if (n || gen) parts.push(`${plural(n, 'texto evaluado', 'textos evaluados')}${avg !== null ? ` · media ${avg}` : ''}`);
     }
     if (app === 'corrector')   { const n = count('revision');     if (n) parts.push(plural(n, 'corrección', 'correcciones')); }
     if (app === 'diccionario') { const n = count('lookup');       if (n) parts.push(plural(n, 'búsqueda', 'búsquedas')); }

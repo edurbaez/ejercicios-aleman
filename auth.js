@@ -20,11 +20,14 @@
     el.innerHTML = `
       <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">🔑 Contraseña</div>
       <div style="font-size:12px;color:#777;line-height:1.4;margin-bottom:10px;">Créala una vez y entra sin abrir el correo.</div>
+      <form onsubmit="event.preventDefault();window.savePassword()">
+      <input type="email" name="username" autocomplete="username" value="${(window.currentUser && window.currentUser.email) || ''}" hidden>
       <input id="pass-new" type="password" autocomplete="new-password" placeholder="Nueva contraseña (mín. 8)" style="${inputCss}">
       <input id="pass-new2" type="password" autocomplete="new-password" placeholder="Repetir contraseña" style="${inputCss}">
       <button type="button" onclick="window.suggestPassword()" style="background:none;border:none;padding:0;margin-bottom:8px;color:#1976D2;cursor:pointer;font-size:12px;text-decoration:underline;">🎲 Sugerir una contraseña segura</button>
       <div id="pass-msg" style="display:none;font-size:12px;line-height:1.4;margin-bottom:8px;"></div>
-      <button id="pass-save-btn" onclick="window.savePassword()" style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Guardar contraseña</button>`;
+      <button id="pass-save-btn" type="submit" style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Guardar contraseña</button>
+      </form>`;
   }
 
   function _passMsg(text, ok) {
@@ -272,12 +275,15 @@
         </div>
         <div id="auth-error" style="display:none;background:#ffebee;color:#c62828;font-size:12.5px;line-height:1.45;padding:8px 10px;border-radius:6px;margin-bottom:12px;"></div>
         <div id="auth-email-step">
-          <input id="auth-email" type="email" placeholder="tu@email.com" autocomplete="email" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;box-sizing:border-box;font-size:15px;">
-          <input id="auth-pass" type="password" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')window.signInPassword()" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
+          <!-- A real <form> scopes the password manager: without it Chrome treats every formless input on the page as one login form and autofills the saved email into unrelated fields (e.g. gramatica.html's search box). -->
+          <form onsubmit="event.preventDefault();window.signInPassword()">
+          <input id="auth-email" type="email" name="email" placeholder="tu@email.com" autocomplete="username" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:10px;box-sizing:border-box;font-size:15px;">
+          <input id="auth-pass" type="password" name="password" placeholder="Contraseña" autocomplete="current-password" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:15px;">
           <div style="display:flex;gap:8px;">
-            <button id="auth-login-btn" onclick="window.signInPassword()" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Entrar</button>
-            <button onclick="window.closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
+            <button id="auth-login-btn" type="submit" style="flex:1;padding:9px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Entrar</button>
+            <button type="button" onclick="window.closeAuthModal()" style="padding:9px 14px;border:1px solid #ccc;border-radius:6px;cursor:pointer;font-size:14px;">Cancelar</button>
           </div>
+          </form>
           <button id="auth-send-btn" onclick="window.sendOtp()" style="width:100%;margin-top:10px;padding:6px;background:none;border:none;color:#1976D2;cursor:pointer;font-size:12.5px;text-decoration:underline;">Entrar con un código al correo</button>
           <p style="margin:8px 0 0;font-size:11.5px;color:#999;line-height:1.4;">¿Primera vez o no tienes contraseña? Entra con un código y créala desde «Mi progreso».</p>
         </div>

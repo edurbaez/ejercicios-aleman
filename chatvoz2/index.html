@@ -496,7 +496,7 @@ Antworte IMMER mit einem JSON-Objekt:
         const grid = document.getElementById('scenariosGrid');
         SCENARIOS.forEach(s => {
             const btn = document.createElement('button');
-            btn.className = 'cv-scenario-card' + (s.key === 'libre' ? ' active' : '');
+            btn.className = 'cv-scenario-card' + (s.key === State.selectedScenario ? ' active' : '');
             btn.dataset.key = s.key;
             btn.innerHTML = `<span class="cv-scenario-icon">${s.icon}</span><span class="cv-scenario-name">${s.name}</span>`;
             btn.addEventListener('click', () => selectScenario(s.key));
@@ -504,10 +504,23 @@ Antworte IMMER mit einem JSON-Objekt:
         });
     }
 
+    // Rehydrates the last used scenario without calling generateRol(), so reopening
+    // the app costs no API request: the persona comes from its localStorage cache.
+    function restoreSelectedScenario() {
+        const saved = localStorage.getItem(STORAGE_PREFIX + 'selected_scenario');
+        if (!saved) return;
+        const scenario = SCENARIOS.find(s => s.key === saved);
+        if (!scenario) return;
+        State.selectedScenario = scenario.key;
+        State.mision = scenario.mision || '';
+        State.scenarioRol = localStorage.getItem(STORAGE_PREFIX + 'rol_cache_' + scenario.key) || scenario.rol;
+    }
+
     async function selectScenario(key) {
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
+        localStorage.setItem(STORAGE_PREFIX + 'selected_scenario', key);
         State.mision = scenario.mision || '';
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
@@ -903,7 +916,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
-        formData.append('model', 'whisper-1');
+        formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', State.lang);
 
         try {
@@ -1003,6 +1016,7 @@ Antworte IMMER mit einem JSON-Objekt:
         const active = SCENARIOS.find(s => s.key === State.selectedScenario);
         if (active && (newRol !== State.scenarioRol || newCtx !== active.contexto)) {
             State.selectedScenario = 'libre';
+            localStorage.setItem(STORAGE_PREFIX + 'selected_scenario', 'libre');
         }
         State.rol = newRol;
         State.contexto = newCtx;
@@ -1173,7 +1187,7 @@ Antworte IMMER mit einem JSON-Objekt:
         State.dailyUsedMs += durationMs;
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
-        formData.append('model', 'whisper-1');
+        formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', State.lang);
         try {
             const token = await window.getAuthToken?.();
@@ -1250,6 +1264,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
     (function init() {
         if (localStorage.getItem(STORAGE_PREFIX + 'darkMode') !== '') document.body.classList.add('dark');
+        restoreSelectedScenario();
         buildScenarioCards();
         loadPreferences();
         buildLangSelect();

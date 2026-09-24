@@ -197,7 +197,7 @@ Vercel serverless function that proxies POST requests to OpenAI (`gpt-4o-mini`).
 
 ### `/api/whisper` ([api/whisper.js](api/whisper.js))
 
-Vercel serverless function that receives multipart audio and forwards it to OpenAI Whisper (`whisper-1`) for transcription. Used by `chat-voz.html`, `chatvoz2/index.html`, `chat-reformulaciones.html`, and `mundliche.html`. Rate limited to 10 req/min per user. Also enforces the shared 60-minute/day voice-STT cap server-side (queries `usage_events` with `SUPABASE_SERVICE_ROLE_KEY` before transcribing) — see "Voice-STT daily usage cap" in `CLAUDE.md`.
+Vercel serverless function that receives multipart audio and forwards it to OpenAI's transcription endpoint (`/v1/audio/transcriptions`); the model is set client-side in the `FormData` and all four voice apps send `gpt-4o-mini-transcribe`. Used by `chat-voz.html`, `chatvoz2/index.html`, `chat-reformulaciones.html`, and `mundliche.html`. Rate limited to 10 req/min per user. Also enforces the shared 60-minute/day voice-STT cap server-side (queries `usage_events` with `SUPABASE_SERVICE_ROLE_KEY` before transcribing) — see "Voice-STT daily usage cap" in `CLAUDE.md`.
 
 ### `/api/vision` ([api/vision.js](api/vision.js))
 

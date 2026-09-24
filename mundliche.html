@@ -952,7 +952,7 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
     async function transcribeBlob(audioBlob) {
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
-        formData.append('model', 'whisper-1');
+        formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', 'de');
         try {
             const token = await window.getAuthToken?.();

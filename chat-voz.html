@@ -209,6 +209,20 @@
         return [...SCENARIOS, ...State.customScenarios];
     }
 
+    const SELECTED_SCENARIO_KEY = 'cv_selected_scenario';
+
+    // Rehydrates the last used scenario without calling generateRol(), so reopening
+    // the app costs no API request: the persona comes from its localStorage cache.
+    function restoreSelectedScenario() {
+        const saved = localStorage.getItem(SELECTED_SCENARIO_KEY);
+        if (!saved) return;
+        const scenario = getAllScenarios().find(s => s.key === saved);
+        if (!scenario) return;
+        State.selectedScenario = scenario.key;
+        State.mision = scenario.mision || '';
+        State.scenarioRol = localStorage.getItem(`cv_rol_cache_${scenario.key}`) || scenario.rol;
+    }
+
     const State = {
         level: 'B1',
         voiceGender: 'male',
@@ -660,6 +674,7 @@ Antworte IMMER mit einem JSON-Objekt:
         if (!scenario) return;
         cancelCustomScenario();
         State.selectedScenario = key;
+        localStorage.setItem(SELECTED_SCENARIO_KEY, key);
         State.mision = scenario.mision || '';
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
@@ -1101,7 +1116,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
-        formData.append('model', 'whisper-1');
+        formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', 'de');
 
         try {
@@ -1388,7 +1403,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
-        formData.append('model', 'whisper-1');
+        formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', 'de');
 
         try {
@@ -1470,6 +1485,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
     (function init() {
         if (localStorage.getItem('darkMode_cv') !== '') document.body.classList.add('dark');
+        restoreSelectedScenario();
         buildScenarioCards();
         loadPreferences();
         loadVoices();

@@ -961,7 +961,7 @@ async function transcribeAndSend(blob) {
     State.dailyUsedMs += durationMs;
     const formData = new FormData();
     formData.append('file', blob, audioFileName(blob));
-    formData.append('model', 'whisper-1');
+    formData.append('model', 'gpt-4o-mini-transcribe');
     formData.append('language', 'de');
     try {
         const token = await window.getAuthToken?.();

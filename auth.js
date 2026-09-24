@@ -714,7 +714,11 @@
       btn.onclick = window.openStatsPanel;
       const profile = await _getAccessProfile();
       const role = profile ? profile.role : null;
+      window.VOICE_DAILY_LIMIT_MS = (role !== 'admin' && profile && profile.status !== 'approved')
+        ? window.VOICE_LIMIT_TRIAL_MS
+        : window.VOICE_LIMIT_FULL_MS;
       if (role === 'admin') _addDashboardLink();
+      await _claimDeviceTrial(profile);
       // Admins are never gated, even if their own row somehow had a stale status/expiry.
       if (role !== 'admin' && profile && !_isAccessValid(profile)) {
         window.logEvent('auth', 'access_blocked_attempt', { status: profile.status, expires_at: profile.access_expires_at });
@@ -1007,8 +1011,16 @@
     _scheduleFlush();
   };
 
-  // Apps that consume OpenAI Whisper STT; their 'audio_sent' events share a single 60min/day cap.
+  // Apps that consume OpenAI STT; their 'audio_sent' events share a single daily cap.
   window.VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulaciones'];
+
+  // Authorized students get 60 min/day; accounts still on the automatic 15-day trial
+  // get 10. Set from the profile in updateAuthUI(); the voice apps read it instead of
+  // hardcoding a limit. api/whisper.js enforces the same two values server-side, so
+  // this is only what the UI shows and pre-checks.
+  window.VOICE_LIMIT_FULL_MS  = 60 * 60 * 1000;
+  window.VOICE_LIMIT_TRIAL_MS = 10 * 60 * 1000;
+  window.VOICE_DAILY_LIMIT_MS = window.VOICE_LIMIT_FULL_MS;
 
   // --- Daily active-time tracking (per app), local-first ---
   // Each calendar day gets its own localStorage record, updated every 15s
@@ -1143,6 +1155,31 @@
   }
 
   function _asForceTick() { _asLastTick = 0; _asTick(); }
+
+  // One trial per browser: claim_device_trial() (migration 020_device_trials.sql) ties
+  // this device's id to the first trial account that uses it. A second trial account on
+  // the same device gets its trial ended on the spot and has to be authorized by an
+  // admin — which is also what a legitimately shared computer (a classroom, a family)
+  // will hit, so this only slows down throwaway signups, it doesn't decide anything
+  // permanently. Clearing localStorage resets it; the real barrier is payment.
+  const AS_TRIAL_CLAIMED_KEY = 'ejaleman_trial_claimed';
+
+  async function _claimDeviceTrial(profile) {
+    if (!window.currentUser || !profile || profile.role === 'admin') return;
+    const deviceId = _asDeviceId();
+    if (!deviceId) return;
+    const marker = AS_TRIAL_CLAIMED_KEY + ':' + window.currentUser.id;
+    try { if (localStorage.getItem(marker)) return; } catch {}
+    try {
+      const { data, error } = await window.sb.rpc('claim_device_trial', { p_device_id: deviceId });
+      if (error) return;
+      try { localStorage.setItem(marker, '1'); } catch {}
+      if (data === false) {
+        window.logEvent('auth', 'device_trial_reused', { device_id: deviceId });
+        window.showAccessBlockedModal('expired', new Date().toISOString());
+      }
+    } catch {}
+  }
 
   function _asInit() {
     _asTick();

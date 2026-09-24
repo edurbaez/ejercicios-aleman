@@ -61,7 +61,7 @@ export async function checkAccess(userId) {
     if (!key) return { valid: true };
     try {
         const resp = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=status,access_expires_at`,
+            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=role,status,access_expires_at`,
             { headers: { apikey: key, Authorization: `Bearer ${key}` } }
         );
         if (!resp.ok) return { valid: true };
@@ -69,7 +69,7 @@ export async function checkAccess(userId) {
         if (!profile) return { valid: true };
         const valid = profile.status !== 'blocked'
             && (!profile.access_expires_at || new Date(profile.access_expires_at) > new Date());
-        return { valid, status: profile.status, expires_at: profile.access_expires_at };
+        return { valid, role: profile.role, status: profile.status, expires_at: profile.access_expires_at };
     } catch {
         return { valid: true };
     }
@@ -102,6 +102,24 @@ export async function fetchWithRetry(url, options = {}, { maxRetries = 3, baseDe
 
 // Returns an isRateLimited(userId) function.
 // Uses Vercel KV (Redis) when KV_REST_API_URL is set; falls back to in-memory Map.
+// Vercel's own KV env vars, or the ones the Upstash Marketplace integration injects.
+// Without either, the limiter silently falls back to the per-instance memory store
+// below — which resets on every cold start, so limits stop being global.
+const KV_URL   = process.env.KV_REST_API_URL   || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+let _kvClient;
+async function _getKV() {
+    if (_kvClient !== undefined) return _kvClient;
+    try {
+        const { createClient } = await import('@vercel/kv');
+        _kvClient = createClient({ url: KV_URL, token: KV_TOKEN });
+    } catch {
+        _kvClient = null;
+    }
+    return _kvClient;
+}
+
 export function createRateLimiter(limit, windowMs = 60_000, namespace = 'rl') {
     const memStore = new Map();
 
@@ -113,14 +131,16 @@ export function createRateLimiter(limit, windowMs = 60_000, namespace = 'rl') {
     }, 300_000);
 
     return async function isRateLimited(userId) {
-        if (process.env.KV_REST_API_URL) {
+        if (KV_URL && KV_TOKEN) {
             try {
-                const { kv } = await import('@vercel/kv');
-                const key = `${namespace}:${userId}`;
-                const windowSec = Math.ceil(windowMs / 1000);
-                const count = await kv.incr(key);
-                if (count === 1) await kv.expire(key, windowSec);
-                return count > limit;
+                const kv = await _getKV();
+                if (kv) {
+                    const key = `${namespace}:${userId}`;
+                    const windowSec = Math.ceil(windowMs / 1000);
+                    const count = await kv.incr(key);
+                    if (count === 1) await kv.expire(key, windowSec);
+                    return count > limit;
+                }
             } catch {
                 // KV unavailable — fall through to memory store
             }

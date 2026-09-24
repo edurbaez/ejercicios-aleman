@@ -160,7 +160,11 @@
     </div>
 
     <script>
-    const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos
+    // Shared daily voice-STT cap, in ms. auth.js sets it from the profile — 60 min
+    // for authorized students, 10 for accounts still on the trial — and api/whisper.js
+    // enforces the same values server-side.
+    function DAILY_LIMIT_MS() { return window.VOICE_DAILY_LIMIT_MS || 60 * 60 * 1000; }
+    function dailyLimitMin() { return Math.round(DAILY_LIMIT_MS() / 60000); }
     const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
 
     const SCENARIOS = [
@@ -192,17 +196,20 @@
           mision: 'Pregunta por el alquiler mensual, las habitaciones disponibles y si se admiten mascotas.' },
     ];
 
-    // --- Custom scenarios (user-created, local to this browser) ---
+    // --- Custom scenarios (user-created, synced to user_data.cv_scenarios) ---
     const CUSTOM_SCENARIOS_KEY = 'cv_custom_scenarios';
+    const DELETED_SCENARIOS_KEY = 'cv_deleted_scenarios';
 
-    function loadCustomScenarios() {
+    function loadScenarioArray(key) {
         try {
-            return JSON.parse(localStorage.getItem(CUSTOM_SCENARIOS_KEY) || '[]');
+            const parsed = JSON.parse(localStorage.getItem(key));
+            return Array.isArray(parsed) ? parsed : [];
         } catch { return []; }
     }
 
     function persistCustomScenarios() {
         localStorage.setItem(CUSTOM_SCENARIOS_KEY, JSON.stringify(State.customScenarios));
+        localStorage.setItem(DELETED_SCENARIOS_KEY, JSON.stringify(State.deletedScenarios));
     }
 
     function getAllScenarios() {
@@ -245,7 +252,8 @@
         selectedScenario: 'libre',
         mision: SCENARIOS[0].mision,
         misionCompleted: false,
-        customScenarios: loadCustomScenarios(),
+        customScenarios: loadScenarioArray(CUSTOM_SCENARIOS_KEY),
+        deletedScenarios: loadScenarioArray(DELETED_SCENARIOS_KEY),
         repetirMode: false,
         repetirFrases: [],
         repetirIndex: 0,
@@ -445,14 +453,14 @@
         const info = document.getElementById('cvDailyInfo');
         if (!info) return;
         if (!window.currentUser) { info.textContent = ''; return; }
-        const remaining = Math.max(0, DAILY_LIMIT_MS - State.dailyUsedMs);
+        const remaining = Math.max(0, DAILY_LIMIT_MS() - State.dailyUsedMs);
         const blocked = remaining === 0;
         const usedMins = Math.floor(State.dailyUsedMs / 60000);
         const usedSecs = Math.floor((State.dailyUsedMs % 60000) / 1000);
-        const totalMins = Math.floor(DAILY_LIMIT_MS / 60000);
+        const totalMins = Math.floor(DAILY_LIMIT_MS() / 60000);
         const fmt = (m, s) => `${String(m).padStart(2, '0')}.${String(s).padStart(2, '0')}`;
         if (blocked) {
-            info.textContent = 'Límite diario de 60 min alcanzado. Vuelve mañana.';
+            info.textContent = `Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`;
             info.className = 'cv-daily-info cv-daily-blocked';
             document.getElementById('startBtn').disabled = true;
             const rb = document.getElementById('recordBtn');
@@ -478,7 +486,7 @@
         if (!window.currentUser || !window.sb) return;
         const { data } = await window.sb
             .from('user_data')
-            .select('cv_user_profile, cv_level')
+            .select('cv_user_profile, cv_level, cv_scenarios')
             .eq('user_id', window.currentUser.id)
             .maybeSingle();
         if (data) {
@@ -492,8 +500,39 @@
                 document.querySelectorAll('.cv-level-btn').forEach(b =>
                     b.classList.toggle('active', b.dataset.level === State.level));
             }
+            mergeRemoteScenarios(data.cv_scenarios);
         }
         document.getElementById('contextBtn').classList.toggle('cv-context-active', State.userProfile.length > 0);
+    }
+
+    // Custom scenarios are content the student wrote, so remote does NOT simply win here:
+    // a plain overwrite would delete one created on another device. Both sides are merged
+    // by key, and the `deleted` tombstones are what let a delete propagate instead of the
+    // merge resurrecting it. `selected` is last-write-wins — one latest value is correct there.
+    function mergeRemoteScenarios(remote) {
+        if (!remote || typeof remote !== 'object') return;
+
+        const remoteCustom = Array.isArray(remote.custom) ? remote.custom : [];
+        const remoteDeleted = Array.isArray(remote.deleted) ? remote.deleted : [];
+        const deleted = new Set([...State.deletedScenarios, ...remoteDeleted]);
+
+        const byKey = new Map();
+        [...State.customScenarios, ...remoteCustom].forEach(sc => {
+            if (sc && sc.key && !deleted.has(sc.key)) byKey.set(sc.key, sc);
+        });
+        State.customScenarios = [...byKey.values()];
+        State.deletedScenarios = [...deleted];
+        persistCustomScenarios();
+
+        if (remote.selected && getAllScenarios().some(sc => sc.key === remote.selected)) {
+            localStorage.setItem(SELECTED_SCENARIO_KEY, remote.selected);
+            restoreSelectedScenario();
+        } else if (!getAllScenarios().some(sc => sc.key === State.selectedScenario)) {
+            // the selected scenario was deleted on another device
+            localStorage.setItem(SELECTED_SCENARIO_KEY, 'libre');
+            restoreSelectedScenario();
+        }
+        buildScenarioCards();
     }
 
     async function persistPreferences() {
@@ -504,6 +543,11 @@
             user_id: window.currentUser.id,
             cv_user_profile: State.userProfile,
             cv_level: State.level,
+            cv_scenarios: {
+                selected: State.selectedScenario,
+                custom: State.customScenarios,
+                deleted: State.deletedScenarios,
+            },
             updated_at: new Date().toISOString(),
         });
     }
@@ -661,10 +705,13 @@ Antworte IMMER mit einem JSON-Objekt:
 
     function deleteCustomScenario(key) {
         State.customScenarios = State.customScenarios.filter(s => s.key !== key);
+        if (!State.deletedScenarios.includes(key)) State.deletedScenarios.push(key);
         persistCustomScenarios();
         localStorage.removeItem(`cv_rol_cache_${key}`);
         if (State.selectedScenario === key) {
-            selectScenario('libre');
+            selectScenario('libre');  // persists
+        } else {
+            persistPreferences();
         }
         buildScenarioCards();
     }
@@ -676,6 +723,7 @@ Antworte IMMER mit einem JSON-Objekt:
         State.selectedScenario = key;
         localStorage.setItem(SELECTED_SCENARIO_KEY, key);
         State.mision = scenario.mision || '';
+        persistPreferences();
         document.querySelectorAll('.cv-scenario-card').forEach(c => {
             c.classList.toggle('active', c.dataset.key === key);
         });
@@ -776,8 +824,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     // --- Start / reset ---
     async function startConversation() {
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            setHint(`Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`);
             return;
         }
         State.messages = [];
@@ -1029,8 +1077,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function startRecording() {
         if (State.isRecording) return;
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            setHint(`Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`);
             updateDailyUI();
             return;
         }
@@ -1336,8 +1384,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function startRepetirRecording() {
         if (RepetirRec.isRecording) return;
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            document.getElementById('repetirHint').textContent = 'Límite diario de 60 min alcanzado.';
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            document.getElementById('repetirHint').textContent = `Límite diario de ${dailyLimitMin()} min alcanzado.`;
             return;
         }
         try {

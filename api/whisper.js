@@ -6,7 +6,74 @@ const isRateLimited = createRateLimiter(10, 60_000, 'rl:whisper');
 
 const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
 const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 min, shared across all voice-STT apps (see auth.js VOICE_STT_APPS)
+const TRIAL_DAILY_LIMIT_MS = 10 * 60 * 1000; // accounts still on the automatic 15-day trial
 const VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulaciones'];
+
+// The client picks nothing: the model is forced here so a hand-rolled request can't
+// ask for the pricier gpt-4o-transcribe. Keep in sync with the apps' FormData, which
+// still sends a model field for readability — it gets replaced below either way.
+const STT_MODEL = 'gpt-4o-mini-transcribe';
+const MAX_AUDIO_BYTES = 25 * 1024 * 1024; // OpenAI's own per-file limit
+
+// duration_ms is client-reported, so it can be under-reported (or sent as 0) to dodge
+// the daily cap. We also derive a floor from the payload size and bill whichever is
+// larger. 6 kB/s (~48 kbps) is above what MediaRecorder's Opus actually produces, so
+// the derived value stays *below* the true duration — an honest client is never
+// overcharged, while a client reporting 0 still burns most of its real usage.
+const MAX_AUDIO_BYTES_PER_SECOND = 6000;
+
+function _partName(headers) {
+    const m = /name="([^"]*)"/i.exec(headers);
+    return m ? m[1] : '';
+}
+
+// Splits a multipart body into { headers, body } parts. Returns null if the payload
+// isn't well-formed multipart, in which case the caller forwards it untouched.
+function _parseMultipart(buffer, boundary) {
+    const delim = Buffer.from(`\r\n--${boundary}`);
+    const buf = Buffer.concat([Buffer.from('\r\n'), buffer]);
+    const parts = [];
+    let start = buf.indexOf(delim);
+    if (start === -1) return null;
+    start += delim.length;
+    for (;;) {
+        if (buf[start] === 0x2d && buf[start + 1] === 0x2d) break; // closing "--"
+        if (buf[start] === 0x0d && buf[start + 1] === 0x0a) start += 2;
+        const end = buf.indexOf(delim, start);
+        if (end === -1) return null;
+        const raw = buf.subarray(start, end);
+        const sep = raw.indexOf('\r\n\r\n');
+        if (sep === -1) return null;
+        parts.push({ headers: raw.subarray(0, sep).toString('latin1'), body: raw.subarray(sep + 4) });
+        start = end + delim.length;
+    }
+    return parts.length ? parts : null;
+}
+
+function _buildMultipart(parts, boundary) {
+    const chunks = [];
+    for (const p of parts) {
+        chunks.push(Buffer.from(`--${boundary}\r\n${p.headers}\r\n\r\n`), p.body, Buffer.from('\r\n'));
+    }
+    chunks.push(Buffer.from(`--${boundary}--\r\n`));
+    return Buffer.concat(chunks);
+}
+
+// Rewrites the body so `model` is always ours, and reports the audio part's size.
+// Falls back to the original buffer (model not forced) if the payload can't be parsed,
+// so a browser quirk degrades the guard instead of breaking transcription outright.
+export function forceModel(buffer, contentType) {
+    const m = /boundary=(?:"([^"]+)"|([^;]+))/i.exec(contentType || '');
+    if (!m) return { body: buffer, audioBytes: buffer.length };
+    const boundary = (m[1] || m[2]).trim();
+    const parts = _parseMultipart(buffer, boundary);
+    if (!parts) return { body: buffer, audioBytes: buffer.length };
+
+    const kept = parts.filter(p => _partName(p.headers) !== 'model');
+    kept.push({ headers: 'Content-Disposition: form-data; name="model"', body: Buffer.from(STT_MODEL) });
+    const file = kept.find(p => _partName(p.headers) === 'file');
+    return { body: _buildMultipart(kept, boundary), audioBytes: file ? file.body.length : buffer.length };
+}
 
 // duration_ms is client-reported (browser recording timer), not verified against actual audio bytes —
 // this check only prevents bypassing the client-side gate via a direct fetch, not a spoofed duration_ms.
@@ -63,9 +130,24 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
+    if (buffer.length > MAX_AUDIO_BYTES) {
+        return res.status(413).json({ error: 'El audio supera el límite de 25 MB.' });
+    }
+
+    const { body, audioBytes } = forceModel(buffer, contentType);
+
+    // Admins and authorized students get the full cap; accounts still on the
+    // automatic trial get a tenth of it (see migration 009_access_control.sql).
+    const onTrial = access.role !== 'admin' && access.status && access.status !== 'approved';
+    const limitMs = onTrial ? TRIAL_DAILY_LIMIT_MS : DAILY_LIMIT_MS;
+
     const usedMs = await getDailyUsageMs(jwtPayload.sub);
-    if (usedMs >= DAILY_LIMIT_MS) {
-        return res.status(429).json({ error: 'Límite diario de 60 minutos de voz alcanzado.' });
+    const thisCallMs = Math.round((audioBytes / MAX_AUDIO_BYTES_PER_SECOND) * 1000);
+    if (usedMs + thisCallMs > limitMs) {
+        return res.status(429).json({
+            error: `Límite diario de ${Math.round(limitMs / 60000)} minutos de voz alcanzado.`,
+            limit_ms: limitMs,
+        });
     }
 
     try {
@@ -75,7 +157,7 @@ export default async function handler(req, res) {
                 Authorization:  `Bearer ${process.env.OPENAI_API_KEY}`,
                 'Content-Type': contentType,
             },
-            body: buffer,
+            body,
         });
 
         const raw = await resp.text();

@@ -22,6 +22,14 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Acceso restringido', status: access.status, expires_at: access.expires_at });
     }
 
+    // Image generation is the costliest call here and only marketing/contenido.html
+    // (admin-only) uses it, so the endpoint checks the role itself instead of trusting
+    // that page's own gate. Unlike checkAccess, this fails CLOSED: if the profile can't
+    // be read (no SUPABASE_SERVICE_ROLE_KEY), nobody generates images.
+    if (access.role !== 'admin') {
+        return res.status(403).json({ error: 'Solo administradores' });
+    }
+
     if (await isRateLimited(jwtPayload.sub)) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }

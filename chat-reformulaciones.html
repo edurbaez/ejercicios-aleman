@@ -126,7 +126,11 @@
 
 <script>
 // ── STATE ─────────────────────────────────────────────────────────────────────
-const DAILY_LIMIT_MS = 60 * 60 * 1000; // 60 minutos, compartido entre todas las apps de voz
+// Shared daily voice-STT cap, in ms. auth.js sets it from the profile — 60 min
+// for authorized students, 10 for accounts still on the trial — and api/whisper.js
+// enforces the same values server-side.
+function DAILY_LIMIT_MS() { return window.VOICE_DAILY_LIMIT_MS || 60 * 60 * 1000; }
+function dailyLimitMin() { return Math.round(DAILY_LIMIT_MS() / 60000); }
 const State = {
     allRules: [],
     filteredRules: [],
@@ -895,7 +899,7 @@ function audioFileName(blob) {
 
 async function startRecording() {
     if (State.isRecording) return;
-    if (State.dailyUsedMs >= DAILY_LIMIT_MS) { setHint('Límite diario de 60 min alcanzado.'); return; }
+    if (State.dailyUsedMs >= DAILY_LIMIT_MS()) { setHint(`Límite diario de ${dailyLimitMin()} min alcanzado.`); return; }
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         State.audioChunks = [];

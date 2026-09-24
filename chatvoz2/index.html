@@ -223,7 +223,11 @@
     </div>
 
     <script>
-    const DAILY_LIMIT_MS = 60 * 60 * 1000;
+    // Shared daily voice-STT cap, in ms. auth.js sets it from the profile — 60 min
+    // for authorized students, 10 for accounts still on the trial — and api/whisper.js
+    // enforces the same values server-side.
+    function DAILY_LIMIT_MS() { return window.VOICE_DAILY_LIMIT_MS || 60 * 60 * 1000; }
+    function dailyLimitMin() { return Math.round(DAILY_LIMIT_MS() / 60000); }
     const DEFAULT_ROL = 'Eres un profesor joven y deportista, muy sociable, que quiere conocer más a sus alumnos.';
     const CHAT_API = '/api/deepseek-chat';
     const STORAGE_PREFIX = 'cv2_';
@@ -322,14 +326,14 @@
         const info = document.getElementById('cvDailyInfo');
         if (!info) return;
         if (!window.currentUser) { info.textContent = ''; return; }
-        const remaining = Math.max(0, DAILY_LIMIT_MS - State.dailyUsedMs);
+        const remaining = Math.max(0, DAILY_LIMIT_MS() - State.dailyUsedMs);
         const blocked = remaining === 0;
         const usedMins = Math.floor(State.dailyUsedMs / 60000);
         const usedSecs = Math.floor((State.dailyUsedMs % 60000) / 1000);
-        const totalMins = Math.floor(DAILY_LIMIT_MS / 60000);
+        const totalMins = Math.floor(DAILY_LIMIT_MS() / 60000);
         const fmt = (m, s) => `${String(m).padStart(2, '0')}.${String(s).padStart(2, '0')}`;
         if (blocked) {
-            info.textContent = 'Límite diario de 60 min alcanzado. Vuelve mañana.';
+            info.textContent = `Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`;
             info.className = 'cv-daily-info cv-daily-blocked';
             document.getElementById('startBtn').disabled = true;
             const rb = document.getElementById('recordBtn');
@@ -625,8 +629,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     // --- Start / reset ---
     async function startConversation() {
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            setHint(`Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`);
             return;
         }
         State.messages = [];
@@ -840,8 +844,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function startRecording() {
         if (State.isRecording) return;
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            setHint('Límite diario de 60 min alcanzado. Vuelve mañana.');
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            setHint(`Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`);
             updateDailyUI();
             return;
         }
@@ -1133,8 +1137,8 @@ Antworte IMMER mit einem JSON-Objekt:
 
     async function startRepetirRecording() {
         if (RepetirRec.isRecording) return;
-        if (State.dailyUsedMs >= DAILY_LIMIT_MS) {
-            document.getElementById('repetirHint').textContent = 'Límite diario de 60 min alcanzado.';
+        if (State.dailyUsedMs >= DAILY_LIMIT_MS()) {
+            document.getElementById('repetirHint').textContent = `Límite diario de ${dailyLimitMin()} min alcanzado.`;
             return;
         }
         try {

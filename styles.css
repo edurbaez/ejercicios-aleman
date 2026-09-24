@@ -2187,6 +2187,58 @@ body.dark .cv-correction-body { color: #eee; }
     padding: 4px 2px;
 }
 
+/* Vocabulario de la conversación */
+.cv-vocab-modal {
+    width: min(92vw, 520px);
+}
+.cv-vocab-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 58vh;
+    overflow-y: auto;
+}
+.cv-vocab-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+.cv-vocab-item:hover {
+    border-color: var(--accent);
+}
+.cv-vocab-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.cv-vocab-de {
+    font-weight: 700;
+    font-size: 15px;
+}
+.cv-vocab-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    padding: 1px 6px;
+    border-radius: 6px;
+}
+.cv-vocab-es {
+    font-size: 14px;
+    opacity: 0.85;
+}
+.cv-vocab-ejemplo {
+    font-size: 12.5px;
+    opacity: 0.6;
+    font-style: italic;
+    margin-top: 3px;
+}
+
 /* Mission banner */
 .cv-mision-banner {
     display: flex;

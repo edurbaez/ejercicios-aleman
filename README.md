@@ -90,6 +90,7 @@ AI voice conversation app for practicing German at any CEFR level.
 - Response read aloud via browser TTS (Web Speech API)
 - Selectable masculine/feminine voice
 - Customizable AI role and user context via modal
+- 📖 Vocabulary button: sends the current conversation to `/api/chat` and lists the 8-12 most relevant words/expressions for the selected level (prioritizing the AI's own input), with translation, type and the sentence they appeared in; tap an entry to hear it
 - Dark mode toggle
 
 ---

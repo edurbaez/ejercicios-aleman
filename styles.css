@@ -1018,6 +1018,25 @@ th, td {
     margin-bottom: 14px;
 }
 
+#comp-exam-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#comp-exam-toggle input { width: 16px; height: 16px; cursor: pointer; }
+
+#comp-historial {
+    margin-top: 26px;
+    border-top: 1px solid var(--border, #ccc);
+    padding-top: 18px;
+}
+
+#comp-historial h3 { font-size: 15px; margin-bottom: 12px; }
+
 .comp-level-pill {
     padding: 7px 18px;
     border: 2px solid var(--btn, #1976D2);

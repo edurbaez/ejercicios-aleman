@@ -48,6 +48,9 @@ Speed-reading tool (RSVP — Rapid Serial Visual Presentation). Three mutually e
 - **📈 Mi progreso de lectura** — every finished pass is kept locally (IndexedDB): mean and best effective WPM plus the last 10 passes
 - **Save texts** — stored in IndexedDB with level and word count, resumes from last position
 - **Blog view** — read the full text as a paragraph with TTS narration (German by default, adjustable voice speed); chunks highlight as they're read and any word can be tapped for its translation
+- **Comprensión por niveles** — a Leseverstehen simulation matching the real Goethe/telc structure of each level (A1–C2), with the same number of items per Teil as the official Modellsatz, and a Teil picker to practise only a subset
+- **⏱️ Modo examen** — optional countdown with the real exam time for the level (A1 25 min → C2 80 min), scaled down proportionally when only some Teile are selected; when time runs out the session is scored with whatever was answered
+- **📈 Mi progreso en comprensión** — every finished comprehension session is saved to Supabase (`reading_sessions`): number of sessions, average accuracy, best score and the last 10 attempts, visible to the student and to the admin
 - **Sprint de vocabulario** — RSVP flash of known words with adaptive WPM: source selector (SRS-mastered words by default, system level lists A1–C2, or personal lists), surprise MCQ every 10 words, pace goes up on correct answers and down on mistakes. A "Preguntas sorpresa" toggle (persisted as `lv_sprint_quiz`) lets the student flash words with no quiz interruptions
 - Dark mode toggle
 

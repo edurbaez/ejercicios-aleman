@@ -301,11 +301,18 @@ async function generatePractice(req, res) {
 
 // ── format_version 2: Teile-based sessions (see lecturaplan.md) ──────────────────
 
+// El número de ítems real del Modellsatz vive en el spec (`itemsCount`, ver
+// _reading-topics.js) y se exige exacto: si el modelo devuelve 5 preguntas donde el examen
+// pide 9, el Teil se descarta y se reintenta, igual que con cualquier otro campo mal formado.
+function hasItemsCount(arr, expected) {
+    return Array.isArray(arr) && (expected.itemsCount ? arr.length === expected.itemsCount : arr.length > 0);
+}
+
 function validMcqTeil(t, expected) {
     const opcionesCount = expected.opcionesCount || 3;
     return Array.isArray(t.textos) && t.textos.length > 0
         && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
-        && Array.isArray(t.items) && t.items.length > 0
+        && hasItemsCount(t.items, expected)
         && t.items.every(it =>
             typeof it.pregunta === 'string'
             && Array.isArray(it.opciones) && it.opciones.length === opcionesCount
@@ -313,17 +320,21 @@ function validMcqTeil(t, expected) {
             && (it.explicacion === undefined || typeof it.explicacion === 'string'));
 }
 
-function validRichtigFalschTeil(t) {
+function validRichtigFalschTeil(t, expected) {
     return Array.isArray(t.textos) && t.textos.length > 0
         && t.textos.every(x => typeof x.titulo === 'string' && typeof x.contenido === 'string')
-        && Array.isArray(t.items) && t.items.length > 0
+        && hasItemsCount(t.items, expected)
         && t.items.every(it => typeof it.afirmacion === 'string' && typeof it.correcta === 'boolean'
             && (it.explicacion === undefined || typeof it.explicacion === 'string'));
 }
 
 function validEmparejarTeil(t, expected) {
-    if (!Array.isArray(t.columnaIzquierda) || t.columnaIzquierda.length === 0) return false;
-    if (!Array.isArray(t.columnaDerecha) || t.columnaDerecha.length < t.columnaIzquierda.length) return false;
+    if (!hasItemsCount(t.columnaIzquierda, expected)) return false;
+    // derechaCount se exige como mínimo, no exacto: un candidato distractor de más no rompe
+    // el ejercicio, y relajarlo evita descartar Teile por lo demás válidos (mismo criterio
+    // que con "explicaciones" más abajo).
+    const minDerecha = Math.max(t.columnaIzquierda.length, expected.derechaCount || 0);
+    if (!Array.isArray(t.columnaDerecha) || t.columnaDerecha.length < minDerecha) return false;
     const isItem = x => x && typeof x.id === 'string' && typeof x.texto === 'string';
     if (!t.columnaIzquierda.every(isItem) || !t.columnaDerecha.every(isItem)) return false;
     // Some emparejar Teile (e.g. a Lückentext) need a source text the student reads before
@@ -368,7 +379,9 @@ function schemaEjemploTeil(expected) {
 
 function buildSingleTeilPrompt(level, tema, expected, noRepeat) {
     const { minWords, maxWords } = READING_SPECS[level];
-    const fragment = expected.promptFragment.replace(/\{minWords\}/g, minWords).replace(/\{maxWords\}/g, maxWords);
+    const fragment = expected.promptFragment
+        .replace(/\{minWords\}/g, minWords).replace(/\{maxWords\}/g, maxWords)
+        .replace(/\{n\}/g, expected.itemsCount).replace(/\{d\}/g, expected.derechaCount);
     return `Genera UNA sola parte (${expected.id}) de un examen de comprensión lectora en alemán de nivel ${level}, estilo Goethe/telc Leseverstehen (estructura general, sin copiar textos de exámenes reales). Tema general de fondo: ${tema}.
 
 ${fragment}${noRepeat}

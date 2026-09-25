@@ -151,6 +151,9 @@
                 <button class="comp-level-pill" data-level="C1">C1</button>
                 <button class="comp-level-pill" data-level="C2">C2</button>
             </div>
+            <label id="comp-exam-toggle">
+                <input type="checkbox" id="comp-exam-check"> ⏱️ Modo examen (con tiempo)
+            </label>
             <button class="btn comp-action-btn" id="comp-nivel-btn">Obtener texto</button>
         </div>
 
@@ -174,7 +177,10 @@
         <div id="comp-teil-session" style="display:none">
             <div class="comp-teil-header">
                 <span id="comp-teil-nombre"></span>
-                <span id="comp-teil-progreso"></span>
+                <span>
+                    <span id="comp-teil-timer" style="display:none"></span>
+                    <span id="comp-teil-progreso"></span>
+                </span>
             </div>
             <div class="comp-teil-instrucciones" id="comp-teil-instrucciones"></div>
             <div id="comp-teil-textos"></div>
@@ -191,6 +197,11 @@
             <ul class="comp-teil-breakdown" id="comp-teil-breakdown" style="display:none"></ul>
             <button class="btn comp-action-btn" id="comp-escribir-btn" style="width:auto;display:none">✍️ Escribir sobre este tema</button>
             <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
+        </div>
+
+        <div id="comp-historial">
+            <h3>📈 Mi progreso en comprensión</h3>
+            <div id="comp-historial-body"></div>
         </div>
     </div>
 
@@ -1079,6 +1090,8 @@
                 if (isRunning) stopReading();
             } else if (currentActivity === 'sprint' && sprintRunning) {
                 sprintStop();
+            } else if (currentActivity === 'comprension') {
+                compTimerStop();
             }
             currentActivity = name;
             document.getElementById('text').style.display = name === 'lectura' ? '' : 'none';
@@ -2174,6 +2187,7 @@
         window.onAuthSignedIn = async function () {
             _lvConocidasCache = null;
             sprintPopulateUserLists();
+            compRenderHistorial();
             const { data } = await window.sb.from('user_data').select('*').eq('user_id', window.currentUser.id).maybeSingle();
             if (!data) return;
             if (data.lv_wpm) {
@@ -2265,6 +2279,7 @@
 
         function modoB_reset() {
             modoBRespuestas = {};
+            compTimerStop();
             TeilState = null;
             _pendingTeilSesion = null;
             document.getElementById('comp-texto-display').style.display = 'none';
@@ -2305,6 +2320,7 @@
 
             _compActiveMode = 'B';
             modoBRespuestas = {};
+            compTimerStop();
             TeilState = null;
             _pendingTeilSesion = null;
             modoBCurrentTextId = null;
@@ -2415,6 +2431,7 @@
         function modoB_mostrarResultado(correctas, total) {
             modoB_marcarComoVisto();
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
+            compGuardarSesion({ level: modoB_getSelectedLevel(), formatVersion: 1, aciertos: correctas, total });
             document.getElementById('comp-teil-breakdown').style.display = 'none';
             document.getElementById('comp-escribir-btn').style.display = 'none';
             const el = document.getElementById('comp-resultado');
@@ -2471,6 +2488,157 @@
             return (TEIL_NOMBRES[level] && TEIL_NOMBRES[level][teilId]) || teilId;
         }
 
+        /* ---- Modo examen: cronómetro por sesión ---- */
+        /* Duración real del Leseverstehen por nivel (Goethe/telc), en minutos. Al practicar
+           solo algunos Teile el tiempo se reparte en proporción a los ítems elegidos, para
+           que un subconjunto no herede el tiempo del simulacro completo. */
+        const COMP_EXAM_MIN = { A1: 25, A2: 30, B1: 65, B2: 65, C1: 65, C2: 80 };
+        let CompTimer = null;
+
+        function compTeilItemCount(teil) {
+            return (teil.items && teil.items.length) || (teil.columnaIzquierda && teil.columnaIzquierda.length) || 0;
+        }
+
+        function compSegundosExamen(level, elegidos, totales) {
+            const totalMin = COMP_EXAM_MIN[level];
+            if (!totalMin) return null;
+            const itemsElegidos = elegidos.reduce((s, t) => s + compTeilItemCount(t), 0);
+            const itemsTotales = totales.reduce((s, t) => s + compTeilItemCount(t), 0);
+            const prop = itemsTotales ? itemsElegidos / itemsTotales : 1;
+            return Math.max(60, Math.round(totalMin * 60 * prop));
+        }
+
+        function compTimerStop() {
+            if (CompTimer) { clearInterval(CompTimer.id); CompTimer = null; }
+            const el = document.getElementById('comp-teil-timer');
+            if (el) el.style.display = 'none';
+        }
+
+        function compTimerStart(segundos) {
+            compTimerStop();
+            const el = document.getElementById('comp-teil-timer');
+            el.style.display = 'inline';
+            CompTimer = { restante: segundos, id: null };
+            const pintar = () => {
+                const m = Math.floor(CompTimer.restante / 60);
+                const s = CompTimer.restante % 60;
+                el.textContent = `⏱️ ${m}:${String(s).padStart(2, '0')}  `;
+                el.className = CompTimer.restante <= 60 ? 'rojo' : '';
+            };
+            pintar();
+            CompTimer.id = setInterval(() => {
+                CompTimer.restante--;
+                if (CompTimer.restante <= 0) { compTimerStop(); modoB_finalizarPorTiempo(); return; }
+                pintar();
+            }, 1000);
+        }
+
+        function modoB_finalizarPorTiempo() {
+            if (!TeilState) return;
+            showToast('Se acabó el tiempo');
+            // El Teil en curso se corrige con lo que haya respondido; los que no llegó a
+            // abrir cuentan 0 sobre sus ítems, como en el examen real.
+            if (document.getElementById('comp-teil-comprobar-btn').style.display !== 'none') {
+                modoB_comprobarTeilActual();
+            }
+            TeilState.teile.forEach((teil, i) => {
+                if (!TeilState.resultados[i]) TeilState.resultados[i] = { correct: 0, total: compTeilItemCount(teil) };
+            });
+            modoB_mostrarResultadoTeilFinal();
+        }
+
+        (function initCompExamToggle() {
+            const chk = document.getElementById('comp-exam-check');
+            chk.checked = localStorage.getItem('comp_exam') === '1';
+            chk.addEventListener('change', () => localStorage.setItem('comp_exam', chk.checked ? '1' : '0'));
+        })();
+
+        /* ---- Historial de sesiones de comprensión (Supabase `reading_sessions`) ---- */
+        /* Hasta la migración 022 la puntuación solo vivía en pantalla: al recargar no
+           quedaba rastro de la evolución en Leseverstehen, a diferencia de mundliche.html
+           o escritura.html. Se guarda tanto el flujo por Teile como el plano. */
+        async function compGuardarSesion(datos) {
+            if (!window.currentUser) return;
+            try {
+                const { error } = await window.sb.from('reading_sessions').insert({
+                    user_id: window.currentUser.id,
+                    level: datos.level,
+                    text_id: modoBCurrentTextId,
+                    format_version: datos.formatVersion,
+                    aciertos: datos.aciertos,
+                    total: datos.total,
+                    duracion_seg: datos.duracionSeg ?? null,
+                    modo_examen: !!datos.modoExamen,
+                    teile: datos.teile || null,
+                });
+                if (error) throw error;
+            } catch (err) {
+                console.error('[compGuardarSesion]', err);
+                return;
+            }
+            compRenderHistorial();
+        }
+
+        async function compRenderHistorial() {
+            const cont = document.getElementById('comp-historial-body');
+            if (!cont) return;
+            if (!window.currentUser) {
+                cont.innerHTML = '<p class="lv-hist-vacio">Inicia sesión para guardar y ver tu progreso de comprensión.</p>';
+                return;
+            }
+            let filas = [];
+            try {
+                const { data, error } = await window.sb
+                    .from('reading_sessions')
+                    .select('level, aciertos, total, duracion_seg, modo_examen, created_at')
+                    .eq('user_id', window.currentUser.id)
+                    .order('created_at', { ascending: false })
+                    .limit(30);
+                if (error) throw error;
+                filas = data || [];
+            } catch (err) {
+                console.error('[compRenderHistorial]', err);
+                return;
+            }
+            if (!filas.length) {
+                cont.innerHTML = '<p class="lv-hist-vacio">Aún no has terminado ninguna sesión de comprensión. Al acabar una se guarda aquí tu puntuación por nivel.</p>';
+                return;
+            }
+            const totalItems = filas.reduce((s, r) => s + r.total, 0);
+            const totalAciertos = filas.reduce((s, r) => s + r.aciertos, 0);
+            const mediaPct = totalItems ? Math.round(totalAciertos / totalItems * 100) : 0;
+            const mejorPct = Math.max(...filas.map(r => r.total ? Math.round(r.aciertos / r.total * 100) : 0));
+
+            const resumen = `
+                <div class="lv-hist-resumen">
+                    <div><b>${filas.length}</b><span>sesiones</span></div>
+                    <div><b>${mediaPct}%</b><span>acierto medio</span></div>
+                    <div><b>${mejorPct}%</b><span>mejor marca</span></div>
+                </div>`;
+
+            const cuerpo = filas.slice(0, 10).map(r => {
+                const pct = r.total ? Math.round(r.aciertos / r.total * 100) : 0;
+                const clase = pct >= 70 ? 'verde' : pct >= 50 ? 'naranja' : 'rojo';
+                const fecha = new Date(r.created_at).toLocaleDateString('es', { day: '2-digit', month: 'short' });
+                const dur = r.duracion_seg ? `${Math.round(r.duracion_seg / 60)} min` : '—';
+                return `<tr>
+                    <td><span class="saved-badge saved-badge-nivel">${escHtml(r.level)}</span>${r.modo_examen ? ' ⏱️' : ''}</td>
+                    <td>${r.aciertos} / ${r.total}</td>
+                    <td class="${clase}"><b>${pct}%</b></td>
+                    <td>${dur}</td>
+                    <td>${fecha}</td>
+                </tr>`;
+            }).join('');
+
+            cont.innerHTML = resumen + `
+                <div class="lv-hist-tabla-wrap">
+                    <table class="lv-hist-tabla">
+                        <thead><tr><th>Nivel</th><th>Aciertos</th><th>%</th><th>Tiempo</th><th>Fecha</th></tr></thead>
+                        <tbody>${cuerpo}</tbody>
+                    </table>
+                </div>`;
+        }
+
         let _pendingTeilSesion = null; // { titulo, teile, level } — sesión completa a la espera de que el usuario elija qué Teile practicar
 
         function modoB_mostrarSelectorTeile(titulo, teile, level) {
@@ -2493,16 +2661,20 @@
             const teile = checked.map(i => _pendingTeilSesion.teile[i]);
             const titulo = _pendingTeilSesion.titulo;
             const level = _pendingTeilSesion.level;
+            const segundos = document.getElementById('comp-exam-check').checked
+                ? compSegundosExamen(level, teile, _pendingTeilSesion.teile)
+                : null;
             _pendingTeilSesion = null;
             document.getElementById('comp-teil-selector').style.display = 'none';
-            modoB_iniciarTeilSession(titulo, teile, level);
+            modoB_iniciarTeilSession(titulo, teile, level, segundos);
         }
 
         document.getElementById('comp-teil-empezar-btn').addEventListener('click', modoB_empezarTeilesSeleccionados);
 
-        function modoB_iniciarTeilSession(titulo, teile, level) {
-            TeilState = { titulo, teile, level, idx: 0, resultados: [] };
+        function modoB_iniciarTeilSession(titulo, teile, level, segundosExamen) {
+            TeilState = { titulo, teile, level, idx: 0, resultados: [], inicio: Date.now(), examen: !!segundosExamen };
             document.getElementById('comp-teil-session').style.display = 'block';
+            if (segundosExamen) compTimerStart(segundosExamen);
             modoB_renderTeilActual();
         }
 
@@ -2632,12 +2804,28 @@
 
         function modoB_mostrarResultadoTeilFinal() {
             modoB_marcarComoVisto();
+            compTimerStop();
             document.getElementById('comp-teil-session').style.display = 'none';
 
             const totalCorrect = TeilState.resultados.reduce((s, r) => s + r.correct, 0);
             const totalItems = TeilState.resultados.reduce((s, r) => s + r.total, 0);
 
             window.logEvent('lectura-veloz', 'comp_completed', { correct: totalCorrect, total: totalItems, modo: 'B', format_version: 2 });
+
+            compGuardarSesion({
+                level: TeilState.level,
+                formatVersion: 2,
+                aciertos: totalCorrect,
+                total: totalItems,
+                duracionSeg: Math.round((Date.now() - TeilState.inicio) / 1000),
+                modoExamen: TeilState.examen,
+                teile: TeilState.teile.map((teil, i) => ({
+                    id: teil.id,
+                    nombre: teilNombre(TeilState.level, teil.id),
+                    correct: (TeilState.resultados[i] || {}).correct || 0,
+                    total: (TeilState.resultados[i] || {}).total || 0,
+                })),
+            });
 
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
@@ -2666,6 +2854,8 @@
         document.getElementById('comp-teil-siguiente-btn').addEventListener('click', modoB_avanzarTeil);
 
         document.getElementById('comp-nivel-btn').addEventListener('click', modoB_obtenerTexto);
+
+        compRenderHistorial();
 
         (function initLvHints() {
             if (localStorage.getItem('lv_hints_v1')) return;

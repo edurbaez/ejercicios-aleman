@@ -152,7 +152,7 @@
                 <button class="comp-level-pill" data-level="C2">C2</button>
             </div>
             <label id="comp-exam-toggle">
-                <input type="checkbox" id="comp-exam-check"> ⏱️ Modo examen (con tiempo)
+                <input type="checkbox" id="comp-exam-check" checked> ⏱️ Modo examen (con tiempo)
             </label>
             <button class="btn comp-action-btn" id="comp-nivel-btn">Obtener texto</button>
         </div>
@@ -196,6 +196,7 @@
             <div id="lv-efectivo" style="display:none"></div>
             <ul class="comp-teil-breakdown" id="comp-teil-breakdown" style="display:none"></ul>
             <button class="btn comp-action-btn" id="comp-escribir-btn" style="width:auto;display:none">✍️ Escribir sobre este tema</button>
+            <button class="btn comp-action-btn" id="comp-repetir-btn" style="width:auto;display:none">🔁 Repetir esta prueba</button>
             <button class="btn comp-action-btn" id="comp-reintentar-btn">Intentar otro</button>
         </div>
 
@@ -1834,6 +1835,7 @@
             lvAplicarComprension(correctas, total);
             document.getElementById('comp-teil-breakdown').style.display = 'none';
             document.getElementById('comp-escribir-btn').style.display = 'none';
+            document.getElementById('comp-repetir-btn').style.display = 'none';
             const resultado = document.getElementById('comp-resultado');
             const textoEl = document.getElementById('comp-resultado-texto');
             textoEl.textContent = correctas + ' / ' + total + ' correctas';
@@ -2244,6 +2246,7 @@
         let modoBPreguntasActuales = [];
         let TeilState = null; // { titulo, teile[], idx, resultados: [{correct,total}] }
         let modoBCurrentTextId = null; // id del texto en curso; se marca como visto solo al terminar el ejercicio, no al pedirlo
+        let modoBCurrentLevel = null; // nivel del texto en curso — al repetir desde el historial no coincide con la pill activa
 
         async function modoB_marcarComoVisto() {
             if (!modoBCurrentTextId || !window.currentUser) return;
@@ -2264,6 +2267,7 @@
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = msg;
             txt.className = 'naranja';
+            document.getElementById('comp-repetir-btn').style.display = 'none';
             const oldBtn = document.getElementById('modo-b-retry-btn');
             if (oldBtn) oldBtn.remove();
             if (retryFn) {
@@ -2363,26 +2367,52 @@
                     chosenText = await modoB_generarTextoIA(level);
                 }
 
-                modoBCurrentTextId = chosenText.id;
-
-                document.getElementById('comp-loading').style.display = 'none';
-
-                const questions = typeof chosenText.questions === 'string'
-                    ? JSON.parse(chosenText.questions)
-                    : chosenText.questions;
-
-                if (chosenText.format_version === 2) {
-                    modoB_mostrarSelectorTeile(chosenText.title, questions.teile, level);
-                } else {
-                    document.getElementById('comp-texto-titulo').textContent = chosenText.title;
-                    document.getElementById('comp-texto-contenido').textContent = chosenText.content;
-                    document.getElementById('comp-texto-display').style.display = 'block';
-                    modoB_renderPreguntas(questions);
-                }
+                modoB_mostrarTexto(chosenText, level);
 
             } catch (err) {
                 console.error('[ModoB]', err);
                 modoB_showError(friendlyApiError('ModoB', err), modoB_obtenerTexto);
+            }
+        }
+
+        function modoB_mostrarTexto(chosenText, level) {
+            modoBCurrentTextId = chosenText.id;
+            modoBCurrentLevel = level;
+            document.getElementById('comp-loading').style.display = 'none';
+
+            const questions = typeof chosenText.questions === 'string'
+                ? JSON.parse(chosenText.questions)
+                : chosenText.questions;
+
+            if (chosenText.format_version === 2) {
+                modoB_mostrarSelectorTeile(chosenText.title, questions.teile, level);
+            } else {
+                document.getElementById('comp-texto-titulo').textContent = chosenText.title;
+                document.getElementById('comp-texto-contenido').textContent = chosenText.content;
+                document.getElementById('comp-texto-display').style.display = 'block';
+                modoB_renderPreguntas(questions);
+            }
+        }
+
+        // Repeats an already-done text; the attempt is stored as a new reading_sessions row.
+        async function modoB_repetirTexto(textId) {
+            if (!textId || !window.currentUser) return;
+            if (_compActiveMode !== 'B') compSwitchMode('B');
+            modoB_reset();
+            _compActiveMode = 'B';
+            document.getElementById('comp-loading').style.display = 'block';
+            try {
+                const { data, error } = await window.sb
+                    .from('reading_texts')
+                    .select('id, level, title, content, questions, format_version')
+                    .eq('id', textId)
+                    .single();
+                if (error) throw new Error('Error al cargar el texto: ' + error.message);
+                modoB_mostrarTexto(data, data.level);
+                document.getElementById('comp-mode-B').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch (err) {
+                console.error('[modoB_repetirTexto]', err);
+                modoB_showError(friendlyApiError('ModoB', err), () => modoB_repetirTexto(textId));
             }
         }
 
@@ -2431,9 +2461,10 @@
         function modoB_mostrarResultado(correctas, total) {
             modoB_marcarComoVisto();
             window.logEvent('lectura-veloz', 'comp_completed', { correct: correctas, total, modo: 'B' });
-            compGuardarSesion({ level: modoB_getSelectedLevel(), formatVersion: 1, aciertos: correctas, total });
+            compGuardarSesion({ level: modoBCurrentLevel || modoB_getSelectedLevel(), formatVersion: 1, aciertos: correctas, total });
             document.getElementById('comp-teil-breakdown').style.display = 'none';
             document.getElementById('comp-escribir-btn').style.display = 'none';
+            modoB_mostrarBotonRepetir();
             const el = document.getElementById('comp-resultado');
             const txt = document.getElementById('comp-resultado-texto');
             txt.textContent = `${correctas} / ${total} correctas`;
@@ -2549,7 +2580,7 @@
 
         (function initCompExamToggle() {
             const chk = document.getElementById('comp-exam-check');
-            chk.checked = localStorage.getItem('comp_exam') === '1';
+            chk.checked = localStorage.getItem('comp_exam') !== '0';
             chk.addEventListener('change', () => localStorage.setItem('comp_exam', chk.checked ? '1' : '0'));
         })();
 
@@ -2590,7 +2621,7 @@
             try {
                 const { data, error } = await window.sb
                     .from('reading_sessions')
-                    .select('level, aciertos, total, duracion_seg, modo_examen, created_at')
+                    .select('level, text_id, aciertos, total, duracion_seg, modo_examen, created_at')
                     .eq('user_id', window.currentUser.id)
                     .order('created_at', { ascending: false })
                     .limit(30);
@@ -2627,17 +2658,23 @@
                     <td class="${clase}"><b>${pct}%</b></td>
                     <td>${dur}</td>
                     <td>${fecha}</td>
+                    <td>${r.text_id ? `<button class="comp-hist-repetir" data-text-id="${escHtml(r.text_id)}" title="Repetir esta prueba">🔁</button>` : ''}</td>
                 </tr>`;
             }).join('');
 
             cont.innerHTML = resumen + `
                 <div class="lv-hist-tabla-wrap">
                     <table class="lv-hist-tabla">
-                        <thead><tr><th>Nivel</th><th>Aciertos</th><th>%</th><th>Tiempo</th><th>Fecha</th></tr></thead>
+                        <thead><tr><th>Nivel</th><th>Aciertos</th><th>%</th><th>Tiempo</th><th>Fecha</th><th></th></tr></thead>
                         <tbody>${cuerpo}</tbody>
                     </table>
                 </div>`;
         }
+
+        document.getElementById('comp-historial-body').addEventListener('click', e => {
+            const btn = e.target.closest('.comp-hist-repetir');
+            if (btn) modoB_repetirTexto(btn.dataset.textId);
+        });
 
         let _pendingTeilSesion = null; // { titulo, teile, level } — sesión completa a la espera de que el usuario elija qué Teile practicar
 
@@ -2845,6 +2882,7 @@
             escribirBtn.onclick = () => {
                 location.href = `escritura.html?level=${encodeURIComponent(TeilState.level)}&tema=${encodeURIComponent(TeilState.titulo)}`;
             };
+            modoB_mostrarBotonRepetir();
 
             el.style.display = 'block';
             el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2852,6 +2890,13 @@
 
         document.getElementById('comp-teil-comprobar-btn').addEventListener('click', modoB_comprobarTeilActual);
         document.getElementById('comp-teil-siguiente-btn').addEventListener('click', modoB_avanzarTeil);
+
+        function modoB_mostrarBotonRepetir() {
+            const btn = document.getElementById('comp-repetir-btn');
+            const textId = modoBCurrentTextId;
+            btn.style.display = textId ? 'inline-block' : 'none';
+            btn.onclick = () => modoB_repetirTexto(textId);
+        }
 
         document.getElementById('comp-nivel-btn').addEventListener('click', modoB_obtenerTexto);
 

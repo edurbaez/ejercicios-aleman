@@ -787,6 +787,15 @@ th, td {
 .lv-hist-tabla td.verde { color: #2e7d32; font-weight: 600; }
 .lv-hist-tabla td.naranja { color: #ef6c00; font-weight: 600; }
 .lv-hist-tabla td.rojo { color: #c62828; font-weight: 600; }
+.comp-hist-repetir {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.comp-hist-repetir:hover { background: var(--border); }
 
 /* --- Etiquetas de los textos guardados --- */
 .saved-badge {

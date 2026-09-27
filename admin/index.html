@@ -638,6 +638,7 @@
       <div id="det-srs" style="margin-top:16px;"></div>
       <div id="det-stats" style="margin-top:16px;"></div>
       <div id="det-tiempo" style="margin-top:16px;"></div>
+      <div id="det-lesen" style="margin-top:16px;"></div>
       <div id="det-sessions" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
@@ -676,6 +677,7 @@
   const grammarPracticeByUser = {}; // user_id -> count of grammar_practice_exercises seen
   const dailyTimeByUser = {}; // user_id -> { totalMs, byApp: { appId: ms } } (last 30 days)
   const sessionsByUser = {}; // user_id -> [{ session_id, device, last_seen }] (active_sessions rows)
+  const lesenByUser = {}; // user_id -> reading_sessions rows, newest first
   let allReports       = [];
   let reportesFilter   = 'todos';
 
@@ -781,6 +783,7 @@
     for (const k of Object.keys(grammarPracticeByUser)) delete grammarPracticeByUser[k];
     for (const k of Object.keys(dailyTimeByUser)) delete dailyTimeByUser[k];
     for (const k of Object.keys(sessionsByUser)) delete sessionsByUser[k];
+    for (const k of Object.keys(lesenByUser)) delete lesenByUser[k];
     await loadData();
     btn.innerHTML = orig;
     btn.disabled  = false;
@@ -788,7 +791,7 @@
 
   // ── Data loading ──────────────────────────────────────────
   async function loadData() {
-    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes, sessionsRes] = await Promise.all([
+    const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes, sessionsRes, lesenRes] = await Promise.all([
       sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
         .order('created_at', { ascending: false }),
@@ -817,6 +820,10 @@
       sb.from('active_sessions').select('user_id, session_id, device, last_seen')
         .order('last_seen', { ascending: false })
         .limit(5000),
+      // Requires migration 022 (reading_sessions + admin read policy) — silently empty otherwise.
+      sb.from('reading_sessions').select('user_id, level, format_version, aciertos, total, duracion_seg, modo_examen, teile, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10000),
     ]);
 
     allProfiles      = profRes.data || [];
@@ -865,6 +872,10 @@
     for (const r of sessionsRes?.data || []) {
       if (!sessionsByUser[r.user_id]) sessionsByUser[r.user_id] = [];
       sessionsByUser[r.user_id].push(r);
+    }
+    for (const r of lesenRes?.data || []) {
+      if (!lesenByUser[r.user_id]) lesenByUser[r.user_id] = [];
+      lesenByUser[r.user_id].push(r);
     }
 
     renderSummary();
@@ -1523,6 +1534,7 @@
     renderDetSrs(userId);
     renderDetStats(userId);
     renderDetTiempo(userId);
+    renderDetLesen(userId);
     renderDetSessions(userId);
 
     document.getElementById('det-events').innerHTML = evs.length === 0
@@ -1794,6 +1806,54 @@
     el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">⏱️ Tiempo activo (últimos 30 días)</div>
       <div style="margin-bottom:6px;font-size:13px;">Total: <strong>${fmtDuration(t.totalMs)}</strong></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">${pills}</div>`;
+  }
+
+  function renderDetLesen(userId) {
+    const el = document.getElementById('det-lesen');
+    const rows = lesenByUser[userId] || [];
+    if (rows.length === 0) { el.innerHTML = ''; return; }
+
+    const pct = (a, t) => t ? Math.round(a / t * 100) : 0;
+    const pctColor = p => p >= 70 ? '#2e7d32' : p >= 50 ? '#ef6c00' : '#c62828';
+    const sum = (list, k) => list.reduce((s, r) => s + (r[k] || 0), 0);
+
+    const byLevel = {};
+    for (const r of rows) (byLevel[r.level] ||= []).push(r);
+    const levelPills = Object.keys(byLevel).sort().map(lvl => {
+      const list = byLevel[lvl];
+      return `<span class="stat-pill">${esc(lvl)}: ${pct(sum(list, 'aciertos'), sum(list, 'total'))}% (${list.length})</span>`;
+    }).join('');
+
+    // Per-Teil average across format_version 2 sessions, keyed by level + Teil name.
+    const byTeil = {};
+    for (const r of rows) for (const t of r.teile || []) {
+      if (!t.total) continue;
+      const key = `${r.level} · ${t.nombre || t.id}`;
+      byTeil[key] ||= { correct: 0, total: 0 };
+      byTeil[key].correct += t.correct;
+      byTeil[key].total   += t.total;
+    }
+    const teilRows = Object.entries(byTeil).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => {
+      const p = pct(v.correct, v.total);
+      return `<div class="event-row"><span>${esc(k)}</span><span style="color:${pctColor(p)};font-weight:600;">${v.correct}/${v.total} · ${p}%</span></div>`;
+    }).join('');
+
+    const last = rows.slice(0, 15).map(r => {
+      const p = pct(r.aciertos, r.total);
+      const dur = r.duracion_seg ? `${Math.round(r.duracion_seg / 60)} min` : '—';
+      return `<div class="event-row">
+        <span class="ev-time">${fmtDateFull(r.created_at)}</span>
+        <span>${esc(r.level)}${r.modo_examen ? ' ⏱️' : ''}</span>
+        <span style="color:${pctColor(p)};font-weight:600;">${r.aciertos}/${r.total} · ${p}%</span>
+        <span style="color:#888;font-size:12px;">${dur}</span>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">📖 Leseverstehen (${rows.length} sesiones · ${pct(sum(rows, 'aciertos'), sum(rows, 'total'))}% acierto medio)</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">${levelPills}</div>
+      ${teilRows ? `<div style="font-size:12px;color:#888;margin:8px 0 4px;">Acierto por Teil</div>${teilRows}` : ''}
+      <div style="font-size:12px;color:#888;margin:8px 0 4px;">Últimas sesiones</div>
+      ${last}`;
   }
 
   function renderDetSessions(userId) {

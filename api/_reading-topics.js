@@ -52,6 +52,11 @@ export function pick(arr) {
 // the right column offers (the surplus are distractors). Both come from the real Modellsatz
 // of each level (lecturaplan.md §11-§15) instead of the flat 5-per-Teil used until
 // 2026-09-25; the validator enforces itemsCount exactly and derechaCount as a minimum.
+// `palabras: [min, max]` (optional) is the length of EACH text in that Teil's "textos": it
+// overrides READING_SPECS' {minWords}/{maxWords} and is also enforced by the validator
+// (see MIN_WORDS_RATIO in api/chat.js), because the model reliably undershoots word counts
+// — C1 texts meant to be 550-700 words came back at 110-170.
+// `model` (optional) overrides the default generation model for that Teil.
 // Única excepción documentada: B1 teil3 (foro) mantiene 5 y no las 7 afirmaciones reales,
 // porque el examen real las reparte entre 5 personas y `validEmparejarTeil` exige columna
 // derecha >= izquierda.
@@ -92,7 +97,7 @@ export const READING_TEILE_SPECS = {
     ],
     B1: [
         {
-            id: 'teil1', tipo: 'mcq', itemsCount: 6, nombre: 'Teil 1 — Texto y preguntas',
+            id: 'teil1', tipo: 'mcq', itemsCount: 6, palabras: [100, 150], nombre: 'Teil 1 — Texto y preguntas',
             promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, relato o artículo breve) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
         },
         {
@@ -104,7 +109,7 @@ export const READING_TEILE_SPECS = {
             promptFragment: '- "teil3" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." y "contenido" con EXACTAMENTE {d} comentarios cortos de personas distintas (nombre en negrita al inicio de cada uno, separados por saltos de línea). EXACTAMENTE {n} afirmaciones/opiniones en "columnaIzquierda" (id "s1".."s{n}") que coinciden con lo que dijo una de esas personas, y las {d} personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.',
         },
         {
-            id: 'teil4', tipo: 'richtig_falsch', itemsCount: 6, nombre: 'Teil 4 — Richtig oder falsch',
+            id: 'teil4', tipo: 'richtig_falsch', itemsCount: 6, palabras: [100, 150], nombre: 'Teil 4 — Richtig oder falsch',
             promptFragment: '- "teil4" (tipo "richtig_falsch"): 1 texto en alemán ({minWords}-{maxWords} palabras) en "textos", y EXACTAMENTE {n} afirmaciones sobre el texto en "items", cada una con "afirmacion" (string) y "correcta" (true o false), mezclando verdaderas y falsas.',
         },
         {
@@ -114,15 +119,15 @@ export const READING_TEILE_SPECS = {
     ],
     B2: [
         {
-            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 9, maxTokens: 2800, nombre: 'Teil 1 — Personas y afirmaciones',
-            promptFragment: '- "teil1" (tipo "mcq"): 4 personas opinando sobre el tema en "textos" (4 elementos, "titulo" = nombre de la persona, "contenido" = su opinión en alemán, 60-90 palabras cada una). EXACTAMENTE {n} afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 4 nombres de las personas, en el mismo orden en todos los items) y "correcta" (índice 0-3 de quién lo dijo). Distintos items pueden compartir la misma persona correcta.',
+            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 9, palabras: [60, 90], maxTokens: 2800, nombre: 'Teil 1 — Personas y afirmaciones',
+            promptFragment: '- "teil1" (tipo "mcq"): 4 personas opinando sobre el tema en "textos" (4 elementos, "titulo" = nombre de la persona, "contenido" = su opinión en alemán, {minWords}-{maxWords} palabras cada una). EXACTAMENTE {n} afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 4 nombres de las personas, en el mismo orden en todos los items) y "correcta" (índice 0-3 de quién lo dijo). Distintos items pueden compartir la misma persona correcta.',
         },
         {
-            id: 'teil2', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, derechaCount: 8, maxTokens: 2800, nombre: 'Teil 2 — Texto con huecos',
-            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (220-300 palabras) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") — literalmente marcados como "[1]".."[{n}]" dentro del "contenido" del artículo, en los puntos donde falta una frase. "columnaDerecha" son EXACTAMENTE {d} frases candidatas en alemán (id "f1".."f{d}", "texto" = la frase completa), de las cuales solo {n} completan correctamente un hueco (el resto son distractoras). "solucion" mapea cada hueco al id de la frase que le corresponde.',
+            id: 'teil2', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, palabras: [220, 300], derechaCount: 8, maxTokens: 2800, nombre: 'Teil 2 — Texto con huecos',
+            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán ({minWords}-{maxWords} palabras) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") — literalmente marcados como "[1]".."[{n}]" dentro del "contenido" del artículo, en los puntos donde falta una frase. "columnaDerecha" son EXACTAMENTE {d} frases candidatas en alemán (id "f1".."f{d}", "texto" = la frase completa), de las cuales solo {n} completan correctamente un hueco (el resto son distractoras). "solucion" mapea cada hueco al id de la frase que le corresponde.',
         },
         {
-            id: 'teil3', tipo: 'mcq', opcionesCount: 3, itemsCount: 6, nombre: 'Teil 3 — Preguntas de comprensión',
+            id: 'teil3', tipo: 'mcq', opcionesCount: 3, itemsCount: 6, palabras: [150, 200], nombre: 'Teil 3 — Preguntas de comprensión',
             promptFragment: '- "teil3" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, artículo de opinión o de blog) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
         },
         {
@@ -136,38 +141,38 @@ export const READING_TEILE_SPECS = {
     ],
     C1: [
         {
-            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 8, maxTokens: 2800, nombre: 'Teil 1 — Texto con huecos (léxico)',
-            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán (280-360 palabras) sobre el tema, en "textos" (1 elemento con "titulo" y "contenido"), con EXACTAMENTE {n} huecos numerados marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en lugares donde falta una palabra o expresión (verbo, conector, preposición, locución fija — no frases completas). EXACTAMENTE {n} preguntas en "items" (una por hueco, en el mismo orden), cada una con "pregunta" (p.ej. "Lücke 1"), "opciones" (array de EXACTAMENTE 4 strings, alternativas léxicas o gramaticales plausibles y del mismo nivel para ese hueco) y "correcta" (índice 0-3).',
+            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 8, palabras: [280, 360], maxTokens: 2800, nombre: 'Teil 1 — Texto con huecos (léxico)',
+            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras) sobre el tema, en "textos" (1 elemento con "titulo" y "contenido"), con EXACTAMENTE {n} huecos numerados marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en lugares donde falta una palabra o expresión (verbo, conector, preposición, locución fija — no frases completas). EXACTAMENTE {n} preguntas en "items" (una por hueco, en el mismo orden), cada una con "pregunta" (p.ej. "Lücke 1"), "opciones" (array de EXACTAMENTE 4 strings, alternativas léxicas o gramaticales plausibles y del mismo nivel para ese hueco) y "correcta" (índice 0-3).',
         },
         {
-            id: 'teil2', tipo: 'mcq', opcionesCount: 3, itemsCount: 7, maxTokens: 4000, nombre: 'Teil 2 — Artículo y preguntas',
-            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán (550-700 palabras, artículo de revista con alta densidad informativa) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas de comprensión en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+            id: 'teil2', tipo: 'mcq', opcionesCount: 3, itemsCount: 7, palabras: [550, 700], maxTokens: 4000, nombre: 'Teil 2 — Artículo y preguntas',
+            promptFragment: '- "teil2" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, artículo de revista con alta densidad informativa) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas de comprensión en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
         },
         {
-            id: 'teil3', tipo: 'emparejar', requiereTextos: true, itemsCount: 8, derechaCount: 10, maxTokens: 3800, nombre: 'Teil 3 — Texto con huecos (frases)',
-            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (450-550 palabras, comentario o reportaje de prensa sobre un tema abstracto o de opinión) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en puntos donde falta una frase completa. "columnaDerecha" son EXACTAMENTE {d} frases candidatas en alemán (id "f1".."f{d}", "texto" = la frase completa), de las cuales solo {n} completan correctamente un hueco (el resto son distractoras). "solucion" mapea cada hueco al id de la frase correspondiente.',
+            id: 'teil3', tipo: 'emparejar', requiereTextos: true, itemsCount: 8, palabras: [450, 550], derechaCount: 10, maxTokens: 3800, nombre: 'Teil 3 — Texto con huecos (frases)',
+            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán ({minWords}-{maxWords} palabras, comentario o reportaje de prensa sobre un tema abstracto o de opinión) — sin este artículo el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en puntos donde falta una frase completa. "columnaDerecha" son EXACTAMENTE {d} frases candidatas en alemán (id "f1".."f{d}", "texto" = la frase completa), de las cuales solo {n} completan correctamente un hueco (el resto son distractoras). "solucion" mapea cada hueco al id de la frase correspondiente.',
         },
         {
-            id: 'teil4', tipo: 'mcq', opcionesCount: 4, itemsCount: 7, maxTokens: 3000, nombre: 'Teil 4 — Opiniones de expertos',
-            promptFragment: '- "teil4" (tipo "mcq"): 3 expertos opinando sobre el tema desde perspectivas distintas en "textos" (3 elementos, "titulo" = nombre del experto, "contenido" = su opinión en alemán, 130-160 palabras cada una). EXACTAMENTE {n} afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 3 nombres de los expertos más una cuarta opción "Keiner von ihnen", en el mismo orden en todos los items) y "correcta" (índice 0-3). Distintos items pueden compartir la misma persona correcta; procura, sin que sea obligatorio, que al menos una afirmación no corresponda a ningún experto (Keiner von ihnen).',
+            id: 'teil4', tipo: 'mcq', opcionesCount: 4, itemsCount: 7, palabras: [130, 160], maxTokens: 3000, nombre: 'Teil 4 — Opiniones de expertos',
+            promptFragment: '- "teil4" (tipo "mcq"): 3 expertos opinando sobre el tema desde perspectivas distintas en "textos" (3 elementos, "titulo" = nombre del experto, "contenido" = su opinión en alemán, {minWords}-{maxWords} palabras cada una). EXACTAMENTE {n} afirmaciones en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — los 3 nombres de los expertos más una cuarta opción "Keiner von ihnen", en el mismo orden en todos los items) y "correcta" (índice 0-3). Distintos items pueden compartir la misma persona correcta; procura, sin que sea obligatorio, que al menos una afirmación no corresponda a ningún experto (Keiner von ihnen).',
         },
     ],
     C2: [
         {
-            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 10, maxTokens: 3000, nombre: 'Teil 1 — Comentario y preguntas',
+            id: 'teil1', tipo: 'mcq', opcionesCount: 4, itemsCount: 10, palabras: [250, 300], maxTokens: 3000, nombre: 'Teil 1 — Comentario y preguntas',
             promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, un comentario de opinión (Kommentar) de registro formal y argumentación elaborada) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 4 strings) y "correcta" (índice 0-3).',
         },
         {
-            id: 'teil2', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, derechaCount: 8, maxTokens: 2800, nombre: 'Teil 2 — Artículo por secciones',
-            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán (260-340 palabras, tema complejo o científico-divulgativo) dividido en EXACTAMENTE {n} secciones numeradas marcadas literalmente como "[1]".."[{n}]" dentro del "contenido" (un salto de línea antes de cada número). "columnaIzquierda" son esas {n} secciones (id "s1".."s{n}", "texto" = "Abschnitt 1".."Abschnitt {n}"). "columnaDerecha" son EXACTAMENTE {d} afirmaciones breves en alemán que resumen el contenido de una sección (id "a1".."a{d}", "texto" = la afirmación), de las cuales solo {n} corresponden a una sección (el resto son distractoras). "solucion" mapea cada sección al id de la afirmación que la resume.',
+            id: 'teil2', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, palabras: [260, 340], derechaCount: 8, maxTokens: 2800, nombre: 'Teil 2 — Artículo por secciones',
+            promptFragment: '- "teil2" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 artículo en alemán ({minWords}-{maxWords} palabras, tema complejo o científico-divulgativo) dividido en EXACTAMENTE {n} secciones numeradas marcadas literalmente como "[1]".."[{n}]" dentro del "contenido" (un salto de línea antes de cada número). "columnaIzquierda" son esas {n} secciones (id "s1".."s{n}", "texto" = "Abschnitt 1".."Abschnitt {n}"). "columnaDerecha" son EXACTAMENTE {d} afirmaciones breves en alemán que resumen el contenido de una sección (id "a1".."a{d}", "texto" = la afirmación), de las cuales solo {n} corresponden a una sección (el resto son distractoras). "solucion" mapea cada sección al id de la afirmación que la resume.',
         },
         {
-            id: 'teil3', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, derechaCount: 7, maxTokens: 2800, nombre: 'Teil 3 — Texto con huecos (fragmentos)',
-            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 reportaje o artículo narrativo en alemán (280-350 palabras, registro formal, estilo periodístico) — sin este texto el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en puntos donde falta un fragmento de texto (una o dos frases). "columnaDerecha" son EXACTAMENTE {d} fragmentos candidatos en alemán (id "f1".."f{d}", "texto" = el fragmento completo), de los cuales solo {n} completan correctamente un hueco (el resto son distractores). "solucion" mapea cada hueco al id del fragmento correspondiente.',
+            id: 'teil3', tipo: 'emparejar', requiereTextos: true, itemsCount: 6, palabras: [280, 350], derechaCount: 7, maxTokens: 2800, nombre: 'Teil 3 — Texto con huecos (fragmentos)',
+            promptFragment: '- "teil3" (tipo "emparejar"): OBLIGATORIO incluir el campo "textos" con 1 reportaje o artículo narrativo en alemán ({minWords}-{maxWords} palabras, registro formal, estilo periodístico) — sin este texto el ejercicio no se puede resolver. "columnaIzquierda" son EXACTAMENTE {n} huecos (id "h1".."h{n}", "texto" = "Lücke 1".."Lücke {n}") marcados literalmente como "[1]".."[{n}]" dentro del "contenido", en puntos donde falta un fragmento de texto (una o dos frases). "columnaDerecha" son EXACTAMENTE {d} fragmentos candidatos en alemán (id "f1".."f{d}", "texto" = el fragmento completo), de los cuales solo {n} completan correctamente un hueco (el resto son distractores). "solucion" mapea cada hueco al id del fragmento correspondiente.',
         },
         {
-            id: 'teil4', tipo: 'mcq', opcionesCount: 4, itemsCount: 8, maxTokens: 2500, nombre: 'Teil 4 — Anuncios de empleo',
-            promptFragment: '- "teil4" (tipo "mcq"): 4 anuncios de empleo breves en alemán en "textos" (4 elementos, "titulo" = "Anzeige A".."Anzeige D", "contenido" = el anuncio, 40-70 palabras cada uno). EXACTAMENTE {n} afirmaciones sobre el perfil o requisitos buscados en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — "Anzeige A","Anzeige B","Anzeige C","Anzeige D", en el mismo orden en todos los items) y "correcta" (índice 0-3 del anuncio al que corresponde). Distintos items pueden compartir el mismo anuncio correcto.',
+            id: 'teil4', tipo: 'mcq', opcionesCount: 4, itemsCount: 8, palabras: [40, 70], maxTokens: 2500, nombre: 'Teil 4 — Anuncios de empleo',
+            promptFragment: '- "teil4" (tipo "mcq"): 4 anuncios de empleo breves en alemán en "textos" (4 elementos, "titulo" = "Anzeige A".."Anzeige D", "contenido" = el anuncio, {minWords}-{maxWords} palabras cada uno). EXACTAMENTE {n} afirmaciones sobre el perfil o requisitos buscados en "items", cada una con "pregunta" (la afirmación), "opciones" (array de EXACTAMENTE 4 strings — "Anzeige A","Anzeige B","Anzeige C","Anzeige D", en el mismo orden en todos los items) y "correcta" (índice 0-3 del anuncio al que corresponde). Distintos items pueden compartir el mismo anuncio correcto.',
         },
     ],
 };

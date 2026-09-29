@@ -34,6 +34,20 @@ export const READING_SPECS = {
     C2: { minWords: 250, maxWords: 300, textType: 'un artículo complejo, de registro formal y vocabulario abstracto', simple: false },
 };
 
+// Level-specific difficulty rules appended to every Teil prompt of that level. Added for B1
+// after a student reported the sessions were too easy: gpt-4o-mini, left to itself, writes
+// absurd distractors, false statements that are a literal negation of the text and 1:1
+// keyword matches, so the items were answerable without reading.
+export const READING_CALIDAD = {
+    B1: `EXIGENCIAS DE DIFICULTAD (nivel B1 real, el alumno debe tener que leer con atención):
+- Lengua B1 auténtica: oraciones subordinadas (weil, obwohl, dass, wenn, als, damit), conectores (trotzdem, deshalb, außerdem, allerdings), Präteritum y Perfekt, algún Passiv y Konjunktiv II (hätte, würde, könnte), verbos con preposición (sich kümmern um, sich entscheiden für). Nada de frases telegráficas ni de generalidades del tipo "X ist ein wichtiges Thema".
+- Detalles concretos: nombres, lugares, fechas, horas, precios, cantidades, motivos. Las preguntas se apoyan en esos detalles.
+- Las preguntas, afirmaciones y resúmenes PARAFRASEAN el texto con sinónimos o una estructura distinta; nunca copian la frase del texto palabra por palabra.
+- Distractores plausibles: usan información que SÍ aparece en el texto pero no responde a lo preguntado, confunden personas, tiempos o causas, o dicen algo que el texto solo insinúa. PROHIBIDO: opciones absurdas, contrarias al sentido común, moralmente obvias ("Müll auf den Boden werfen") o que se descartan sin leer el texto.
+- Richtig/falsch: una afirmación falsa NO es la frase del texto con "nicht"/"kein" añadido; cambia un detalle (quién, cuándo, cuánto, por qué) o afirma algo que el texto no dice. Evita "immer", "nie", "nur", "alle" como pista. Al menos 2 afirmaciones exigen combinar información de dos frases distintas.
+- Emparejar: la relación correcta no se reconoce por una palabra clave repetida; hay que comprobar condiciones. Cada acierto tiene un candidato trampa del mismo tema.`,
+};
+
 export function pick(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -56,7 +70,11 @@ export function pick(arr) {
 // overrides READING_SPECS' {minWords}/{maxWords} and is also enforced by the validator
 // (see MIN_WORDS_RATIO in api/chat.js), because the model reliably undershoots word counts
 // — C1 texts meant to be 550-700 words came back at 110-170.
-// `model` (optional) overrides the default generation model for that Teil.
+// `model` (optional) overrides the default generation model for that Teil. B1 uses
+// gpt-4.1-mini: with the same prompt, gpt-4o-mini ignored the trap/single-venue rules and
+// marked wrong answers as correct (tested 2026-09-29).
+// `barajar` (optional) shuffles MCQ options / the emparejar left column server-side, and
+// `solucionUnica` rejects an emparejar Teil that maps two items to the same candidate.
 // Única excepción documentada: B1 teil3 (foro) mantiene 5 y no las 7 afirmaciones reales,
 // porque el examen real las reparte entre 5 personas y `validEmparejarTeil` exige columna
 // derecha >= izquierda.
@@ -97,24 +115,24 @@ export const READING_TEILE_SPECS = {
     ],
     B1: [
         {
-            id: 'teil1', tipo: 'mcq', itemsCount: 6, palabras: [100, 150], nombre: 'Teil 1 — Texto y preguntas',
-            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras, relato o artículo breve) en "textos" (1 elemento con "titulo" y "contenido"), y EXACTAMENTE {n} preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2).',
+            id: 'teil1', tipo: 'mcq', model: 'gpt-4.1-mini', itemsCount: 6, palabras: [100, 150], barajar: true, nombre: 'Teil 1 — Texto y preguntas',
+            promptFragment: '- "teil1" (tipo "mcq"): 1 texto en alemán ({minWords}-{maxWords} palabras) en "textos" (1 elemento con "titulo" y "contenido"): un post de blog o un correo personal en primera persona que cuenta una experiencia concreta (qué pasó, cuándo, con quién, qué salió distinto de lo planeado y cómo se sintió), no un texto expositivo genérico sobre el tema. EXACTAMENTE {n} preguntas en "items", cada una con "pregunta", "opciones" (array de EXACTAMENTE 3 strings) y "correcta" (índice 0-2). Las 3 opciones de cada pregunta deben referirse a cosas que aparecen en el texto.',
         },
         {
-            id: 'teil2', tipo: 'emparejar', itemsCount: 7, derechaCount: 10, maxTokens: 2500, nombre: 'Teil 2 — Personas y anuncios',
-            promptFragment: '- "teil2" (tipo "emparejar"): sin "textos". EXACTAMENTE {n} personas en "columnaIzquierda" (id "p1".."p{n}", "texto" describiendo brevemente qué busca/necesita cada una) y EXACTAMENTE {d} anuncios breves en "columnaDerecha" (id "a1".."a{d}", "texto" el anuncio). "solucion" debe mapear cada persona al id del anuncio que le corresponde; los anuncios restantes son distractores sin solución asociada.',
+            id: 'teil2', tipo: 'emparejar', model: 'gpt-4.1-mini', itemsCount: 7, derechaCount: 10, solucionUnica: true, maxTokens: 2500, nombre: 'Teil 2 — Personas y anuncios',
+            promptFragment: '- "teil2" (tipo "emparejar"): sin "textos". EXACTAMENTE {n} personas en "columnaIzquierda" (id "p1".."p{n}", "texto" = 1-2 frases en tercera persona con nombre, p.ej. "Jonas arbeitet unter der Woche bis 18 Uhr und möchte ...", con lo que busca Y al menos una condición concreta: horario, precio, edad, lugar, nivel o con quién) y EXACTAMENTE {d} anuncios en "columnaDerecha" (id "a1".."a{d}", "texto" = anuncio de 25-40 palabras con título y detalles prácticos: días, horas, precio, destinatarios). "solucion" mapea cada persona al único anuncio que cumple TODAS sus condiciones. Para cada persona debe haber otro anuncio del mismo tema que falle en una de sus condiciones (trampa), y el anuncio correcto NO debe repetir las palabras clave de la persona sino expresarlo con otras palabras. Los anuncios sobrantes son distractores sin solución asociada.',
         },
         {
-            id: 'teil3', tipo: 'emparejar', requiereTextos: true, itemsCount: 5, derechaCount: 5, nombre: 'Teil 3 — Foro de opiniones',
-            promptFragment: '- "teil3" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." y "contenido" con EXACTAMENTE {d} comentarios cortos de personas distintas (nombre en negrita al inicio de cada uno, separados por saltos de línea). EXACTAMENTE {n} afirmaciones/opiniones en "columnaIzquierda" (id "s1".."s{n}") que coinciden con lo que dijo una de esas personas, y las {d} personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.',
+            id: 'teil3', tipo: 'emparejar', model: 'gpt-4.1-mini', requiereTextos: true, itemsCount: 5, derechaCount: 5, barajar: true, nombre: 'Teil 3 — Foro de opiniones',
+            promptFragment: '- "teil3" (tipo "emparejar"): 1 texto en "textos" con "titulo" tipo "Forum: ..." (una pregunta polémica concreta) y "contenido" con EXACTAMENTE {d} comentarios de personas distintas de 40-60 palabras cada uno (nombre en negrita al inicio, separados por "\\n\\n"). Cada comentario da una opinión matizada con un motivo o ejemplo personal (p.ej. empieza a favor y luego pone una condición), y al menos dos personas coinciden parcialmente en algo para que no baste con buscar una palabra. EXACTAMENTE {n} afirmaciones en "columnaIzquierda" (id "s1".."s{n}") que resumen con otras palabras la postura de una de esas personas, SIN mencionar su nombre ni ningún otro nombre (p.ej. "Sprachenlernen im Ausland bringt mehr als Unterricht."), y las {d} personas en "columnaDerecha" (id = nombre en minúsculas sin espacios, "texto" = nombre). "solucion" mapea cada afirmación a la persona que la dijo.',
         },
         {
-            id: 'teil4', tipo: 'richtig_falsch', itemsCount: 6, palabras: [100, 150], nombre: 'Teil 4 — Richtig oder falsch',
-            promptFragment: '- "teil4" (tipo "richtig_falsch"): 1 texto en alemán ({minWords}-{maxWords} palabras) en "textos", y EXACTAMENTE {n} afirmaciones sobre el texto en "items", cada una con "afirmacion" (string) y "correcta" (true o false), mezclando verdaderas y falsas.',
+            id: 'teil4', tipo: 'richtig_falsch', model: 'gpt-4.1-mini', itemsCount: 6, palabras: [100, 150], nombre: 'Teil 4 — Richtig oder falsch',
+            promptFragment: '- "teil4" (tipo "richtig_falsch"): 1 texto en alemán ({minWords}-{maxWords} palabras) en "textos": un artículo de periódico regional sobre un caso concreto relacionado con el tema (una persona, un proyecto o una iniciativa local, con cifras, fechas y opiniones citadas). EXACTAMENTE {n} afirmaciones sobre el texto en "items", cada una con "afirmacion" (string) y "correcta" (true o false), con 3 verdaderas y 3 falsas.',
         },
         {
-            id: 'teil5', tipo: 'emparejar', itemsCount: 4, derechaCount: 10, maxTokens: 2500, nombre: 'Teil 5 — Situaciones y reglas',
-            promptFragment: '- "teil5" (tipo "emparejar"): sin "textos". EXACTAMENTE {n} situaciones cotidianas en "columnaIzquierda" (id "s1".."s{n}") y EXACTAMENTE {d} reglas breves de un reglamento (Hausordnung, normas de una biblioteca, gimnasio, etc.) en "columnaDerecha" (id "r1".."r{d}"). "solucion" mapea cada situación a la regla que aplica; las reglas restantes son distractores.',
+            id: 'teil5', tipo: 'emparejar', model: 'gpt-4.1-mini', itemsCount: 4, derechaCount: 10, solucionUnica: true, maxTokens: 2500, nombre: 'Teil 5 — Situaciones y reglas',
+            promptFragment: '- "teil5" (tipo "emparejar"): sin "textos". El reglamento de UN solo lugar concreto (una Hausordnung, las normas de una biblioteca, un gimnasio, un curso o un camping — elige uno). EXACTAMENTE {d} reglas en "columnaDerecha" (id "r1".."r{d}", "texto" = una regla completa y específica, con condiciones o excepciones: "Gäste dürfen ... nur, wenn ...", "Wer ... , muss ... spätestens ..."), todas de ese mismo lugar. EXACTAMENTE {n} situaciones en "columnaIzquierda" (id "s1".."s{n}", "texto" = una persona concreta en una situación práctica que plantea una duda, sin nombrar la regla, p.ej. "Frau Keller möchte am Sonntag ihre Waschmaschine benutzen."). "solucion" mapea cada situación a la regla que la resuelve; para cada situación debe haber otra regla del mismo ámbito que parezca aplicar pero no lo haga.',
         },
     ],
     B2: [

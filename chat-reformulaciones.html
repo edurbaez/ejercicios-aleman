@@ -1148,14 +1148,14 @@ function setHint(text) {
 
 function toggleDarkMode() {
     document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode_cr', document.body.classList.contains('dark') ? '1' : '');
+    window.ThemePref.set(document.body.classList.contains('dark'));
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 window.onAuthSignedIn = () => { loadDailyUsage(); loadRuleSRSCache(); };
 
 (function init() {
-    if (localStorage.getItem('darkMode_cr') !== '') document.body.classList.add('dark');
+    window.ThemePref.apply();
     State.bankPromise = fetch('reformulaciones-data.json')
         .then(r => r.ok ? r.json() : null)
         .catch(() => null);

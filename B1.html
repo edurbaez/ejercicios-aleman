@@ -60,10 +60,10 @@
 
                 <!-- Opciones -->
                 <div class="options-grid">
-                    <div class="option" id="op1"></div>
-                    <div class="option" id="op2"></div>
-                    <div class="option" id="op3"></div>
-                    <div class="option" id="op4"></div>
+                    <button type="button" class="option" id="op1"></button>
+                    <button type="button" class="option" id="op2"></button>
+                    <button type="button" class="option" id="op3"></button>
+                    <button type="button" class="option" id="op4"></button>
                 </div>
                 <div style="text-align:center;margin-top:10px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
                     <button class="btn btn-secondary" id="btn-inverso" onclick="toggleModoInverso()">ES → DE</button>
@@ -82,7 +82,7 @@
                     <h1 class="title">Repetición de Palabras</h1>
                     <span id="palabra-counter"
                           title="Palabras dichas en alemán. Doble clic para cambiar el límite."
-                          style="font-family:monospace;font-size:1rem;letter-spacing:2px;cursor:pointer;user-select:none;background:#388E3C;color:#fff;padding:4px 10px;border-radius:12px;display:inline-block;">
+                          style="font-family:monospace;font-size:1rem;letter-spacing:2px;cursor:pointer;user-select:none;background:var(--accent);color:var(--on-accent);padding:4px 10px;border-radius:12px;display:inline-block;">
                         000/100
                     </span>
                 </div>
@@ -134,7 +134,6 @@
             appId:    'b1',
             dataFile: 'DataB1.json',
             limitKey: 'b1_palabras_limite',
-            darkKey:  'darkMode_b1',
             swFile:   '/sw-b1.js',
             syncId:   'recordatorio-aleman-b1',
             accent:   '#388E3C'

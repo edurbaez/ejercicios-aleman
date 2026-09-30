@@ -175,7 +175,7 @@ Five standalone HTML apps for language learning (Spanish ↔ German) plus a serv
 
 | File | Purpose |
 |------|---------|
-| `styles.css` | Shared stylesheet for all apps. Starts with a `:root` block defining global CSS variables: `--color-b2` (#1976D2), `--color-b2-dark`, `--color-b1` (#388E3C), `--color-b1-dark`, `--color-danger`, `--color-danger-dark`, `--radius`, `--gap`. Sections: shared navbar (incl. dropdown), B2, B1, Lectura Veloz, Chat de Voz, Diccionario, Kasus-Trainer (#00796B teal), Corrector. |
+| `styles.css` | Shared stylesheet for all apps. Imports Literata (display) + Source Sans 3 (UI) from Google Fonts. `:root` defines level colors (`--color-a1`…`--color-c2`), type scale (`--text-xs`…`--text-2xl`, `--font-sans`/`--font-display`), radii (`--radius-sm`/`--radius`/`--radius-lg`/`--radius-pill`), shadows (`--shadow-1/2/3`) and warm-paper surfaces (`--paper`, `--paper-raised`, `--paper-sunk`, `--ink`, `--ink-muted`, `--line`, `--on-accent`). The **EDITORIAL THEME LAYER** at the end of the file overrides every app's surface vars (`--bg`/`--card-bg`/`--text`/`--border`/`--navbar-bg`, light and `.dark`) via an `:is(#page-…)` list — add new app body ids there; apps only define their own `--accent`. Also holds the global `:focus-visible` ring and `prefers-reduced-motion` block. admin/teacher load this file but have no body id, so the layer doesn't touch them. Sections: shared navbar (incl. dropdown), B2, B1, Lectura Veloz, Chat de Voz, Diccionario, Kasus-Trainer (#00796B teal), Corrector. |
 
 ---
 
@@ -270,7 +270,7 @@ Installable app. Service Worker caches all assets. `manifest.json` sets `start_u
 `@media (max-width: 600px)` — options collapse to 1 column, repetir panel stacks vertically, footer buttons wrap.
 
 ### Dark mode
-Toggled by `#darkModeBtn`; persisted in `localStorage` as `darkMode_b2`.
+Toggled by `#darkModeBtn`; persisted via `window.ThemePref` (`auth.js`, single key `ejaleman_theme` shared by every app, falls back to `prefers-color-scheme`).
 
 ---
 
@@ -328,7 +328,7 @@ A secondary reading mode: the saved text is displayed as a full paragraph with 1
 All pages share a fixed navbar. **Inicio** (`B2.html`) is always visible as a standalone link. The remaining pages (Lectura Veloz, Diccionario, B1, Chat de Voz) are grouped under a **Menú ▾** dropdown button. Dropdown toggled via `classList.toggle('open')` on click; closes on outside click via a `document` listener in each HTML file. Styles in `styles.css` under the shared navbar section.
 
 ### Dark mode
-Toggled by a fixed button; persisted in `localStorage` as `darkMode`.
+Toggled by a fixed button; persisted via `window.ThemePref` (shared `ejaleman_theme` key, see `auth.js`).
 
 ### External libraries (CDN)
 - `pdf.js 3.11.174` — PDF parsing.

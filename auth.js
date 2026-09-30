@@ -1,4 +1,18 @@
 /* auth.js — módulo de autenticación compartido para todas las páginas */
+
+// Single theme preference shared by every app. Falls back to the OS setting
+// until the user toggles it once; the old per-app darkMode_* keys are ignored.
+(function () {
+  const KEY = 'ejaleman_theme';
+  function stored() { try { return localStorage.getItem(KEY); } catch (e) { return null; } }
+  function osDark() { return !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches); }
+  window.ThemePref = {
+    isDark() { const v = stored(); return v ? v === 'dark' : osDark(); },
+    set(dark) { try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch (e) {} },
+    apply() { if (document.body) document.body.classList.toggle('dark', this.isDark()); },
+  };
+})();
+
 (function () {
   window.sb = supabase.createClient(SUPA_URL, SUPA_KEY);
   window.currentUser = null;
@@ -430,7 +444,7 @@
     btn.type = 'button';
     btn.title = 'Escribinos un mensaje, problema o sugerencia';
     btn.textContent = '💬';
-    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:#1976D2;color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.25);z-index:9998;transition:background .2s;';
+    btn.style.cssText = 'position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--accent, #B5562B);color:var(--on-accent, #fff);border:none;font-size:20px;cursor:pointer;box-shadow:var(--shadow-2, 0 2px 10px rgba(0,0,0,.25));z-index:9998;transition:background .2s;';
     btn.onclick = window.openFeedbackModal;
     document.body.appendChild(btn);
     _checkUnreadFeedbackReplies();
@@ -440,7 +454,7 @@
     window._fbUnread = hasUnread;
     const btn = document.getElementById('feedback-fab');
     if (btn) {
-      btn.style.background = hasUnread ? '#2E7D32' : '#1976D2';
+      btn.style.background = hasUnread ? '#2E7D32' : 'var(--accent, #B5562B)';
       btn.title = hasUnread ? '¡Tenés una respuesta nueva!' : 'Escribinos un mensaje, problema o sugerencia';
     }
     const dot = document.getElementById('fb-tab-dot');

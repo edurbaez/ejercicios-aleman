@@ -1,13 +1,12 @@
 // shared-game.js — lógica compartida entre B2.html y B1.html
 // Define window.APP_CONFIG antes de cargar este script:
-//   { appId, dataFile, limitKey, darkKey, swFile, syncId, accent }
+//   { appId, dataFile, limitKey, swFile, syncId, accent }
 
 (function () {
   const CFG       = window.APP_CONFIG || {};
   const APP       = CFG.appId    || 'b2';
   const DATA_FILE = CFG.dataFile  || 'DATA.json';
   const LIMIT_KEY = CFG.limitKey  || 'b2_palabras_limite';
-  const DARK_KEY  = CFG.darkKey   || 'darkMode_b2';
   const ESCRITURA_KEY = 'escritura_mode_' + APP;
   const SW_FILE   = CFG.swFile    || '/sw.js';
   const SYNC_ID   = CFG.syncId    || ('recordatorio-aleman-' + APP);
@@ -178,7 +177,7 @@
       container.style.marginBottom = '20px';
       const desc = document.createElement('div');
       desc.className = 'lista-info';
-      desc.innerHTML = '<strong>Seleccione una o más listas:</strong> Los botones en rojo indican listas activas';
+      desc.innerHTML = '<strong>Seleccione una o más listas:</strong> Las listas marcadas con ✓ están activas';
       container.appendChild(desc);
       setTimeout(() => { desc.style.display = 'none'; }, 3000);
       const bar = document.createElement('div');
@@ -272,6 +271,7 @@
     ['op1', 'op2', 'op3', 'op4'].forEach((id, slot) => {
       const el = $(id);
       if (!el) return;
+      el.classList.remove('is-correct', 'is-wrong');
       const wi = State.optionIdxs[slot];
       el.textContent = State.modoInverso ? State.es[wi] : State.de[wi];
       el.dataset.wordIndex = String(wi);
@@ -279,11 +279,16 @@
     });
   }
 
-  function markOptionsBackground(color) {
-    const cont = document.querySelector('#seleccion-multiple .options-grid') || document.querySelector('.options-grid');
-    if (!cont) return;
-    cont.style.background = color;
-    setTimeout(() => (cont.style.background = ''), 200);
+  const FEEDBACK_MS = 700;
+
+  function markOptionResult(chosenWordIndex, correct) {
+    ['op1', 'op2', 'op3', 'op4'].forEach(id => {
+      const el = $(id);
+      if (!el) return;
+      const wi = parseInt(el.dataset.wordIndex, 10);
+      if (wi === chosenWordIndex) el.classList.add(correct ? 'is-correct' : 'is-wrong');
+      else if (!correct && wi === State.currentIndex) el.classList.add('is-correct');
+    });
   }
 
   // Lógica común de registro de acierto/error (usada por selección múltiple y modo escritura)
@@ -323,8 +328,9 @@
     if (!State.timerStarted) startTimer();
     const correct = chosenWordIndex === State.currentIndex;
     processAnswer(correct);
-    markOptionsBackground(correct ? 'green' : 'red');
-    renderSelectionNext();
+    markOptionResult(chosenWordIndex, correct);
+    const feedbackToken = State.roundToken;
+    setTimeout(() => { if (State.roundToken === feedbackToken) renderSelectionNext(); }, FEEDBACK_MS);
   }
 
   /* ── Modo Escritura (producción activa) ─────────────── */
@@ -1344,10 +1350,10 @@
   const _sunSVG  = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 
   function toggleDarkMode() {
-    document.body.classList.toggle('dark');
-    const isDark = document.body.classList.contains('dark');
+    const isDark = !document.body.classList.contains('dark');
+    window.ThemePref.set(isDark);
+    window.ThemePref.apply();
     document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
-    localStorage.setItem(DARK_KEY, isDark);
   }
   window.toggleDarkMode = toggleDarkMode;
 
@@ -1362,8 +1368,8 @@
 
   /* ── Bootstrap (se ejecuta al cargar el script) ────── */
 
-  if (localStorage.getItem(DARK_KEY) !== 'false') {
-    document.body.classList.add('dark');
+  window.ThemePref.apply();
+  if (window.ThemePref.isDark()) {
     const btn = document.getElementById('darkModeBtn');
     if (btn) btn.innerHTML = _sunSVG;
   }

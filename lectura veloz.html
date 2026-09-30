@@ -32,7 +32,7 @@
         <button class="activity-tab active" data-activity="comprension" onclick="switchActivity('comprension')">📖 Comprensión</button>
     </div>
 
-    <div id="hint-lv" style="display:none; background:var(--card); border-left:4px solid var(--color-b2); border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
+    <div id="hint-lv" style="display:none; background:color-mix(in srgb, var(--color-b2, #1976D2) 8%, var(--card, #fff)); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin:0 0 12px; font-size:var(--text-sm); position:relative;">
       <button onclick="dismissLvHint()" style="position:absolute;top:6px;right:10px;background:none;border:none;cursor:pointer;font-size:1rem;color:var(--text)">×</button>
       <strong>3 actividades disponibles:</strong><br>
       ⚡ <b>Sprint</b> — flashcards de vocabulario con WPM adaptativo<br>
@@ -169,7 +169,7 @@
         <div id="comp-preguntas" style="display:none"></div>
 
         <div id="comp-teil-selector" style="display:none">
-            <h3 style="font-size:15px;margin-bottom:10px">¿Qué quieres practicar?</h3>
+            <h3 style="font-size:var(--text-base);margin-bottom:10px">¿Qué quieres practicar?</h3>
             <div id="comp-teil-selector-list"></div>
             <button class="btn comp-action-btn" id="comp-teil-empezar-btn">Empezar</button>
         </div>
@@ -498,7 +498,7 @@
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
-            localStorage.setItem('darkMode', isDark);
+            window.ThemePref.set(isDark);
             syncToCloud();
         }
 
@@ -979,21 +979,21 @@
                 const fg = isDark ? '#e0e0e0' : '#222';
                 const inputBg = isDark ? '#1a1c2e' : '#f8f8f8';
                 const borderColor = isDark ? '#444' : '#ccc';
-                const campo = `width:100%;padding:9px 10px;border:1px solid ${borderColor};border-radius:6px;box-sizing:border-box;font-size:15px;background:${inputBg};color:${fg};`;
+                const campo = `width:100%;padding:9px 10px;border:1px solid ${borderColor};border-radius:6px;box-sizing:border-box;font-size:var(--text-base);background:${inputBg};color:${fg};`;
                 const niveles = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
                     .map(n => `<option value="${n}"${n === defaultLevel ? ' selected' : ''}>${n}</option>`).join('');
                 overlay.innerHTML = `
                   <div style="background:${bg};color:${fg};border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);">
-                    <p style="margin:0 0 12px;font-size:15px;font-weight:600;">${title}</p>
+                    <p style="margin:0 0 12px;font-size:var(--text-base);font-weight:600;">${title}</p>
                     <input id="lv-save-name" type="text" value="${defaultName.replace(/"/g, '&quot;')}" style="${campo}margin-bottom:12px;">
-                    <label style="display:block;font-size:13px;opacity:.75;margin-bottom:5px;">Nivel del texto</label>
+                    <label style="display:block;font-size:var(--text-xs);opacity:.75;margin-bottom:5px;">Nivel del texto</label>
                     <select id="lv-save-level" style="${campo}margin-bottom:14px;">
                       <option value=""${defaultLevel ? '' : ' selected'}>Sin especificar</option>
                       ${niveles}
                     </select>
                     <div style="display:flex;gap:8px;justify-content:flex-end;">
-                      <button id="lv-save-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:14px;background:transparent;color:${fg};">Cancelar</button>
-                      <button id="lv-save-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Guardar</button>
+                      <button id="lv-save-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:var(--text-sm);background:transparent;color:${fg};">Cancelar</button>
+                      <button id="lv-save-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:var(--text-sm);">Guardar</button>
                     </div>
                   </div>`;
                 document.body.appendChild(overlay);
@@ -1026,10 +1026,10 @@
                 const borderColor = isDark ? '#444' : '#ccc';
                 overlay.innerHTML = `
                   <div role="dialog" aria-modal="true" style="background:${bg};color:${fg};border-radius:12px;padding:24px;min-width:280px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25);">
-                    <p style="margin:0 0 18px;font-size:15px;font-weight:600;line-height:1.4;">${message}</p>
+                    <p style="margin:0 0 18px;font-size:var(--text-base);font-weight:600;line-height:1.4;">${message}</p>
                     <div style="display:flex;gap:8px;justify-content:flex-end;">
-                      <button id="lv-confirm-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:14px;background:transparent;color:${fg};">Cancelar</button>
-                      <button id="lv-confirm-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px;">Continuar</button>
+                      <button id="lv-confirm-cancel" style="padding:8px 16px;border:1px solid ${borderColor};border-radius:6px;cursor:pointer;font-size:var(--text-sm);background:transparent;color:${fg};">Cancelar</button>
+                      <button id="lv-confirm-ok" style="padding:8px 16px;background:#007bff;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:var(--text-sm);">Continuar</button>
                     </div>
                   </div>`;
                 document.body.appendChild(overlay);
@@ -1694,7 +1694,7 @@
             if (!errDiv) {
                 errDiv = document.createElement('div');
                 errDiv.id = 'comp-error';
-                errDiv.style.cssText = 'color:#e63946;padding:10px 0;font-size:14px;';
+                errDiv.style.cssText = 'color:#e63946;padding:10px 0;font-size:var(--text-sm);';
                 document.getElementById('comp-mode-A').appendChild(errDiv);
             }
             errDiv.textContent = msg;
@@ -1869,10 +1869,8 @@
         });
 
         // Init
-        if (localStorage.getItem('darkMode') !== 'false') {
-            document.body.classList.add('dark');
-            document.getElementById('darkModeBtn').innerHTML = _sunSVG;
-        }
+        window.ThemePref.apply();
+        if (window.ThemePref.isDark()) document.getElementById('darkModeBtn').innerHTML = _sunSVG;
         migrateFromLocalStorage().then(() => mostrarTextosGuardados());
         updateButtons();
         lvInitControles();
@@ -2200,7 +2198,7 @@
             if (data.lv_dark != null) {
                 document.body.classList.toggle('dark', data.lv_dark);
                 document.getElementById('darkModeBtn').innerHTML = data.lv_dark ? _sunSVG : _moonSVG;
-                localStorage.setItem('darkMode', data.lv_dark);
+                window.ThemePref.set(!!data.lv_dark);
             }
             if (data.lv_positions) {
                 Object.entries(data.lv_positions).forEach(([id, pos]) => {
@@ -2723,9 +2721,9 @@
 
             const textosEl = document.getElementById('comp-teil-textos');
             textosEl.innerHTML = (teil.textos || []).map(t => `
-                <div class="comp-teil-texto" style="margin-bottom:14px;padding:16px;background:var(--bg,#f4f4f9);border-radius:var(--radius,8px);border-left:4px solid var(--btn,#1976D2)">
-                    <h3 style="font-size:16px;font-weight:700;margin-bottom:10px;color:var(--btn,#1976D2)">${escHtml(t.titulo)}</h3>
-                    <div style="font-size:15px;line-height:1.7;white-space:pre-wrap">${escHtml(t.contenido)}</div>
+                <div class="comp-teil-texto" style="margin-bottom:14px;padding:16px;background:color-mix(in srgb, var(--btn, #1976D2) 8%, var(--card, #fff));border-radius:var(--radius,8px);border:1px solid var(--border)">
+                    <h3 style="font-size:var(--text-base);font-weight:700;margin-bottom:10px;color:var(--btn,#1976D2)">${escHtml(t.titulo)}</h3>
+                    <div style="font-size:var(--text-base);line-height:1.7;white-space:pre-wrap">${escHtml(t.contenido)}</div>
                 </div>
             `).join('');
 

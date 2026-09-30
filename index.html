@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -26,144 +26,125 @@
   <script src="auth.js" defer></script>
   <script src="onboarding.js" defer></script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    #page-home {
+      --accent: #B5562B;
+      --accent-hover: #9A4622;
+      --accent-text: #A34A22;
       margin: 0;
-      background: #f0f2f7;
-      color: #222;
       min-height: 100vh;
+      padding-top: 46px;
     }
-    body.dark { background: #181824; color: #dde1ec; }
-
-    /* Hero */
-    .hero {
-      background: linear-gradient(135deg, #1565C0 0%, #1976D2 50%, #0D47A1 100%);
-      color: #fff;
-      padding: 64px 24px 56px;
-      margin-top: 46px;
-      text-align: center;
+    #page-home.dark {
+      --accent: #C2623A;
+      --accent-hover: #D0703F;
+      --accent-text: #E39A73;
     }
-    .hero-flag { font-size: 48px; margin-bottom: 12px; line-height: 1; }
-    .hero h1 { margin: 0 0 12px; font-size: clamp(28px, 5vw, 42px); font-weight: 700; letter-spacing: -.5px; }
-    .hero p  { margin: 0; font-size: clamp(15px, 2.5vw, 18px); opacity: .85; max-width: 520px; margin: 0 auto; }
+    #page-home a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
 
-    /* Grid */
-    .apps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-      gap: 20px;
-      padding: 36px 24px 48px;
-      max-width: 1100px;
-      margin: 0 auto;
+    .hero { padding: 40px 0 28px; animation: heroRise .7s var(--ease-out) both; }
+    .hero h1 {
+      font-size: clamp(2rem, 7.5vw, 3.25rem);
+      line-height: 1.08;
+      margin: 0 0 12px;
+      max-width: 15ch;
     }
+    .hero-sub { font-size: var(--text-md); color: var(--ink-muted); max-width: 46ch; margin: 0 0 28px; }
+    @keyframes heroRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-    /* App card */
-    .app-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 28px 24px 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,.07);
-      text-decoration: none;
-      color: inherit;
+    .today {
+      background: var(--paper-raised);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-1);
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      transition: transform .15s, box-shadow .15s;
-      border-top: 4px solid var(--card-accent, #1976D2);
+      gap: 16px;
     }
-    .app-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(0,0,0,.12);
-    }
-    body.dark .app-card {
-      background: #23253a;
-      box-shadow: 0 2px 10px rgba(0,0,0,.3);
-    }
-
-    .card-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      background: color-mix(in srgb, var(--card-accent, #1976D2) 12%, transparent);
+    .today-head { display: flex; align-items: center; gap: 12px; }
+    .lv-badge {
+      min-width: 48px; height: 48px; padding: 0 10px;
+      border-radius: var(--radius);
+      background: var(--lv, var(--accent));
+      color: #fff;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-weight: 650; font-size: var(--text-lg);
       flex-shrink: 0;
     }
-    .card-title {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--card-accent, #1976D2);
-      margin: 0;
-    }
-    body.dark .card-title { filter: brightness(1.3); }
-    .card-desc {
-      font-size: 13px;
-      color: #666;
-      line-height: 1.55;
-      margin: 0;
-      flex: 1;
-    }
-    body.dark .card-desc { color: #8a90aa; }
-
-    .card-tag {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      background: color-mix(in srgb, var(--card-accent, #1976D2) 12%, transparent);
-      color: var(--card-accent, #1976D2);
-      align-self: flex-start;
-    }
-    body.dark .card-tag { filter: brightness(1.3); }
-
-    /* Dark toggle (fixed) */
-    #dark-toggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #1565C0;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 18px;
+    .today-title { margin: 0; font-family: var(--font-display); font-weight: 650; font-size: var(--text-md); line-height: 1.25; }
+    .today-desc { margin: 2px 0 0; font-size: var(--text-sm); color: var(--ink-muted); }
+    .today-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .btn-primary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 48px; padding: 0 22px;
+      background: var(--accent); color: var(--on-accent) !important;
+      border: 0; border-radius: var(--radius-pill);
+      font: 700 var(--text-base)/1 var(--font-sans);
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 50;
+      transition: background .2s var(--ease-out), transform .2s var(--ease-out);
     }
-    body.dark #dark-toggle { background: #42a5f5; }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+    .btn-link {
+      display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px;
+      font-weight: 600; color: var(--accent-text) !important;
+      text-decoration: underline !important; text-underline-offset: 3px;
+    }
+    @media (max-width: 480px) {
+      .today-actions .btn-primary { width: 100%; }
+    }
 
-    /* Section label */
-    .section-label {
-      text-align: center;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: #aaa;
-      margin: 0 24px 4px;
-      max-width: 1100px;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 0 24px;
+    .groups { display: grid; gap: 40px 48px; padding: 20px 0 40px; }
+    @media (min-width: 780px) { .groups { grid-template-columns: 1fr 1fr; } }
+    .group-head { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .group-head svg { width: 26px; height: 26px; color: var(--accent-text); flex-shrink: 0; }
+    .group-head h2 { margin: 0; font-size: var(--text-lg); }
+    .group-note { margin: 0 0 8px; font-size: var(--text-sm); color: var(--ink-muted); }
+
+    .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-strong); }
+    .rows li { border-bottom: 1px solid var(--line); }
+    .row {
+      display: flex; align-items: center; gap: 12px;
+      min-height: 56px; padding: 10px 4px;
+      transition: background .2s var(--ease-out);
     }
+    .row:hover { background: var(--paper-sunk); }
+    .row-main { flex: 1; min-width: 0; transition: transform .2s var(--ease-out); }
+    .row:hover .row-main { transform: translateX(6px); }
+    .row-title { display: block; font-weight: 700; font-size: var(--text-base); }
+    .row-desc { display: block; font-size: var(--text-sm); color: var(--ink-muted); line-height: 1.4; }
+    .row-go { color: var(--ink-muted); flex-shrink: 0; width: 18px; height: 18px; }
+    .row:hover .row-go { color: var(--accent-text); }
+
+    .chip-label { margin: 16px 0 8px; font-size: var(--text-sm); font-weight: 600; color: var(--ink-muted); }
+    .chips { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .chips.is-first { margin-top: 12px; }
+    .chip {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 44px; border-radius: var(--radius);
+      background: var(--lv); color: #fff !important;
+      font-weight: 700; font-size: var(--text-sm); letter-spacing: .02em;
+      transition: transform .2s var(--ease-out), box-shadow .2s var(--ease-out);
+    }
+    .chip:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); }
+    .chip.outline { background: transparent; color: var(--ink) !important; border: 1.5px solid var(--lv); }
+    .lv-a1 { --lv: var(--color-a1); } .lv-a2 { --lv: var(--color-a2); } .lv-b1 { --lv: var(--color-b1); }
+    .lv-b2 { --lv: var(--color-b2); } .lv-c1 { --lv: var(--color-c1); } .lv-c2 { --lv: var(--color-c2); }
+    #page-home.dark .lv-c2 { --lv: #607D8B; }
+
+    .admin-group { padding-bottom: 24px; }
+    footer { text-align: center; padding: 24px 20px 40px; font-size: var(--text-sm); color: var(--ink-muted); }
+    footer a { text-decoration: underline !important; text-underline-offset: 3px; }
 
     @media (max-width: 480px) {
-      .hero { padding: 48px 16px 40px; }
-      .apps-grid { padding: 24px 16px 40px; gap: 14px; }
+      .wrap { padding: 0 16px; }
+      .hero { padding-top: 28px; }
     }
+    @media (prefers-reduced-motion: reduce) { .hero { animation: none; } }
   </style>
 </head>
 <body id="page-home">
+<script>(function(){var t=null;try{t=localStorage.getItem('ejaleman_theme');}catch(e){}var d=t?t==='dark':!!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);document.body.classList.toggle('dark',d);})();</script>
 
 <nav id="navbar">
   <a href="/" class="active">Inicio</a>
@@ -177,180 +158,141 @@
 </nav>
 <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown')){document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}else if(!e.target.closest('.nav-submenu')){document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}});</script>
 
-<div class="hero">
-  <div class="hero-flag">🇩🇪</div>
-  <h1>Aprende Alemán</h1>
-  <p>Vocabulario, gramática, dictado y conversación — todo en un lugar.</p>
-</div>
+<main class="wrap">
+  <section class="hero">
+    <h1>Jeden Tag ein bisschen besser.</h1>
+    <p class="hero-sub">Cada día, un poco mejor. Vocabulario, gramática, lectura y conversación para hispanohablantes, en un solo lugar.</p>
 
-<p class="section-label" style="padding-top:28px">Vocabulario</p>
-<div class="apps-grid" style="padding-top:12px;padding-bottom:0">
-  <a href="A1.html" class="app-card" style="--card-accent:#B71C1C">
-    <div class="card-icon">🔴</div>
-    <p class="card-title">Vocabulario A1</p>
-    <p class="card-desc">500 palabras esenciales para principiantes absolutos. Saludos, números, familia, verbos básicos y más.</p>
-    <span class="card-tag">A1 · Principiante</span>
-  </a>
-  <a href="A2.html" class="app-card" style="--card-accent:#E64A19">
-    <div class="card-icon">🟠</div>
-    <p class="card-title">Vocabulario A2</p>
-    <p class="card-desc">500 palabras para nivel elemental: rutinas diarias, compras, transporte, verbos modales y más.</p>
-    <span class="card-tag">A2 · Elemental</span>
-  </a>
-  <a href="B1.html" class="app-card" style="--card-accent:#388E3C">
-    <div class="card-icon">📗</div>
-    <p class="card-title">Vocabulario B1</p>
-    <p class="card-desc">500 palabras de nivel intermedio: viajes, trabajo, salud, Konjunktiv II y construcciones pasivas.</p>
-    <span class="card-tag">B1 · Intermedio</span>
-  </a>
-  <a href="B2.html" class="app-card" style="--card-accent:#1976D2">
-    <div class="card-icon">📘</div>
-    <p class="card-title">Vocabulario B2</p>
-    <p class="card-desc">500 palabras de nivel avanzado: política, economía, cultura. Konjunktiv I, pasiva y expresiones idiomáticas.</p>
-    <span class="card-tag">B2 · Avanzado</span>
-  </a>
-  <a href="C1.html" class="app-card" style="--card-accent:#00838F">
-    <div class="card-icon">🔵</div>
-    <p class="card-title">Vocabulario C1</p>
-    <p class="card-desc">500 palabras para contextos académicos y profesionales. Léxico sofisticado, argumentación y registro formal.</p>
-    <span class="card-tag">C1 · Proficiencia</span>
-  </a>
-  <a href="C2.html" class="app-card" style="--card-accent:#37474F">
-    <div class="card-icon">⚫</div>
-    <p class="card-title">Vocabulario C2</p>
-    <p class="card-desc">500 palabras de dominio nativo: léxico literario, matices sutiles, proverbios y terminología especializada.</p>
-    <span class="card-tag">C2 · Maestría</span>
-  </a>
-  <a href="diccionario.html" class="app-card" style="--card-accent:#5E35B1">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Diccionario</p>
-    <p class="card-desc">Busca cualquier palabra alemana: traducción, nivel CEFR, definición, sinónimos y antónimos. Con caché offline.</p>
-    <span class="card-tag">A1–C2</span>
-  </a>
-</div>
+    <div class="today" id="today">
+      <div class="today-head">
+        <span class="lv-badge" id="today-badge">A1</span>
+        <div>
+          <p class="today-title" id="today-title">Tu plan de hoy</p>
+          <p class="today-desc" id="today-desc">30 días guiados: vocabulario, gramática y práctica oral.</p>
+        </div>
+      </div>
+      <div class="today-actions">
+        <a href="plan.html" class="btn-primary" id="today-cta">Continuar plan de hoy</a>
+        <a href="A1.html" class="btn-link" id="today-vocab">Vocabulario A1</a>
+      </div>
+    </div>
+  </section>
 
-<p class="section-label" style="padding-top:28px">Gramática</p>
-<div class="apps-grid" style="padding-top:12px;padding-bottom:0">
-  <a href="gramatica.html" class="app-card" style="--card-accent:#E65100">
-    <div class="card-icon">📋</div>
-    <p class="card-title">Gramática</p>
-    <p class="card-desc">10 reglas gramaticales clave por nivel CEFR (A1–C2) en formato acordeón. Referencia rápida para consulta.</p>
-    <span class="card-tag">A1–C2 · Referencia</span>
-  </a>
-  <a href="gramaticaA1.html" class="app-card" style="--card-accent:#B71C1C">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática A1 completa</p>
-    <p class="card-desc">Las 21 reglas gramaticales del nivel A1 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">A1 · Referencia</span>
-  </a>
-  <a href="gramaticaB1.html" class="app-card" style="--card-accent:#388E3C">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática B1 completa</p>
-    <p class="card-desc">Las 31 reglas gramaticales del nivel B1 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">B1 · Referencia</span>
-  </a>
-  <a href="gramaticaB2.html" class="app-card" style="--card-accent:#1976D2">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática B2 completa</p>
-    <p class="card-desc">Las 17 reglas gramaticales del nivel B2 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">B2 · Referencia</span>
-  </a>
-  <a href="gramaticaA2.html" class="app-card" style="--card-accent:#E64A19">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática A2 completa</p>
-    <p class="card-desc">Las 21 reglas gramaticales del nivel A2 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">A2 · Referencia</span>
-  </a>
-  <a href="gramaticaC1.html" class="app-card" style="--card-accent:#00838F">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática C1 completa</p>
-    <p class="card-desc">Las 17 reglas gramaticales del nivel C1 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">C1 · Referencia</span>
-  </a>
-  <a href="gramaticaC2.html" class="app-card" style="--card-accent:#37474F">
-    <div class="card-icon">📖</div>
-    <p class="card-title">Gramática C2 completa</p>
-    <p class="card-desc">Las 10 reglas gramaticales del nivel C2 explicadas en detalle, con tablas, excepciones y ejemplos, en una sola página.</p>
-    <span class="card-tag">C2 · Referencia</span>
-  </a>
-  <a href="kasus.html" class="app-card" style="--card-accent:#00796B">
-    <div class="card-icon">🔤</div>
-    <p class="card-title">Kasus Trainer</p>
-    <p class="card-desc">Ejercicios de rellenar huecos para practicar Nominativ, Akkusativ, Dativ y Genitiv con seguimiento de racha.</p>
-    <span class="card-tag">Casos gramaticales</span>
-  </a>
-  <a href="corrector.html" class="app-card" style="--card-accent:#AD1457">
-    <div class="card-icon">✏️</div>
-    <p class="card-title">Corrector</p>
-    <p class="card-desc">Sube o fotografía un texto en alemán y recibe una corrección detallada con errores, puntuación y explicaciones.</p>
-    <span class="card-tag">Corrección · GPT-4o</span>
-  </a>
-  <a href="escritura.html" class="app-card" style="--card-accent:#303F9F">
-    <div class="card-icon">✍️</div>
-    <p class="card-title">Escritura</p>
-    <p class="card-desc">Tareas de expresión escrita al estilo Goethe/telc: la IA genera la consigna según tu nivel, tú escribes y recibes corrección con puntuación.</p>
-    <span class="card-tag">A1–C2 · Escritura</span>
-  </a>
-</div>
+  <div class="groups">
+    <section aria-labelledby="g-vocab">
+      <div class="group-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v16H6.5A2.5 2.5 0 004 21.5z"/><path d="M4 21.5V5.5"/><path d="M9 8h6"/></svg>
+        <h2 id="g-vocab">Wortschatz</h2>
+      </div>
+      <p class="group-note">Quiz con audio y repaso espaciado. Elige tu nivel.</p>
+      <div class="chips is-first">
+        <a href="A1.html" class="chip lv-a1" title="Vocabulario A1">A1</a>
+        <a href="A2.html" class="chip lv-a2" title="Vocabulario A2">A2</a>
+        <a href="B1.html" class="chip lv-b1" title="Vocabulario B1">B1</a>
+        <a href="B2.html" class="chip lv-b2" title="Vocabulario B2">B2</a>
+        <a href="C1.html" class="chip lv-c1" title="Vocabulario C1">C1</a>
+        <a href="C2.html" class="chip lv-c2" title="Vocabulario C2">C2</a>
+      </div>
+      <ul class="rows" style="margin-top:16px">
+        <li><a href="diccionario.html" class="row"><span class="row-main"><span class="row-title">Diccionario</span><span class="row-desc">Traducción, nivel, definición y sinónimos de cualquier palabra.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      </ul>
+    </section>
 
-<p class="section-label" style="padding-top:28px">Comprensión y conversación</p>
-<div class="apps-grid" style="padding-top:12px">
-  <a href="chat-voz.html" class="app-card" style="--card-accent:#C62828">
-    <div class="card-icon">🎙️</div>
-    <p class="card-title">Chat de Voz</p>
-    <p class="card-desc">Mantén una conversación hablada en alemán. Graba con el micrófono, Whisper transcribe y la IA responde en voz alta.</p>
-    <span class="card-tag">A1–C2 · Conversación</span>
-  </a>
-  <a href="chat-reformulaciones.html" class="app-card" style="--card-accent:#6A1B9A">
-    <div class="card-icon">🔄</div>
-    <p class="card-title">Reformulaciones</p>
-    <p class="card-desc">Practica reformulando frases en alemán guiado por reglas gramaticales. Responde por voz o texto y recibe evaluación inmediata.</p>
-    <span class="card-tag">A1–C2 · Gramática</span>
-  </a>
-  <a href="lectura veloz.html" class="app-card" style="--card-accent:#00838F">
-    <div class="card-icon">⚡</div>
-    <p class="card-title">Entrenamiento de lectura</p>
-    <p class="card-desc">Sprint de vocabulario con preguntas sorpresa, lectura veloz RSVP y comprensión de textos por nivel. Tres actividades en una.</p>
-    <span class="card-tag">Lectura · Vocabulario</span>
-  </a>
-</div>
+    <section aria-labelledby="g-gram">
+      <div class="group-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h2"/><path d="M16 4h2a2 2 0 012 2v12a2 2 0 01-2 2h-2"/><path d="M9 9h6M9 13h4"/></svg>
+        <h2 id="g-gram">Grammatik</h2>
+      </div>
+      <ul class="rows">
+        <li><a href="gramatica.html" class="row"><span class="row-main"><span class="row-title">Gramática interactiva</span><span class="row-desc">117 reglas por nivel, con práctica y examen.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="kasus.html" class="row"><span class="row-main"><span class="row-title">Kasus Trainer</span><span class="row-desc">Huecos de Nominativ, Akkusativ, Dativ y Genitiv.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="chat-reformulaciones.html" class="row"><span class="row-main"><span class="row-title">Reformulaciones</span><span class="row-desc">Transforma frases con una estructura dada, por voz o texto.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      </ul>
+      <p class="chip-label">Referencia completa por nivel, en una página</p>
+      <div class="chips">
+        <a href="gramaticaA1.html" class="chip outline lv-a1" title="Gramática A1 (21 reglas)">A1</a>
+        <a href="gramaticaA2.html" class="chip outline lv-a2" title="Gramática A2 (21 reglas)">A2</a>
+        <a href="gramaticaB1.html" class="chip outline lv-b1" title="Gramática B1 (31 reglas)">B1</a>
+        <a href="gramaticaB2.html" class="chip outline lv-b2" title="Gramática B2 (17 reglas)">B2</a>
+        <a href="gramaticaC1.html" class="chip outline lv-c1" title="Gramática C1 (17 reglas)">C1</a>
+        <a href="gramaticaC2.html" class="chip outline lv-c2" title="Gramática C2 (10 reglas)">C2</a>
+      </div>
+    </section>
 
-<p class="section-label" style="padding-top:28px">Plan de estudio</p>
-<div class="apps-grid" style="padding-top:12px;padding-bottom:0">
-  <a href="plan.html" class="app-card" style="--card-accent:#1565C0">
-    <div class="card-icon">📅</div>
-    <p class="card-title">Plan 30 días</p>
-    <p class="card-desc">Sigue un plan estructurado de 30 días por nivel CEFR. Vocabulario, gramática y práctica oral cada día.</p>
-    <span class="card-tag">A1–C2 · Estructura</span>
-  </a>
-</div>
+    <section aria-labelledby="g-lesen">
+      <div class="group-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+        <h2 id="g-lesen">Lesen &amp; Schreiben</h2>
+      </div>
+      <ul class="rows">
+        <li><a href="lectura veloz.html" class="row"><span class="row-main"><span class="row-title">Entrenamiento de lectura</span><span class="row-desc">Sprint de vocabulario, lectura veloz y comprensión tipo examen.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="escritura.html" class="row"><span class="row-main"><span class="row-title">Escritura</span><span class="row-desc">Tareas al estilo Goethe/telc con corrección y puntuación.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="corrector.html" class="row"><span class="row-main"><span class="row-title">Corrector</span><span class="row-desc">Sube o fotografía un texto y recibe la corrección detallada.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      </ul>
+    </section>
 
-<p class="section-label" data-admin-only style="padding-top:28px;display:none">Otras funciones</p>
-<div class="apps-grid" data-admin-only style="padding-top:12px;display:none">
-  <a href="chatvoz2/index.html" class="app-card" style="--card-accent:#1565C0">
-    <div class="card-icon">🤖</div>
-    <p class="card-title">Chat de Voz 2</p>
-    <p class="card-desc">Conversación de voz con DeepSeek. Graba con el micrófono, transcripción por Whisper y respuesta en voz alta.</p>
-    <span class="card-tag">DeepSeek · Voz</span>
-  </a>
-  <a href="finance/finanzas-dashboard.html" class="app-card" style="--card-accent:#0F172A">
-    <div class="card-icon">📊</div>
-    <p class="card-title">Dashboard Financiero</p>
-    <p class="card-desc">Monitorea precios de criptomonedas, índices y ETFs en tiempo real. Watchlist, portfolio con P&amp;L y alertas de precio.</p>
-    <span class="card-tag">Crypto · Índices · ETFs</span>
-  </a>
-</div>
+    <section aria-labelledby="g-sprechen">
+      <div class="group-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0"/><path d="M12 18v3"/></svg>
+        <h2 id="g-sprechen">Sprechen</h2>
+      </div>
+      <ul class="rows">
+        <li><a href="mundliche.html" class="row"><span class="row-main"><span class="row-title">Mündliche Prüfung</span><span class="row-desc">Practica los Teile del examen oral Goethe/telc con evaluación.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+        <li><a href="chat-voz.html" class="row"><span class="row-main"><span class="row-title">Chat de Voz</span><span class="row-desc">Conversación hablada con la IA, con escenarios de rol.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      </ul>
+    </section>
+  </div>
 
-<footer style="text-align:center;padding:24px;font-size:13px;color:#888;">
-  <a href="/privacidad.html" style="color:inherit;">Política de Privacidad</a>
+  <section class="admin-group" data-admin-only style="display:none" aria-labelledby="g-admin">
+    <div class="group-head"><h2 id="g-admin">Otras funciones</h2></div>
+    <ul class="rows">
+      <li><a href="chatvoz2/index.html" class="row"><span class="row-main"><span class="row-title">Chat de Voz 2</span><span class="row-desc">Conversación de voz con DeepSeek, escenarios y más idiomas.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+      <li><a href="finance/finanzas-dashboard.html" class="row"><span class="row-main"><span class="row-title">Dashboard Financiero</span><span class="row-desc">Criptomonedas, índices y ETFs en tiempo real.</span></span><svg class="row-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  <a href="/privacidad.html">Política de Privacidad</a>
 </footer>
 
 <script>
   function toggleDarkMode() {
-    const dark = document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode_home', dark ? '1' : '0');
+    if (window.ThemePref) { ThemePref.set(!ThemePref.isDark()); ThemePref.apply(); }
+    else document.body.classList.toggle('dark');
   }
-  if (localStorage.getItem('darkMode_home') !== '0') document.body.classList.add('dark');
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.ThemePref) ThemePref.apply();
+  });
+
+  (function () {
+    var LV = { a1: 'A1', a2: 'A2', b1: 'B1', b2: 'B2', c1: 'C1', c2: 'C2' };
+    var lvl = '';
+    try { lvl = (localStorage.getItem('onboarding_level') || '').toLowerCase(); } catch (e) {}
+    var badge = document.getElementById('today-badge');
+    var title = document.getElementById('today-title');
+    var desc = document.getElementById('today-desc');
+    var cta = document.getElementById('today-cta');
+    var vocab = document.getElementById('today-vocab');
+    if (LV[lvl]) {
+      var L = LV[lvl];
+      badge.textContent = L;
+      badge.style.setProperty('--lv', 'var(--color-' + lvl + ')');
+      title.textContent = 'Tu nivel: ' + L;
+      vocab.textContent = 'Vocabulario ' + L;
+      vocab.href = L + '.html';
+    } else {
+      badge.textContent = '?';
+      title.textContent = 'Empieza eligiendo tu nivel';
+      desc.textContent = 'Te llevamos de la mano en menos de un minuto.';
+      cta.textContent = 'Elegir mi nivel';
+      vocab.textContent = 'Empezar por A1';
+      vocab.href = 'A1.html';
+      cta.addEventListener('click', function (e) {
+        if (window.startOnboarding) { e.preventDefault(); window.startOnboarding(); }
+      });
+    }
+  })();
 </script>
 </body>
 </html>

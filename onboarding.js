@@ -28,10 +28,10 @@
           <p style="margin:0 0 10px;font-weight:600">¿Cuál es tu nivel actual?</p>
           <div id="ob-levels" style="display:flex;flex-wrap:wrap;gap:8px">
             ${Object.keys(LEVEL_PAGES).map(l =>
-              `<button data-level="${l}" style="padding:8px 14px;border:1.5px solid #1565C0;background:${l === chosenLevel() ? '#1565C0' : 'transparent'};color:${l === chosenLevel() ? '#fff' : '#1565C0'};border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">${l.toUpperCase()}</button>`
+              `<button data-level="${l}" style="padding:8px 14px;border:1.5px solid var(--accent, #B5562B);background:${l === chosenLevel() ? 'var(--accent, #B5562B)' : 'transparent'};color:${l === chosenLevel() ? 'var(--on-accent, #fff)' : 'var(--accent, #B5562B)'};border-radius:var(--radius-sm, 6px);cursor:pointer;font-weight:700;font-size:14px">${l.toUpperCase()}</button>`
             ).join('')}
           </div>
-          <p style="margin:10px 0 0;font-size:12px;color:#888">Si no lo sabes, empieza por A1 — siempre puedes cambiar.</p>`,
+          <p style="margin:10px 0 0;font-size:12px;color:var(--ink-muted, #6b5f55)">Si no lo sabes, empieza por A1 — siempre puedes cambiar.</p>`,
       },
       {
         target: () => document.querySelector(`a[href="${LEVEL_PAGES[chosenLevel()]}"]`),
@@ -68,9 +68,9 @@
     overlay.id = 'ob-overlay';
     overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;';
     spotlight = document.createElement('div');
-    spotlight.style.cssText = 'position:absolute;border-radius:12px;box-shadow:0 0 0 9999px rgba(0,0,0,.6);transition:all .25s ease;pointer-events:none;';
+    spotlight.style.cssText = 'position:absolute;border-radius:var(--radius, 10px);box-shadow:0 0 0 9999px rgba(0,0,0,.6);transition:all .25s ease;pointer-events:none;';
     tooltip = document.createElement('div');
-    tooltip.style.cssText = 'position:absolute;background:#fff;color:#222;border-radius:14px;padding:20px 22px;width:min(92vw,380px);box-shadow:0 10px 40px rgba(0,0,0,.35);font-size:14px;line-height:1.55;';
+    tooltip.style.cssText = 'position:absolute;background:var(--paper-raised, #fffdf9);color:var(--ink, #2b2520);font-family:var(--font-sans, system-ui, sans-serif);border-radius:var(--radius-lg, 16px);padding:20px 22px;width:min(92vw,380px);box-shadow:var(--shadow-3, 0 20px 44px -12px rgba(64,42,20,.24));font-size:14px;line-height:1.55;';
     overlay.appendChild(spotlight);
     overlay.appendChild(tooltip);
     document.body.appendChild(overlay);
@@ -132,15 +132,15 @@
     tooltip.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px">
         <strong style="font-size:16px">${step.title}</strong>
-        <span style="font-size:12px;color:#999;margin-left:12px">${progress}</span>
+        <span style="font-size:12px;color:var(--ink-muted, #6b5f55);margin-left:12px">${progress}</span>
       </div>
       ${step.html}
       <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:18px;align-items:center">
-        <button id="ob-skip" style="background:none;border:none;color:#999;cursor:pointer;font-size:13px">Saltar</button>
+        <button id="ob-skip" style="background:none;border:none;color:var(--ink-muted, #6b5f55);cursor:pointer;font-size:13px">Saltar</button>
         ${step.finalStep
-          ? `<button id="ob-go" style="padding:9px 18px;background:#fff;color:#1565C0;border:1.5px solid #1565C0;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">Explorar</button>
-             <button id="ob-next" style="padding:9px 18px;background:#1565C0;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">Ir a mi nivel →</button>`
-          : `<button id="ob-next" style="padding:9px 18px;background:#1565C0;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px">${stepIndex === 0 ? 'Empezar' : 'Siguiente'} →</button>`}
+          ? `<button id="ob-go" style="padding:9px 18px;background:var(--paper-raised, #fffdf9);color:var(--accent, #B5562B);border:1.5px solid var(--accent, #B5562B);border-radius:var(--radius-sm, 6px);cursor:pointer;font-weight:700;font-size:14px">Explorar</button>
+             <button id="ob-next" style="padding:9px 18px;background:var(--accent, #B5562B);color:var(--on-accent, #fff);border:none;border-radius:var(--radius-sm, 6px);cursor:pointer;font-weight:700;font-size:14px">Ir a mi nivel →</button>`
+          : `<button id="ob-next" style="padding:9px 18px;background:var(--accent, #B5562B);color:var(--on-accent, #fff);border:none;border-radius:var(--radius-sm, 6px);cursor:pointer;font-weight:700;font-size:14px">${stepIndex === 0 ? 'Empezar' : 'Siguiente'} →</button>`}
       </div>`;
 
     // Position tooltip relative to spotlight (below if room, else above; centered if no target)
@@ -169,8 +169,8 @@
           localStorage.setItem(LEVEL_KEY, btn.dataset.level);
           levelsBox.querySelectorAll('button').forEach(b => {
             const active = b === btn;
-            b.style.background = active ? '#1565C0' : 'transparent';
-            b.style.color = active ? '#fff' : '#1565C0';
+            b.style.background = active ? 'var(--accent, #B5562B)' : 'transparent';
+            b.style.color = active ? 'var(--on-accent, #fff)' : 'var(--accent, #B5562B)';
           });
         };
       });
@@ -193,7 +193,7 @@
     btn.textContent = '?';
     btn.title = 'Ver tour de bienvenida';
     btn.setAttribute('aria-label', 'Ver tour de bienvenida');
-    btn.style.cssText = 'position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;border:none;background:#1565C0;color:#fff;font-size:20px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:50;';
+    btn.style.cssText = 'position:fixed;bottom:20px;left:20px;width:44px;height:44px;border-radius:50%;border:none;background:var(--accent, #B5562B);color:var(--on-accent, #fff);font-size:20px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-2, 0 6px 16px -4px rgba(64,42,20,.12));z-index:50;';
     btn.addEventListener('click', startOnboarding);
     document.body.appendChild(btn);
   }

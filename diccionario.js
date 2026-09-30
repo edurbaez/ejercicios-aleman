@@ -30,9 +30,9 @@ async function supaSet(palabra, info) {
 // ── Dark mode ──────────────────────────────────────────
 function toggleDarkMode() {
     const isDark = document.body.classList.toggle("dark");
-    localStorage.setItem("darkMode_dic", isDark ? "1" : "0");
+    window.ThemePref.set(isDark);
 }
-if (localStorage.getItem("darkMode_dic") !== "0") document.body.classList.add("dark");
+window.ThemePref.apply();
 
 // ── Caché IndexedDB ────────────────────────────────────
 const DB_NAME = "diccionario";

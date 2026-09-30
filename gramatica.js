@@ -1728,7 +1728,7 @@ function toggleGramDark() {
   document.body.classList.toggle('dark');
   var isDark = document.body.classList.contains('dark');
   document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
-  localStorage.setItem('darkMode_gram', isDark);
+  window.ThemePref.set(isDark);
 }
 
 // ─── Init ──────────────────────────────────────────────────────────────────────
@@ -1747,10 +1747,8 @@ window.addEventListener('popstate', function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
-  if (localStorage.getItem('darkMode_gram') !== 'false') {
-    document.body.classList.add('dark');
-    document.getElementById('darkModeBtn').innerHTML = _sunSVG;
-  }
+  window.ThemePref.apply();
+    if (window.ThemePref.isDark()) document.getElementById('darkModeBtn').innerHTML = _sunSVG;
   var parsed = parseHash();
   currentLevel = parsed.level;
   openRuleId = parsed.ruleId;

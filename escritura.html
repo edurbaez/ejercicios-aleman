@@ -29,7 +29,7 @@
             <p>Practica la expresión escrita con tareas al estilo de los exámenes Goethe/telc: la IA genera una consigna según tu nivel, tú escribes y recibes una corrección detallada.</p>
         </div>
 
-        <div id="hint-esc" style="display:none; background:#EDE7F6; border-left:4px solid #303F9F; border-radius:8px; padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
+        <div id="hint-esc" style="display:none; background:color-mix(in srgb, #303F9F 8%, var(--card, #fff)); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; margin:0 0 12px; font-size:0.88rem; position:relative;">
           <button onclick="dismissEscHint()" style="position:absolute;top:6px;right:10px;background:none;border:none;cursor:pointer;font-size:1rem;color:#555">×</button>
           <strong>Cómo funciona:</strong> elige nivel → tipo de tarea → genera → escribe → evalúa<br>
           ⏱️ Activa <b>Modo examen</b> para practicar con tiempo límite<br>
@@ -213,17 +213,15 @@
     const _sunSVG  = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
 
     (function () {
-        if (localStorage.getItem('darkMode_esc') !== 'false') {
-            document.body.classList.add('dark');
-            document.getElementById('darkModeBtn').innerHTML = _sunSVG;
-        }
+        window.ThemePref.apply();
+            if (window.ThemePref.isDark()) document.getElementById('darkModeBtn').innerHTML = _sunSVG;
     })();
 
     function toggleEscDark() {
         document.body.classList.toggle('dark');
         const isDark = document.body.classList.contains('dark');
         document.getElementById('darkModeBtn').innerHTML = isDark ? _sunSVG : _moonSVG;
-        localStorage.setItem('darkMode_esc', isDark);
+        window.ThemePref.set(isDark);
     }
 
     // ── Helpers ───────────────────────────────────────

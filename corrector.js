@@ -10,7 +10,7 @@ const State = {
 // --- Dark mode ---
 function toggleDarkMode() {
     document.body.classList.toggle('dark');
-    localStorage.setItem('darkMode_cor', document.body.classList.contains('dark') ? '1' : '');
+    window.ThemePref.set(document.body.classList.contains('dark'));
 }
 
 // --- Mode tabs (foto / texto) ---
@@ -478,6 +478,6 @@ function escHtml(str) {
 
 // --- Init ---
 (function init() {
-    if (localStorage.getItem('darkMode_cor') !== '') document.body.classList.add('dark');
+    window.ThemePref.apply();
     renderHistory();
 })();

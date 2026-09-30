@@ -1170,6 +1170,12 @@ th, td {
 #comp-resultado-texto.naranja { color: #fd7e14; }
 #comp-resultado-texto.rojo   { color: #dc3545; }
 
+/* Disables mobile pull-to-refresh while a Leseverstehen session is running */
+html.comp-en-curso,
+html.comp-en-curso body {
+    overscroll-behavior-y: contain;
+}
+
 /* ---- Comprensión Modo B — selector de Teile (format_version 2) ---- */
 .comp-teil-selector-item {
     display: flex;

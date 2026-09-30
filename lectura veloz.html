@@ -1095,6 +1095,10 @@
                 compTimerStop();
             }
             currentActivity = name;
+            // The exam timer pauses while another activity is open; resume it on return.
+            if (name === 'comprension' && compSesionActiva() && TeilState.restante > 0 && !CompTimer) {
+                compTimerStart(TeilState.restante);
+            }
             document.getElementById('text').style.display = name === 'lectura' ? '' : 'none';
             lvMostrarPaneles(name === 'lectura');
             document.getElementById('comprension-panel').style.display = name === 'comprension' ? 'block' : 'none';
@@ -1652,6 +1656,7 @@
             lvPendiente = null;
             TeilState = null;
             _pendingTeilSesion = null;
+            compDescartarProgreso();
         }
 
         document.querySelectorAll('.comp-level-pill').forEach(pill => {
@@ -2284,6 +2289,7 @@
             compTimerStop();
             TeilState = null;
             _pendingTeilSesion = null;
+            compDescartarProgreso();
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
             document.getElementById('comp-teil-selector').style.display = 'none';
@@ -2325,6 +2331,7 @@
             compTimerStop();
             TeilState = null;
             _pendingTeilSesion = null;
+            compDescartarProgreso();
             modoBCurrentTextId = null;
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
@@ -2557,6 +2564,10 @@
             pintar();
             CompTimer.id = setInterval(() => {
                 CompTimer.restante--;
+                if (TeilState) {
+                    TeilState.restante = CompTimer.restante;
+                    try { localStorage.setItem(COMP_RESTANTE_KEY, CompTimer.restante); } catch {}
+                }
                 if (CompTimer.restante <= 0) { compTimerStop(); modoB_finalizarPorTiempo(); return; }
                 pintar();
             }, 1000);
@@ -2707,10 +2718,14 @@
         document.getElementById('comp-teil-empezar-btn').addEventListener('click', modoB_empezarTeilesSeleccionados);
 
         function modoB_iniciarTeilSession(titulo, teile, level, segundosExamen) {
-            TeilState = { titulo, teile, level, idx: 0, resultados: [], inicio: Date.now(), examen: !!segundosExamen };
+            TeilState = {
+                titulo, teile, level, idx: 0, resultados: [], inicio: Date.now(),
+                examen: !!segundosExamen, restante: segundosExamen || null, comprobado: false,
+            };
             document.getElementById('comp-teil-session').style.display = 'block';
             if (segundosExamen) compTimerStart(segundosExamen);
             modoB_renderTeilActual();
+            compProteger();
         }
 
         function modoB_renderTeilActual() {
@@ -2734,6 +2749,8 @@
 
             document.getElementById('comp-teil-comprobar-btn').style.display = 'inline-block';
             document.getElementById('comp-teil-siguiente-btn').style.display = 'none';
+            TeilState.comprobado = false;
+            compGuardarProgreso();
         }
 
         function renderMcqTeilHtml(teil) {
@@ -2779,6 +2796,7 @@
             if (btn.disabled) return;
             btn.closest('.comp-pregunta').querySelectorAll('.comp-opcion').forEach(b => b.classList.remove('seleccionada'));
             btn.classList.add('seleccionada');
+            compGuardarProgreso();
         }
 
         function modoB_comprobarTeilActual() {
@@ -2821,6 +2839,8 @@
             }
 
             TeilState.resultados[TeilState.idx] = { correct, total };
+            TeilState.comprobado = true;
+            compGuardarProgreso();
             document.getElementById('comp-teil-comprobar-btn').style.display = 'none';
             document.getElementById('comp-teil-siguiente-btn').style.display = 'inline-block';
             document.getElementById('comp-teil-siguiente-btn').textContent =
@@ -2840,6 +2860,8 @@
         function modoB_mostrarResultadoTeilFinal() {
             modoB_marcarComoVisto();
             compTimerStop();
+            TeilState.terminado = true;
+            compDescartarProgreso();
             document.getElementById('comp-teil-session').style.display = 'none';
 
             const totalCorrect = TeilState.resultados.reduce((s, r) => s + r.correct, 0);
@@ -2888,6 +2910,142 @@
 
         document.getElementById('comp-teil-comprobar-btn').addEventListener('click', modoB_comprobarTeilActual);
         document.getElementById('comp-teil-siguiente-btn').addEventListener('click', modoB_avanzarTeil);
+        document.getElementById('comp-teil-body').addEventListener('change', compGuardarProgreso);
+
+        /* ---- Protección de la sesión por Teile ---- */
+        /* Recargar, el gesto "atrás" o el pull-to-refresh del móvil borraban la prueba
+           en curso. Se protege en tres capas: aviso nativo (beforeunload, que los
+           navegadores móviles a menudo ignoran), una entrada de historial que intercepta
+           "atrás", y un autoguardado en localStorage para retomar tras cualquier recarga.
+           El cronómetro queda en pausa mientras la página está cerrada. */
+        const COMP_SESION_KEY = 'comp_teil_sesion';
+        const COMP_RESTANTE_KEY = 'comp_teil_restante';
+        const COMP_SESION_MAX_MS = 12 * 3600 * 1000;
+        let _compSaliendo = false;
+
+        function compSesionActiva() {
+            return !!(TeilState && !TeilState.terminado);
+        }
+
+        function compRespuestasActuales() {
+            const r = {};
+            document.querySelectorAll('#comp-teil-body .comp-opcion.seleccionada').forEach(b => { r['o' + b.dataset.item] = b.dataset.valor; });
+            document.querySelectorAll('#comp-teil-body .comp-emparejar-select').forEach(s => { if (s.value) r['s' + s.dataset.item] = s.value; });
+            return r;
+        }
+
+        function compAplicarRespuestas(r) {
+            Object.entries(r || {}).forEach(([k, v]) => {
+                const item = CSS.escape(k.slice(1));
+                if (k[0] === 'o') {
+                    const b = document.querySelector(`#comp-teil-body .comp-opcion[data-item="${item}"][data-valor="${CSS.escape(v)}"]`);
+                    if (b) b.classList.add('seleccionada');
+                } else {
+                    const s = document.querySelector(`#comp-teil-body .comp-emparejar-select[data-item="${item}"]`);
+                    if (s) s.value = v;
+                }
+            });
+        }
+
+        function compGuardarProgreso() {
+            if (!compSesionActiva()) return;
+            const { titulo, teile, level, idx, resultados, inicio, examen, restante, comprobado } = TeilState;
+            try {
+                localStorage.setItem(COMP_SESION_KEY, JSON.stringify({
+                    titulo, teile, level, idx, resultados, inicio, examen, restante, comprobado,
+                    textId: modoBCurrentTextId,
+                    respuestas: compRespuestasActuales(),
+                    guardado: Date.now(),
+                }));
+                if (restante != null) localStorage.setItem(COMP_RESTANTE_KEY, restante);
+            } catch (err) {
+                console.warn('[compGuardarProgreso]', err);
+            }
+        }
+
+        function compProteger() {
+            document.documentElement.classList.add('comp-en-curso');
+            if (!(history.state && history.state.compGuard)) history.pushState({ compGuard: true }, '');
+        }
+
+        function compDescartarProgreso() {
+            try {
+                localStorage.removeItem(COMP_SESION_KEY);
+                localStorage.removeItem(COMP_RESTANTE_KEY);
+            } catch {}
+            const protegida = document.documentElement.classList.contains('comp-en-curso');
+            document.documentElement.classList.remove('comp-en-curso');
+            // Pops the guard entry so the next "back" press isn't swallowed. Only once:
+            // history.back() is async, so a second call in the same tick would leave the page.
+            if (protegida && history.state && history.state.compGuard) history.back();
+        }
+
+        window.addEventListener('beforeunload', e => {
+            if (!compSesionActiva() || _compSaliendo) return;
+            compGuardarProgreso();
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        window.addEventListener('pagehide', compGuardarProgreso);
+
+        window.addEventListener('popstate', async () => {
+            if (!compSesionActiva() || _compSaliendo) return;
+            const salir = await showConfirmDialog('Tienes una prueba de Leseverstehen en curso. Si sales, tu progreso queda guardado y podrás retomarla al volver. ¿Salir de todos modos?');
+            if (!salir) {
+                history.pushState({ compGuard: true }, '');
+                return;
+            }
+            compGuardarProgreso();
+            _compSaliendo = true;
+            history.back();
+            // First entry in the history: there is nowhere to go back to, so re-arm the guard.
+            setTimeout(() => {
+                _compSaliendo = false;
+                if (compSesionActiva()) history.pushState({ compGuard: true }, '');
+            }, 1000);
+        });
+
+        (async function compOfrecerRetomar() {
+            let s = null;
+            try { s = JSON.parse(localStorage.getItem(COMP_SESION_KEY)); } catch {}
+            if (!s || !Array.isArray(s.teile) || !s.teile[s.idx] || Date.now() - s.guardado > COMP_SESION_MAX_MS) {
+                compDescartarProgreso();
+                if (history.state && history.state.compGuard) history.back();
+                return;
+            }
+            const restanteGuardado = parseInt(localStorage.getItem(COMP_RESTANTE_KEY));
+            const restante = s.restante == null ? null : (Number.isFinite(restanteGuardado) ? restanteGuardado : s.restante);
+
+            const retomar = await showConfirmDialog(`Tienes una prueba de Leseverstehen ${escHtml(s.level)} sin terminar (Teil ${s.idx + 1} de ${s.teile.length}). Pulsa Continuar para retomarla o Cancelar para descartarla.`);
+            if (!retomar) {
+                compDescartarProgreso();
+                if (history.state && history.state.compGuard) history.back();
+                return;
+            }
+
+            // Fresh page load: Comprensión/Modo B are already the defaults, so no reset is needed
+            // (modoB_reset would drop the history guard this restore relies on).
+            if (currentActivity !== 'comprension') await switchActivity('comprension');
+            modoBCurrentTextId = s.textId || null;
+            modoBCurrentLevel = s.level;
+            TeilState = {
+                titulo: s.titulo, teile: s.teile, level: s.level, idx: s.idx,
+                resultados: s.resultados || [], inicio: s.inicio, examen: !!s.examen,
+                restante, comprobado: false,
+            };
+            document.getElementById('comp-teil-session').style.display = 'block';
+            modoB_renderTeilActual();
+            compAplicarRespuestas(s.respuestas);
+            if (s.comprobado) modoB_comprobarTeilActual();
+            else compGuardarProgreso();
+            compProteger();
+            document.getElementById('comp-teil-session').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (restante != null) {
+                if (restante <= 0) modoB_finalizarPorTiempo();
+                else compTimerStart(restante);
+            }
+        })();
 
         function modoB_mostrarBotonRepetir() {
             const btn = document.getElementById('comp-repetir-btn');

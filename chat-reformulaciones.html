@@ -9,6 +9,7 @@
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="grammar-data.js"></script>
+    <script src="reformulaciones-combos.js"></script>
 </head>
 <body id="page-cr">
 
@@ -31,7 +32,12 @@
     <div class="cr-setup" id="crSetup">
         <div class="cr-setup-header">
             <h1>Reformulaciones</h1>
-            <p>Elige las reglas gramaticales que quieres practicar.<br>Sin selección se usarán 5 reglas al azar.</p>
+            <p id="setupIntro"></p>
+        </div>
+
+        <div class="cr-level-filter" id="modeToggle">
+            <button class="cr-level-pill" data-mode="rules" onclick="setMode('rules')">Reglas sueltas</button>
+            <button class="cr-level-pill" data-mode="combos" onclick="setMode('combos')">🔗 Combos</button>
         </div>
 
         <div class="cr-level-filter" id="levelFilter"></div>
@@ -41,7 +47,7 @@
         <div class="cr-setup-footer">
             <span class="cr-selected-count" id="selectedCount">Sin selección — se usarán 5 al azar</span>
             <div class="cr-setup-btns">
-                <button class="cr-btn-secondary" onclick="randomSelect()">Aleatorio (5)</button>
+                <button class="cr-btn-secondary" id="btnRandom" onclick="randomSelect()">Aleatorio (5)</button>
                 <button class="cr-btn-secondary" onclick="clearSelection()">Limpiar</button>
                 <button class="cr-btn-secondary" id="btnRuleSrs" onclick="reviewDueRules()">🔁 Repaso SRS (0)</button>
                 <button class="cr-btn-primary" onclick="startSession()">Iniciar sesión →</button>
@@ -101,7 +107,7 @@
             <div class="cr-btn-row">
                 <button class="cr-record-btn" id="recordBtn">🎙 Responder</button>
                 <button class="cr-stop-btn" id="sendBtn" style="display:none">⏹ Enviar</button>
-                <button class="cr-skip-btn" onclick="skipRule()">Siguiente regla →</button>
+                <button class="cr-skip-btn" id="skipBtn" onclick="skipRule()">Siguiente regla →</button>
                 <button class="cr-end-btn" onclick="endSession()">Finalizar</button>
             </div>
 
@@ -132,15 +138,22 @@
 function DAILY_LIMIT_MS() { return window.VOICE_DAILY_LIMIT_MS || 60 * 60 * 1000; }
 function dailyLimitMin() { return Math.round(DAILY_LIMIT_MS() / 60000); }
 const State = {
+    mode: 'rules', // 'rules' | 'combos'
     allRules: [],
     filteredRules: [],
     selectedIds: new Set(),
+    allCombos: [],
+    selectedComboIds: new Set(),
     activeFilter: 'all',
+    // Queue items are rules, or in combo mode combos shaped like a rule
+    // ({id, titulo, nivel}) plus `rules: [...]` — see unitRules().
     ruleQueue: [],
     queueIndex: 0,
     currentRule: null,
     bank: null,
     bankPromise: null,
+    comboBank: null,
+    comboBankPromise: null,
     exerciseQueue: [],
     exerciseIndex: 0,
     currentExercise: null,
@@ -168,6 +181,19 @@ function buildAllRules() {
     );
 }
 
+function buildAllCombos(rules) {
+    const byId = new Map(rules.map(r => [r.id, r]));
+    return LEVELS.flatMap(nivel => (window.REFORMULACIONES_COMBOS?.[nivel] || []))
+        .map(c => ({ ...c, rules: c.ruleIds.map(id => byId.get(id)) }))
+        .filter(c => c.rules.every(Boolean));
+}
+
+function unitRules(unit) {
+    return unit.rules || [unit];
+}
+
+const RANDOM_COUNT = { rules: 5, combos: 3 };
+
 // ── SETUP PHASE ───────────────────────────────────────────────────────────────
 function renderLevelFilter() {
     const el = document.getElementById('levelFilter');
@@ -188,13 +214,57 @@ function applyLevelFilter(level) {
 function setLevelFilter(level) {
     applyLevelFilter(level);
     localStorage.setItem('cr_level_filter', level);
-    document.querySelectorAll('.cr-level-pill').forEach(b =>
+    document.querySelectorAll('#levelFilter .cr-level-pill').forEach(b =>
         b.classList.toggle('active', b.dataset.level === level)
     );
     renderRuleChips();
 }
 
+function setMode(mode) {
+    State.mode = mode;
+    localStorage.setItem('cr_mode', mode);
+    document.querySelectorAll('#modeToggle .cr-level-pill').forEach(b =>
+        b.classList.toggle('active', b.dataset.mode === mode)
+    );
+    const combos = mode === 'combos';
+    document.getElementById('setupIntro').innerHTML = combos
+        ? `Cada ejercicio te obliga a aplicar 2 o 3 reglas a la vez.<br>Sin selección se usarán ${RANDOM_COUNT.combos} combos al azar del nivel elegido.`
+        : 'Elige las reglas gramaticales que quieres practicar.<br>Sin selección se usarán 5 reglas al azar.';
+    document.getElementById('btnRandom').textContent = `Aleatorio (${RANDOM_COUNT[mode]})`;
+    document.getElementById('btnRuleSrs').style.display = combos ? 'none' : '';
+    renderRuleChips();
+}
+
+function filteredCombos() {
+    return State.activeFilter === 'all'
+        ? State.allCombos
+        : State.allCombos.filter(c => c.nivel === State.activeFilter);
+}
+
+function renderComboChips() {
+    const combos = filteredCombos();
+    document.getElementById('rulesGrid').innerHTML = combos.length === 0
+        ? '<p class="cr-selected-count">Aún no hay combos para este nivel.</p>'
+        : combos.map(c => `<button class="cr-rule-chip${State.selectedComboIds.has(c.id) ? ' selected' : ''}"
+            data-id="${c.id}" onclick="toggleCombo('${c.id}')">
+            <span class="cr-chip-nivel">${c.nivel}</span>
+            <span class="cr-chip-titulo">${c.titulo}
+                <span class="cr-combo-rules">${c.rules.map(r => r.titulo).join(' · ')}</span>
+            </span>
+         </button>`).join('');
+    updateSelectedCount();
+}
+
+function toggleCombo(id) {
+    if (State.selectedComboIds.has(id)) State.selectedComboIds.delete(id);
+    else State.selectedComboIds.add(id);
+    const chip = document.querySelector(`.cr-rule-chip[data-id="${id}"]`);
+    if (chip) chip.classList.toggle('selected', State.selectedComboIds.has(id));
+    updateSelectedCount();
+}
+
 function renderRuleChips() {
+    if (State.mode === 'combos') return renderComboChips();
     const grid = document.getElementById('rulesGrid');
     grid.innerHTML = State.filteredRules.map(r => {
         const srs = getRuleSrsState(r.id);
@@ -224,31 +294,55 @@ function toggleRule(id) {
 }
 
 function updateSelectedCount() {
+    if (State.mode === 'combos') {
+        const n = State.selectedComboIds.size;
+        document.getElementById('selectedCount').textContent = n === 0
+            ? `Sin selección — se usarán ${RANDOM_COUNT.combos} al azar`
+            : `${n} combo${n !== 1 ? 's' : ''} seleccionado${n !== 1 ? 's' : ''}`;
+        return;
+    }
     const n = State.selectedIds.size;
     document.getElementById('selectedCount').textContent = n === 0
         ? 'Sin selección — se usarán 5 al azar'
         : `${n} regla${n !== 1 ? 's' : ''} seleccionada${n !== 1 ? 's' : ''}`;
 }
 
+function pickRandom(pool, n) {
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, n);
+}
+
 function randomSelect() {
+    if (State.mode === 'combos') {
+        State.selectedComboIds = new Set(pickRandom(filteredCombos(), RANDOM_COUNT.combos).map(c => c.id));
+        return renderRuleChips();
+    }
     const pool = State.filteredRules.length > 0 ? State.filteredRules : State.allRules;
-    const shuffled = [...pool].sort(() => Math.random() - 0.5).slice(0, 5);
+    const shuffled = pickRandom(pool, RANDOM_COUNT.rules);
     State.selectedIds.clear();
     shuffled.forEach(r => State.selectedIds.add(r.id));
     renderRuleChips();
 }
 
 function clearSelection() {
-    State.selectedIds.clear();
+    if (State.mode === 'combos') State.selectedComboIds.clear();
+    else State.selectedIds.clear();
     renderRuleChips();
 }
 
 // ── SESSION ───────────────────────────────────────────────────────────────────
 async function startSession() {
     if (State.bank === null && State.bankPromise) State.bank = await State.bankPromise;
+    if (State.comboBank === null && State.comboBankPromise) State.comboBank = await State.comboBankPromise;
     let rules;
-    if (State.selectedIds.size === 0) {
-        rules = [...State.allRules].sort(() => Math.random() - 0.5).slice(0, 5);
+    if (State.mode === 'combos') {
+        // Random stays within the curated catalog (plan §11 fase 4) — never
+        // arbitrary rule pairs, which §6.2/§6.4 show often produce forced sentences.
+        rules = State.selectedComboIds.size === 0
+            ? pickRandom(filteredCombos(), RANDOM_COUNT.combos)
+            : State.allCombos.filter(c => State.selectedComboIds.has(c.id)).sort(() => Math.random() - 0.5);
+        if (rules.length === 0) return;
+    } else if (State.selectedIds.size === 0) {
+        rules = pickRandom(State.allRules, RANDOM_COUNT.rules);
     } else {
         rules = State.allRules
             .filter(r => State.selectedIds.has(r.id))
@@ -276,16 +370,25 @@ function loadRule(rule) {
 
     document.getElementById('nivelBadge').textContent = rule.nivel;
     document.getElementById('ruleTitle').textContent = rule.titulo;
+    const isCombo = !!rule.rules;
     document.getElementById('ruleProgress').textContent =
-        `Regla ${State.queueIndex + 1} de ${State.ruleQueue.length}`;
+        `${isCombo ? 'Combo' : 'Regla'} ${State.queueIndex + 1} de ${State.ruleQueue.length}`;
+    document.getElementById('skipBtn').textContent = isCombo ? 'Siguiente combo →' : 'Siguiente regla →';
 
-    const srsState = getRuleSrsState(rule.id);
-    document.getElementById('ruleSrsStatus').textContent = srsState
-        ? `· 🔁 ${srsState.reps} acierto${srsState.reps !== 1 ? 's' : ''} seguido${srsState.reps !== 1 ? 's' : ''}`
-        : '· nueva';
-
-    document.getElementById('hintBase').textContent = rule.regla_base || '';
-    document.getElementById('hintTip').textContent = rule.tip ? `💡 ${rule.tip}` : '';
+    if (isCombo) {
+        document.getElementById('ruleSrsStatus').textContent = `· 🔗 ${rule.rules.length} reglas`;
+        document.getElementById('hintBase').textContent =
+            rule.rules.map(r => `${r.titulo}: ${r.regla_base || ''}`).join('\n\n');
+        document.getElementById('hintTip').textContent =
+            rule.rules.filter(r => r.tip).map(r => `💡 ${r.tip}`).join('\n');
+    } else {
+        const srsState = getRuleSrsState(rule.id);
+        document.getElementById('ruleSrsStatus').textContent = srsState
+            ? `· 🔁 ${srsState.reps} acierto${srsState.reps !== 1 ? 's' : ''} seguido${srsState.reps !== 1 ? 's' : ''}`
+            : '· nueva';
+        document.getElementById('hintBase').textContent = rule.regla_base || '';
+        document.getElementById('hintTip').textContent = rule.tip ? `💡 ${rule.tip}` : '';
+    }
     document.getElementById('hintPanel').style.display = 'none';
     document.getElementById('hintToggleBtn').textContent = '💡 Ver regla';
 
@@ -297,13 +400,20 @@ function loadRule(rule) {
     disableInput();
     updateScoreDisplay();
 
-    const bankExercises = State.bank?.[rule.id];
+    const bankExercises = (isCombo ? State.comboBank : State.bank)?.[rule.id];
     if (Array.isArray(bankExercises) && bankExercises.length > 0) {
         State.exerciseQueue = [...bankExercises].sort((a, b) =>
             a.source.trim().split(/\s+/).length - b.source.trim().split(/\s+/).length
         );
         State.exerciseIndex = 0;
         showNextExercise();
+    } else if (isCombo) {
+        // Combos only run from the curated bank — the plan rules out generating
+        // uncurated combos on the fly until their quality is validated.
+        State.currentExercise = null;
+        document.getElementById('chatArea').innerHTML =
+            '<div class="cv-empty" id="chatEmpty"><p>No se pudieron cargar los ejercicios de este combo. Revisa tu conexión y vuelve a intentarlo.</p></div>';
+        setHint('Pasa al siguiente combo o finaliza la sesión');
     } else {
         State.currentExercise = null;
         sendToAI(null);
@@ -347,7 +457,7 @@ async function evaluateAnswer(userText) {
     if (ex.solutions.some(sol => normalizeAnswer(sol) === norm)) {
         const feedback = `✅ ¡Correcto! ${ex.explanation}`;
         recordScore(feedback);
-        updateRuleSRS(State.currentRule.id, 'correct');
+        unitRules(State.currentRule).forEach(r => updateRuleSRS(r.id, 'correct'));
         State.sessionTurns.push({
             ruleId: State.currentRule.id, source: ex.source, instruction: ex.instruction,
             userAnswer: userText, symbol: '✅', explanation: ex.explanation,
@@ -362,7 +472,8 @@ async function evaluateAnswer(userText) {
     setHint('Evaluando...');
     disableInput();
 
-    const system = `Du bist Deutschlehrer. Der Student sollte diesen Satz umformen.
+    const isCombo = !!State.currentRule.rules;
+    const system = isCombo ? buildComboEvalPrompt(State.currentRule, ex) : `Du bist Deutschlehrer. Der Student sollte diesen Satz umformen.
 Regel (${State.currentRule.nivel}): ${State.currentRule.titulo}
 Ausgangssatz: ${ex.source}
 Anweisung: ${ex.instruction}
@@ -399,13 +510,18 @@ Bewerte NUR die Antwort des Studenten. Antworte als JSON-Objekt mit genau diesen
         let payload;
         try { payload = JSON.parse(data.reply || ''); }
         catch { throw new Error('La IA devolvió un formato inesperado'); }
-        if (!['✅', '⚠️', '❌'].includes(payload.symbol)) {
+        if (isCombo) payload = resolveComboEval(State.currentRule, payload);
+        if (!payload || !['✅', '⚠️', '❌'].includes(payload.symbol)) {
             throw new Error('La IA devolvió un formato inesperado');
         }
 
         const evaluation = `${payload.symbol} ${payload.explicacion || ''}`.trim();
         recordScore(evaluation);
-        updateRuleSRS(State.currentRule.id, symbolToQuality(payload.symbol));
+        if (isCombo) {
+            payload.porRegla.forEach(p => updateRuleSRS(p.rule.id, symbolToQuality(p.symbol)));
+        } else {
+            updateRuleSRS(State.currentRule.id, symbolToQuality(payload.symbol));
+        }
         State.sessionTurns.push({
             ruleId: State.currentRule.id, source: ex.source, instruction: ex.instruction,
             userAnswer: userText, symbol: payload.symbol, explanation: payload.explicacion || '',
@@ -418,6 +534,38 @@ Bewerte NUR die Antwort des Studenten. Antworte als JSON-Objekt mit genau diesen
         setHint('Error al conectar. Intenta de nuevo.');
         enableInput();
     }
+}
+
+// Combos are graded per rule so each one's SRS card moves on its own (plan §10):
+// a student can nail the relative clause and still miss the adjective ending.
+function buildComboEvalPrompt(combo, ex) {
+    return `Du bist Deutschlehrer. Der Student sollte diesen Satz umformen und dabei ALLE folgenden Regeln gleichzeitig anwenden:
+${combo.rules.map(r => `- ${r.id} (${r.nivel}): ${r.titulo} — ${r.regla_base || ''}`).join('\n')}
+Ausgangssatz: ${ex.source}
+Anweisung: ${ex.instruction}
+Musterlösungen:
+${ex.solutions.map(s => `  • ${s}`).join('\n')}
+
+Bewerte NUR die Antwort des Studenten, für JEDE Regel getrennt. Antworte als JSON-Objekt mit genau diesen Feldern:
+{ "porRegla": [ { "ruleId": string, "symbol": "✅" | "⚠️" | "❌" } ], "explicacion": string }
+"porRegla" enthält genau einen Eintrag pro Regel oben (ruleId wie angegeben):
+✅ = diese Regel korrekt angewendet (auch wenn der Satz von den Musterlösungen abweicht)
+⚠️ = diese Regel versucht, aber mit Fehlern
+❌ = diese Regel gar nicht angewendet (z. B. Sätze nicht verbunden, Form unverändert gelassen) oder unverständlich
+"explicacion": 1–3 Sätze Erklärung komplett auf Spanisch zu den Fehlern und die korrekte Variante. Nenne die Regeln mit ihrem Namen, nie mit der ID. Keine neue Aufgabe.`;
+}
+
+// Returns { symbol, explicacion, porRegla: [{rule, symbol}] } or null if the
+// reply doesn't grade every rule of the combo.
+function resolveComboEval(combo, payload) {
+    if (!Array.isArray(payload.porRegla)) return null;
+    const byId = new Map(payload.porRegla.map(p => [p.ruleId, p.symbol]));
+    const porRegla = combo.rules.map(rule => ({ rule, symbol: byId.get(rule.id) }));
+    if (porRegla.some(p => !['✅', '⚠️', '❌'].includes(p.symbol))) return null;
+    const symbols = porRegla.map(p => p.symbol);
+    const symbol = symbols.every(s => s === '✅') ? '✅' : symbols.every(s => s === '❌') ? '❌' : '⚠️';
+    const detail = porRegla.map(p => `${p.symbol} ${p.rule.titulo}`).join(' · ');
+    return { symbol, porRegla, explicacion: `${detail}\n${payload.explicacion || ''}`.trim() };
 }
 
 function submitAnswer(text) {
@@ -509,7 +657,10 @@ async function sendToAI(userText) {
             updateBubble(thinkingId, task);
             speakTask(task);
         } else {
-            const evaluation = `${payload.evaluacion} ${payload.explicacion || ''}`.trim();
+            // recordScore/addFeedbackCard match the leading symbol; the model sometimes
+            // drops the U+FE0F variation selector from ⚠️.
+            const symbol = ['✅', '⚠️', '❌'].find(sym => payload.evaluacion.startsWith(sym.replace('\uFE0F', ''))) || payload.evaluacion;
+            const evaluation = `${symbol} ${payload.explicacion || ''}`.trim();
 
             recordScore(evaluation);
             updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
@@ -542,13 +693,13 @@ function recordScore(evaluation) {
     const rule = State.currentRule;
     if (!rule) return;
     const rs = State.ruleScores[rule.id] || { correct: 0, partial: 0, incorrect: 0 };
-    if (evaluation.includes('✅')) {
+    if (evaluation.startsWith('✅')) {
         State.sessionScore.correct++;
         rs.correct++;
-    } else if (evaluation.includes('⚠️')) {
+    } else if (evaluation.startsWith('⚠️')) {
         State.sessionScore.partial++;
         rs.partial++;
-    } else if (evaluation.includes('❌')) {
+    } else if (evaluation.startsWith('❌')) {
         State.sessionScore.incorrect++;
         rs.incorrect++;
     }
@@ -576,6 +727,7 @@ function endSession() {
     cancelCurrentSpeech();
     window.logEvent?.('chat-reformulaciones', 'session_end', {
         ...State.sessionScore,
+        mode: State.mode,
         rules: State.ruleQueue.map(r => r.id),
     });
     saveToHistory();
@@ -752,7 +904,7 @@ function showResults() {
                 <strong>${r.titulo}</strong>
                 <small>${r.nivel} · ${t} turno${t !== 1 ? 's' : ''}</small>
             </span>
-            <a class="cr-res-link" href="gramatica.html#${r.id}" target="_blank">Ver regla →</a>
+            ${unitRules(r).map(x => `<a class="cr-res-link" href="gramatica.html#${x.id}" target="_blank" >${r.rules ? x.titulo : 'Ver regla'} →</a>`).join(' ')}
         </div>`;
     }).join('');
 }
@@ -814,8 +966,8 @@ function removeBubble(id) {
 function addFeedbackCard(text) {
     const area = document.getElementById('chatArea');
     const card = document.createElement('div');
-    const cls = text.includes('✅') ? 'cr-fb-correct'
-               : text.includes('⚠️') ? 'cr-fb-partial'
+    const cls = text.startsWith('✅') ? 'cr-fb-correct'
+               : text.startsWith('⚠️') ? 'cr-fb-partial'
                : 'cr-fb-incorrect';
     card.className = `cr-feedback-card ${cls}`;
     card.textContent = text;
@@ -1159,13 +1311,17 @@ window.onAuthSignedIn = () => { loadDailyUsage(); loadRuleSRSCache(); };
     State.bankPromise = fetch('reformulaciones-data.json')
         .then(r => r.ok ? r.json() : null)
         .catch(() => null);
+    State.comboBankPromise = fetch('reformulaciones-combos-data.json')
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
     State.allRules = buildAllRules();
+    State.allCombos = buildAllCombos(State.allRules);
     const savedFilter = localStorage.getItem('cr_level_filter');
     applyLevelFilter(savedFilter === 'all' || LEVELS.includes(savedFilter) ? savedFilter : 'all');
     renderLevelFilter();
-    renderRuleChips();
-    // Deep-link support: chat-reformulaciones.html?rule=b1-01,b1-02
     const paramRules = new URLSearchParams(location.search).get('rule');
+    setMode(!paramRules && localStorage.getItem('cr_mode') === 'combos' ? 'combos' : 'rules');
+    // Deep-link support: chat-reformulaciones.html?rule=b1-01,b1-02
     if (paramRules) {
         paramRules.split(',').forEach(id => {
             if (State.allRules.some(r => r.id === id)) toggleRule(id);

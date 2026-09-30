@@ -1,0 +1,1682 @@
+{
+  "a1-06+a1-12+a2-04": [
+    {
+      "source": "Ich brauche ein Geschenk (para / mein Vater).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Ich brauche ein Geschenk für meinen Vater."
+      ],
+      "explanation": "La preposición 'für' requiere acusativo, y 'mein Vater' se convierte en 'meinen Vater' porque es masculino."
+    },
+    {
+      "source": "Wir kaufen ein Buch (para / unser Lehrer).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Wir kaufen ein Buch für unseren Lehrer."
+      ],
+      "explanation": "La preposición 'für' requiere acusativo, y 'unser Lehrer' se convierte en 'unseren Lehrer' porque es masculino."
+    },
+    {
+      "source": "Er hat ein Geschenk (para / sein Schwester).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Er hat ein Geschenk für seine Schwester."
+      ],
+      "explanation": "La preposición 'für' requiere acusativo, pero 'sein Schwester' no cambia porque 'Schwester' es femenino."
+    },
+    {
+      "source": "Sie spielt ein Spiel (sin / ihr Bruder).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Sie spielt ein Spiel ohne ihren Bruder."
+      ],
+      "explanation": "La preposición 'ohne' requiere acusativo, y 'ihr Bruder' se convierte en 'ihren Bruder' porque es masculino."
+    },
+    {
+      "source": "Ich sehe einen Film (contra / mein Geschmack).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Ich sehe einen Film gegen meinen Geschmack."
+      ],
+      "explanation": "La preposición 'gegen' requiere acusativo, y 'mein Geschmack' se convierte en 'meinen Geschmack' porque es masculino."
+    },
+    {
+      "source": "Wir machen eine Reise (sin / unser Eltern).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Wir machen eine Reise ohne unsere Eltern."
+      ],
+      "explanation": "La preposición 'ohne' requiere acusativo, pero 'unser Eltern' no cambia porque 'Eltern' es plural."
+    },
+    {
+      "source": "Sie kauft ein Kleid (para / ihr Tochter).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Sie kauft ein Kleid für ihre Tochter."
+      ],
+      "explanation": "La preposición 'für' requiere acusativo, pero 'ihr Tochter' no cambia porque 'Tochter' es femenino."
+    },
+    {
+      "source": "Ich gehe um das Haus (sin / mein Hund).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Ich gehe um das Haus ohne meinen Hund."
+      ],
+      "explanation": "La preposición 'um' requiere acusativo, y 'mein Hund' se convierte en 'meinen Hund' porque es masculino."
+    },
+    {
+      "source": "Er liest ein Buch (sin / sein Freund).",
+      "instruction": "Usa la preposición correcta y declina el posesivo en acusativo.",
+      "solutions": [
+        "Er liest ein Buch ohne seinen Freund."
+      ],
+      "explanation": "La preposición 'ohne' requiere acusativo, y 'sein Freund' se convierte en 'seinen Freund' porque es masculino."
+    }
+  ],
+  "b1-03+b1-06+b1-02": [
+    {
+      "source": "Du hast mir einen Kurs empfohlen. Ich kann ihn nicht besuchen. Deshalb lerne ich nicht schneller Deutsch.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich den Kurs besuchen könnte, den du mir empfohlen hast, würde ich schneller Deutsch lernen."
+      ],
+      "explanation": "Se usa 'den', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Könnte' es la forma de Konjunktiv II de 'können'."
+    },
+    {
+      "source": "Er hat ein Buch geschrieben. Ich habe es nicht gelesen. Deshalb verstehe ich das Thema nicht.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Buch gelesen hätte, das er geschrieben hat, würde ich das Thema verstehen."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte' es la forma de Konjunktiv II de 'haben'."
+    },
+    {
+      "source": "Sie hat einen Film gesehen. Ich kenne ihn nicht. Deshalb kann ich nicht mitreden.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich den Film kennen würde, den sie gesehen hat, könnte ich mitreden."
+      ],
+      "explanation": "Se usa 'den', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Würde kennen' es la forma de Konjunktiv II de 'kennen'."
+    },
+    {
+      "source": "Mein Freund hat ein Auto gekauft. Ich kann es mir nicht leisten. Deshalb fahre ich nicht damit.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich mir das Auto leisten könnte, das mein Freund gekauft hat, würde ich damit fahren."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Könnte' es la forma de Konjunktiv II de 'können'."
+    },
+    {
+      "source": "Er hat ein Rezept gefunden. Ich habe es nicht ausprobiert. Deshalb weiß ich nicht, ob es schmeckt.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Rezept ausprobiert hätte, das er gefunden hat, wüsste ich, ob es schmeckt."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte ausprobiert' es la forma de Konjunktiv II de 'ausprobieren'."
+    },
+    {
+      "source": "Sie hat ein Kleid genäht. Ich habe es nicht gesehen. Deshalb kann ich es nicht bewerten.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Kleid gesehen hätte, das sie genäht hat, könnte ich es bewerten."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte gesehen' es la forma de Konjunktiv II de 'sehen'."
+    },
+    {
+      "source": "Er hat ein Lied komponiert. Ich kenne es nicht. Deshalb kann ich nicht mitsingen.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Lied kennen würde, das er komponiert hat, könnte ich mitsingen."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Würde kennen' es la forma de Konjunktiv II de 'kennen'."
+    },
+    {
+      "source": "Meine Schwester hat eine Reise geplant. Ich kann nicht mitkommen. Deshalb bleibe ich zu Hause.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich an der Reise teilnehmen könnte, die meine Schwester geplant hat, würde ich nicht zu Hause bleiben."
+      ],
+      "explanation": "Se usa 'die', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Könnte' es la forma de Konjunktiv II de 'können'."
+    },
+    {
+      "source": "Er hat ein Haus renoviert. Ich habe es nicht gesehen. Deshalb kann ich es nicht beurteilen.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Haus gesehen hätte, das er renoviert hat, könnte ich es beurteilen."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte gesehen' es la forma de Konjunktiv II de 'sehen'."
+    },
+    {
+      "source": "Sie hat ein neues Restaurant entdeckt. Ich habe es nicht besucht. Deshalb kenne ich die Speisekarte nicht.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Restaurant besucht hätte, das sie entdeckt hat, würde ich die Speisekarte kennen."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte besucht' es la forma de Konjunktiv II de 'besuchen'."
+    },
+    {
+      "source": "Mein Bruder hat ein Spiel entwickelt. Ich habe es nicht gespielt. Deshalb kenne ich die Regeln nicht.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich das Spiel gespielt hätte, das mein Bruder entwickelt hat, würde ich die Regeln kennen."
+      ],
+      "explanation": "Se usa 'das', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte gespielt' es la forma de Konjunktiv II de 'spielen'."
+    },
+    {
+      "source": "Sie hat einen Vortrag gehalten. Ich war nicht dabei. Deshalb kenne ich die Inhalte nicht.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich bei dem Vortrag gewesen wäre, den sie gehalten hat, würde ich die Inhalte kennen."
+      ],
+      "explanation": "Se usa 'den', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Wäre gewesen' es la forma de Konjunktiv II de 'sein'."
+    },
+    {
+      "source": "Er hat eine Ausstellung organisiert. Ich habe sie nicht besucht. Deshalb kenne ich die Kunstwerke nicht.",
+      "instruction": "Transforma las frases usando una oración de relativo, un conector subordinante y el Konjunktiv II.",
+      "solutions": [
+        "Wenn ich die Ausstellung besucht hätte, die er organisiert hat, würde ich die Kunstwerke kennen."
+      ],
+      "explanation": "Se usa 'die', porque es el objeto directo en la subordinada. 'Wenn' introduce una condición irreal en Konjunktiv II. 'Hätte besucht' es la forma de Konjunktiv II de 'besuchen'."
+    }
+  ],
+  "b2-01+b1-13": [
+    {
+      "source": "Der Reporter fragte den Experten: „Wann beginnt die Konferenz?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Reporter fragte den Experten, wann die Konferenz beginne."
+      ],
+      "explanation": "La pregunta directa 'Wann beginnt die Konferenz?' se transforma en una pregunta indirecta usando 'wann' y el verbo 'beginnen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Die Journalistin wollte wissen: „Wie viel kostet das neue Modell?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Die Journalistin wollte wissen, wie viel das neue Modell koste."
+      ],
+      "explanation": "La pregunta directa 'Wie viel kostet das neue Modell?' se convierte en una pregunta indirecta usando 'wie viel' y el verbo 'kosten' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Politiker wurde gefragt: „Haben Sie die Reform unterstützt?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Politiker wurde gefragt, ob er die Reform unterstützt habe."
+      ],
+      "explanation": "La pregunta directa 'Haben Sie die Reform unterstützt?' se transforma en una pregunta indirecta con 'ob' y el verbo 'unterstützen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Wissenschaftler erklärte: „Warum ist die Studie wichtig?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Wissenschaftler erklärte, warum die Studie wichtig sei."
+      ],
+      "explanation": "La pregunta directa 'Warum ist die Studie wichtig?' se convierte en una pregunta indirecta usando 'warum' y el verbo 'sein' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Die Lehrerin fragte den Schüler: „Hast du die Aufgabe gemacht?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Die Lehrerin fragte den Schüler, ob er die Aufgabe gemacht habe."
+      ],
+      "explanation": "La pregunta directa 'Hast du die Aufgabe gemacht?' se transforma en una pregunta indirecta con 'ob' y el verbo 'machen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Chef fragte den Mitarbeiter: „Wann kommst du ins Büro?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Chef fragte den Mitarbeiter, wann er ins Büro komme."
+      ],
+      "explanation": "La pregunta directa 'Wann kommst du ins Büro?' se convierte en una pregunta indirecta usando 'wann' y el verbo 'kommen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Moderator wollte wissen: „Wer hat den Preis gewonnen?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Moderator wollte wissen, wer den Preis gewonnen habe."
+      ],
+      "explanation": "La pregunta directa 'Wer hat den Preis gewonnen?' se transforma en una pregunta indirecta usando 'wer' y el verbo 'gewinnen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Arzt fragte den Patienten: „Fühlen Sie sich besser?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Arzt fragte den Patienten, ob er sich besser fühle."
+      ],
+      "explanation": "La pregunta directa 'Fühlen Sie sich besser?' se convierte en una pregunta indirecta con 'ob' y el verbo 'fühlen' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Direktor wollte wissen: „Wann wird das Projekt fertig?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Direktor wollte wissen, wann das Projekt fertig werde."
+      ],
+      "explanation": "La pregunta directa 'Wann wird das Projekt fertig?' se transforma en una pregunta indirecta usando 'wann' y el verbo 'werden' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Die Forscherin fragte: „Wie lange dauert das Experiment?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Die Forscherin fragte, wie lange das Experiment dauere."
+      ],
+      "explanation": "La pregunta directa 'Wie lange dauert das Experiment?' se convierte en una pregunta indirecta usando 'wie lange' y el verbo 'dauern' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Der Kunde wollte wissen: „Gibt es eine Garantie?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Der Kunde wollte wissen, ob es eine Garantie gebe."
+      ],
+      "explanation": "La pregunta directa 'Gibt es eine Garantie?' se transforma en una pregunta indirecta con 'ob' y el verbo 'geben' en Konjunktiv I al final de la oración."
+    },
+    {
+      "source": "Die Schülerin fragte die Lehrerin: „Warum ist das Thema wichtig?“",
+      "instruction": "Transforma la pregunta directa en una pregunta indirecta con Konjunktiv I.",
+      "solutions": [
+        "Die Schülerin fragte die Lehrerin, warum das Thema wichtig sei."
+      ],
+      "explanation": "La pregunta directa 'Warum ist das Thema wichtig?' se convierte en una pregunta indirecta usando 'warum' y el verbo 'sein' en Konjunktiv I al final de la oración."
+    }
+  ],
+  "a1-06+a1-10": [
+    {
+      "source": "Ich sehe (ein Hund).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Ich sehe keinen Hund."
+      ],
+      "explanation": "El artículo masculino 'ein' cambia a 'keinen' en acusativo porque el objeto directo es masculino."
+    },
+    {
+      "source": "Sie kauft (eine Blume).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Sie kauft keine Blume."
+      ],
+      "explanation": "El artículo femenino 'eine' cambia a 'keine' en acusativo porque el objeto directo es femenino."
+    },
+    {
+      "source": "Wir haben (ein Auto).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Wir haben kein Auto."
+      ],
+      "explanation": "El artículo neutro 'ein' cambia a 'kein' en acusativo porque el objeto directo es neutro."
+    },
+    {
+      "source": "Er isst (ein Apfel).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Er isst keinen Apfel."
+      ],
+      "explanation": "El artículo masculino 'ein' cambia a 'keinen' en acusativo porque el objeto directo es masculino."
+    },
+    {
+      "source": "Ich lese (ein Buch).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Ich lese kein Buch."
+      ],
+      "explanation": "El artículo neutro 'ein' cambia a 'kein' en acusativo porque el objeto directo es neutro."
+    },
+    {
+      "source": "Du trinkst (eine Cola).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Du trinkst keine Cola."
+      ],
+      "explanation": "El artículo femenino 'eine' cambia a 'keine' en acusativo porque el objeto directo es femenino."
+    },
+    {
+      "source": "Wir sehen (ein Film).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Wir sehen keinen Film."
+      ],
+      "explanation": "El artículo masculino 'ein' cambia a 'keinen' en acusativo porque el objeto directo es masculino."
+    },
+    {
+      "source": "Sie hat (ein Fahrrad).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Sie hat kein Fahrrad."
+      ],
+      "explanation": "El artículo neutro 'ein' cambia a 'kein' en acusativo porque el objeto directo es neutro."
+    },
+    {
+      "source": "Er kauft (eine Zeitung).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Er kauft keine Zeitung."
+      ],
+      "explanation": "El artículo femenino 'eine' cambia a 'keine' en acusativo porque el objeto directo es femenino."
+    },
+    {
+      "source": "Ich finde (ein Schlüssel).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Ich finde keinen Schlüssel."
+      ],
+      "explanation": "El artículo masculino 'ein' cambia a 'keinen' en acusativo porque el objeto directo es masculino."
+    },
+    {
+      "source": "Du hast (ein Bild).",
+      "instruction": "Niega la frase con kein y pon el objeto en acusativo.",
+      "solutions": [
+        "Du hast kein Bild."
+      ],
+      "explanation": "El artículo neutro 'ein' cambia a 'kein' en acusativo porque el objeto directo es neutro."
+    }
+  ],
+  "a1-06+a1-12": [
+    {
+      "source": "Ich suche (mein Schlüssel).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ich suche meinen Schlüssel."
+      ],
+      "explanation": "El objeto directo 'Schlüssel' es masculino, por lo que el artículo posesivo 'mein' cambia a 'meinen' en acusativo."
+    },
+    {
+      "source": "Er hat (dein Buch).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Er hat dein Buch."
+      ],
+      "explanation": "El objeto directo 'Buch' es neutro, por lo que el artículo posesivo 'dein' no cambia en acusativo."
+    },
+    {
+      "source": "Wir sehen (sein Hund).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Wir sehen seinen Hund."
+      ],
+      "explanation": "El objeto directo 'Hund' es masculino, por lo que el artículo posesivo 'sein' cambia a 'seinen' en acusativo."
+    },
+    {
+      "source": "Sie liest (ihr Buch).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Sie liest ihr Buch."
+      ],
+      "explanation": "El objeto directo 'Buch' es neutro, por lo que el artículo posesivo 'ihr' no cambia en acusativo."
+    },
+    {
+      "source": "Ich finde (unser Lehrer).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ich finde unseren Lehrer."
+      ],
+      "explanation": "El objeto directo 'Lehrer' es masculino, por lo que el artículo posesivo 'unser' cambia a 'unseren' en acusativo."
+    },
+    {
+      "source": "Ihr besucht (euer Freund).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ihr besucht euren Freund."
+      ],
+      "explanation": "El objeto directo 'Freund' es masculino, por lo que el artículo posesivo 'euer' cambia a 'euren' en acusativo."
+    },
+    {
+      "source": "Ich habe (ihre Katze).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ich habe ihre Katze."
+      ],
+      "explanation": "El objeto directo 'Katze' es femenino, por lo que el artículo posesivo 'ihre' no cambia en acusativo."
+    },
+    {
+      "source": "Du kaufst (mein Auto).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Du kaufst mein Auto."
+      ],
+      "explanation": "El objeto directo 'Auto' es neutro, por lo que el artículo posesivo 'mein' no cambia en acusativo."
+    },
+    {
+      "source": "Wir hören (dein Lied).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Wir hören dein Lied."
+      ],
+      "explanation": "El objeto directo 'Lied' es neutro, por lo que el artículo posesivo 'dein' no cambia en acusativo."
+    },
+    {
+      "source": "Sie trägt (sein Mantel).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Sie trägt seinen Mantel."
+      ],
+      "explanation": "El objeto directo 'Mantel' es masculino, por lo que el artículo posesivo 'sein' cambia a 'seinen' en acusativo."
+    },
+    {
+      "source": "Ich sehe (unser Haus).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ich sehe unser Haus."
+      ],
+      "explanation": "El objeto directo 'Haus' es neutro, por lo que el artículo posesivo 'unser' no cambia en acusativo."
+    },
+    {
+      "source": "Ihr habt (euer Ball).",
+      "instruction": "Declina el artículo posesivo en acusativo.",
+      "solutions": [
+        "Ihr habt euren Ball."
+      ],
+      "explanation": "El objeto directo 'Ball' es masculino, por lo que el artículo posesivo 'euer' cambia a 'euren' en acusativo."
+    }
+  ],
+  "a1-20+a1-08": [
+    {
+      "source": "[anrufen] ich / am Abend / meine Mutter",
+      "instruction": "Empieza por «Am Abend» y conjuga el verbo separable",
+      "solutions": [
+        "Am Abend rufe ich meine Mutter an."
+      ],
+      "explanation": "El verbo separable 'anrufen' se conjuga y el prefijo 'an' salta al final de la frase. El verbo conjugado 'rufe' ocupa la posición 2, después del elemento temporal 'Am Abend'."
+    },
+    {
+      "source": "[aufstehen] wir / um sechs Uhr / jeden Tag",
+      "instruction": "Empieza por «Jeden Tag» y conjuga el verbo separable",
+      "solutions": [
+        "Jeden Tag stehen wir um sechs Uhr auf."
+      ],
+      "explanation": "El verbo separable 'aufstehen' se conjuga y el prefijo 'auf' se coloca al final de la frase. El verbo 'stehen' ocupa la posición 2 después de 'Jeden Tag'."
+    },
+    {
+      "source": "[einkaufen] sie / am Samstag / mit Freunden",
+      "instruction": "Empieza por «Am Samstag» y conjuga el verbo separable",
+      "solutions": [
+        "Am Samstag kauft sie mit Freunden ein."
+      ],
+      "explanation": "El verbo separable 'einkaufen' se conjuga y el prefijo 'ein' se coloca al final. El verbo 'kauft' ocupa la posición 2 después de 'Am Samstag'."
+    },
+    {
+      "source": "[aufmachen] der Laden / um neun Uhr / jeden Morgen",
+      "instruction": "Empieza por «Jeden Morgen» y conjuga el verbo separable",
+      "solutions": [
+        "Jeden Morgen macht der Laden um neun Uhr auf."
+      ],
+      "explanation": "El verbo separable 'aufmachen' se conjuga y el prefijo 'auf' va al final. El verbo 'macht' está en la posición 2 después de 'Jeden Morgen'."
+    },
+    {
+      "source": "[aussteigen] wir / an der Haltestelle / gleich",
+      "instruction": "Empieza por «Gleich» y conjuga el verbo separable",
+      "solutions": [
+        "Gleich steigen wir an der Haltestelle aus."
+      ],
+      "explanation": "El verbo separable 'aussteigen' se conjuga y el prefijo 'aus' se coloca al final. El verbo 'steigen' está en la posición 2 después de 'Gleich'."
+    },
+    {
+      "source": "[zuhören] er / im Unterricht / immer",
+      "instruction": "Empieza por «Immer» y conjuga el verbo separable",
+      "solutions": [
+        "Immer hört er im Unterricht zu."
+      ],
+      "explanation": "El verbo separable 'zuhören' se conjuga y el prefijo 'zu' se coloca al final. El verbo 'hört' está en la posición 2 después de 'Immer'."
+    },
+    {
+      "source": "[fernsehen] sie / am Abend / oft",
+      "instruction": "Empieza por «Oft» y conjuga el verbo separable",
+      "solutions": [
+        "Oft sieht sie am Abend fern."
+      ],
+      "explanation": "El verbo separable 'fernsehen' se conjuga y el prefijo 'fern' se coloca al final. El verbo 'sieht' está en la posición 2 después de 'Oft'."
+    },
+    {
+      "source": "[abholen] ich / dich / morgen früh",
+      "instruction": "Empieza por «Morgen früh» y conjuga el verbo separable",
+      "solutions": [
+        "Morgen früh hole ich dich ab."
+      ],
+      "explanation": "El verbo separable 'abholen' se conjuga y el prefijo 'ab' se coloca al final. El verbo 'hole' está en la posición 2 después de 'Morgen früh'."
+    },
+    {
+      "source": "[anprobieren] sie / den Mantel / im Geschäft",
+      "instruction": "Empieza por «Im Geschäft» y conjuga el verbo separable",
+      "solutions": [
+        "Im Geschäft probiert sie den Mantel an."
+      ],
+      "explanation": "El verbo separable 'anprobieren' se conjuga y el prefijo 'an' se coloca al final. El verbo 'probiert' está en la posición 2 después de 'Im Geschäft'."
+    },
+    {
+      "source": "[mitbringen] wir / einen Kuchen / zur Party",
+      "instruction": "Empieza por «Zur Party» y conjuga el verbo separable",
+      "solutions": [
+        "Zur Party bringen wir einen Kuchen mit."
+      ],
+      "explanation": "El verbo separable 'mitbringen' se conjuga y el prefijo 'mit' se coloca al final. El verbo 'bringen' está en la posición 2 después de 'Zur Party'."
+    },
+    {
+      "source": "[zurückkommen] er / nach Hause / am Nachmittag",
+      "instruction": "Empieza por «Am Nachmittag» y conjuga el verbo separable",
+      "solutions": [
+        "Am Nachmittag kommt er nach Hause zurück."
+      ],
+      "explanation": "El verbo separable 'zurückkommen' se conjuga y el prefijo 'zurück' se coloca al final. El verbo 'kommt' está en la posición 2 después de 'Am Nachmittag'."
+    }
+  ],
+  "a1-20+a2-02": [
+    {
+      "source": "Ich mache das Licht aus. Ich gehe ins Bett.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Ich habe das Licht ausgemacht und bin ins Bett gegangen."
+      ],
+      "explanation": "El verbo separable 'ausmachen' se transforma en 'ausgemacht' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Gehen' es un verbo de movimiento, por lo que usamos 'sein'."
+    },
+    {
+      "source": "Er ruft seine Mutter an. Er erzählt ihr die Neuigkeiten.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Er hat seine Mutter angerufen und ihr die Neuigkeiten erzählt."
+      ],
+      "explanation": "El verbo separable 'anrufen' se transforma en 'angerufen' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Erzählen' también usa 'haben'."
+    },
+    {
+      "source": "Wir steigen aus dem Bus aus. Wir gehen nach Hause.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Wir sind aus dem Bus ausgestiegen und nach Hause gegangen."
+      ],
+      "explanation": "El verbo separable 'aussteigen' se transforma en 'ausgestiegen' en Partizip II. Usamos 'sein' porque hay movimiento. 'Gehen' también es un verbo de movimiento, por lo que usamos 'sein'."
+    },
+    {
+      "source": "Sie zieht ihre Schuhe an. Sie verlässt das Haus.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Sie hat ihre Schuhe angezogen und das Haus verlassen."
+      ],
+      "explanation": "El verbo separable 'anziehen' se transforma en 'angezogen' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Verlassen' también usa 'haben'."
+    },
+    {
+      "source": "Er kauft im Supermarkt ein. Er bringt die Lebensmittel nach Hause.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Er hat im Supermarkt eingekauft und die Lebensmittel nach Hause gebracht."
+      ],
+      "explanation": "El verbo separable 'einkaufen' se transforma en 'eingekauft' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Bringen' también usa 'haben'."
+    },
+    {
+      "source": "Ich stehe früh auf. Ich gehe zur Arbeit.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Ich bin früh aufgestanden und zur Arbeit gegangen."
+      ],
+      "explanation": "El verbo separable 'aufstehen' se transforma en 'aufgestanden' en Partizip II. Usamos 'sein' porque hay un cambio de estado. 'Gehen' es un verbo de movimiento, por lo que usamos 'sein'."
+    },
+    {
+      "source": "Wir laden unsere Freunde ein. Wir feiern eine Party.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Wir haben unsere Freunde eingeladen und eine Party gefeiert."
+      ],
+      "explanation": "El verbo separable 'einladen' se transforma en 'eingeladen' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Feiern' también usa 'haben'."
+    },
+    {
+      "source": "Er macht das Fenster auf. Er lüftet das Zimmer.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Er hat das Fenster aufgemacht und das Zimmer gelüftet."
+      ],
+      "explanation": "El verbo separable 'aufmachen' se transforma en 'aufgemacht' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Lüften' también usa 'haben'."
+    },
+    {
+      "source": "Sie fährt nach München. Sie besucht ihre Großeltern.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Sie ist nach München gefahren und hat ihre Großeltern besucht."
+      ],
+      "explanation": "El verbo 'fahren' es de movimiento, por lo que usamos 'sein'. 'Besuchen' usa 'haben' porque no hay movimiento."
+    },
+    {
+      "source": "Ich nehme ein Buch mit. Ich lese es im Zug.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Ich habe ein Buch mitgenommen und es im Zug gelesen."
+      ],
+      "explanation": "El verbo separable 'mitnehmen' se transforma en 'mitgenommen' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Lesen' también usa 'haben'."
+    },
+    {
+      "source": "Wir kommen spät zurück. Wir sind müde.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Wir sind spät zurückgekommen und waren müde."
+      ],
+      "explanation": "El verbo separable 'zurückkommen' se transforma en 'zurückgekommen' en Partizip II. Usamos 'sein' porque hay movimiento. 'Sein' en pasado es 'waren'."
+    },
+    {
+      "source": "Er sieht fern. Er entspannt sich.",
+      "instruction": "Transforma al pretérito perfecto y usa el verbo separable correctamente.",
+      "solutions": [
+        "Er hat ferngesehen und sich entspannt."
+      ],
+      "explanation": "El verbo separable 'fernsehen' se transforma en 'ferngesehen' en Partizip II. Usamos 'haben' porque no hay movimiento. 'Entspannen' también usa 'haben'."
+    }
+  ],
+  "a1-14+a2-13": [
+    {
+      "source": "Ich gebe dem Lehrer das Buch.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Ich gebe ihm das Buch."
+      ],
+      "explanation": "El verbo 'geben' requiere un objeto en dativo. 'Dem Lehrer' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Sie hilft ihrer Freundin bei den Hausaufgaben.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Sie hilft ihr bei den Hausaufgaben."
+      ],
+      "explanation": "El verbo 'helfen' requiere un objeto en dativo. 'Ihrer Freundin' se transforma en el pronombre dativo 'ihr'."
+    },
+    {
+      "source": "Wir danken dem Mann für seine Hilfe.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Wir danken ihm für seine Hilfe."
+      ],
+      "explanation": "El verbo 'danken' requiere un objeto en dativo. 'Dem Mann' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Das Kleid gefällt meiner Schwester sehr gut.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Das Kleid gefällt ihr sehr gut."
+      ],
+      "explanation": "El verbo 'gefallen' requiere un objeto en dativo. 'Meiner Schwester' se transforma en el pronombre dativo 'ihr'."
+    },
+    {
+      "source": "Der Hund gehört dem Nachbarn.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Der Hund gehört ihm."
+      ],
+      "explanation": "El verbo 'gehören' requiere un objeto en dativo. 'Dem Nachbarn' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Der Kuchen schmeckt dem Kind nicht.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Der Kuchen schmeckt ihm nicht."
+      ],
+      "explanation": "El verbo 'schmecken' requiere un objeto en dativo. 'Dem Kind' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Die Schuhe passen meinem Bruder perfekt.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Die Schuhe passen ihm perfekt."
+      ],
+      "explanation": "El verbo 'passen' requiere un objeto en dativo. 'Meinem Bruder' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Ich antworte der Lehrerin sofort.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Ich antworte ihr sofort."
+      ],
+      "explanation": "El verbo 'antworten' requiere un objeto en dativo. 'Der Lehrerin' se transforma en el pronombre dativo 'ihr'."
+    },
+    {
+      "source": "Wir gratulieren dem Gewinner herzlich.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Wir gratulieren ihm herzlich."
+      ],
+      "explanation": "El verbo 'gratulieren' requiere un objeto en dativo. 'Dem Gewinner' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Er hilft seinem Freund beim Umzug.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Er hilft ihm beim Umzug."
+      ],
+      "explanation": "El verbo 'helfen' requiere un objeto en dativo. 'Seinem Freund' se transforma en el pronombre dativo 'ihm'."
+    },
+    {
+      "source": "Ich gebe der Katze Futter.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Ich gebe ihr Futter."
+      ],
+      "explanation": "El verbo 'geben' requiere un objeto en dativo. 'Der Katze' se transforma en el pronombre dativo 'ihr'."
+    },
+    {
+      "source": "Der Film gefällt meinem Vater nicht.",
+      "instruction": "Reemplaza el objeto dativo con un pronombre.",
+      "solutions": [
+        "Der Film gefällt ihm nicht."
+      ],
+      "explanation": "El verbo 'gefallen' requiere un objeto en dativo. 'Meinem Vater' se transforma en el pronombre dativo 'ihm'."
+    }
+  ],
+  "a2-21+a2-22": [
+    {
+      "source": "Es ist kalt. Ich ziehe eine Jacke an.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich ziehe eine Jacke an, weil es kalt ist."
+      ],
+      "explanation": "La oración original tiene dos oraciones principales. Al usar 'weil', la segunda oración se convierte en una subordinada, y el verbo 'ist' va al final."
+    },
+    {
+      "source": "Ich habe Hunger, deshalb esse ich jetzt.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich esse jetzt, weil ich Hunger habe."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'habe' al final."
+    },
+    {
+      "source": "Ich bin müde, deshalb gehe ich früh ins Bett.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich gehe früh ins Bett, weil ich müde bin."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'bin' al final."
+    },
+    {
+      "source": "Du machst die Hausaufgaben. Dann darfst du spielen.",
+      "instruction": "Reescríbela con wenn",
+      "solutions": [
+        "Wenn du die Hausaufgaben machst, darfst du spielen."
+      ],
+      "explanation": "Las oraciones originales son dos principales. Al usar 'wenn', la primera oración se convierte en una subordinada, con el verbo 'machst' al final."
+    },
+    {
+      "source": "Es ist spät, deshalb gehe ich nach Hause.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich gehe nach Hause, weil es spät ist."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'ist' al final."
+    },
+    {
+      "source": "Ich habe Zeit. Dann helfe ich dir.",
+      "instruction": "Reescríbela con wenn",
+      "solutions": [
+        "Wenn ich Zeit habe, helfe ich dir."
+      ],
+      "explanation": "Las oraciones originales son dos principales. Al usar 'wenn', la primera oración se convierte en una subordinada, con el verbo 'habe' al final."
+    },
+    {
+      "source": "Er ist krank, deshalb bleibt er im Bett.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Er bleibt im Bett, weil er krank ist."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'ist' al final."
+    },
+    {
+      "source": "Du bist fertig. Dann kannst du gehen.",
+      "instruction": "Reescríbela con wenn",
+      "solutions": [
+        "Wenn du fertig bist, kannst du gehen."
+      ],
+      "explanation": "Las oraciones originales son dos principales. Al usar 'wenn', la primera oración se convierte en una subordinada, con el verbo 'bist' al final."
+    },
+    {
+      "source": "Es regnet, deshalb nehme ich einen Schirm.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich nehme einen Schirm, weil es regnet."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'regnet' al final."
+    },
+    {
+      "source": "Du hast Durst. Dann trinkst du Wasser.",
+      "instruction": "Reescríbela con wenn",
+      "solutions": [
+        "Wenn du Durst hast, trinkst du Wasser."
+      ],
+      "explanation": "Las oraciones originales son dos principales. Al usar 'wenn', la primera oración se convierte en una subordinada, con el verbo 'hast' al final."
+    },
+    {
+      "source": "Ich habe viel Arbeit, deshalb bleibe ich im Büro.",
+      "instruction": "Reescríbela con weil",
+      "solutions": [
+        "Ich bleibe im Büro, weil ich viel Arbeit habe."
+      ],
+      "explanation": "La oración original usa 'deshalb', un conector de posición 1. Al cambiar a 'weil', se forma una subordinada con el verbo 'habe' al final."
+    }
+  ],
+  "a1-07+a1-20+a2-02": [
+    {
+      "source": "Er zieht seine Jacke an. (Pregunta por das Kleidungsstück, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Was hat er angezogen?"
+      ],
+      "explanation": "Usamos 'Was' para preguntar por el objeto. El verbo separable 'anziehen' se transforma en Partizip II como 'angezogen'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    },
+    {
+      "source": "Sie macht das Licht aus. (Pregunta por das Objekt, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Was hat sie ausgemacht?"
+      ],
+      "explanation": "Usamos 'Was' para preguntar por el objeto. El verbo separable 'ausmachen' se transforma en Partizip II como 'ausgemacht'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    },
+    {
+      "source": "Wir steigen in den Zug ein. (Pregunta por das Verkehrsmittel, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Worin sind wir eingestiegen?",
+        "In welchen Zug sind wir eingestiegen?"
+      ],
+      "explanation": "Usamos 'Worin' o 'In welchen Zug' para preguntar por el medio de transporte. El verbo separable 'einsteigen' se transforma en Partizip II como 'eingestiegen'. Usamos 'sein' como auxiliar porque hay movimiento."
+    },
+    {
+      "source": "Er ruft seine Mutter an. (Pregunta por die Person, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wen hat er angerufen?"
+      ],
+      "explanation": "Usamos 'Wen' para preguntar por la persona. El verbo separable 'anrufen' se transforma en Partizip II como 'angerufen'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    },
+    {
+      "source": "Sie kommt um zehn Uhr an. (Pregunta por die Uhrzeit, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wann ist sie angekommen?"
+      ],
+      "explanation": "Usamos 'Wann' para preguntar por la hora. El verbo separable 'ankommen' se transforma en Partizip II como 'angekommen'. Usamos 'sein' como auxiliar porque hay movimiento."
+    },
+    {
+      "source": "Er steht früh auf. (Pregunta por die Zeit, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wann ist er aufgestanden?"
+      ],
+      "explanation": "Usamos 'Wann' para preguntar por la hora. El verbo separable 'aufstehen' se transforma en Partizip II como 'aufgestanden'. Usamos 'sein' como auxiliar porque implica un cambio de estado."
+    },
+    {
+      "source": "Sie bringt den Müll raus. (Pregunta por das Objekt, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Was hat sie rausgebracht?"
+      ],
+      "explanation": "Usamos 'Was' para preguntar por el objeto. El verbo separable 'rausbringen' se transforma en Partizip II como 'rausgebracht'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    },
+    {
+      "source": "Wir fahren nach Berlin ab. (Pregunta por die Stadt, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wohin sind wir abgefahren?"
+      ],
+      "explanation": "Usamos 'Wohin' para preguntar por el destino. El verbo separable 'abfahren' se transforma en Partizip II como 'abgefahren'. Usamos 'sein' como auxiliar porque hay movimiento."
+    },
+    {
+      "source": "Er zieht nach München um. (Pregunta por die Stadt, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wohin ist er umgezogen?"
+      ],
+      "explanation": "Usamos 'Wohin' para preguntar por el destino. El verbo separable 'umziehen' se transforma en Partizip II como 'umgezogen'. Usamos 'sein' como auxiliar porque hay movimiento."
+    },
+    {
+      "source": "Sie kauft im Supermarkt ein. (Pregunta por den Ort, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wo hat sie eingekauft?"
+      ],
+      "explanation": "Usamos 'Wo' para preguntar por el lugar. El verbo separable 'einkaufen' se transforma en Partizip II como 'eingekauft'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    },
+    {
+      "source": "Wir kommen um Mitternacht zurück. (Pregunta por die Zeit, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Wann sind wir zurückgekommen?"
+      ],
+      "explanation": "Usamos 'Wann' para preguntar por la hora. El verbo separable 'zurückkommen' se transforma en Partizip II como 'zurückgekommen'. Usamos 'sein' como auxiliar porque hay movimiento."
+    },
+    {
+      "source": "Er stellt die Vase auf den Tisch. (Pregunta por das Möbelstück, en Perfekt)",
+      "instruction": "Transforma en pregunta con W-Wort, verbo separable y Perfekt.",
+      "solutions": [
+        "Worauf hat er die Vase gestellt?",
+        "Auf welchen Tisch hat er die Vase gestellt?"
+      ],
+      "explanation": "Usamos 'Worauf' o 'Auf welchen Tisch' para preguntar por el mueble. El verbo separable 'aufstellen' se transforma en Partizip II como 'aufgestellt'. Usamos 'hat' como auxiliar porque no hay movimiento."
+    }
+  ],
+  "b1-06+b1-05": [
+    {
+      "source": "Wir bleiben zu Hause. Draußen weht ein (kalt) Wind.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Wir bleiben zu Hause, weil draußen ein kalter Wind weht."
+      ],
+      "explanation": "Se usa 'weil' para conectar las frases, moviendo el verbo al final de la subordinada. El adjetivo 'kalt' se declina débilmente después del artículo indefinido 'ein' en nominativo singular masculino, resultando en 'kalter'."
+    },
+    {
+      "source": "Ich lese ein (interessant) Buch. Es ist sehr spannend.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich lese ein interessantes Buch, weil es sehr spannend ist."
+      ],
+      "explanation": "Se usa 'weil' para indicar la razón por la que el libro es interesante, moviendo el verbo al final de la subordinada. El adjetivo 'interessant' se declina débilmente después del artículo indefinido 'ein' en acusativo singular neutro, resultando en 'interessantes'."
+    },
+    {
+      "source": "Wir gehen ins Kino. Wir haben die (neu) Filme gesehen.",
+      "instruction": "Une con nachdem y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Wir gehen ins Kino, nachdem wir die neuen Filme gesehen haben."
+      ],
+      "explanation": "Se usa 'nachdem' para indicar que la acción de ver las películas ocurrió antes de ir al cine, moviendo el verbo al final de la subordinada. El adjetivo 'neu' se declina débilmente después del artículo definido 'die' en acusativo plural, resultando en 'neuen'."
+    },
+    {
+      "source": "Er besucht seine (alt) Freunde. Er hat Zeit.",
+      "instruction": "Une con wenn y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Er besucht seine alten Freunde, wenn er Zeit hat."
+      ],
+      "explanation": "Se usa 'wenn' para indicar una condición, moviendo el verbo al final de la subordinada. El adjetivo 'alt' se declina débilmente después del posesivo 'seine' en acusativo plural, resultando en 'alten'."
+    },
+    {
+      "source": "Ich esse keine (süß) Speisen. Ich bin auf Diät.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich esse keine süßen Speisen, weil ich auf Diät bin."
+      ],
+      "explanation": "Se usa 'weil' para explicar la razón de no comer dulces, moviendo el verbo al final de la subordinada. El adjetivo 'süß' se declina débilmente después del artículo indefinido 'keine' en acusativo plural, resultando en 'süßen'."
+    },
+    {
+      "source": "Wir fahren ans Meer. Das Wetter ist (schön).",
+      "instruction": "Une con wenn y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Wir fahren ans Meer, wenn das Wetter schön ist."
+      ],
+      "explanation": "Se usa 'wenn' para expresar una condición futura, moviendo el verbo al final de la subordinada. El adjetivo 'schön' no necesita declinación porque está fuera del contexto de un artículo."
+    },
+    {
+      "source": "Sie kauft einen (teuer) Computer. Sie braucht ihn für die Arbeit.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Sie kauft einen teuren Computer, weil sie ihn für die Arbeit braucht."
+      ],
+      "explanation": "Se usa 'weil' para explicar la razón de la compra, moviendo el verbo al final de la subordinada. El adjetivo 'teuer' se declina débilmente después del artículo indefinido 'einen' en acusativo singular masculino, resultando en 'teuren'."
+    },
+    {
+      "source": "Wir spielen Fußball. Wir haben die (alt) Schuhe gefunden.",
+      "instruction": "Une con nachdem y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Wir spielen Fußball, nachdem wir die alten Schuhe gefunden haben."
+      ],
+      "explanation": "Se usa 'nachdem' para indicar que la acción de encontrar los zapatos ocurrió antes de jugar, moviendo el verbo al final de la subordinada. El adjetivo 'alt' se declina débilmente después del artículo definido 'die' en acusativo plural, resultando en 'alten'."
+    },
+    {
+      "source": "Ich trinke einen (heiß) Tee. Es ist kalt draußen.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich trinke einen heißen Tee, weil es kalt draußen ist."
+      ],
+      "explanation": "Se usa 'weil' para explicar la razón de beber té caliente, moviendo el verbo al final de la subordinada. El adjetivo 'heiß' se declina débilmente después del artículo indefinido 'einen' en acusativo singular masculino, resultando en 'heißen'."
+    },
+    {
+      "source": "Er besucht das (groß) Museum. Er interessiert sich für Kunst.",
+      "instruction": "Une con weil y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Er besucht das große Museum, weil er sich für Kunst interessiert."
+      ],
+      "explanation": "Se usa 'weil' para explicar la razón de la visita, moviendo el verbo al final de la subordinada. El adjetivo 'groß' se declina débilmente después del artículo definido 'das' en acusativo singular neutro, resultando en 'große'."
+    }
+  ],
+  "b1-03+b1-05": [
+    {
+      "source": "Das ist der (alt) Freund. Ich habe ihn gestern gesehen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist der alte Freund, den ich gestern gesehen habe."
+      ],
+      "explanation": "Usamos 'den' porque es el objeto directo en la subordinada. El adjetivo 'alt' se declina débilmente como 'alte' tras el artículo definido 'der'."
+    },
+    {
+      "source": "Sie sucht eine (schön) Wohnung. Die Wohnung hat einen Balkon.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Sie sucht eine schöne Wohnung, die einen Balkon hat."
+      ],
+      "explanation": "Usamos 'die' porque es el sujeto en la subordinada y concuerda en género y número con 'Wohnung'. El adjetivo 'schön' se declina mixtamente como 'schöne' tras el artículo indefinido 'eine'."
+    },
+    {
+      "source": "Das ist mein (neu) Auto. Ich fahre damit zur Arbeit.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist mein neues Auto, mit dem ich zur Arbeit fahre."
+      ],
+      "explanation": "Usamos 'dem' porque es el objeto indirecto en la subordinada con la preposición 'mit'. El adjetivo 'neu' se declina mixtamente como 'neues' tras el posesivo 'mein'."
+    },
+    {
+      "source": "Wir haben ein (groß) Haus. Das Haus steht in der Stadt.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Wir haben ein großes Haus, das in der Stadt steht."
+      ],
+      "explanation": "Usamos 'das' porque es el sujeto en la subordinada y concuerda con 'Haus'. El adjetivo 'groß' se declina mixtamente como 'großes' tras el artículo indefinido 'ein'."
+    },
+    {
+      "source": "Ich kenne den (jung) Mann. Du hast ihm geholfen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich kenne den jungen Mann, dem du geholfen hast."
+      ],
+      "explanation": "Usamos 'dem' porque es el objeto indirecto en la subordinada. El adjetivo 'jung' se declina débilmente como 'jungen' tras el artículo definido 'den'."
+    },
+    {
+      "source": "Das ist ein (interessant) Buch. Ich habe es gelesen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist ein interessantes Buch, das ich gelesen habe."
+      ],
+      "explanation": "Usamos 'das' porque es el objeto directo en la subordinada y concuerda con 'Buch'. El adjetivo 'interessant' se declina mixtamente como 'interessantes' tras el artículo indefinido 'ein'."
+    },
+    {
+      "source": "Er hat eine (alt) Freundin. Sie wohnt in Berlin.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Er hat eine alte Freundin, die in Berlin wohnt."
+      ],
+      "explanation": "Usamos 'die' porque es el sujeto en la subordinada y concuerda con 'Freundin'. El adjetivo 'alt' se declina mixtamente como 'alte' tras el artículo indefinido 'eine'."
+    },
+    {
+      "source": "Das ist der (klein) Hund. Ich spiele mit ihm.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist der kleine Hund, mit dem ich spiele."
+      ],
+      "explanation": "Usamos 'dem' porque es el objeto indirecto en la subordinada con la preposición 'mit'. El adjetivo 'klein' se declina débilmente como 'kleine' tras el artículo definido 'der'."
+    },
+    {
+      "source": "Ich habe ein (neu) Fahrrad. Es ist sehr schnell.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich habe ein neues Fahrrad, das sehr schnell ist."
+      ],
+      "explanation": "Usamos 'das' porque es el sujeto en la subordinada y concuerda con 'Fahrrad'. El adjetivo 'neu' se declina mixtamente como 'neues' tras el artículo indefinido 'ein'."
+    },
+    {
+      "source": "Das ist die (groß) Stadt. Ich wohne dort.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist die große Stadt, in der ich wohne."
+      ],
+      "explanation": "Usamos 'der' porque es el objeto indirecto en la subordinada con la preposición 'in'. El adjetivo 'groß' se declina débilmente como 'große' tras el artículo definido 'die'."
+    },
+    {
+      "source": "Ich habe einen (schnell) Computer. Du kannst ihn benutzen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Ich habe einen schnellen Computer, den du benutzen kannst."
+      ],
+      "explanation": "Usamos 'den' porque es el objeto directo en la subordinada. El adjetivo 'schnell' se declina mixtamente como 'schnellen' tras el artículo indefinido 'einen'."
+    },
+    {
+      "source": "Das ist mein (alt) Lehrer. Ich habe viel von ihm gelernt.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis",
+      "solutions": [
+        "Das ist mein alter Lehrer, von dem ich viel gelernt habe."
+      ],
+      "explanation": "Usamos 'dem' porque es el objeto indirecto en la subordinada con la preposición 'von'. El adjetivo 'alt' se declina mixtamente como 'alter' tras el posesivo 'mein'."
+    }
+  ],
+  "b1-11+b1-06": [
+    {
+      "source": "Er machte seine Hausaufgaben. Dann ging er ins Bett.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er seine Hausaufgaben gemacht hatte, ging er ins Bett."
+      ],
+      "explanation": "Se usa 'nachdem' para conectar las dos acciones. La acción de hacer los deberes ocurrió antes de irse a la cama, por lo que se usa el Plusquamperfekt 'gemacht hatte'."
+    },
+    {
+      "source": "Sie kam nach Hause. Danach kochte sie das Abendessen.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie nach Hause gekommen war, kochte sie das Abendessen."
+      ],
+      "explanation": "Usamos 'nachdem' para indicar que llegar a casa ocurrió antes de cocinar. Por eso, 'gekommen war' está en Plusquamperfekt."
+    },
+    {
+      "source": "Wir sahen den Film. Dann gingen wir ins Restaurant.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir den Film gesehen hatten, gingen wir ins Restaurant."
+      ],
+      "explanation": "El verbo 'gesehen hatten' está en Plusquamperfekt porque la acción de ver la película ocurrió antes de ir al restaurante, indicado por 'nachdem'."
+    },
+    {
+      "source": "Er las das Buch. Danach schrieb er die Zusammenfassung.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er das Buch gelesen hatte, schrieb er die Zusammenfassung."
+      ],
+      "explanation": "La lectura del libro fue anterior a la escritura del resumen, por lo que 'gelesen hatte' está en Plusquamperfekt y se usa 'nachdem'."
+    },
+    {
+      "source": "Sie beendete das Projekt. Dann präsentierte sie es dem Team.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie das Projekt beendet hatte, präsentierte sie es dem Team."
+      ],
+      "explanation": "El proyecto se terminó antes de presentarlo, así que 'beendet hatte' está en Plusquamperfekt y 'nachdem' conecta las acciones."
+    },
+    {
+      "source": "Wir aßen das Frühstück. Danach fuhren wir zur Arbeit.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir das Frühstück gegessen hatten, fuhren wir zur Arbeit."
+      ],
+      "explanation": "El desayuno ocurrió antes de ir al trabajo, por lo que se usa 'gegessen hatten' en Plusquamperfekt junto con 'nachdem'."
+    },
+    {
+      "source": "Sie schloss die Tür. Dann ging sie zur Schule.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie die Tür geschlossen hatte, ging sie zur Schule."
+      ],
+      "explanation": "Cerrar la puerta fue la acción anterior, indicada por 'nachdem', y por eso 'geschlossen hatte' está en Plusquamperfekt."
+    },
+    {
+      "source": "Er schrieb den Brief. Danach schickte er ihn ab.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er den Brief geschrieben hatte, schickte er ihn ab."
+      ],
+      "explanation": "El escribir el correo ocurrió antes de enviarlo, así que 'geschrieben hatte' está en Plusquamperfekt y se usa 'nachdem'."
+    },
+    {
+      "source": "Wir packten die Koffer. Dann fuhren wir zum Flughafen.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir die Koffer gepackt hatten, fuhren wir zum Flughafen."
+      ],
+      "explanation": "Empacar las maletas ocurrió antes de ir al aeropuerto, por lo que 'gepackt hatten' está en Plusquamperfekt y se usa 'nachdem'."
+    },
+    {
+      "source": "Sie besuchte ihre Großeltern. Danach ging sie nach Hause.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem sie ihre Großeltern besucht hatte, ging sie nach Hause."
+      ],
+      "explanation": "La visita a los abuelos fue anterior a ir a casa, por eso 'besucht hatte' está en Plusquamperfekt y se usa 'nachdem'."
+    },
+    {
+      "source": "Er reparierte das Auto. Dann fuhr er zur Arbeit.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem er das Auto repariert hatte, fuhr er zur Arbeit."
+      ],
+      "explanation": "La reparación del auto ocurrió antes de ir al trabajo, por lo que 'repariert hatte' está en Plusquamperfekt y se usa 'nachdem'."
+    },
+    {
+      "source": "Wir kauften die Tickets. Danach gingen wir ins Kino.",
+      "instruction": "Une las frases usando 'nachdem' y transforma el verbo al Plusquamperfekt.",
+      "solutions": [
+        "Nachdem wir die Tickets gekauft hatten, gingen wir ins Kino."
+      ],
+      "explanation": "La compra de los boletos ocurrió antes de ir al cine, por eso 'gekauft hatten' está en Plusquamperfekt y se usa 'nachdem'."
+    }
+  ],
+  "b1-02+b1-06": [
+    {
+      "source": "Er ist nicht gesund, deshalb treibt er keinen Sport.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn er gesund wäre, würde er Sport treiben.",
+        "Wäre er gesund, triebe er Sport."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Wäre' es Konjunktiv II de 'sein' para expresar la hipótesis. 'Würde treiben' es una forma común de Konjunktiv II para expresar acciones hipotéticas."
+    },
+    {
+      "source": "Ich habe keine Zeit, deshalb helfe ich dir nicht.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn ich Zeit hätte, würde ich dir helfen.",
+        "Hätte ich Zeit, hülfe ich dir."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätte' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würde helfen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Er kann nicht gut kochen, deshalb lädt er niemanden zum Essen ein.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn er gut kochen könnte, würde er jemanden zum Essen einladen.",
+        "Könnte er gut kochen, lüde er jemanden zum Essen ein."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Könnte' es Konjunktiv II de 'können' para expresar la hipótesis. 'Würde einladen' es una forma común de Konjunktiv II para expresar acciones hipotéticas."
+    },
+    {
+      "source": "Sie hat keine Lust, deshalb kommt sie nicht zur Party.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn sie Lust hätte, würde sie zur Party kommen.",
+        "Hätte sie Lust, käme sie zur Party."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätte' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würde kommen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Wir haben keinen Urlaub, deshalb reisen wir nicht nach Spanien.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn wir Urlaub hätten, würden wir nach Spanien reisen.",
+        "Hätten wir Urlaub, reisten wir nach Spanien."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätten' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würden reisen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Ich habe keine Kamera, deshalb mache ich keine Fotos.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn ich eine Kamera hätte, würde ich Fotos machen.",
+        "Hätte ich eine Kamera, machte ich Fotos."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätte' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würde machen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Er hat keine Ahnung, deshalb fragt er nicht.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn er eine Ahnung hätte, würde er fragen.",
+        "Hätte er eine Ahnung, fragte er."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätte' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würde fragen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Wir haben keinen Garten, deshalb pflanzen wir keine Blumen.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn wir einen Garten hätten, würden wir Blumen pflanzen.",
+        "Hätten wir einen Garten, pflanzten wir Blumen."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätten' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würden pflanzen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Sie ist nicht zu Hause, deshalb empfängt sie keinen Besuch.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn sie zu Hause wäre, würde sie Besuch empfangen.",
+        "Wäre sie zu Hause, empfinge sie Besuch."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Wäre' es Konjunktiv II de 'sein' para expresar la hipótesis. 'Würde empfangen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    },
+    {
+      "source": "Er hat keine Zeit, deshalb besucht er uns nicht.",
+      "instruction": "Formula la condición irreal con wenn y usa Konjunktiv II.",
+      "solutions": [
+        "Wenn er Zeit hätte, würde er uns besuchen.",
+        "Hätte er Zeit, besuchte er uns."
+      ],
+      "explanation": "Se usa 'wenn' para introducir la condición irreal. 'Hätte' es Konjunktiv II de 'haben' para expresar la hipótesis. 'Würde besuchen' es una forma común de Konjunktiv II para expresar deseos o acciones hipotéticas."
+    }
+  ],
+  "b1-04+b1-20": [
+    {
+      "source": "Wir bleiben drinnen, weil es regnet (der Regen).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Wegen des Regens bleiben wir drinnen."
+      ],
+      "explanation": "La cláusula causal 'weil es regnet' se transforma en una frase con preposición de genitivo 'wegen des Regens'. El sustantivo 'Regen' se declina en genitivo singular masculino añadiendo '-s'."
+    },
+    {
+      "source": "Wir gehen spazieren, obwohl es schneit (der Schnee).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Trotz des Schnees gehen wir spazieren."
+      ],
+      "explanation": "La cláusula concesiva 'obwohl es schneit' se transforma en una frase con preposición de genitivo 'trotz des Schnees'. El sustantivo 'Schnee' se declina en genitivo singular masculino añadiendo '-s'."
+    },
+    {
+      "source": "Ich kann nicht kommen, weil ich arbeiten muss (die Arbeit).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Wegen der Arbeit kann ich nicht kommen."
+      ],
+      "explanation": "La cláusula causal 'weil ich arbeiten muss' se transforma en una frase con preposición de genitivo 'wegen der Arbeit'. El sustantivo 'Arbeit' es femenino y se usa 'der' en genitivo singular."
+    },
+    {
+      "source": "Wir bleiben zu Hause, obwohl es sonnig ist (die Sonne).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Trotz der Sonne bleiben wir zu Hause."
+      ],
+      "explanation": "La cláusula concesiva 'obwohl es sonnig ist' se transforma en una frase con preposición de genitivo 'trotz der Sonne'. El sustantivo 'Sonne' es femenino y se usa 'der' en genitivo singular."
+    },
+    {
+      "source": "Ich lerne Deutsch, weil es wichtig ist (die Sprache).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Wegen der Sprache lerne ich Deutsch."
+      ],
+      "explanation": "La cláusula causal 'weil es wichtig ist' se transforma en una frase con preposición de genitivo 'wegen der Sprache'. El sustantivo 'Sprache' es femenino y se usa 'der' en genitivo singular."
+    },
+    {
+      "source": "Wir machen eine Pause, während der Lehrer spricht (die Stunde).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Während der Stunde machen wir eine Pause."
+      ],
+      "explanation": "La cláusula temporal 'während der Lehrer spricht' se transforma en una frase con preposición de genitivo 'während der Stunde'. El sustantivo 'Stunde' es femenino y se usa 'der' en genitivo singular."
+    },
+    {
+      "source": "Ich kann nicht kommen, weil ich krank bin (die Krankheit).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Wegen der Krankheit kann ich nicht kommen."
+      ],
+      "explanation": "La cláusula causal 'weil ich krank bin' se transforma en una frase con preposición de genitivo 'wegen der Krankheit'. El sustantivo 'Krankheit' es femenino y se usa 'der' en genitivo singular."
+    },
+    {
+      "source": "Wir gehen spazieren, obwohl es windig ist (der Wind).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Trotz des Windes gehen wir spazieren."
+      ],
+      "explanation": "La cláusula concesiva 'obwohl es windig ist' se transforma en una frase con preposición de genitivo 'trotz des Windes'. El sustantivo 'Wind' se declina en genitivo singular masculino añadiendo '-es'."
+    },
+    {
+      "source": "Ich esse einen Apfel, während ich arbeite (die Arbeit).",
+      "instruction": "Reemplaza la oración con una preposición de genitivo y declina el sustantivo entre paréntesis.",
+      "solutions": [
+        "Während der Arbeit esse ich einen Apfel."
+      ],
+      "explanation": "La cláusula temporal 'während ich arbeite' se transforma en una frase con preposición de genitivo 'während der Arbeit'. El sustantivo 'Arbeit' es femenino y se usa 'der' en genitivo singular."
+    }
+  ],
+  "b2-05+b1-06": [
+    {
+      "source": "Der Lehrer sagt: Die Schüler können das Projekt bis nächste Woche beenden.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Lehrer sagt, dass das Projekt bis nächste Woche beendet werden kann."
+      ],
+      "explanation": "Se transforma la frase activa a pasiva con el modal 'können'. El verbo modal 'können' se coloca en la posición 2 de la oración subordinada introducida por 'dass', y al final se coloca 'beendet werden'."
+    },
+    {
+      "source": "Die Eltern meinen: Wir dürfen die Kinder nicht alleine lassen.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Eltern meinen, dass die Kinder nicht alleine gelassen werden dürfen."
+      ],
+      "explanation": "Se usa 'dass' para introducir la subordinada y se transforma la frase activa a pasiva con el modal 'dürfen'. El modal se coloca en la posición 2 de la subordinada, y 'gelassen werden' al final."
+    },
+    {
+      "source": "Der Direktor erklärt: Man muss die Regeln respektieren.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Direktor erklärt, dass die Regeln respektiert werden müssen."
+      ],
+      "explanation": "La oración activa se convierte en pasiva usando 'müssen'. 'dass' introduce la subordinada, el modal 'müssen' va en la posición 2, y 'respektiert werden' al final."
+    },
+    {
+      "source": "Die Ärztin sagt: Wir sollen die Medikamente regelmäßig einnehmen.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Ärztin sagt, dass die Medikamente regelmäßig eingenommen werden sollen."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración activa en pasiva con 'sollen'. El modal 'sollen' ocupa la posición 2, y 'eingenommen werden' se coloca al final."
+    },
+    {
+      "source": "Der Manager betont: Wir müssen die Frist einhalten.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Manager betont, dass die Frist eingehalten werden muss."
+      ],
+      "explanation": "Se utiliza 'dass' para introducir la subordinada y se pasa a pasiva con 'müssen'. El modal 'müssen' se coloca en la posición 2, y 'eingehalten werden' al final."
+    },
+    {
+      "source": "Die Lehrerin sagt: Die Schüler können die Aufgaben bis morgen erledigen.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Lehrerin sagt, dass die Aufgaben bis morgen erledigt werden können."
+      ],
+      "explanation": "La frase activa se transforma en pasiva usando 'können'. Se introduce la subordinada con 'dass', el modal 'können' va en la posición 2, y 'erledigt werden' al final."
+    },
+    {
+      "source": "Der Chef sagt: Wir müssen das Meeting verschieben.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Chef sagt, dass das Meeting verschoben werden muss."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración a pasiva con 'müssen'. El modal 'müssen' ocupa la posición 2, y 'verschoben werden' se coloca al final."
+    },
+    {
+      "source": "Die Wissenschaftler berichten: Man kann das Experiment wiederholen.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Wissenschaftler berichten, dass das Experiment wiederholt werden kann."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración a pasiva con 'können'. El modal 'können' ocupa la posición 2, y 'wiederholt werden' al final."
+    },
+    {
+      "source": "Der Trainer sagt: Wir sollen die Strategie ändern.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Trainer sagt, dass die Strategie geändert werden soll."
+      ],
+      "explanation": "La oración activa se transforma a pasiva con 'sollen'. Se introduce la subordinada con 'dass', el modal 'sollen' va en la posición 2, y 'geändert werden' al final."
+    },
+    {
+      "source": "Die Regierung erklärt: Man darf die Umwelt nicht verschmutzen.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Regierung erklärt, dass die Umwelt nicht verschmutzt werden darf."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración a pasiva con 'dürfen'. El modal 'dürfen' ocupa la posición 2, y 'verschmutzt werden' al final."
+    },
+    {
+      "source": "Der Ingenieur sagt: Wir müssen die Maschine reparieren.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Der Ingenieur sagt, dass die Maschine repariert werden muss."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración a pasiva con 'müssen'. El modal 'müssen' ocupa la posición 2, y 'repariert werden' al final."
+    },
+    {
+      "source": "Die Firma erklärt: Wir können das Produkt verbessern.",
+      "instruction": "Usa dass y pasa la frase a pasiva con el modal",
+      "solutions": [
+        "Die Firma erklärt, dass das Produkt verbessert werden kann."
+      ],
+      "explanation": "Se introduce la subordinada con 'dass' y se transforma la oración a pasiva con 'können'. El modal 'können' ocupa la posición 2, y 'verbessert werden' al final."
+    }
+  ],
+  "b2-13+b1-05": [
+    {
+      "source": "Ich habe einen Freund. Sein (alt) Auto ist kaputt.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich habe einen Freund, dessen altes Auto kaputt ist."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Freund', que es masculino. El adjetivo 'alt' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Wir besuchen eine Stadt. Ihre (berühmt) Sehenswürdigkeiten sind beeindruckend.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Wir besuchen eine Stadt, deren berühmte Sehenswürdigkeiten beeindruckend sind."
+      ],
+      "explanation": "Usamos 'deren' porque el antecedente es 'Stadt', que es femenino. El adjetivo 'berühmt' se declina fuerte después de 'deren'."
+    },
+    {
+      "source": "Ich kenne ein Kind. Seine (klein) Schwester ist sehr süß.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich kenne ein Kind, dessen kleine Schwester sehr süß ist."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Kind', que es neutro. El adjetivo 'klein' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Das ist der Lehrer. Sein (neu) Buch ist ein Bestseller.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist der Lehrer, dessen neues Buch ein Bestseller ist."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Lehrer', que es masculino. El adjetivo 'neu' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Wir haben eine Nachbarin. Ihr (groß) Haus hat einen Garten.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Wir haben eine Nachbarin, deren großes Haus einen Garten hat."
+      ],
+      "explanation": "Usamos 'deren' porque el antecedente es 'Nachbarin', que es femenino. El adjetivo 'groß' se declina fuerte después de 'deren'."
+    },
+    {
+      "source": "Ich sehe einen Film. Sein (spannend) Ende überrascht alle.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich sehe einen Film, dessen spannendes Ende alle überrascht."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Film', que es masculino. El adjetivo 'spannend' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Das ist die Familie. Ihr (groß) Hund bellt oft.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist die Familie, deren großer Hund oft bellt."
+      ],
+      "explanation": "Usamos 'deren' porque el antecedente es 'Familie', que es femenino. El adjetivo 'groß' se declina fuerte después de 'deren'."
+    },
+    {
+      "source": "Ich habe ein Buch gelesen. Sein (interessant) Inhalt hat mir gefallen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich habe ein Buch gelesen, dessen interessanter Inhalt mir gefallen hat."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Buch', que es neutro. El adjetivo 'interessant' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Wir besuchen eine Schule. Ihr (modern) Gebäude ist beeindruckend.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Wir besuchen eine Schule, deren modernes Gebäude beeindruckend ist."
+      ],
+      "explanation": "Usamos 'deren' porque el antecedente es 'Schule', que es femenino. El adjetivo 'modern' se declina fuerte después de 'deren'."
+    },
+    {
+      "source": "Ich kenne einen Musiker. Sein (neu) Album ist sehr beliebt.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich kenne einen Musiker, dessen neues Album sehr beliebt ist."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Musiker', que es masculino. El adjetivo 'neu' se declina fuerte después de 'dessen'."
+    },
+    {
+      "source": "Das ist die Firma. Ihr (erfolgreich) Projekt hat viele Preise gewonnen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist die Firma, deren erfolgreiches Projekt viele Preise gewonnen hat."
+      ],
+      "explanation": "Usamos 'deren' porque el antecedente es 'Firma', que es femenino. El adjetivo 'erfolgreich' se declina fuerte después de 'deren'."
+    },
+    {
+      "source": "Ich habe einen Kollegen. Sein (kreativ) Vorschlag wurde angenommen.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Ich habe einen Kollegen, dessen kreativer Vorschlag angenommen wurde."
+      ],
+      "explanation": "Usamos 'dessen' porque el antecedente es 'Kollege', que es masculino. El adjetivo 'kreativ' se declina fuerte después de 'dessen'."
+    }
+  ],
+  "b1-05+b2-13+b1-04": [
+    {
+      "source": "Das ist das Auto von (mein neu) Nachbar. Sein Hund ist sehr freundlich.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Auto meines neuen Nachbarn, dessen Hund sehr freundlich ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Nachbarn' es masculino. El adjetivo 'neu' se declina fuerte en genitivo masculino como 'neuen'."
+    },
+    {
+      "source": "Das ist das Buch von (mein gut) Freund. Sein Inhalt ist sehr spannend.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Buch meines guten Freundes, dessen Inhalt sehr spannend ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Freundes' es masculino. El adjetivo 'gut' se declina fuerte en genitivo masculino como 'guten'."
+    },
+    {
+      "source": "Das sind die Fotos von (mein klein) Schwester. Ihre Qualität ist ausgezeichnet.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das sind die Fotos meiner kleinen Schwester, deren Qualität ausgezeichnet ist."
+      ],
+      "explanation": "Se usa 'deren' porque el antecedente 'Schwester' es femenino. El adjetivo 'klein' se declina fuerte en genitivo femenino como 'kleinen'."
+    },
+    {
+      "source": "Das ist die Wohnung von (unser alt) Lehrer. Ihr Stil ist sehr modern.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist die Wohnung unseres alten Lehrers, deren Stil sehr modern ist."
+      ],
+      "explanation": "Se usa 'deren' porque el antecedente 'Wohnung' es femenino. El adjetivo 'alt' se declina fuerte en genitivo masculino como 'alten'."
+    },
+    {
+      "source": "Das ist das Fahrrad von (ihr jung) Bruder. Sein Design ist einzigartig.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Fahrrad ihres jungen Bruders, dessen Design einzigartig ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Bruders' es masculino. El adjetivo 'jung' se declina fuerte en genitivo masculino como 'jungen'."
+    },
+    {
+      "source": "Das ist das Gemälde von (unser berühmt) Künstler. Sein Wert ist enorm.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Gemälde unseres berühmten Künstlers, dessen Wert enorm ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Künstlers' es masculino. El adjetivo 'berühmt' se declina fuerte en genitivo masculino como 'berühmten'."
+    },
+    {
+      "source": "Das ist das Projekt von (mein kreativ) Kollege. Seine Umsetzung ist beeindruckend.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Projekt meines kreativen Kollegen, dessen Umsetzung beeindruckend ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Kollegen' es masculino. El adjetivo 'kreativ' se declina fuerte en genitivo masculino como 'kreativen'."
+    },
+    {
+      "source": "Das ist das Kleid von (ihr elegant) Freundin. Sein Schnitt ist zeitlos.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Kleid ihrer eleganten Freundin, dessen Schnitt zeitlos ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Kleid' es neutro. El adjetivo 'elegant' se declina fuerte en genitivo femenino como 'eleganten'."
+    },
+    {
+      "source": "Das ist das Rezept von (mein alt) Oma. Seine Zutaten sind geheim.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Rezept meiner alten Oma, dessen Zutaten geheim sind."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Rezept' es neutro. El adjetivo 'alt' se declina fuerte en genitivo femenino como 'alten'."
+    },
+    {
+      "source": "Das ist das Spiel von (unser klein) Kinder. Seine Regeln sind einfach.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Spiel unserer kleinen Kinder, dessen Regeln einfach sind."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Spiel' es neutro. El adjetivo 'klein' se declina fuerte en genitivo plural como 'kleinen'."
+    },
+    {
+      "source": "Das ist der Garten von (mein alt) Nachbarin. Ihre Blumen sind wunderschön.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist der Garten meiner alten Nachbarin, deren Blumen wunderschön sind."
+      ],
+      "explanation": "Se usa 'deren' porque el antecedente 'Nachbarin' es femenino. El adjetivo 'alt' se declina fuerte en genitivo femenino como 'alten'."
+    },
+    {
+      "source": "Das ist das Büro von (unser neu) Chef. Sein Ausblick ist fantastisch.",
+      "instruction": "Une las frases con un pronombre relativo y declina el adjetivo entre paréntesis.",
+      "solutions": [
+        "Das ist das Büro unseres neuen Chefs, dessen Ausblick fantastisch ist."
+      ],
+      "explanation": "Se usa 'dessen' porque el antecedente 'Chefs' es masculino. El adjetivo 'neu' se declina fuerte en genitivo masculino como 'neuen'."
+    }
+  ]
+}

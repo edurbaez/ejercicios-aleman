@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 // Inserts built-in vocabulary lists into Supabase as system rows.
 // Run once after applying the migration:
-//   node scripts/seed-word-lists.js
+//   node scripts/seed-word-lists.js        (all levels)
+//   node scripts/seed-word-lists.js c1     (one level)
 // Requires .env.local with SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY.
 
 const fs   = require('fs');
@@ -82,7 +83,12 @@ async function seedFile(filePath, appId) {
     { file: 'DataC1.json', appId: 'c1', label: 'C1' },
     { file: 'DataC2.json', appId: 'c2', label: 'C2' },
   ];
-  for (const { file, appId, label } of levels) {
+  const only = process.argv[2]?.toLowerCase();
+  if (only && !levels.some(l => l.appId === only)) {
+    console.error(`Unknown level "${only}". Use one of: ${levels.map(l => l.appId).join(', ')}`);
+    process.exit(1);
+  }
+  for (const { file, appId, label } of levels.filter(l => !only || l.appId === only)) {
     const filepath = path.join(root, file);
     if (!fs.existsSync(filepath)) { console.warn(`Skipping ${label}: ${file} not found`); continue; }
     console.log(`Seeding ${label}...`);

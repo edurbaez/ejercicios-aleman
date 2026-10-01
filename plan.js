@@ -1490,7 +1490,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-06", label: "Gramática: Strukturen mit Ersatzinfinitiv", minutes: 5 },
         { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=informe", label: "Escritura: Texto con datos", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1514,7 +1515,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-12", label: "Gramática: Kausale Nebensätze: da und wobei", minutes: 5 },
         { app: "C1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura: Stellungnahme", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1538,7 +1540,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-01", label: "Repaso: lassen + sich", minutes: 5 },
         { app: "C1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura: Carta formal", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     // Semana 2 (días 7-14): repaso de las 17 reglas
@@ -1563,7 +1566,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-06", label: "Repaso: Strukturen mit Ersatzinfinitiv", minutes: 5 },
         { app: "C1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=informe", label: "Escritura: Texto con datos", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1587,7 +1591,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-12", label: "Repaso: Kausale Nebensätze: da und wobei", minutes: 5 },
         { app: "C1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura: Stellungnahme", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1611,7 +1616,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-01", label: "Repaso: lassen + sich", minutes: 5 },
         { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura: Carta formal", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1635,7 +1641,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-07", label: "Repaso: Partículas de evidencialidad", minutes: 5 },
         { app: "C1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=informe", label: "Escritura: Texto con datos", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     // Semana 3 (días 15-21): consolidación oral con chat-reformulaciones.html
@@ -1660,7 +1667,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=c1-13", label: "Reformulación: Modale Nebensätze mit indem", minutes: 5 },
         { app: "C1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura: Stellungnahme", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1684,7 +1692,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=c1-02", label: "Reformulación: sein + zu + Infinitivo", minutes: 5 },
         { app: "C1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura: Carta formal", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1708,7 +1717,8 @@ window.PLANS = {
         { app: "chat-reformulaciones.html?rule=c1-08", label: "Reformulación: Wiedergabe von Aufforderungen und Gerüchten", minutes: 5 },
         { app: "C1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=informe", label: "Escritura: Texto con datos", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1733,7 +1743,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-14", label: "Repaso: Colocaciones verbonominales", minutes: 5 },
         { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura: Stellungnahme", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1757,7 +1768,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-03", label: "Repaso: Gerundivum", minutes: 5 },
         { app: "C1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura: Carta formal", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Mündliche: Stellung nehmen", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1781,7 +1793,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-09", label: "Repaso: Formación de palabras: compuestos", minutes: 5 },
         { app: "C1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=informe", label: "Escritura: Texto con datos", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche: Diskussion", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1805,7 +1818,8 @@ window.PLANS = {
         { app: "gramatica.html#c1-15", label: "Repaso: Cohesión textual", minutes: 5 },
         { app: "C1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura: Stellungnahme", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche: Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
@@ -1828,7 +1842,8 @@ window.PLANS = {
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura breve: Carta formal", minutes: 10 },
         { app: "mundliche.html?level=C1&teil=vortrag", label: "Simulacro examen: Vortrag", minutes: 10 },
         { app: "mundliche.html?level=C1&teil=diskussion", label: "Simulacro examen: Diskussion (activar Modo examen)", minutes: 15 },
-        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Simulacro examen: Stellung nehmen", minutes: 10 }
+        { app: "mundliche.html?level=C1&teil=feedback-geben", label: "Simulacro examen: Stellung nehmen", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     }
   ],

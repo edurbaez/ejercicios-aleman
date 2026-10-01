@@ -86,10 +86,41 @@
         // Local-first: localStorage renders instantly; remote is merged in on
         // load (remote wins, same convention as word_lists/srs_progress) and
         // pushed on every save so other devices pick it up on their next load.
+        // Opened-task markers live under the reserved `_opened` key of the same
+        // jsonb ({ _opened: { c1: { "0": [true, null, true] } } }), so no migration.
+        const OPENED_REMOTE_KEY = '_opened';
+
         async function persistRemoteProgress(level, progress) {
             if (!window.currentUser || !window.sb) return;
             if (!remotePlanProgress) remotePlanProgress = {};
             remotePlanProgress[level] = progress;
+            await pushRemote();
+        }
+
+        // Skipped until the remote row is loaded: pushing a partial object would wipe
+        // the other levels' days. Clicking a task navigates away, which can also abort
+        // this request — loadRemoteProgress() re-pushes any local marks missing remotely.
+        async function persistRemoteOpened(level, opened) {
+            if (!window.currentUser || !window.sb || !remotePlanProgress) return;
+            const all = remotePlanProgress[OPENED_REMOTE_KEY] || {};
+            all[level] = opened;
+            remotePlanProgress[OPENED_REMOTE_KEY] = all;
+            await pushRemote();
+        }
+
+        // Union, not overwrite: a task opened on any device stays marked.
+        function mergeOpened(a, b) {
+            const out = {};
+            [a || {}, b || {}].forEach(function(src) {
+                Object.keys(src).forEach(function(day) {
+                    const row = out[day] || (out[day] = []);
+                    (src[day] || []).forEach(function(v, i) { if (v) row[i] = true; });
+                });
+            });
+            return out;
+        }
+
+        async function pushRemote() {
             try {
                 await window.sb.from('user_data').upsert({
                     user_id: window.currentUser.id,
@@ -107,9 +138,26 @@
                     .eq('user_id', window.currentUser.id)
                     .maybeSingle();
                 remotePlanProgress = (data && data.plan_progress) || {};
+                const remoteOpened = remotePlanProgress[OPENED_REMOTE_KEY] || {};
+                let openedChanged = false;
                 Object.keys(remotePlanProgress).forEach(function(level) {
+                    if (level === OPENED_REMOTE_KEY) return;
                     localStorage.setItem(getProgressKey(level), JSON.stringify(remotePlanProgress[level]));
                 });
+                Object.keys(PLANS).forEach(function(level) {
+                    const local = loadOpened(level);
+                    const merged = mergeOpened(remoteOpened[level], local);
+                    if (!Object.keys(merged).length) return;
+                    localStorage.setItem(getOpenedKey(level), JSON.stringify(merged));
+                    if (JSON.stringify(merged) !== JSON.stringify(mergeOpened(remoteOpened[level]))) {
+                        remoteOpened[level] = merged;
+                        openedChanged = true;
+                    }
+                });
+                if (openedChanged) {
+                    remotePlanProgress[OPENED_REMOTE_KEY] = remoteOpened;
+                    pushRemote();
+                }
                 switchLevel(activeLevel);
             } catch (e) {}
         }
@@ -129,6 +177,7 @@
 
         function saveOpened(level, opened) {
             localStorage.setItem(getOpenedKey(level), JSON.stringify(opened));
+            persistRemoteOpened(level, opened);
         }
 
         function markTaskOpened(level, dayIndex, taskIndex, dayObj, task) {
@@ -276,6 +325,9 @@
             if (!confirm('¿Reiniciar el progreso del nivel ' + activeLevel.toUpperCase() + '? Se borrarán los días completados.')) return;
 
             const progress = new Array(30).fill(false);
+            if (remotePlanProgress && remotePlanProgress[OPENED_REMOTE_KEY]) {
+                delete remotePlanProgress[OPENED_REMOTE_KEY][activeLevel];
+            }
             saveProgress(activeLevel, progress);
             localStorage.removeItem(getOpenedKey(activeLevel));
             localStorage.removeItem(getLastDayKey(activeLevel));

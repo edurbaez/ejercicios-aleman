@@ -43,6 +43,10 @@ export default async function handler(req, res) {
         return generatePractice(req, res);
     }
 
+    if (action === 'generate-mitexto') {
+        return generateMiTexto(req, res);
+    }
+
     if (!Array.isArray(messages) || messages.length === 0) {
         return res.status(400).json({ error: 'messages requerido' });
     }
@@ -297,6 +301,144 @@ async function generatePractice(req, res) {
     } catch {
         return res.status(500).json({ error: 'Error interno' });
     }
+}
+
+// ── generate-mitexto: free-reading text for Comprensión "Mi texto" ──────────────
+// Not stored server-side (the student keeps it in IndexedDB). Length matches the longest
+// text of that level's Teile session; C2's Teile aren't adapted yet, so it borrows C1's.
+
+const MITEXTO_LONGITUD_REF = { C2: 'C1' };
+const MITEXTO_N_PALABRAS = { A1: 5, A2: 6, B1: 8, B2: 10, C1: 12, C2: 12 };
+const MITEXTO_MIN_USADAS = 0.6;
+function miTextoMaxPalabras(level) {
+    const ref = MITEXTO_LONGITUD_REF[level] || level;
+    const maxTeile = Math.max(0, ...(READING_TEILE_SPECS[ref] || []).map(t => t.palabras?.[1] || 0));
+    return maxTeile || READING_SPECS[ref].maxWords;
+}
+
+// Topic names (TEMAS) and list names ("tema: …") were written independently and rarely share
+// words, so string matching misses most pairs; a tiny classification call picks the list instead.
+async function listaParaTema(tema, listas) {
+    const candidatas = listas.filter(l => l.name.startsWith('tema:'));
+    if (!candidatas.length) return null;
+    try {
+        const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                max_tokens: 40,
+                temperature: 0,
+                messages: [{ role: 'user', content: `Tema de un texto: "${tema}". ¿Cuál de estas listas de vocabulario encaja mejor con ese tema? Responde SOLO con el nombre exacto de la lista, o "ninguna" si ninguna tiene relación clara.\n${candidatas.map(l => l.name).join('\n')}` }],
+            }),
+        });
+        if (!aiRes.ok) return null;
+        const reply = ((await aiRes.json()).choices[0].message.content || '').trim().replace(/^["']|["']$/g, '');
+        return candidatas.find(l => l.name === reply) || null;
+    } catch {
+        return null;
+    }
+}
+
+function apareceEn(entrada, textoLower) {
+    const tokens = entrada.toLowerCase().replace(/^(der|die|das|ein|eine|sich)\s+/, '').split(/[\s,/()]+/).filter(Boolean);
+    const core = tokens.reduce((a, b) => (b.length > a.length ? b : a), '');
+    if (!core) return false;
+    return textoLower.includes(core.length > 5 ? core.slice(0, -2) : core);
+}
+
+function sanitizarListas(raw) {
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(0, 60)
+        .filter(l => l && typeof l.name === 'string' && Array.isArray(l.words))
+        .map(l => ({
+            name: l.name.slice(0, 80),
+            words: l.words.filter(w => typeof w === 'string' && w.trim() && w.length <= 80).slice(0, 400),
+        }))
+        .filter(l => l.words.length);
+}
+
+async function generateMiTexto(req, res) {
+    const level = String(req.body.level || '').toUpperCase();
+    if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
+        return res.status(400).json({ error: 'level inválido (A1–C2)' });
+    }
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+
+    const listas = sanitizarListas(req.body.listas);
+    if (!listas.length) return res.status(400).json({ error: 'listas requerido' });
+
+    const evitar = new Set(Array.isArray(req.body.evitarTemas) ? req.body.evitarTemas.map(String) : []);
+    const temasLibres = TEMAS[level].filter(t => !evitar.has(t));
+    const tema = pick(temasLibres.length ? temasLibres : TEMAS[level]);
+
+    let lista = listas.find(l => l.name === req.body.lista) || await listaParaTema(tema, listas);
+    if (!lista) {
+        const core = listas.filter(l => ['sustantivos', 'verbos', 'adjetivos'].includes(l.name));
+        lista = { name: 'sustantivos + verbos + adjetivos', words: (core.length ? core : listas).flatMap(l => l.words) };
+    }
+    const palabras = shuffle([...new Set(lista.words)]).slice(0, MITEXTO_N_PALABRAS[level]);
+
+    const maxWords = miTextoMaxPalabras(level);
+    const minWords = Math.round(maxWords * 0.85);
+    const parrafos = Math.max(1, Math.ceil(minWords / 55));
+    const objetivo = Math.round(maxWords * 1.3);
+    const simple = READING_SPECS[level].simple;
+
+    const prompt = `Escribe un texto de lectura en alemán de nivel ${level} con título, sobre el tema: ${tema}.
+${simple
+        ? `Usa vocabulario y gramática muy simples, apropiados para nivel ${level}, con frases cortas.`
+        : `La situación involucra a ${pick(PERSONAS)} en ${pick(LUGARES)}, ${pick(MOMENTOS)}, contada como ${pick(TONOS)}. En la historia, ${pick(CONFLICTOS)}. Vocabulario y gramática propios de nivel ${level}.`}
+
+VOCABULARIO OBLIGATORIO: el texto debe usar de forma natural TODAS estas palabras o expresiones (puedes declinarlas o conjugarlas): ${palabras.join('; ')}.
+
+LONGITUD OBLIGATORIA: unas ${objetivo} palabras${parrafos > 1 ? `, en EXACTAMENTE ${parrafos} párrafos separados por "\\n\\n", cada uno con AL MENOS 5 frases completas` : ` y al menos ${Math.ceil(minWords / 10)} frases completas`}. Un texto más corto se rechaza automáticamente.
+
+Responde SOLO con JSON válido: {"titulo": "...", "contenido": "..."} — título y contenido en alemán.`;
+
+    let lastErr = 'La IA devolvió un formato inesperado';
+    for (let intento = 1; intento <= 2; intento++) {
+        try {
+            const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    max_tokens: 3000,
+                    response_format: { type: 'json_object' },
+                    messages: [{ role: 'user', content: prompt }],
+                }),
+            });
+            if (!aiRes.ok) {
+                const err = await aiRes.json().catch(() => ({}));
+                return res.status(aiRes.status).json({ error: err?.error?.message || 'Error de OpenAI' });
+            }
+            const aiData = await aiRes.json();
+            const parsed = JSON.parse(aiData.choices[0].message.content);
+            if (!(parsed && typeof parsed.titulo === 'string' && typeof parsed.contenido === 'string')) continue;
+
+            const n = countWords(parsed.contenido);
+            if (n < Math.floor(minWords * MIN_WORDS_RATIO)) { lastErr = `Texto demasiado corto (${n} palabras)`; continue; }
+            const lower = parsed.contenido.toLowerCase();
+            const usadas = palabras.filter(p => apareceEn(p, lower));
+            if (usadas.length < palabras.length * MITEXTO_MIN_USADAS) { lastErr = 'El texto no usó el vocabulario pedido'; continue; }
+
+            return res.status(200).json({
+                titulo: parsed.titulo, contenido: parsed.contenido, tema, lista: lista.name, palabras, usadas, nPalabras: n,
+            });
+        } catch {
+            lastErr = 'Error interno';
+        }
+    }
+    return res.status(502).json({ error: lastErr });
 }
 
 // ── format_version 2: Teile-based sessions (see lecturaplan.md) ──────────────────

@@ -10,6 +10,27 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
+<style>
+#comp-a-gen { margin-bottom: 14px; }
+#comp-a-level-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.comp-a-level-pill { padding: 7px 18px; border: 2px solid var(--btn, #1976D2); border-radius: var(--radius-lg); background: transparent; color: var(--btn, #1976D2); font-size: 14px; font-weight: 600; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
+.comp-a-level-pill.active { background: var(--btn, #1976D2); color: #fff; }
+.comp-a-label { display: block; font-size: 13px; opacity: 0.75; margin-bottom: 4px; }
+#comp-a-lista { width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid var(--border, #ccc); border-radius: var(--radius); background: var(--card-bg, #fff); color: var(--text, inherit); font-size: 14px; }
+#comp-a-hist { margin-top: 16px; border-top: 1px solid var(--border, #ccc); padding-top: 10px; }
+#comp-a-hist summary { cursor: pointer; font-size: 14px; font-weight: 600; }
+.comp-a-hist-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border, #ccc); font-size: 13px; }
+.comp-a-hist-row .comp-a-hist-info { flex: 1; min-width: 0; }
+.comp-a-hist-row .comp-a-hist-info small { display: block; opacity: 0.65; }
+.comp-a-hist-badge { padding: 2px 8px; border-radius: var(--radius-lg); background: var(--btn, #1976D2); color: #fff; font-size: 12px; font-weight: 700; }
+.comp-a-hist-row button { padding: 4px 10px; cursor: pointer; }
+#comp-texto-meta { font-size: 13px; opacity: 0.85; margin-bottom: 10px; }
+.comp-vocab-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.comp-vocab-chip { padding: 2px 8px; border-radius: var(--radius-lg); border: 1px solid var(--btn, #1976D2); font-size: 12px; }
+.comp-vocab-chip.off { opacity: 0.4; border-style: dashed; }
+mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent); color: inherit; border-radius: 3px; padding: 0 2px; }
+.dark mark.comp-vocab-mark { background: color-mix(in srgb, #ffb300 45%, transparent); }
+</style>
 </head>
 <body id="page-lv">
     <nav id="navbar">
@@ -138,8 +159,25 @@
         </div>
 
         <div id="comp-mode-A" class="comp-mode-section" style="display:none">
-            <textarea id="comp-texto-input" placeholder="Pega aquí un texto en alemán..."></textarea>
+            <div id="comp-a-gen">
+                <div id="comp-a-level-pills">
+                    <button class="comp-a-level-pill" data-level="A1">A1</button>
+                    <button class="comp-a-level-pill" data-level="A2">A2</button>
+                    <button class="comp-a-level-pill" data-level="B1">B1</button>
+                    <button class="comp-a-level-pill" data-level="B2">B2</button>
+                    <button class="comp-a-level-pill" data-level="C1">C1</button>
+                    <button class="comp-a-level-pill" data-level="C2">C2</button>
+                </div>
+                <label for="comp-a-lista" class="comp-a-label">Lista de vocabulario</label>
+                <select id="comp-a-lista"><option value="">Automática (según el tema)</option></select>
+                <button class="btn comp-action-btn" id="comp-a-gen-btn">✨ Generar texto</button>
+            </div>
+            <textarea id="comp-texto-input" placeholder="O pega aquí un texto en alemán..."></textarea>
             <button class="btn comp-action-btn" id="comp-generar-btn">Generar preguntas</button>
+            <details id="comp-a-hist">
+                <summary>🗂️ Mis textos generados</summary>
+                <div id="comp-a-hist-list"></div>
+            </details>
         </div>
 
         <div id="comp-mode-B" class="comp-mode-section">
@@ -163,6 +201,7 @@
 
         <div id="comp-texto-display" style="display:none">
             <h3 id="comp-texto-titulo"></h3>
+            <div id="comp-texto-meta" style="display:none"></div>
             <div id="comp-texto-contenido"></div>
         </div>
 
@@ -592,9 +631,12 @@
 
         function initDB() {
             return new Promise((resolve, reject) => {
-                const req = indexedDB.open('lecturaVeloz', 2);
+                const req = indexedDB.open('lecturaVeloz', 3);
                 req.onupgradeneeded = e => {
                     const d = e.target.result;
+                    if (!d.objectStoreNames.contains('generados')) {
+                        d.createObjectStore('generados', { keyPath: 'id', autoIncrement: true });
+                    }
                     if (!d.objectStoreNames.contains('textos')) {
                         d.createObjectStore('textos', { keyPath: 'id', autoIncrement: true });
                     }
@@ -1647,6 +1689,8 @@
             document.querySelectorAll('.comp-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
             document.getElementById('comp-mode-A').style.display = mode === 'A' ? 'block' : 'none';
             document.getElementById('comp-mode-B').style.display = mode === 'B' ? 'block' : 'none';
+            document.getElementById('comp-texto-meta').style.display = 'none';
+            if (mode === 'A') compARefreshListas();
             document.getElementById('comp-texto-display').style.display = 'none';
             document.getElementById('comp-preguntas').style.display = 'none';
             document.getElementById('comp-teil-selector').style.display = 'none';
@@ -1781,8 +1825,7 @@
 
                 loading.style.display = 'none';
 
-                document.getElementById('comp-texto-titulo').textContent = 'Texto';
-                document.getElementById('comp-texto-contenido').textContent = texto;
+                compMostrarTextoA(texto);
                 display.style.display = 'block';
 
                 compRenderPreguntas();
@@ -1856,6 +1899,7 @@
             compPreguntas = [];
             compRespuestas = [];
             lvPendiente = null;
+            compTextoGenerado = null;
             compClearError();
             document.getElementById('comp-texto-input').value = '';
             document.getElementById('comp-texto-display').style.display = 'none';
@@ -1866,6 +1910,182 @@
         }
 
         document.getElementById('comp-generar-btn').addEventListener('click', compGenerarPreguntas);
+
+        /* ---- Modo A: generar texto con vocabulario de una lista ---- */
+        const COMP_A_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+        const COMP_GEN_KEEP = 30;
+        let compTextoGenerado = null;
+        let compALevel = (() => {
+            const s = (localStorage.getItem('comp_a_level') || '').toUpperCase();
+            return COMP_A_LEVELS.includes(s) ? s : (lvNivelAlumno() || 'A1');
+        })();
+
+        function compGenStore(mode, fn) {
+            return getDB().then(d => new Promise((resolve, reject) => {
+                const store = d.transaction('generados', mode).objectStore('generados');
+                const req = fn(store);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = e => reject(e.target.error);
+            }));
+        }
+
+        async function compGenListar() {
+            try {
+                const all = await compGenStore('readonly', s => s.getAll());
+                return (all || []).sort((a, b) => b.fecha - a.fecha);
+            } catch { return []; }
+        }
+
+        async function compGenGuardar(entry) {
+            try {
+                await compGenStore('readwrite', s => s.add(entry));
+                const all = await compGenListar();
+                for (const old of all.slice(COMP_GEN_KEEP)) await compGenStore('readwrite', s => s.delete(old.id));
+            } catch (e) { console.error('[CompGenerados]', e); }
+        }
+
+        function compASetLevel(level) {
+            compALevel = level;
+            localStorage.setItem('comp_a_level', level);
+            document.querySelectorAll('.comp-a-level-pill').forEach(p => p.classList.toggle('active', p.dataset.level === level));
+            compARefreshListas();
+        }
+
+        async function compARefreshListas() {
+            const sel = document.getElementById('comp-a-lista');
+            const level = compALevel;
+            sel.length = 1;
+            sel.value = '';
+            try {
+                const cats = await sprintLevelCategorized(level.toLowerCase());
+                if (level !== compALevel) return;
+                Object.keys(cats).forEach(name => {
+                    const o = document.createElement('option');
+                    o.value = name;
+                    o.textContent = name + ' (' + cats[name].length + ')';
+                    sel.appendChild(o);
+                });
+            } catch {}
+        }
+
+        function compVocabStem(entry) {
+            const tokens = String(entry).split(/[^\p{L}]+/u).filter(t => t && !/^(der|die|das|ein|eine|sich)$/i.test(t));
+            let stem = tokens.sort((a, b) => b.length - a.length)[0] || '';
+            if (stem.length > 5) stem = stem.slice(0, -2);
+            return stem.length >= 3 ? stem : '';
+        }
+
+        function compResaltarVocab(texto, usadas) {
+            const stems = [...new Set((usadas || []).map(compVocabStem).filter(Boolean))]
+                .sort((a, b) => b.length - a.length)
+                .map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+            if (!stems.length) return escHtml(texto);
+            const re = new RegExp('[\\p{L}]*(?:' + stems.join('|') + ')[\\p{L}]*', 'giu');
+            let out = '', last = 0, m;
+            while ((m = re.exec(texto)) !== null) {
+                out += escHtml(texto.slice(last, m.index)) + '<mark class="comp-vocab-mark">' + escHtml(m[0]) + '</mark>';
+                last = m.index + m[0].length;
+                if (m[0].length === 0) re.lastIndex++;
+            }
+            return out + escHtml(texto.slice(last));
+        }
+
+        function compMostrarTextoA(texto) {
+            const titulo = document.getElementById('comp-texto-titulo');
+            const meta = document.getElementById('comp-texto-meta');
+            const cont = document.getElementById('comp-texto-contenido');
+            const g = compTextoGenerado;
+            if (g && texto.trim() === String(g.contenido).trim()) {
+                titulo.textContent = g.titulo || 'Texto';
+                const usadasSet = new Set(g.usadas || []);
+                meta.innerHTML = 'Tema: ' + escHtml(g.tema || '-') + ' · Lista: ' + escHtml(g.lista || '-') + ' · ' + (g.palabras || []).length + ' palabras' +
+                    '<div class="comp-vocab-chips">' + (g.palabras || []).map(w =>
+                        '<span class="comp-vocab-chip' + (usadasSet.has(w) ? '' : ' off') + '">' + escHtml(w) + '</span>').join('') + '</div>';
+                meta.style.display = 'block';
+                cont.innerHTML = compResaltarVocab(texto, g.usadas);
+            } else {
+                titulo.textContent = 'Texto';
+                meta.style.display = 'none';
+                cont.textContent = texto;
+            }
+        }
+
+        async function compGenerarTexto() {
+            compClearError();
+            const level = compALevel;
+            const listaSel = document.getElementById('comp-a-lista').value;
+            const loading = document.getElementById('comp-loading');
+            const btns = [document.getElementById('comp-a-gen-btn'), document.getElementById('comp-generar-btn')];
+            loading.style.display = 'block';
+            btns.forEach(b => b.disabled = true);
+            try {
+                const cats = await sprintLevelCategorized(level.toLowerCase());
+                const todas = Object.entries(cats).map(([name, pairs]) => ({ name, words: pairs.map(p => p.de) }));
+                if (!todas.length) { compShowError('No se pudo cargar el vocabulario de ' + level + '. Intenta de nuevo.', compGenerarTexto); return; }
+                const body = { action: 'generate-mitexto', level };
+                if (listaSel && cats[listaSel]) {
+                    body.lista = listaSel;
+                    body.listas = todas.filter(l => l.name === listaSel);
+                } else {
+                    body.listas = todas;
+                }
+                const previos = (await compGenListar()).filter(e => e.level === level).slice(0, 4).map(e => e.tema).filter(Boolean);
+                if (previos.length) body.evitarTemas = previos;
+
+                const token = window.getAuthToken ? await window.getAuthToken() : null;
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+                const res = await fetch('/api/chat', { method: 'POST', headers, body: JSON.stringify(body) });
+                const raw = await res.text();
+                if (!res.ok) { compShowError(friendlyApiError('CompGenerarTexto', 'Error del servidor (' + res.status + '): ' + raw.slice(0, 120)), compGenerarTexto); return; }
+                let data;
+                try { data = JSON.parse(raw); } catch { compShowError(friendlyApiError('CompGenerarTexto', 'Respuesta inválida del servidor: ' + raw.slice(0, 120)), compGenerarTexto); return; }
+                if (!data?.contenido) { compShowError(friendlyApiError('CompGenerarTexto', data?.error || 'Texto vacío'), compGenerarTexto); return; }
+
+                const entry = {
+                    level, titulo: data.titulo || '', contenido: data.contenido, tema: data.tema || '', lista: data.lista || '',
+                    palabras: data.palabras || [], usadas: data.usadas || [], nPalabras: data.nPalabras || 0, fecha: Date.now()
+                };
+                compTextoGenerado = entry;
+                document.getElementById('comp-texto-input').value = entry.contenido;
+                await compGenGuardar(entry);
+                compRenderHistorialGen();
+                await compGenerarPreguntas();
+            } catch (err) {
+                compShowError(friendlyApiError('CompGenerarTexto', err), compGenerarTexto);
+            } finally {
+                btns.forEach(b => b.disabled = false);
+                loading.style.display = 'none';
+            }
+        }
+
+        async function compRenderHistorialGen() {
+            const box = document.getElementById('comp-a-hist-list');
+            const list = (await compGenListar()).slice(0, 10);
+            window._compGenCache = list;
+            if (!list.length) { box.innerHTML = '<p style="font-size:13px;opacity:0.65;padding:8px 0">Aún no has generado textos.</p>'; return; }
+            box.innerHTML = list.map((e, i) => `
+                <div class="comp-a-hist-row">
+                    <span class="comp-a-hist-badge">${escHtml(e.level)}</span>
+                    <div class="comp-a-hist-info">${escHtml(e.titulo || 'Texto')}<small>${escHtml(e.tema || '')} · ${new Date(e.fecha).toLocaleDateString('es')}</small></div>
+                    <button onclick="compUsarGenerado(${i})">Usar</button>
+                </div>`).join('');
+        }
+
+        function compUsarGenerado(i) {
+            const e = (window._compGenCache || [])[i];
+            if (!e) return;
+            if (COMP_A_LEVELS.includes(e.level) && e.level !== compALevel) compASetLevel(e.level);
+            compTextoGenerado = e;
+            document.getElementById('comp-texto-input').value = e.contenido;
+            compGenerarPreguntas();
+        }
+
+        document.querySelectorAll('.comp-a-level-pill').forEach(p => p.addEventListener('click', () => compASetLevel(p.dataset.level)));
+        document.getElementById('comp-a-gen-btn').addEventListener('click', compGenerarTexto);
+        document.querySelectorAll('.comp-a-level-pill').forEach(p => p.classList.toggle('active', p.dataset.level === compALevel));
+        compARefreshListas();
+        compRenderHistorialGen();
 
         // comp-reintentar-btn es compartido: Modo A llama compReintentar(), Modo B llama modoB_reset().
         document.getElementById('comp-reintentar-btn').addEventListener('click', function() {

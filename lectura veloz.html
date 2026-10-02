@@ -1535,7 +1535,7 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
                 if (!res.ok) throw new Error('Error del servidor (' + res.status + ')');
                 let data;
                 try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
-                traduccion = (data && data.choices && data.choices[0] && data.choices[0].message.content || '')
+                traduccion = (data?.reply || '')
                     .trim().replace(/^["']+|["'.]+$/g, '');
                 if (!traduccion) throw new Error('El modelo no devolvió traducción');
                 window.sb.from('diccionario_cache').upsert({ id: clave, palabra, traduccion })
@@ -1795,7 +1795,9 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
                                 content: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0,"explicacion": "una frase breve en español explicando por qué es correcta"}]}'
                             },
                             { role: 'user', content: texto }
-                        ]
+                        ],
+                        max_tokens: 1200,
+                        json: true
                     })
                 });
 
@@ -1808,7 +1810,7 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
                 let data;
                 try { data = JSON.parse(raw); } catch { compShowError(friendlyApiError('CompModoA', 'Respuesta inválida del servidor: ' + raw.slice(0, 120)), compGenerarPreguntas); return; }
 
-                const content = data?.choices?.[0]?.message?.content || '';
+                const content = data?.reply || '';
                 let parsed;
                 try {
                     const jsonStr = content.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/, '').trim();

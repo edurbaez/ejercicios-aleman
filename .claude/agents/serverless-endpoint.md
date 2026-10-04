@@ -16,6 +16,6 @@ When writing an endpoint:
 - Match the existing shape: `Authorization: Bearer <supabase_jwt>` auth, per-user rate limiting via `createRateLimiter()`, optional `ALLOWED_ORIGIN` check, payload size caps on user-controlled text sent to the LLM.
 - Never hardcode API keys or secrets — always read from `process.env`, and confirm any new required env var is documented (tell the user to add it in Vercel + `.env.local`, and note it in `CLAUDE.md`'s Environment Variables table).
 - If the endpoint costs money (calls OpenAI/DeepSeek/etc.), it must call `checkAccess()` — omitting this is a real bug class in this repo, not a style nit.
-- Test locally with `vercel dev` when feasible rather than assuming correctness; note the known `vercel dev` bug where filenames containing spaces 404 (documented in `CLAUDE.md`).
+- Test locally with `vercel dev` when feasible rather than assuming correctness; note the known `vercel dev` bug where filenames containing spaces 404 (documented in `docs/dev/browser-validation.md`).
 
-If your change adds a new file, update the API table in `CLAUDE.md` before finishing.
+If your change adds a new file, add a one-line row to the API group of the root `CLAUDE.md` index and its full description to the API table in `api/CLAUDE.md` before finishing (also update `api/CLAUDE.md` when an endpoint's behavior changes).

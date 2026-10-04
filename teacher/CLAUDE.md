@@ -1,0 +1,18 @@
+# teacher/
+
+Loaded automatically by Claude Code when files in this directory are read. Split out of the root `CLAUDE.md` (which keeps a one-line index entry per file); keep in sync per the root Maintenance rule.
+
+## Active Files row
+
+| File | Purpose |
+|------|---------|
+| `teacher/index.html` | Admin/teacher-only class planner at `/teacher/`. Verifies admin role on load (redirects to `/` if not admin). Level selector (pill buttons, `LEVELS` config array) switches between `teacher/clases-a1.js`/`clases-a2.js`/`clases-b1.js`/`clases-b2.js` (all four preloaded via `<script>`, no dynamic import) — `window.TEACHER_CLASES[level]` and `GRAMMAR_DATA[grammarKey]` are re-resolved per selection, persisted as `teacher_level` in localStorage. C1/C2 show as disabled pills (`LEVELS[].available: false`) until their `clases-{nivel}.js`/`plan.js` exist — enabling a level is a one-line change once the data file lands. Per selected level, cross-references rule ids against `GRAMMAR_DATA.{NIVEL}` to show, per week of that level's 30-day `plan.js`, the grammar content for the Tuesday and Thursday class (fixed mapping: martes = day 2 of the week, jueves = day 4 — a student starting the app on Monday reaches Tuesday's class already having studied day 2). Read-only in this phase: no editing UI yet for teacher-added tips/examples beyond what's in `gramatica.html`. No navbar from main apps; teal theme (`#00695C`), same as `kasus.html`. |
+
+## Data
+
+| File | Purpose |
+|------|---------|
+| `teacher/clases-a1.js` | Class-content mapping for A1: `window.TEACHER_CLASES.a1` — 30 flat day objects (`{ day, semana, focus, ruleIds[], esClaseEnVivo, contenido.reglas[] }`), cross-referencing `PLANS.a1` (`plan.js`) against the 21 rules of `GRAMMAR_DATA.A1` (`grammar-data-a1.js`). Same martes/jueves live-class calendar as B1 (days 2, 4, 9, 11, 16, 18, 23, 25). Internally built from a `RULES` map + `base(id)`/`repaso(id, nota)` helpers (IIFE) instead of literal per-day duplication like `clases-b1.js`, to avoid the same rule's pedagogical content drifting out of sync across the several days that repeat it — `window.TEACHER_CLASES.a1` still resolves to the same flat 30-object array shape `teacher/index.html` expects. Not yet wired into `teacher/index.html` (still hardcoded to `.b1`; a level selector is pending, see `teacher/plan.md` tarea 5). |
+| `teacher/clases-a2.js` | Class-content mapping for A2: `window.TEACHER_CLASES.a2` — same shape/pattern as `clases-a1.js` (`RULES` map + `base(id)`/`repaso(id, nota)` helpers, 30 flat day objects), cross-referencing `PLANS.a2` (`plan.js`) against the 21 rules of `GRAMMAR_DATA.A2` (`grammar-data-a2.js`, ids `a2-01`…`a2-23` minus the two renumbered to A1). Same live-class calendar as A1/B1 (days 2, 4, 9, 11, 16, 18, 23, 25). Not yet wired into `teacher/index.html` (pending level selector, `teacher/plan.md` tarea 5). |
+| `teacher/clases-b1.js` | Class-content mapping for B1: `window.TEACHER_CLASES.b1` — 30 flat day objects (`{ day, semana, focus, ruleIds[], esClaseEnVivo, contenido.reglas[] }`), same shape as `clases-a1.js`/`clases-a2.js`, cross-referencing `PLANS.b1` (`plan.js`) against the 31 rules of `GRAMMAR_DATA.B1`. Same martes/jueves live-class calendar as A1/A2 (days 2, 4, 9, 11, 16, 18, 23, 25). Used by `teacher/index.html`. |
+| `teacher/clases-b2.js` | Class-content mapping for B2: `window.TEACHER_CLASES.b2` — same shape/pattern as `clases-a1.js`/`clases-a2.js` (`RULES` map + `base(id)`/`repaso(id, nota)` helpers, 30 flat day objects), cross-referencing `PLANS.b2` (`plan.js`) against the 17 rules of `GRAMMAR_DATA.B2` (`grammar-data-b2.js`, ids `b2-01`…`b2-17`). Same live-class calendar as A1/A2/B1 (days 2, 4, 9, 11, 16, 18, 23, 25). Wired into `teacher/index.html` (B2 pill enabled). |

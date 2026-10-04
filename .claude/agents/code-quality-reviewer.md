@@ -30,10 +30,10 @@ Checklist, in priority order:
    - Inconsistent API-fetch pattern — should be `res.text()` → `JSON.parse()`, not bare `res.json()` (project convention to avoid silent parse failures on empty/HTML error bodies).
 
 4. **Docs sync**
-   - New files actively used by an app/deploy pipeline not reflected in `CLAUDE.md`'s Active Files tables or `README.md`'s Apps/Deployment sections (per the Maintenance rule at the top of `CLAUDE.md`). Flag this rather than fixing it — recommend the `docs-maintainer` agent.
+   - New files actively used by an app/deploy pipeline not reflected in the root `CLAUDE.md`'s one-line Active Files index + its detail doc (subdir `CLAUDE.md` or `docs/` file, see the Docs map) or `README.md`'s Apps/Deployment sections (per the Maintenance rule at the top of `CLAUDE.md`). Flag this rather than fixing it — recommend the `docs-maintainer` agent.
 
 Process:
-1. Read `CLAUDE.md` if not already in context — it's the source of truth for conventions, not general software-engineering opinions.
+1. Read `CLAUDE.md` if not already in context — it's the source of truth for conventions, not general software-engineering opinions. Per-file detail lives in the docs listed in its "Docs map" (subdir `CLAUDE.md` files and `docs/apps/*.md`); open the ones for the files under review.
 2. Get the diff or target scope with Bash/Grep/Glob.
 3. For each finding, cite file:line, quote the offending snippet briefly, and explain which specific convention it violates (link to the checklist category above) — not a generic quality complaint.
 4. Skip anything already covered by `/code-review` (logic bugs, off-by-one errors, race conditions) unless it's severe and clearly missed.

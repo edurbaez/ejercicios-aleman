@@ -1,0 +1,9 @@
+# escritura.html
+
+Detail doc split out of the root `CLAUDE.md` (which keeps a one-line index entry per file). Keep this file in sync per the root Maintenance rule.
+
+## Active Files row
+
+| File | Purpose |
+|------|---------|
+| `escritura.html` | Writing practice app. Level selector (A1–C2) + task-type selector; generates Goethe/telc-style writing tasks (situation and Leitpunkte fully in German, vocabulary adapted to the selected level) via `/api/chat` using per-level specs (`LEVEL_SPECS`) and per-level topic banks (`TEMAS`). Next task is prefetched in background; task + draft persisted in `localStorage` (`esc_tarea`, `esc_draft`) across reloads. User writes in a textarea with live word count showing progress against the task's range ("62 / 70–100 palabras"); a second `/api/chat` call evaluates the text (always at the task's level `t.level`, not the currently selected pill — a hint warns when both diverge) and returns JSON: score 0–100, Leitpunkte checklist, register check, error cards (original → correction + explanation + category), improved version (corrected fragments highlighted via `highlightImproved()`), and overall comment. Inline warnings replace `alert`/`confirm`. Optional "⏱️ Modo examen" countdown per level (A1 15 min → C2 80 min, persisted as `esc_exam`). Local history of last 20 evaluations in IndexedDB `escritura-db` (panel "📚 Mis textos", same pattern as `corrector.js`; entries reload task + text + evaluation). Alternatively the student can handwrite the text and submit a photo (upload/camera/drag-and-drop, client-side compression to JPEG ≤1600px) which is evaluated via `/api/vision` with `type: 'escritura'` — same evaluation schema plus a transcription of the handwriting. Level persisted as `esc_level` (falls back to `onboarding_level`). All JS inline. Indigo theme (`#303F9F`). |

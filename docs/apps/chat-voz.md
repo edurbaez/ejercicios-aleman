@@ -1,0 +1,9 @@
+# chat-voz.html
+
+Detail doc split out of the root `CLAUDE.md` (which keeps a one-line index entry per file). Keep this file in sync per the root Maintenance rule.
+
+## Active Files row
+
+| File | Purpose |
+|------|---------|
+| `chat-voz.html` | Voice conversation app: hold-to-record sends audio to Whisper (STT), AI replies via GPT-4o-mini, response read aloud via browser TTS. Selectable CEFR level (A1–C2) and masculine/feminine voice. Roleplay scenarios (7 built-in + user-created ones via the "Personalizar" modal) are persisted: the selected scenario in `localStorage` (`cv_selected_scenario`, rehydrated by `restoreSelectedScenario()` at init without any API call — the persona comes from its `cv_rol_cache_<key>` cache), and the custom scenarios themselves synced cross-device to `user_data.cv_scenarios` (`mergeRemoteScenarios()`, merge by `key` + `deleted` tombstones, migration 021). Botón 📖 "Vocabulario de la conversación" (`openVocabModal()`/`fetchVocabResumen()`): manda el transcript acumulado (`State.messages`, roles etiquetados ESTUDIANTE/LEHRER, delimitado con `<<< >>>` + nota de ignorar instrucciones embebidas) a `/api/chat` con `temperature: 0.2` y pide un array JSON `[{de, es, tipo, ejemplo}]` con las 8-12 palabras/expresiones más relevantes para el nivel activo, priorizando lo que dijo la IA (input nuevo) sobre lo que dijo el alumno; se renderiza en un modal (`#vocabModal`, clases `.cv-vocab-*` en `styles.css`) donde tocar una entrada la pronuncia vía `speak()`. Resultado cacheado en memoria por cantidad de turnos (`vocabCache`, reseteado en `startConversation()`/`newConversation()`) para no repetir la llamada al reabrir el modal; botón "Actualizar" fuerza la regeneración. Solo visualización: no escribe en `word_lists` ni en el SRS. Subject to the 60-min/day voice-STT cap shared across all voice apps (see "Voice-STT daily usage cap" below). |

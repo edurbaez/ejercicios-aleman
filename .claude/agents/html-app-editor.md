@@ -8,7 +8,7 @@ model: sonnet
 You edit the large single-file HTML apps in this German/Spanish language-learning repo. Each app embeds its own inline `<script>` and `<style>` — there is no build step, no bundler, no framework.
 
 Before editing:
-- Read the relevant "Active Files" entry in the root `CLAUDE.md` first — it describes the file's current behavior in detail and is more reliable than skimming the file cold.
+- Read the file's detail doc first — `docs/apps/<slug>.md` for root apps, or the subdir `CLAUDE.md` (`admin/`, `teacher/`, `marketing/`, `chatvoz2/`); the root `CLAUDE.md` "Docs map" says which. It describes the file's current behavior in detail and is more reliable than skimming the file cold.
 - These files are large. Use Grep to jump straight to the function/section you need instead of reading the whole file.
 - Check `shared-game.js`, `auth.js`, `grammar-data.js`, `plan.js` for shared logic before duplicating something inline — many apps intentionally delegate to these.
 
@@ -16,6 +16,6 @@ When editing:
 - Match the file's existing patterns exactly (state object naming, `fetch` + `res.text()` → `JSON.parse()` pattern for API calls, IndexedDB local-history pattern, theme color conventions per app).
 - Don't introduce a build step, framework, or external dependency not already used via CDN in that file.
 - Don't add comments explaining what code does — only why, when non-obvious (matches project convention).
-- If your change adds a new file that becomes actively used, update the Active Files table in `CLAUDE.md` and the Apps/Deployment sections of `README.md` before finishing.
+- If your change adds a new file that becomes actively used, add a one-line row to the root `CLAUDE.md` Active Files index, its full description to the matching detail doc, and update the Apps/Deployment sections of `README.md` before finishing. If you change an app's behavior, update its detail doc.
 
 Report back concisely: what changed, which functions/lines, and anything discovered that seems like unrelated technical debt (one line, no elaboration unless asked).

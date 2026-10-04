@@ -1220,7 +1220,7 @@ async function _syncRuleSRSFromSupabase() {
 
 // quality: 'correct' | 'partial' | 'incorrect' — also accepts a legacy boolean
 // (true='correct', false='incorrect') from the dynamic AI-fallback call site (sendToAI),
-// left untouched on purpose (see CLAUDE.md scope note for this file).
+// left untouched on purpose (see docs/apps/chat-reformulaciones.md scope note for this file).
 async function updateRuleSRS(ruleId, quality) {
     const now  = Date.now();
     const card = State._ruleSrsCache.get(ruleId) || { rule_id: ruleId, ease: 2.5, interval: 1, reps: 0, due: now };

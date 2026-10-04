@@ -42,7 +42,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `chatvoz2/index.html` | Second voice chat via `/api/deepseek-chat`, scenarios with missions, multi-language, grammar focus. Detail: `chatvoz2/CLAUDE.md` |
 | `corrector.html` | Grammar correction of photos (`/api/vision`) or pasted text (`/api/chat`). Detail: `docs/apps/corrector.md` |
 | `escritura.html` | Goethe/telc-style writing tasks + AI evaluation (text or handwritten photo). Detail: `docs/apps/escritura.md` |
-| `kasus.html` | Case trainer (articles/adjective declension), AI-generated + verified exercises. Detail: `docs/apps/kasus.md` |
+| `kasus.html` | Case trainer per level (articles, possessives, pronouns, adjectives, n-Deklination), shared verified bank, write mode, weak points. Detail: `docs/apps/kasus.md` |
 | `mundliche.html` | Oral exam (Mündliche Prüfung) trainer per Teil and level, voice + rubric evaluation, Simulacro completo. Detail: `docs/apps/mundliche.md` |
 | `chat-reformulaciones.html` | Umformung practice (rules / 🔗 Combos) from pregenerated banks, hybrid evaluation, rule SRS. Detail: `docs/apps/chat-reformulaciones.md` |
 | `gramatica.html` | Grammar rules SPA per level (accordion) with "🎯 Practicar" quiz and Modo Examen. Detail: `docs/apps/gramatica.md` |
@@ -58,7 +58,8 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 
 | File | Purpose |
 |------|---------|
-| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-mitexto`. |
+| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-kasus`, `generate-mitexto`. |
+| `_kasus.js` | Level config + server-side prompt/validator for `generate-kasus` (`kasus.html`); not a function (`_` prefix). |
 | `_reading-topics.js` | Shared data for `generate-reading` (`TEMAS`, `READING_SPECS`, `READING_TEILE_SPECS`…); not a function (`_` prefix). |
 | `whisper.js` | Audio transcription, model forced server-side to `gpt-4o-mini-transcribe`; enforces voice-STT daily cap. |
 | `vision.js` | GPT-4o vision: `tarea`/`carta`/`frases`/`escritura`/`style-analysis`. |
@@ -123,6 +124,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `020_device_trials.sql` | `device_trials` + `claim_device_trial()`. |
 | `021_user_data_cv_scenarios.sql` | `user_data.cv_scenarios`. |
 | `022_reading_sessions.sql` | `reading_sessions`. |
+| `023_feedback_reports_contexto.sql` | `feedback_reports.contexto` (jsonb) for per-exercise reports. |
 
 ### PWA & Deploy
 

@@ -396,7 +396,7 @@ function renderRuleCard(rule, i, read, showLevel) {
     '<button class="gram-quiz-btn" onclick="startQuiz(\'' + rule.id + '\')">&#127919; Practicar</button>' +
     '<button class="gram-quiz-btn" onclick="copyRuleLink(\'' + rule.id + '\')">&#128279; Copiar enlace</button>' +
     (KASUS_LINKS[rule.id]
-      ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?caso=' + KASUS_LINKS[rule.id] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
+      ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?nivel=' + rule.id.slice(0, 2) + '&caso=' + KASUS_LINKS[rule.id] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
       : '') +
     '</div></div>' +
     (isOpen
@@ -769,7 +769,7 @@ function resetQuiz(ruleId) {
       '<button class="gram-quiz-btn" onclick="startQuiz(\'' + ruleId + '\')">&#127919; Practicar</button>' +
       '<button class="gram-quiz-btn" onclick="copyRuleLink(\'' + ruleId + '\')">&#128279; Copiar enlace</button>' +
       (KASUS_LINKS[ruleId]
-        ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?caso=' + KASUS_LINKS[ruleId] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
+        ? '<a class="gram-quiz-btn gram-kasus-link" href="kasus.html?nivel=' + ruleId.slice(0, 2) + '&caso=' + KASUS_LINKS[ruleId] + '" target="_blank">&#127919; Ver en Kasus-Trainer</a>'
         : '') +
     '</div>';
 }

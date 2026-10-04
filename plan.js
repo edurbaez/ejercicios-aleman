@@ -19,7 +19,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
         { app: "gramatica.html#a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
-        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "kasus.html?nivel=a1&caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
         { app: "A1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
         { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
@@ -127,7 +127,7 @@ window.PLANS = {
       focus: "Negación: nicht y kein + Acusativo básico + Artikel interrogativ und demonstrativ",
       tasks: [
         { app: "chat-reformulaciones.html?rule=a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
-        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "kasus.html?nivel=a1&caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
         { app: "gramatica.html#a1-13", label: "Gramática: Artikel interrogativ und demonstrativ", minutes: 5 },
         { app: "A1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
@@ -175,7 +175,7 @@ window.PLANS = {
       day: 15, week: 3,
       focus: "Acusativo aplicado: artículos, artículo indefinido negado y pronombres",
       tasks: [
-        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "kasus.html?nivel=a1&caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
         { app: "chat-reformulaciones.html?rule=a1-10", label: "Gramática: Artículo indefinido y su negación", minutes: 5 },
         { app: "gramatica.html#a1-14", label: "Gramática: Personalpronomen: Akkusativ und Dativ", minutes: 5 },
         { app: "A1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 5 },
@@ -274,7 +274,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a1-04", label: "Gramática: Presente verbos regulares", minutes: 5 },
         { app: "gramatica.html#a1-05", label: "Gramática: Negación: nicht y kein", minutes: 5 },
-        { app: "kasus.html?caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
+        { app: "kasus.html?nivel=a1&caso=Akkusativ&relleno=articulo", label: "Gramática: Acusativo básico", minutes: 5 },
         { app: "A1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=A1&tipo=postal", label: "Escritura: Postal", minutes: 15 },
         { app: "mundliche.html?level=A1&teil=frage-antwort", label: "Mündliche: Fragen und Antworten", minutes: 10 }
@@ -368,7 +368,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a2-01", label: "Gramática: Verbos modales", minutes: 5 },
         { app: "gramatica.html#a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
-        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
         { app: "A2.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Sich vorstellen", minutes: 10 }
@@ -380,7 +380,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
         { app: "gramatica.html#a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
-        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
         { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
@@ -451,7 +451,7 @@ window.PLANS = {
       day: 8, week: 2,
       focus: "Dativo: caso, verbos con doble objeto y verbos de Dativo",
       tasks: [
-        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
         { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
         { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
         { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
@@ -465,7 +465,7 @@ window.PLANS = {
       tasks: [
         { app: "chat-reformulaciones.html?rule=a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
         { app: "chat-reformulaciones.html?rule=a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
-        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
         { app: "A2.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
@@ -560,7 +560,7 @@ window.PLANS = {
       day: 17, week: 3,
       focus: "Repaso: Dativo (artículos, verbos con Akk./Dativ y verbos de Dativo)",
       tasks: [
-        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
         { app: "gramatica.html#a2-12", label: "Gramática: Verben mit Akkusativ und Dativ", minutes: 5 },
         { app: "gramatica.html#a2-13", label: "Gramática: Verben mit Dativ", minutes: 5 },
         { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
@@ -574,7 +574,7 @@ window.PLANS = {
       tasks: [
         { app: "chat-reformulaciones.html?rule=a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
         { app: "chat-reformulaciones.html?rule=a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
-        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
         { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=invitacion", label: "Escritura: invitación", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=gemeinsam-planen", label: "Mündliche: Gemeinsam etwas planen", minutes: 10 }
@@ -623,7 +623,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a2-01", label: "Gramática: Verbos modales", minutes: 5 },
         { app: "gramatica.html#a2-02", label: "Gramática: Pretérito perfecto (Perfekt)", minutes: 5 },
-        { app: "kasus.html?caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Dativ&relleno=articulo", label: "Gramática: Dativo", minutes: 5 },
         { app: "A2.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=email", label: "Escritura: email", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=vorstellung", label: "Mündliche: Vorstellung", minutes: 10 }
@@ -635,7 +635,7 @@ window.PLANS = {
       tasks: [
         { app: "gramatica.html#a2-04", label: "Gramática: Preposiciones + Acusativo", minutes: 5 },
         { app: "gramatica.html#a2-05", label: "Gramática: Preposiciones + Dativo", minutes: 5 },
-        { app: "kasus.html?caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
+        { app: "kasus.html?nivel=a2&caso=Wechsel&relleno=articulo", label: "Gramática: Wechselpräpositionen", minutes: 5 },
         { app: "A2.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "escritura.html?level=A2&tipo=nota", label: "Escritura: nota", minutes: 15 },
         { app: "mundliche.html?level=A2&teil=thema-erzaehlen", label: "Mündliche: Thema erzählen", minutes: 10 }
@@ -866,8 +866,8 @@ window.PLANS = {
       focus: "Repaso: oraciones de relativo + Genitiv + declinación de adjetivos",
       tasks: [
         { app: "gramatica.html#b1-03", label: "Repaso: Oraciones de relativo", minutes: 5 },
-        { app: "kasus.html?caso=Genitiv&relleno=articulo", label: "Repaso: Entrenador de casos Genitiv", minutes: 5 },
-        { app: "kasus.html?relleno=adjetivo", label: "Repaso: Entrenador de declinación de adjetivos", minutes: 5 },
+        { app: "kasus.html?nivel=b1&caso=Genitiv&relleno=articulo", label: "Repaso: Entrenador de casos Genitiv", minutes: 5 },
+        { app: "kasus.html?nivel=b1&relleno=adjetivo", label: "Repaso: Entrenador de declinación de adjetivos", minutes: 5 },
         { app: "B1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
         { app: "escritura.html?level=B1&tipo=email-formal", label: "Escritura: E-Mail semi-formal", minutes: 15 },
@@ -926,8 +926,9 @@ window.PLANS = {
       day: 17, week: 3,
       focus: "Genitiv (kasus.html) + repaso n-Deklination",
       tasks: [
-        { app: "kasus.html?caso=Genitiv&relleno=articulo", label: "Entrenador de casos: Genitiv", minutes: 5 },
+        { app: "kasus.html?nivel=b1&caso=Genitiv&relleno=articulo", label: "Entrenador de casos: Genitiv", minutes: 5 },
         { app: "gramatica.html#b1-17", label: "Repaso: n-Deklination", minutes: 5 },
+        { app: "kasus.html?nivel=b1&caso=Todos&relleno=ndekl", label: "Entrenador: n-Deklination", minutes: 5 },
         { app: "B1.html?set=verbos", label: "Vocabulario: verbos", minutes: 5 },
         { app: "escritura.html?level=B1&tipo=foro", label: "Escritura: Opinión en foro", minutes: 15 },
         { app: "mundliche.html?level=B1&teil=praesentation", label: "Mündliche: Präsentation", minutes: 10 }
@@ -937,7 +938,7 @@ window.PLANS = {
       day: 18, week: 3,
       focus: "Declinación de adjetivos (kasus.html) + repaso Adjektive als Nomen",
       tasks: [
-        { app: "kasus.html?relleno=adjetivo", label: "Entrenador: declinación de adjetivos", minutes: 5 },
+        { app: "kasus.html?nivel=b1&relleno=adjetivo", label: "Entrenador: declinación de adjetivos", minutes: 5 },
         { app: "gramatica.html#b1-18", label: "Repaso: Adjektive als Nomen", minutes: 5 },
         { app: "B1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 5 },
         { app: "lectura veloz.html?level=B1", label: "Lectura: Comprensión B1 (Leseverstehen)", minutes: 15 },
@@ -2059,7 +2060,7 @@ window.PLANS = {
       focus: "Repaso gramática avanzada C2",
       tasks: [
         { app: "gramatica.html", label: "Repaso gramática C2 completa", minutes: 20 },
-        { app: "kasus.html", label: "Práctica de casos en contexto C2", minutes: 15 }
+        { app: "kasus.html?nivel=c2", label: "Práctica de casos en contexto C2", minutes: 15 }
       ]
     },
     {

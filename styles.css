@@ -3085,6 +3085,84 @@ body.dark .cv-repetir-counter     { color: var(--ink-muted); }
     line-height: 1.5;
 }
 
+.kas-case-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.kas-case-btn.kas-btn-dim:not(.active) { opacity: 0.6; }
+
+.kas-pista {
+    font-size: 0.8em;
+    font-style: italic;
+    opacity: 0.65;
+}
+
+.kas-repaso-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 6px;
+}
+
+.kas-write-form {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.kas-write-input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: none;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.kas-write-input:focus { outline: none; border-color: var(--accent); }
+
+.kas-weak {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+}
+
+.kas-weak-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; }
+.kas-weak-title span { font-weight: normal; opacity: 0.6; }
+.kas-weak-empty { font-size: 13px; opacity: 0.7; margin: 0; }
+.kas-weak-list { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.kas-weak-chip {
+    padding: 6px 12px;
+    border: 1px solid #e53935;
+    border-radius: var(--radius-lg);
+    background: rgba(229,57,53,0.06);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.kas-weak-chip strong { color: #e53935; margin-left: 4px; }
+.kas-weak-chip span { opacity: 0.6; }
+#page-kas.dark .kas-weak-chip strong { color: #EF9A9A; }
+
+.kas-report-btn {
+    display: block;
+    margin: 8px auto 0;
+    background: none;
+    border: none;
+    color: var(--text);
+    opacity: 0.6;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.kas-report-btn:hover { opacity: 1; color: var(--accent); }
+.kas-report-done { text-align: center; font-size: 12px; opacity: 0.7; margin: 8px 0 0; }
+
 @media (max-width: 600px) {
     .kas-options-grid { grid-template-columns: 1fr; max-width: 100%; }
     .kas-frase { font-size: 17px; }

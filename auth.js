@@ -494,6 +494,7 @@
           <button id="fb-tab-historial" onclick="window._fbSwitchView('history')" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:6px;background:#fff;color:#333;cursor:pointer;font-size:13px;position:relative;">📨 Mis mensajes<span id="fb-tab-dot" style="display:none;position:absolute;top:4px;right:6px;width:8px;height:8px;border-radius:50%;background:#2E7D32;"></span></button>
         </div>
         <div id="fb-compose">
+          <div id="fb-contexto" style="display:none;background:#f5f5f5;border-left:3px solid #1976D2;border-radius:6px;padding:8px 10px;margin-bottom:12px;font-size:13px;color:#333;"></div>
           <select id="fb-tipo" style="width:100%;padding:9px 10px;border:1px solid #ccc;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:14px;">
             <option value="mensaje">💬 Mensaje</option>
             <option value="bug">🐛 Reportar un fallo</option>
@@ -556,14 +557,25 @@
     }
   }
 
-  window.openFeedbackModal = function () {
+  // opts (optional, from an app's "report this item" button): { tipo, contexto, resumen, placeholder }.
+  // `contexto` is stored in feedback_reports.contexto so the admin can locate/hide the exact item.
+  // The FAB passes its click event here, hence the Event check.
+  window.openFeedbackModal = function (opts) {
     if (!window.currentUser) { window.openAuthModal(); return; }
+    const o = opts && !(opts instanceof Event) ? opts : {};
     _injectFeedbackModal();
-    document.getElementById('fb-tipo').value = 'mensaje';
-    document.getElementById('fb-mensaje').value = '';
+    window._fbContexto = o.contexto || null;
+    const ctxEl = document.getElementById('fb-contexto');
+    ctxEl.style.display = o.resumen ? 'block' : 'none';
+    ctxEl.innerHTML = o.resumen ? `<strong>Ejercicio reportado:</strong><br>${_fbEsc(o.resumen)}` : '';
+    document.getElementById('fb-tipo').value = o.tipo || 'mensaje';
+    const msg = document.getElementById('fb-mensaje');
+    msg.value = '';
+    msg.placeholder = o.placeholder || 'Escribí tu mensaje, duda, problema o sugerencia...';
     document.getElementById('fb-error').style.display = 'none';
     document.getElementById('feedback-modal').style.display = 'flex';
-    window._fbSwitchView(window._fbUnread ? 'history' : 'compose');
+    window._fbSwitchView(o.contexto ? 'compose' : (window._fbUnread ? 'history' : 'compose'));
+    if (o.contexto) msg.focus();
   };
 
   window.closeFeedbackModal = function () {
@@ -581,15 +593,20 @@
     const btn = document.getElementById('fb-send-btn');
     btn.disabled = true; btn.textContent = 'Enviando...';
     try {
-      const { data, error } = await window.sb.from('feedback_reports').insert({
-        user_id: window.currentUser.id,
-        tipo,
-        mensaje,
-        pagina: window.location.pathname,
-      }).select('id').single();
+      const row = { user_id: window.currentUser.id, tipo, mensaje, pagina: window.location.pathname };
+      const contexto = window._fbContexto;
+      let { data, error } = await window.sb.from('feedback_reports')
+        .insert(contexto ? { ...row, contexto } : row).select('id').single();
+      // Before migration 023 the column doesn't exist: keep the report, with the context as text.
+      if (error && contexto && /contexto/.test(error.message || '')) {
+        ({ data, error } = await window.sb.from('feedback_reports')
+          .insert({ ...row, mensaje: `${mensaje}\n\n[contexto] ${JSON.stringify(contexto)}` }).select('id').single());
+      }
       if (error) throw error;
 
+      window._fbContexto = null;
       window.closeFeedbackModal();
+      if (contexto && typeof window.onFeedbackReported === 'function') window.onFeedbackReported(contexto);
 
       const token = window.getAuthToken();
       if (token) {

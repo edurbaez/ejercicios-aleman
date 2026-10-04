@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -26,12 +26,21 @@
 
         <div class="kas-header">
             <h1>Kasus-Trainer</h1>
-            <p>Practica los artículos y declinaciones del alemán: Nominativ, Akkusativ, Dativ, Genitiv y Wechselpräpositionen.</p>
+            <p>Practica artículos, pronombres, posesivos y declinaciones del alemán en Nominativ, Akkusativ, Dativ y Genitiv, adaptado a tu nivel.</p>
+        </div>
+
+        <!-- Selector de nivel -->
+        <div class="kas-case-selector">
+            <span class="kas-fill-label">Nivel:</span>
+            <button class="kas-case-btn" data-nivel="A1">A1</button>
+            <button class="kas-case-btn active" data-nivel="A2">A2</button>
+            <button class="kas-case-btn" data-nivel="B1">B1</button>
+            <button class="kas-case-btn" data-nivel="B2">B2+</button>
         </div>
 
         <!-- Selector de caso -->
         <div class="kas-case-selector">
-            <button class="kas-case-btn active" data-caso="Todos">Todos</button>
+            <button class="kas-case-btn active" data-caso="Todos" title="Mezcla los casos de tu nivel, con más peso en los que más fallas">Todos</button>
             <button class="kas-case-btn" data-caso="Nominativ">Nominativ</button>
             <button class="kas-case-btn" data-caso="Akkusativ">Akkusativ</button>
             <button class="kas-case-btn" data-caso="Dativ">Dativ</button>
@@ -43,7 +52,17 @@
         <div class="kas-case-selector">
             <span class="kas-fill-label">Rellenar:</span>
             <button class="kas-case-btn active" data-relleno="articulo">Artículo</button>
+            <button class="kas-case-btn" data-relleno="posesivo">Posesivo</button>
+            <button class="kas-case-btn" data-relleno="pronombre">Pronombre</button>
             <button class="kas-case-btn" data-relleno="adjetivo">Adjetivo</button>
+            <button class="kas-case-btn" data-relleno="ndekl">n-Deklination</button>
+        </div>
+
+        <!-- Modo de respuesta -->
+        <div class="kas-case-selector">
+            <span class="kas-fill-label">Responder:</span>
+            <button class="kas-case-btn active" data-modo="opciones">Elegir opción</button>
+            <button class="kas-case-btn" data-modo="escribir">Escribir</button>
         </div>
 
         <!-- Marcador -->
@@ -61,6 +80,9 @@
                 <span class="kas-score-label">Racha</span>
             </div>
         </div>
+
+        <!-- Puntos débiles -->
+        <div class="kas-weak" id="kas-weak" style="display:none;"></div>
 
         <!-- Área de ejercicio -->
         <div class="kas-exercise-area" id="kas-exercise-area">
@@ -114,25 +136,51 @@
                     <p class="kas-theory-ex">Ich gehe <span class="kas-hl kas-hl-akk">in die</span> Schule. → wohin? (voy hacia allí)<br>Ich bin <span class="kas-hl kas-hl-dat">in der</span> Schule. → wo? (ya estoy allí)</p>
                 </div>
 
+                <div class="kas-theory-card">
+                    <div class="kas-theory-title">Pronombres, posesivos y n-Deklination</div>
+                    <p>Los pronombres cambian de forma entera: <em>ich → mich (Akk) → mir (Dat)</em>, <em>er → ihn → ihm</em>, <em>sie → sie → ihr</em>. Los posesivos llevan las mismas terminaciones que <em>ein</em>: <em>meinen</em> Bruder, <em>meinem</em> Bruder.</p>
+                    <p>Algunos masculinos (n-Deklination: <em>der Student, der Kollege, der Mensch, der Herr…</em>) añaden <strong>-(e)n</strong> en todos los casos menos el Nominativ singular.</p>
+                    <p class="kas-theory-ex">Ich frage <span class="kas-hl kas-hl-akk">den Studenten</span>. Ich helfe <span class="kas-hl kas-hl-dat">meinem Kollegen</span>.</p>
+                </div>
             </div>
         </details>
 
     </div>
 
     <script>
+    // ── Configuración por nivel (en sync con KASUS_LEVELS de api/_kasus.js) ──
+    const KAS_CASOS = ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'];
+    const KAS_LEVELS = {
+        A1: { casos: ['Nominativ', 'Akkusativ', 'Dativ'], wechsel: false, rellenos: ['articulo', 'posesivo', 'pronombre'] },
+        A2: { casos: ['Nominativ', 'Akkusativ', 'Dativ'], wechsel: true,  rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo'] },
+        B1: { casos: KAS_CASOS, wechsel: true, rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo', 'ndekl'] },
+        B2: { casos: KAS_CASOS, wechsel: true, rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo', 'ndekl'] },
+    };
+    const NIVEL_ALIAS = { a1: 'A1', a2: 'A2', b1: 'B1', b2: 'B2', c1: 'B2', c2: 'B2' };
+    const GENERO_LABEL = { m: 'masculino', f: 'femenino', n: 'neutro', pl: 'plural' };
+    const RETRY_GAP = 3;
+
     // ── Estado ────────────────────────────────────────
     const KasState = {
+        nivel:     'A2',
         caso:      'Todos',
         relleno:   'articulo',
+        modo:      'opciones',
         aciertos:  0,
         errores:   0,
         racha:     0,
         cargando:  false,
         ejercicio: null,
-        prefetch:  null, // { sig, promise } — siguiente ejercicio generado en background
+        respondidos: 0,
+        colas:     {},   // bank key -> exercises pending in this session
+        cargas:    {},   // bank key -> in-flight load promise
+        repasos:   [],   // { ej, due } failed exercises shown again RETRY_GAP answers later
+        nextKey:   null, // { sig, key, o } chosen in advance so its set can be prefetched
+        stats:     [],   // { caso, wechsel, genero, correct } from usage_events + this session
     };
 
-    function configSig() { return KasState.caso + '|' + KasState.relleno; }
+    function lsGet(k) { try { return localStorage.getItem(k); } catch { return null; } }
+    function lsSet(k, v) { try { localStorage.setItem(k, v); } catch {} }
 
     // ── Dark mode ─────────────────────────────────────
     const _moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>';
@@ -150,20 +198,101 @@
         window.ThemePref.set(isDark);
     }
 
-    // ── Selectores de caso y tipo de hueco ───────────
-    document.querySelectorAll('.kas-case-btn[data-caso]').forEach(btn => {
+    // ── Reglas de combinación nivel/caso/relleno ──────
+    function rellenoPermiteCaso(relleno, caso) {
+        if (relleno === 'pronombre' && caso === 'Genitiv') return false;
+        if (relleno === 'ndekl' && caso === 'Nominativ') return false;
+        return true;
+    }
+
+    function casoDisponible(caso) {
+        const cfg = KAS_LEVELS[KasState.nivel];
+        if (caso === 'Todos') return true;
+        if (caso === 'Wechsel') return cfg.wechsel && ['articulo', 'adjetivo'].includes(KasState.relleno);
+        return cfg.casos.includes(caso) && rellenoPermiteCaso(KasState.relleno, caso);
+    }
+
+    // Concrete targets for the current selection: [{ caso, wechsel }]
+    function objetivosActuales() {
+        if (KasState.caso === 'Wechsel') return [{ caso: 'Akkusativ', wechsel: true }, { caso: 'Dativ', wechsel: true }];
+        if (KasState.caso === 'Todos') {
+            return KAS_LEVELS[KasState.nivel].casos
+                .filter(c => rellenoPermiteCaso(KasState.relleno, c))
+                .map(c => ({ caso: c, wechsel: false }));
+        }
+        return [{ caso: KasState.caso, wechsel: false }];
+    }
+
+    function bankKey(o) {
+        return `kasus:${KasState.nivel}:${o.wechsel ? 'W-' : ''}${o.caso}:${KasState.relleno}`;
+    }
+
+    function configSig() { return [KasState.nivel, KasState.caso, KasState.relleno].join('|'); }
+
+    // Keeps the selection valid after a change; `prioridad` is the selector the user just touched.
+    function normalizarSeleccion(prioridad) {
+        const cfg = KAS_LEVELS[KasState.nivel];
+        if (!cfg.rellenos.includes(KasState.relleno)) KasState.relleno = 'articulo';
+        if (prioridad === 'caso' && !casoDisponible(KasState.caso)) {
+            const nivelOk = KasState.caso === 'Wechsel' ? cfg.wechsel : cfg.casos.includes(KasState.caso);
+            if (nivelOk) KasState.relleno = 'articulo';
+        }
+        if (!casoDisponible(KasState.caso)) KasState.caso = 'Todos';
+        pintarSelectores();
+    }
+
+    function pintarSelectores() {
+        const cfg = KAS_LEVELS[KasState.nivel];
+        document.querySelectorAll('.kas-case-btn[data-nivel]').forEach(b => b.classList.toggle('active', b.dataset.nivel === KasState.nivel));
+        document.querySelectorAll('.kas-case-btn[data-modo]').forEach(b => b.classList.toggle('active', b.dataset.modo === KasState.modo));
+        document.querySelectorAll('.kas-case-btn[data-caso]').forEach(b => {
+            const c = b.dataset.caso;
+            const enNivel = c === 'Todos' || (c === 'Wechsel' ? cfg.wechsel : cfg.casos.includes(c));
+            b.disabled = !enNivel;
+            b.classList.toggle('active', c === KasState.caso);
+            b.classList.toggle('kas-btn-dim', enNivel && !casoDisponible(c));
+        });
+        document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(b => {
+            const r = b.dataset.relleno;
+            b.disabled = !cfg.rellenos.includes(r);
+            b.classList.toggle('active', r === KasState.relleno);
+        });
+    }
+
+    function onSeleccionCambiada() {
+        KasState.nextKey = null;
+        KasState.repasos = [];
+        if (KasState.ejercicio) generarEjercicio();
+    }
+
+    document.querySelectorAll('.kas-case-btn[data-nivel]').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.kas-case-btn[data-caso]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            KasState.caso = btn.dataset.caso;
+            KasState.nivel = btn.dataset.nivel;
+            lsSet('kas_nivel', KasState.nivel);
+            normalizarSeleccion('nivel');
+            onSeleccionCambiada();
         });
     });
-
+    document.querySelectorAll('.kas-case-btn[data-caso]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            KasState.caso = btn.dataset.caso;
+            normalizarSeleccion('caso');
+            onSeleccionCambiada();
+        });
+    });
     document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
             KasState.relleno = btn.dataset.relleno;
+            normalizarSeleccion('relleno');
+            onSeleccionCambiada();
+        });
+    });
+    document.querySelectorAll('.kas-case-btn[data-modo]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            KasState.modo = btn.dataset.modo;
+            lsSet('kas_modo', KasState.modo);
+            pintarSelectores();
+            if (KasState.ejercicio && !KasState.ejercicio._respondido) renderEjercicio(KasState.ejercicio);
         });
     });
 
@@ -180,9 +309,10 @@
         document.getElementById('kas-racha').textContent    = KasState.racha;
     }
 
-    function showFeedback(correcto, opcionElegida, ejercicio) {
+    function showFeedback(correcto, ejercicio) {
         const fb = document.getElementById('kas-feedback');
         fb.style.display = 'block';
+        const genero = GENERO_LABEL[ejercicio.genero] ? ` · ${GENERO_LABEL[ejercicio.genero]}` : '';
         if (correcto) {
             fb.innerHTML = `
                 <div class="kas-fb-correct">
@@ -192,11 +322,43 @@
         } else {
             fb.innerHTML = `
                 <div class="kas-fb-wrong">
-                    <strong>Incorrecto.</strong> La respuesta correcta es <em>${escHtml(ejercicio.respuesta)}</em>.
+                    <strong>Incorrecto.</strong> La respuesta correcta es <em>${escHtml(ejercicio.respuesta)}</em> (${escHtml(ejercicio.caso)}${genero}).
                     <p class="kas-fb-exp">${escHtml(ejercicio.explicacion)}</p>
+                    <p class="kas-fb-exp">🔁 Volverá a salir dentro de ${RETRY_GAP} ejercicios.</p>
                 </div>`;
         }
+        fb.insertAdjacentHTML('beforeend', ejercicio._reportado
+            ? '<p class="kas-report-done">⚑ Reporte enviado. ¡Gracias!</p>'
+            : '<button class="kas-report-btn" type="button" onclick="reportarEjercicio()">⚑ ¿Este ejercicio tiene un error? Repórtalo</button>');
     }
+
+    function reportarEjercicio() {
+        const ej = KasState.ejercicio;
+        if (!ej || typeof window.openFeedbackModal !== 'function') return;
+        clearTimeout(KasState.autoNext);
+        document.getElementById('kas-next-btn').style.display = 'block';
+        window.openFeedbackModal({
+            tipo: 'bug',
+            resumen: `${ej.frase.replace('___', `[${ej.respuesta}]`)} (pista: ${ej.pista}) — ${ej.caso}`,
+            placeholder: '¿Qué está mal? (p. ej. la respuesta correcta sería…, la frase no es natural…)',
+            contexto: {
+                app: 'kasus', set_id: ej._setId || null, rule_id: ej._ruleId || null,
+                frase: ej.frase, respuesta: ej.respuesta, pista: ej.pista, caso: ej.caso, genero: ej.genero,
+                nivel: KasState.nivel, relleno: KasState.relleno,
+            },
+        });
+    }
+
+    window.onFeedbackReported = function (contexto) {
+        if (contexto.app !== 'kasus') return;
+        KasState.repasos = KasState.repasos.filter(r => r.ej.frase !== contexto.frase);
+        const ej = KasState.ejercicio;
+        if (ej && ej.frase === contexto.frase) {
+            ej._reportado = true;
+            const btn = document.querySelector('.kas-report-btn');
+            if (btn) btn.outerHTML = '<p class="kas-report-done">⚑ Reporte enviado. ¡Gracias!</p>';
+        }
+    };
 
     function shuffleArray(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
@@ -206,168 +368,120 @@
         return arr;
     }
 
-    function stripFences(s) {
-        const start = s.indexOf('{');
-        const end = s.lastIndexOf('}');
-        if (start === -1 || end === -1 || end < start) return s;
-        return s.slice(start, end + 1);
+    async function getSession() {
+        const { data } = await window.sb.auth.getSession();
+        return data.session || null;
     }
 
-    // ── Construcción de prompts ───────────────────────
-    const TEMAS = [
-        'comida y restaurantes', 'viajes y transporte', 'familia y relaciones',
-        'trabajo y oficina', 'ciudad y lugares', 'naturaleza y medio ambiente',
-        'tiempo libre y hobbies', 'compras y tiendas', 'escuela y universidad',
-        'salud y medicina', 'tecnología y redes sociales', 'deportes',
-        'música y cultura', 'clima y estaciones', 'mascotas y animales',
-    ];
-
-    function buildPrompt(casoObjetivo, esWechsel, esAdjetivo) {
-        const tema = TEMAS[Math.floor(Math.random() * TEMAS.length)];
-        const jsonSpec = `Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta: {"frase":"texto con ___ para el hueco","opciones":["op1","op2","op3","op4"],"respuesta":"opción correcta","caso":"${casoObjetivo}","explicacion":"explicación breve en español"}. El campo "caso" debe ser exactamente "${casoObjetivo}", literal. Todas las opciones distintas entre sí. La respuesta debe estar entre las opciones.`;
-
-        if (esWechsel) {
-            const preps = ['in', 'an', 'auf', 'über', 'unter', 'vor', 'hinter', 'neben', 'zwischen'];
-            const prep = preps[Math.floor(Math.random() * preps.length)];
-            const contexto = `La frase debe dejar claro por el verbo y el contexto si expresa dirección/movimiento (wohin? → Akkusativ) o posición estática (wo? → Dativ). En este ejercicio el caso correcto debe ser ${casoObjetivo}.`;
-            if (esAdjetivo) {
-                return {
-                    system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre declinación de adjetivos tras la Wechselpräposition "${prep}". ${contexto} La preposición y el artículo declinado deben ser visibles en la frase; el hueco (___) es únicamente el adjetivo. Las 4 opciones son el mismo adjetivo con distintas terminaciones plausibles. Usa vocabulario del tema "${tema}" y varía los sustantivos. ${jsonSpec} La explicación debe indicar si la frase responde a wohin (→ Akkusativ) o wo (→ Dativ), el género del sustantivo y el tipo de declinación del adjetivo.`,
-                    userMsg: `Genera un ejercicio de adjetivo tras "${prep}" en ${casoObjetivo}. Tema: ${tema}.`,
-                };
-            }
-            return {
-                system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre Wechselpräpositionen con la preposición "${prep}". ${contexto} El hueco (___) sustituye la preposición y el artículo juntos (p. ej. "ins", "im", "in den", "in der", "am", "an die"). Las 4 opciones usan todas la preposición "${prep}" con distintas declinaciones: deben incluir la forma en Akkusativ y la forma en Dativ del género correcto del sustantivo, y dos formas plausibles de otros géneros o números. Usa vocabulario del tema "${tema}" y varía los sustantivos. ${jsonSpec} La explicación debe indicar si la frase responde a wohin (movimiento → Akkusativ) o wo (posición → Dativ), y el género del sustantivo.`,
-                userMsg: `Genera un ejercicio de Wechselpräpositionen con "${prep}" en ${casoObjetivo}. Tema: ${tema}.`,
-            };
-        }
-
-        const estructuras = [
-            'una oración simple y directa',
-            'una oración con un complemento TEKAMOLO (primero temporal, luego causal, luego modal, luego local)',
-            'una oración de relativo (Relativsatz) donde el hueco está en la cláusula principal',
-            'una oración de relativo (Relativsatz) donde el hueco está dentro de la cláusula relativa',
-            'una oración con preposición que rija ' + casoObjetivo,
-            'una oración con verbo modal (können, müssen, wollen, dürfen, sollen)',
-            'una oración en Perfekt',
-            'una oración con dos cláusulas unidas por una conjunción subordinante (weil, obwohl, wenn, dass)',
-            'una oración con el orden de palabras invertido (Verb-Second con adverbio inicial)',
-        ];
-        const estructura = estructuras[Math.floor(Math.random() * estructuras.length)];
-
-        if (esAdjetivo) {
-            const tipos = [
-                'débil: el adjetivo va tras un artículo definido (der/die/das/den/dem/des)',
-                'mixta: el adjetivo va tras ein, kein o un posesivo (mein, dein, sein…)',
-                'fuerte: el adjetivo no lleva ningún artículo delante',
-            ];
-            const tipo = tipos[Math.floor(Math.random() * tipos.length)];
-            return {
-                system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre declinación de adjetivos en ${casoObjetivo}. Usa declinación ${tipo}. El hueco (___) es únicamente el adjetivo declinado; el artículo (o su ausencia) debe ser visible en la frase. Las 4 opciones son el mismo adjetivo con distintas terminaciones plausibles. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. ${jsonSpec} La explicación debe nombrar el tipo de declinación (débil/mixta/fuerte), el caso y el género del sustantivo.`,
-                userMsg: `Genera un ejercicio de adjetivo en ${casoObjetivo} con declinación ${tipo.split(':')[0]}. Tema: ${tema}. Estructura: ${estructura}.`,
-            };
-        }
-
-        return {
-            system: `Eres un profesor de alemán. Genera un ejercicio de rellena el hueco sobre ${casoObjetivo}. El hueco debe ser un artículo declinado. Usa vocabulario del tema "${tema}" y construye ${estructura}. Varía el vocabulario: evita sustantivos genéricos como "Mann", "Frau", "Kind" a menos que sean imprescindibles. ${jsonSpec} Los distractores deben ser la misma palabra declinada en otros casos o géneros (mismo tipo morfológico). La explicación debe citar la regla concreta (verbo o preposición que rige el caso, o función sintáctica) y el género del sustantivo.`,
-            userMsg: `Genera un ejercicio de ${casoObjetivo}. Tema: ${tema}. Estructura: ${estructura}.`,
-        };
-    }
-
-    // ── Llamadas a la API ─────────────────────────────
-    async function apiChat(token, system, userMsg) {
+    // ── Banco de ejercicios (grammar_practice_exercises, rule_id "kasus:…") ──
+    async function generarSet(token, o) {
         const resp = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ system, messages: [{ role: 'user', content: userMsg }] }),
+            body: JSON.stringify({ action: 'generate-kasus', level: KasState.nivel, caso: o.caso, wechsel: o.wechsel, relleno: KasState.relleno }),
         });
         const raw = await resp.text();
         let data;
         try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
         if (!resp.ok) throw new Error(data.error || 'Error de API');
-        return data.reply;
+        return data.exercise;
     }
 
-    // Verificación por resolución independiente: el modelo resuelve el
-    // ejercicio sin conocer la respuesta declarada; si no coinciden, se descarta.
-    async function verificarEjercicio(token, ej) {
-        try {
-            const reply = await apiChat(token,
-                'Eres un profesor de alemán de nivel nativo. Recibes una frase con un hueco (___) y 4 opciones. Elige la única opción gramaticalmente correcta. Devuelve SOLO JSON sin texto adicional, sin markdown ni fences: {"respuesta":"la opción elegida, copiada literalmente"}',
-                `Frase: ${ej.frase}\nOpciones: ${ej.opciones.join(' | ')}`);
-            const v = JSON.parse(stripFences(reply));
-            return typeof v.respuesta === 'string' && v.respuesta.trim() === ej.respuesta.trim();
-        } catch {
-            return true; // si el verificador falla (red, parse), no bloquea el ejercicio
+    async function cargarSet(key, o) {
+        const session = await getSession();
+        if (!session) throw new Error('AUTH');
+        const uid = session.user.id;
+
+        let elegido = null;
+        const { data: sets } = await window.sb
+            .from('grammar_practice_exercises')
+            .select('id, oraciones')
+            .eq('rule_id', key)
+            .eq('oculto', false);
+        if (sets && sets.length) {
+            const { data: seen } = await window.sb
+                .from('user_grammar_practice_seen')
+                .select('exercise_id')
+                .eq('user_id', uid)
+                .in('exercise_id', sets.map(s => s.id));
+            const vistos = new Set((seen || []).map(r => r.exercise_id));
+            const noVistos = sets.filter(s => !vistos.has(s.id));
+            if (noVistos.length) elegido = noVistos[Math.floor(Math.random() * noVistos.length)];
         }
+        if (!elegido) elegido = await generarSet(session.access_token, o);
+        window.sb.from('user_grammar_practice_seen')
+            .upsert({ user_id: uid, exercise_id: elegido.id }, { onConflict: 'user_id,exercise_id' })
+            .then(() => {}, () => {});
+
+        const ejercicios = (elegido.oraciones || []).map(ej => ({ ...ej, wechsel: o.wechsel, _setId: elegido.id, _ruleId: key }));
+        KasState.colas[key] = (KasState.colas[key] || []).concat(shuffleArray(ejercicios));
     }
 
-    async function fetchEjercicio() {
-        const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
-        if (!token) throw new Error('AUTH');
-
-        const esWechsel  = KasState.caso === 'Wechsel';
-        const esAdjetivo = KasState.relleno === 'adjetivo';
-
-        for (let intento = 0; intento < 2; intento++) {
-            const casoObjetivo = esWechsel
-                ? ['Akkusativ', 'Dativ'][Math.floor(Math.random() * 2)]
-                : KasState.caso === 'Todos'
-                    ? ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'][Math.floor(Math.random() * 4)]
-                    : KasState.caso;
-
-            const { system, userMsg } = buildPrompt(casoObjetivo, esWechsel, esAdjetivo);
-            const reply = await apiChat(token, system, userMsg);
-
-            let ej;
-            try { ej = JSON.parse(stripFences(reply)); } catch { continue; }
-
-            const invalido =
-                !ej.frase || !Array.isArray(ej.opciones) || !ej.respuesta ||
-                !ej.frase.includes('___') ||
-                new Set(ej.opciones).size !== 4 ||
-                !ej.opciones.includes(ej.respuesta) ||
-                ej.caso !== casoObjetivo;
-            if (invalido) continue;
-
-            if (!(await verificarEjercicio(token, ej))) continue;
-
-            shuffleArray(ej.opciones);
-            return ej;
+    function asegurarCola(key, o) {
+        if ((KasState.colas[key] || []).length) return Promise.resolve();
+        if (!KasState.cargas[key]) {
+            KasState.cargas[key] = cargarSet(key, o).finally(() => { delete KasState.cargas[key]; });
         }
-        throw new Error('El modelo devolvió un ejercicio inválido');
+        return KasState.cargas[key];
     }
 
-    // ── Prefetch del siguiente ejercicio ──────────────
-    function startPrefetch() {
-        const sig = configSig();
-        KasState.prefetch = { sig, promise: fetchEjercicio().catch(() => null) };
+    // ── Selección adaptativa ──────────────────────────
+    // Each target's weight grows with its smoothed error rate, so "Todos" drills weak cases more.
+    function elegirObjetivo() {
+        const objetivos = objetivosActuales();
+        if (objetivos.length === 1) return objetivos[0];
+        const pesos = objetivos.map(o => {
+            const rs = KasState.stats.filter(s => s.caso === o.caso && s.wechsel === o.wechsel);
+            const errores = rs.filter(s => !s.correct).length;
+            return 0.5 + 2 * (errores + 1) / (rs.length + 2);
+        });
+        let r = Math.random() * pesos.reduce((a, b) => a + b, 0);
+        for (let i = 0; i < objetivos.length; i++) {
+            r -= pesos[i];
+            if (r <= 0) return objetivos[i];
+        }
+        return objetivos[objetivos.length - 1];
+    }
+
+    function prepararSiguiente() {
+        const o = elegirObjetivo();
+        const key = bankKey(o);
+        KasState.nextKey = { sig: configSig(), key, o };
+        asegurarCola(key, o).catch(() => {});
+    }
+
+    async function siguienteEjercicio() {
+        const idx = KasState.repasos.findIndex(r => r.due <= KasState.respondidos);
+        if (idx !== -1) {
+            const [{ ej }] = KasState.repasos.splice(idx, 1);
+            return { ...ej, opciones: shuffleArray([...ej.opciones]), _repaso: true };
+        }
+        const nk = KasState.nextKey && KasState.nextKey.sig === configSig() ? KasState.nextKey : null;
+        const o = nk ? nk.o : elegirObjetivo();
+        const key = nk ? nk.key : bankKey(o);
+        await asegurarCola(key, o);
+        const ej = KasState.colas[key].shift();
+        if (!ej) throw new Error('No hay ejercicios disponibles');
+        return { ...ej, opciones: shuffleArray([...ej.opciones]) };
     }
 
     // ── Generar / mostrar ejercicio ───────────────────
     async function generarEjercicio() {
         if (KasState.cargando) return;
+        clearTimeout(KasState.autoNext);
         KasState.cargando = true;
         document.getElementById('kas-feedback').style.display = 'none';
         document.getElementById('kas-next-btn').style.display = 'none';
-
         const area = document.getElementById('kas-exercise-area');
-        area.innerHTML = `<div class="kas-loading">Generando ejercicio…</div>`;
+        area.innerHTML = `<div class="kas-loading">Preparando ejercicio…</div>`;
 
         try {
-            let ej = null;
-            const pf = KasState.prefetch;
-            KasState.prefetch = null;
-            if (pf && pf.sig === configSig()) {
-                ej = await pf.promise; // null si el prefetch falló
-            }
-            if (!ej) ej = await fetchEjercicio();
-
+            const ej = await siguienteEjercicio();
             KasState.ejercicio = ej;
             renderEjercicio(ej);
-            startPrefetch();
-
+            prepararSiguiente();
         } catch (err) {
+            KasState.nextKey = null;
             if (err.message === 'AUTH') {
                 area.innerHTML = `<div class="kas-error">Inicia sesión para usar el Kasus-Trainer.</div>`;
             } else {
@@ -381,9 +495,11 @@
     // ── Renderizar ejercicio ───────────────────────────
     function renderEjercicio(ej) {
         const area = document.getElementById('kas-exercise-area');
+        const escribir = KasState.modo === 'escribir';
         const partes = ej.frase.split('___');
+        const pista = ej.pista ? ` <span class="kas-pista">(${escHtml(ej.pista)})</span>` : '';
         const fraseHtml = partes.length === 2
-            ? `${escHtml(partes[0])}<span class="kas-blank">___</span>${escHtml(partes[1])}`
+            ? `${escHtml(partes[0])}<span class="kas-blank">___</span>${pista}${escHtml(partes[1])}`
             : escHtml(ej.frase);
 
         const casoBadgeClass = {
@@ -393,56 +509,88 @@
             Genitiv:   'kas-badge-gen',
         }[ej.caso] || 'kas-badge-nom';
 
+        const respuestaHtml = escribir
+            ? `<form class="kas-write-form" onsubmit="event.preventDefault(); comprobarEscrito();">
+                    <input class="kas-write-input" id="kas-write-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Escribe la forma correcta" aria-label="Respuesta">
+                    <button class="kas-gen-btn" type="submit">Comprobar</button>
+               </form>`
+            : `<div class="kas-options-grid" id="kas-options-grid">
+                    ${ej.opciones.map((op, i) => `
+                        <button class="kas-option-btn" data-opcion="${escHtml(op)}" onclick="elegirOpcion(this)">
+                            <span class="kas-opt-num">${i + 1}</span> ${escHtml(op)}
+                        </button>`).join('')}
+               </div>`;
+
         area.innerHTML = `
             <div class="kas-frase-wrap">
-                <span class="kas-caso-badge ${casoBadgeClass}" id="kas-caso-badge" style="visibility:hidden;">${escHtml(ej.caso)}</span>
+                ${ej._repaso ? '<span class="kas-repaso-tag">🔁 Repaso</span>' : ''}
+                <span class="kas-caso-badge ${casoBadgeClass}" id="kas-caso-badge" style="visibility:hidden;">${escHtml(ej.caso)}${ej.wechsel ? ' · Wechsel' : ''}</span>
                 <p class="kas-frase">${fraseHtml}</p>
             </div>
-            <div class="kas-options-grid" id="kas-options-grid">
-                ${ej.opciones.map((op, i) => `
-                    <button class="kas-option-btn" data-opcion="${escHtml(op)}" onclick="elegirOpcion(this)">
-                        <span class="kas-opt-num">${i + 1}</span> ${escHtml(op)}
-                    </button>`).join('')}
-            </div>`;
+            ${respuestaHtml}`;
 
-        // Atajos de teclado 1-4
-        if (window._kasKeyHandler) {
-            document.removeEventListener('keydown', window._kasKeyHandler);
-        }
-        window._kasKeyHandler = function(e) {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
-            if (map[e.key] !== undefined) {
-                const btns = document.querySelectorAll('.kas-option-btn:not([disabled])');
-                if (btns[map[e.key]]) elegirOpcion(btns[map[e.key]]);
-            }
-        };
-        document.addEventListener('keydown', window._kasKeyHandler);
+        if (escribir) document.getElementById('kas-write-input').focus();
     }
 
-    // ── Evaluar respuesta ─────────────────────────────
-    function elegirOpcion(btn) {
-        if (!KasState.ejercicio) return;
-        // Deshabilitar todos los botones
-        document.querySelectorAll('.kas-option-btn').forEach(b => b.disabled = true);
-        if (window._kasKeyHandler) {
-            document.removeEventListener('keydown', window._kasKeyHandler);
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('kas-next-btn').style.display === 'block') {
+            e.preventDefault();
+            generarEjercicio();
+            return;
         }
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        const map = { '1': 0, '2': 1, '3': 2, '4': 3 };
+        if (map[e.key] !== undefined) {
+            const btns = document.querySelectorAll('.kas-option-btn:not([disabled])');
+            if (btns[map[e.key]]) elegirOpcion(btns[map[e.key]]);
+        }
+    });
 
-        const elegida  = btn.dataset.opcion;
-        const correcto = elegida === KasState.ejercicio.respuesta;
+    // ── Evaluar respuesta ─────────────────────────────
+    const CONTRACCIONES = {
+        im: 'in dem', ins: 'in das', am: 'an dem', ans: 'an das', aufs: 'auf das',
+        vom: 'von dem', zum: 'zu dem', zur: 'zu der', beim: 'bei dem', ums: 'um das',
+        fürs: 'für das', übers: 'über das', unters: 'unter das', vors: 'vor das', hinters: 'hinter das',
+    };
 
+    // Case only matters mid-sentence (Sie/sie, Ihr/ihr, nouns); at sentence start it's ignored.
+    function normalizarRespuesta(s, ignorarMayus) {
+        let t = String(s).trim().replace(/\s+/g, ' ').replace(/ß/g, 'ss');
+        if (ignorarMayus) t = t.toLowerCase();
+        return t.split(' ').map(w => CONTRACCIONES[w.toLowerCase()] || w).join(' ');
+    }
+
+    function comprobarEscrito() {
+        const ej = KasState.ejercicio;
+        const input = document.getElementById('kas-write-input');
+        if (!ej || ej._respondido || !input.value.trim()) return;
+        input.disabled = true;
+        input.closest('form').querySelector('button').disabled = true;
+        const inicio = ej.frase.trim().startsWith('___');
+        const correcto = normalizarRespuesta(input.value, inicio) === normalizarRespuesta(ej.respuesta, inicio);
+        input.classList.add(correcto ? 'kas-opt-correct' : 'kas-opt-wrong');
+        if (!correcto) input.value = `${input.value.trim()} → ${ej.respuesta}`;
+        registrarRespuesta(correcto);
+    }
+
+    function elegirOpcion(btn) {
+        const ej = KasState.ejercicio;
+        if (!ej || ej._respondido) return;
+        document.querySelectorAll('.kas-option-btn').forEach(b => b.disabled = true);
+        const correcto = btn.dataset.opcion === ej.respuesta;
+        document.querySelectorAll('.kas-option-btn').forEach(b => {
+            if (b.dataset.opcion === ej.respuesta) b.classList.add('kas-opt-correct');
+            else if (b === btn && !correcto) b.classList.add('kas-opt-wrong');
+        });
+        registrarRespuesta(correcto);
+    }
+
+    function registrarRespuesta(correcto) {
+        const ej = KasState.ejercicio;
+        ej._respondido = true;
+        KasState.respondidos++;
         const badge = document.getElementById('kas-caso-badge');
         if (badge) badge.style.visibility = 'visible';
-
-        // Colorear opciones
-        document.querySelectorAll('.kas-option-btn').forEach(b => {
-            if (b.dataset.opcion === KasState.ejercicio.respuesta) {
-                b.classList.add('kas-opt-correct');
-            } else if (b === btn && !correcto) {
-                b.classList.add('kas-opt-wrong');
-            }
-        });
 
         if (correcto) {
             KasState.aciertos++;
@@ -450,39 +598,107 @@
         } else {
             KasState.errores++;
             KasState.racha = 0;
+            KasState.repasos.push({ ej: { ...ej, _respondido: false, _repaso: false, _reportado: false }, due: KasState.respondidos + RETRY_GAP });
         }
         updateScore();
-        showFeedback(correcto, elegida, KasState.ejercicio);
+        showFeedback(correcto, ej);
+
+        const wechsel = !!ej.wechsel;
+        KasState.stats.unshift({ caso: ej.caso, wechsel, genero: ej.genero, correct: correcto });
+        renderPuntosDebiles();
 
         if (correcto) {
-            setTimeout(() => generarEjercicio(), 500);
-        } else {
-            document.getElementById('kas-next-btn').style.display = 'block';
+            KasState.autoNext = setTimeout(() => generarEjercicio(), 1500);
         }
+        else document.getElementById('kas-next-btn').style.display = 'block';
 
         if (typeof window.logEvent === 'function') {
-            window.logEvent('kasus', 'kasus_answered', { caso: KasState.ejercicio.caso, correct: correcto, modo: KasState.caso === 'Wechsel' ? 'wechsel' : 'kasus', relleno: KasState.relleno });
+            window.logEvent('kasus', 'kasus_answered', {
+                caso: ej.caso, correct: correcto, modo: wechsel ? 'wechsel' : 'kasus', relleno: KasState.relleno,
+                genero: ej.genero, nivel: KasState.nivel, respuesta: KasState.modo, repaso: !!ej._repaso,
+            });
         }
     }
 
-    // Deep-link support: kasus.html?caso=Akkusativ&relleno=adjetivo
+    // ── Puntos débiles (usage_events) ─────────────────
+    async function cargarEstadisticas() {
+        const session = await getSession();
+        if (!session) return;
+        const { data } = await window.sb
+            .from('usage_events')
+            .select('payload')
+            .eq('user_id', session.user.id)
+            .eq('event_type', 'kasus_answered')
+            .order('created_at', { ascending: false })
+            .limit(400);
+        const previas = (data || []).map(r => r.payload || {}).filter(p => p.caso).map(p => ({
+            caso: p.caso, wechsel: p.modo === 'wechsel', genero: p.genero || null, correct: !!p.correct,
+        }));
+        KasState.stats = KasState.stats.concat(previas);
+        renderPuntosDebiles();
+    }
+
+    function etiquetaObjetivo(caso, wechsel) { return wechsel ? `Wechsel → ${caso}` : caso; }
+
+    function renderPuntosDebiles() {
+        const box = document.getElementById('kas-weak');
+        if (!KasState.stats.length) { box.style.display = 'none'; return; }
+        const grupos = {};
+        KasState.stats.forEach(s => {
+            const add = (k, genero) => {
+                grupos[k] = grupos[k] || { n: 0, ok: 0, caso: s.caso, wechsel: s.wechsel, genero };
+                grupos[k].n++;
+                if (s.correct) grupos[k].ok++;
+            };
+            add(`${s.wechsel}|${s.caso}`, null);
+            if (s.genero) add(`${s.wechsel}|${s.caso}|${s.genero}`, s.genero);
+        });
+        const debiles = Object.values(grupos)
+            .filter(g => g.n >= 3 && g.ok / g.n < 0.8)
+            .sort((a, b) => a.ok / a.n - b.ok / b.n || b.n - a.n)
+            .slice(0, 4);
+        box.style.display = 'block';
+        box.innerHTML = `<div class="kas-weak-title">Tus puntos débiles <span>(últimas ${KasState.stats.length} respuestas)</span></div>` +
+            (debiles.length
+                ? `<div class="kas-weak-list">${debiles.map(g => `
+                    <button class="kas-weak-chip" data-caso="${g.wechsel ? 'Wechsel' : escHtml(g.caso)}" title="Practicar este caso">
+                        ${escHtml(etiquetaObjetivo(g.caso, g.wechsel))}${g.genero ? ' · ' + GENERO_LABEL[g.genero] : ''}
+                        <strong>${Math.round(100 * g.ok / g.n)}%</strong> <span>(${g.n})</span>
+                    </button>`).join('')}</div>`
+                : `<p class="kas-weak-empty">Nada por debajo del 80 % con al menos 3 respuestas.</p>`);
+        box.querySelectorAll('.kas-weak-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                KasState.caso = chip.dataset.caso;
+                normalizarSeleccion('caso');
+                onSeleccionCambiada();
+                if (!KasState.ejercicio) generarEjercicio();
+            });
+        });
+    }
+
+    window.onAuthSignedIn = function () {
+        if (KasState._statsCargadas) return;
+        KasState._statsCargadas = true;
+        cargarEstadisticas().catch(() => { KasState._statsCargadas = false; });
+    };
+
+    // Deep-link support: kasus.html?nivel=a2&caso=Dativ&relleno=pronombre&modo=escribir
     (function () {
         const params = new URLSearchParams(location.search);
-        const initCaso = params.get('caso');
-        const initRelleno = params.get('relleno');
-        if (initRelleno && ['articulo', 'adjetivo'].includes(initRelleno)) {
-            KasState.relleno = initRelleno;
-            document.querySelectorAll('.kas-case-btn[data-relleno]').forEach(b => {
-                b.classList.toggle('active', b.dataset.relleno === initRelleno);
-            });
-        }
-        if (initCaso && ['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv', 'Wechsel'].includes(initCaso)) {
-            KasState.caso = initCaso;
-            document.querySelectorAll('.kas-case-btn[data-caso]').forEach(b => {
-                b.classList.toggle('active', b.dataset.caso === initCaso);
-            });
-            generarEjercicio();
-        }
+        const nivelParam = NIVEL_ALIAS[(params.get('nivel') || '').toLowerCase()];
+        KasState.nivel = nivelParam || NIVEL_ALIAS[(lsGet('kas_nivel') || '').toLowerCase()] || 'A2';
+        if (nivelParam) lsSet('kas_nivel', KasState.nivel);
+
+        const modo = params.get('modo') || lsGet('kas_modo');
+        if (['opciones', 'escribir'].includes(modo)) KasState.modo = modo;
+
+        const relleno = params.get('relleno');
+        if (['articulo', 'posesivo', 'pronombre', 'adjetivo', 'ndekl'].includes(relleno)) KasState.relleno = relleno;
+        const caso = params.get('caso');
+        if (['Todos', 'Nominativ', 'Akkusativ', 'Dativ', 'Genitiv', 'Wechsel'].includes(caso)) KasState.caso = caso;
+        normalizarSeleccion('caso');
+
+        if (caso || nivelParam) generarEjercicio();
     })();
     </script>
 </body>

@@ -1,4 +1,5 @@
 import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
+import { KASUS_VERIFY_SYSTEM, buildKasusPrompt, normalizeKasusItem, validKasusItem, kasusVerified, validateKasusRequest, kasusRuleId } from './_kasus.js';
 import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, READING_TEILE_SPECS, READING_CALIDAD, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
@@ -41,6 +42,10 @@ export default async function handler(req, res) {
 
     if (action === 'generate-practice') {
         return generatePractice(req, res);
+    }
+
+    if (action === 'generate-kasus') {
+        return generateKasus(req, res);
     }
 
     if (action === 'generate-mitexto') {
@@ -291,6 +296,96 @@ async function generatePractice(req, res) {
                 Prefer: 'return=representation',
             },
             body: JSON.stringify({ rule_id: ruleId, level, oraciones }),
+        });
+        if (!insertRes.ok) {
+            const errText = await insertRes.text().catch(() => '');
+            return res.status(502).json({ error: 'Error al guardar el ejercicio: ' + errText.slice(0, 200) });
+        }
+        const [row] = await insertRes.json();
+        return res.status(200).json({ exercise: { id: row.id, oraciones: row.oraciones } });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// ── generate-kasus: exercise set for kasus.html ──────────────────────────────
+// One generation call (KASUS_SET_SIZE items) + one independent-solve verification call;
+// only items whose verified answer matches are stored in grammar_practice_exercises
+// (rule_id "kasus:…") so later students reuse the set instead of paying for new calls.
+
+const KASUS_SET_SIZE = 6;
+// gpt-4o-mini produced wrong cases/hints that its own verifier accepted; the verifier also corrects
+// unnatural sentences, which gpt-4.1-mini let through, so it gets the full model (one call per banked set).
+const KASUS_MODEL = 'gpt-4.1-mini';
+const KASUS_VERIFY_MODEL = 'gpt-4.1';
+const KASUS_MIN_VALID = 3;
+
+async function openaiJson(model, system, user, maxTokens) {
+    const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            model,
+            max_tokens: maxTokens,
+            response_format: { type: 'json_object' },
+            messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+        }),
+    });
+    if (!aiRes.ok) throw new Error('openai');
+    const data = await aiRes.json();
+    return JSON.parse(data.choices[0].message.content || '{}');
+}
+
+async function generateKasus(req, res) {
+    const level   = String(req.body.level || '').toUpperCase();
+    const caso    = String(req.body.caso || '');
+    const relleno = String(req.body.relleno || '');
+    const wechsel = req.body.wechsel === true;
+
+    const invalid = validateKasusRequest(level, caso, wechsel, relleno);
+    if (invalid) return res.status(400).json({ error: invalid });
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
+    }
+
+    try {
+        // Deterministic + verifier filters drop several items per batch; a second batch tops the set up.
+        const verified = [];
+        for (let intento = 0; intento < 2 && verified.length < KASUS_MIN_VALID; intento++) {
+            const { system, prompt } = buildKasusPrompt(level, caso, wechsel, relleno, KASUS_SET_SIZE);
+            let gen;
+            try { gen = await openaiJson(KASUS_MODEL, system, prompt, 2500); } catch { continue; }
+            const items = (Array.isArray(gen.ejercicios) ? gen.ejercicios : [])
+                .map(normalizeKasusItem)
+                .filter(ej => validKasusItem(ej, caso, wechsel, relleno))
+                .map(({ frase, opciones, respuesta, pista, genero, explicacion }) => ({ frase, opciones, respuesta, pista, caso, genero, explicacion }));
+            if (!items.length) continue;
+
+            const listado = items.map((ej, i) => `${i + 1}. ${ej.frase} (pista: ${ej.pista}) — opciones: ${ej.opciones.join(' | ')}`).join('\n');
+            let ver;
+            try { ver = await openaiJson(KASUS_VERIFY_MODEL, KASUS_VERIFY_SYSTEM, listado, 1500); } catch { continue; }
+            const respuestas = Array.isArray(ver.respuestas) ? ver.respuestas : [];
+            verified.push(...items.filter((ej, i) => kasusVerified(ej, respuestas[i], caso)));
+        }
+        if (verified.length < KASUS_MIN_VALID) {
+            return res.status(502).json({ error: 'Los ejercicios no superaron la verificación' });
+        }
+
+        const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/grammar_practice_exercises`, {
+            method: 'POST',
+            headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'return=representation',
+            },
+            body: JSON.stringify({ rule_id: kasusRuleId(level, caso, wechsel, relleno), level, oraciones: verified }),
         });
         if (!insertRes.ok) {
             const errText = await insertRes.text().catch(() => '');

@@ -808,12 +808,15 @@
       sb.from('marketing_summary').select('*').single(),
       // Requires migration 015 (admin read-all policy) — silently empty otherwise.
       sb.from('user_reading_seen').select('user_id').limit(20000),
-      sb.from('user_grammar_practice_seen').select('user_id').limit(20000),
+      // Excludes kasus.html sets, which share the bank table but aren't gramatica.html practice.
+      sb.from('user_grammar_practice_seen').select('user_id, grammar_practice_exercises!inner(rule_id)')
+        .not('grammar_practice_exercises.rule_id', 'like', 'kasus:%').limit(20000),
       // Requires migration 016 (admin read-all policy) — silently empty otherwise.
       sb.from('daily_usage_time').select('user_id, date, apps')
         .gte('date', new Date(Date.now() - 30 * 86400 * 1000).toLocaleDateString('sv-SE'))
         .limit(20000),
-      sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, respuesta, respuesta_at, created_at')
+      // contexto requires migration 023.
+      sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, respuesta, respuesta_at, contexto, created_at')
         .order('created_at', { ascending: false })
         .limit(500),
       // Requires migration 018 (active_sessions + admin read policy) — silently empty otherwise.
@@ -888,6 +891,7 @@
     renderGlobalKpis();
     renderReportsBadge();
     renderReportsSection();
+    loadReportedSetsState();
   }
 
   // ── Global KPIs (marketing_summary view) ──────────────────
@@ -986,9 +990,20 @@
           if (r.estado !== 'leido')    actions.push(`<button class="adm-access-btn" onclick="markReport('${esc(r.id)}','leido')">Marcar leído</button>`);
           if (r.estado !== 'resuelto') actions.push(`<button class="adm-access-btn ok" onclick="markReport('${esc(r.id)}','resuelto')">Marcar resuelto</button>`);
           actions.push(`<button class="adm-access-btn" onclick="toggleReplyBox('${esc(r.id)}')">${r.respuesta ? 'Editar respuesta' : 'Responder'}</button>`);
-          const mensajeCell = r.respuesta
+          const setId = r.contexto?.set_id;
+          if (setId) {
+            actions.push(reportedSetOculto.get(setId)
+              ? `<button class="adm-access-btn ok" onclick="toggleReportedSet('${esc(r.id)}', false)">Mostrar set</button>`
+              : `<button class="adm-access-btn danger" onclick="toggleReportedSet('${esc(r.id)}', true)">Ocultar set</button>`);
+          }
+          const ctx = r.contexto?.frase
+            ? `<div style="margin-bottom:6px;padding:6px 8px;background:#f5f5f5;border-left:3px solid #1976D2;border-radius:5px;font-size:12px;color:#333;">
+                <strong>${esc(r.contexto.app || '')}</strong> · ${esc(r.contexto.rule_id || '')}${reportedSetOculto.get(r.contexto.set_id) ? ' · <em>set oculto</em>' : ''}<br>
+                ${esc(r.contexto.frase)} → <strong>${esc(r.contexto.respuesta || '')}</strong> <em>(${esc(r.contexto.pista || '')})</em></div>`
+            : '';
+          const mensajeCell = ctx + (r.respuesta
             ? `${esc(msgShort)}<div style="margin-top:6px;padding:6px 8px;background:#e8f5e9;border-radius:5px;font-size:12px;color:#2e7d32;" title="${esc(r.respuesta)}"><strong>↳ Respondido:</strong> ${esc(r.respuesta.length > 80 ? r.respuesta.slice(0, 80) + '…' : r.respuesta)}</div>`
-            : esc(msgShort);
+            : esc(msgShort));
           const replyRow = replyingId === r.id
             ? `<tr><td colspan="7" style="background:#fafafa;padding:10px 14px;">
                 <textarea id="fb-reply-input-${esc(r.id)}" rows="3" placeholder="Escribí tu respuesta para este usuario..." style="width:100%;max-width:500px;padding:8px;border:1px solid #ccc;border-radius:6px;font-size:13px;box-sizing:border-box;">${esc(r.respuesta || '')}</textarea>
@@ -1010,6 +1025,32 @@
         }).join('')}
       </tbody>
     </table></div>`;
+  }
+
+  // set_id -> oculto for the grammar_practice_exercises sets referenced by reports' contexto
+  const reportedSetOculto = new Map();
+
+  async function loadReportedSetsState() {
+    const ids = [...new Set(allReports.map(r => r.contexto?.set_id).filter(Boolean))];
+    if (!ids.length) return;
+    const { data, error } = await sb.from('grammar_practice_exercises').select('id, oculto').in('id', ids);
+    if (error) { console.error(error); return; }
+    (data || []).forEach(s => reportedSetOculto.set(s.id, s.oculto));
+    renderReportsSection();
+  }
+
+  // Hiding a reported set stops it being served (kasus.html filters oculto = false) and resolves the report.
+  async function toggleReportedSet(reportId, oculto) {
+    const r = allReports.find(x => x.id === reportId);
+    const setId = r?.contexto?.set_id;
+    if (!setId) return;
+    const { error } = await sb.from('grammar_practice_exercises').update({ oculto }).eq('id', setId);
+    if (error) { console.error(error); return; }
+    reportedSetOculto.set(setId, oculto);
+    const audit = allAuditPractice.find(x => x.id === setId);
+    if (audit) audit.oculto = oculto;
+    if (oculto && r.estado !== 'resuelto') return markReport(reportId, 'resuelto');
+    renderReportsSection();
   }
 
   async function markReport(id, estado) {
@@ -1140,7 +1181,10 @@
 
   function renderAuditPracticeItem(r) {
     const oraciones = Array.isArray(r.oraciones) ? r.oraciones : [];
-    const body = `<ul>${oraciones.map(o => `<li>${esc(o.de || '')} — ${esc(o.es || '')}</li>`).join('')}</ul>`;
+    // kasus.html sets ("kasus:" rule_id) store fill-in-the-blank items instead of {de, es}
+    const body = `<ul>${oraciones.map(o => o.frase
+      ? `<li>${esc(o.frase)} → <strong>${esc(o.respuesta || '')}</strong> <em>(${esc(o.pista || '')})</em> — ${esc(o.explicacion || '')}</li>`
+      : `<li>${esc(o.de || '')} — ${esc(o.es || '')}</li>`).join('')}</ul>`;
     return `<details class="audit-item">
       ${auditItemHeader('grammar_practice_exercises', r, r.rule_id || 'Sin id')}
       <div class="audit-item-body">${body}</div>

@@ -27,6 +27,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 | `supabase/migrations/020_device_trials.sql` | Crea `device_trials` (`device_id` uuid PK = el mismo `ejaleman_device_id` de `active_sessions`, `user_id`, `created_at`) y la función `claim_device_trial(p_device_id)` (`security definer`, sin policies de INSERT/UPDATE — mismo patrón que 016/018). Un dispositivo queda ligado a la primera cuenta **en trial** que lo usa; si una segunda cuenta en trial entra desde ese mismo navegador, la función le pone `access_expires_at = now()` y devuelve `false`, de modo que queda a la espera de autorización del admin. Los admins y las cuentas ya `approved` ni marcan ni chocan con el dispositivo (así un aula o una computadora compartida no se bloquea sola). Llamada desde `_claimDeviceTrial()` en `auth.js`. Limitación conocida: borrar el localStorage renueva el trial — frena el registro desechable casual, no al determinado. |
 | `supabase/migrations/019_feedback_reports_respuesta.sql` | Añade `tipo = 'mensaje'` al CHECK de `feedback_reports.tipo` (junto a `bug`/`sugerencia`, ahora el default en el modal de `auth.js`) y las columnas `respuesta`/`respuesta_at`/`respuesta_leida` para que el admin pueda responderle a un reporte y el usuario vea esa respuesta. Crea `mark_feedback_seen(p_report_id)` (`security definer`, mismo patrón que `upsert_active_session`) para que el propio usuario pueda marcar una respuesta como leída sin necesitar una policy de UPDATE genérica. |
 | `supabase/migrations/022_reading_sessions.sql` | Crea `reading_sessions` (historial de sesiones de Leseverstehen de `lectura veloz.html`: nivel, texto, aciertos/total, duración, modo examen y desglose por Teil en jsonb). RLS: INSERT/SELECT propio (INSERT con `is_access_valid()`, patrón de la migración 009) más SELECT admin (patrón 014-018). Antes la puntuación solo vivía en pantalla. |
+| `supabase/migrations/023_feedback_reports_contexto.sql` | Añade `feedback_reports.contexto` (jsonb, nullable): contexto estructurado de un reporte enviado desde un ejercicio concreto (hoy `kasus.html`). Sin políticas nuevas: lo cubre el INSERT propio de 017. |
 | `supabase/migrations/021_user_data_cv_scenarios.sql` | Añade `user_data.cv_scenarios` (jsonb, default `{}`) para sincronizar entre dispositivos los escenarios de rol personalizados de `chat-voz.html`, más cuál está seleccionado. Forma: `{ selected, custom: [...], deleted: [...] }`. A diferencia de `plan_progress` (013), el remoto **no** gana sin más: `custom` se fusiona por `key` porque son escenarios que escribió el alumno y un overwrite plano borraría el creado en otro dispositivo; `deleted` son tombstones para que un borrado se propague en vez de resucitar en ese mismo merge. Las personas generadas por IA (`cv_rol_cache_<key>` en localStorage) se quedan locales a propósito — si faltan, la app ya las regenera vía `/api/chat`. |
 
 ## Supabase table schemas
@@ -145,6 +146,8 @@ RLS: cada usuario inserta (con `is_access_valid()`) y lee solo sus propias filas
 
 RLS: SELECT público. INSERT solo vía service role — lo inserta `/api/chat` (action `generate-practice`). Usado por el botón "🎯 Practicar" de `gramatica.html`.
 
+También guarda los sets de `kasus.html` (action `generate-kasus`): `rule_id` con prefijo `kasus:` (`kasus:{LEVEL}:{W-?}{caso}:{relleno}`, sin colisión con los ids de `GRAMMAR_DATA`) y `oraciones` = `[{frase, opciones, respuesta, pista, caso, genero, explicacion}]`. `user_grammar_practice_seen` registra igualmente qué sets vio cada alumno; el panel de admin excluye las filas `kasus:` al contar la práctica de `gramatica.html`.
+
 ### Supabase table: `user_grammar_practice_seen`
 | Column | Type | Description |
 |--------|------|-------------|
@@ -175,6 +178,7 @@ PK compuesta: `(user_id, date)`. RLS: cada usuario solo lee sus propias filas (m
 | `estado` | text | `nuevo` (default) \| `leido` \| `resuelto` |
 | `respuesta` | text | Respuesta del admin (nullable) — añadida en migración `019` |
 | `respuesta_at` | timestamptz | Cuándo respondió el admin (nullable) |
+| `contexto` | jsonb | Nullable — añadida en `023`. Reporte enviado desde un ejercicio: `{app, set_id, rule_id, frase, respuesta, pista, caso, genero, nivel, relleno}` (`kasus.html`). `set_id` apunta a `grammar_practice_exercises.id`; el admin puede ocultar ese set desde Reportes |
 | `respuesta_leida` | boolean | Si el usuario ya vio la respuesta (default `false`); se marca `true` vía la función `mark_feedback_seen()` cuando el usuario abre la pestaña "Mis mensajes" |
 | `created_at` | timestamptz | Auto |
 

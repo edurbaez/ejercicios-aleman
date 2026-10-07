@@ -144,7 +144,7 @@ Sentence-transformation (Umformung) practice app tied to the grammar rules in `g
 
 **Features:**
 - Rule selector with CEFR level filter; without selection 5 random rules are used
-- Exercises come from a pregenerated bank ([reformulaciones-data.json](reformulaciones-data.json), ~20 per rule, created offline with `scripts/generate-reformulaciones.js`) — no API cost to generate tasks
+- Exercises come from a pregenerated bank ([reformulaciones-data.json](reformulaciones-data.json), ~20 per rule, created offline with `scripts/generate-reformulaciones.js`; C1 uses 5 harder exercises per rule shaped by the teacher-written guides in [reformulaciones-guias.js](reformulaciones-guias.js) plus a review pass) — no API cost to generate tasks
 - Each task shows a source sentence (without the target structure) plus an instruction in Spanish stating the exact transformation to apply
 - **Hybrid evaluation:** the answer is first matched locally against the stored valid solutions (normalized); only if it doesn't match, a single short `/api/chat` call evaluates whether the target structure was applied (✅/⚠️/❌ + explanation in Spanish)
 - Answer by voice (MediaRecorder → `/api/whisper`) or text (Ctrl+Enter); tasks are read aloud with browser TTS

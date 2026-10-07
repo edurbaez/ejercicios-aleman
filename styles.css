@@ -4961,6 +4961,19 @@ body.dark .cr-setup-header h1 { color: #ce93d8; }
 .cr-fb-correct { background: color-mix(in srgb, #43a047 14%, var(--paper-raised)); color: var(--ink); border: 1px solid color-mix(in srgb, #43a047 40%, var(--paper-raised)); }
 .cr-fb-partial { background: color-mix(in srgb, #ffa000 14%, var(--paper-raised)); color: var(--ink); border: 1px solid color-mix(in srgb, #ffa000 40%, var(--paper-raised)); }
 .cr-fb-incorrect { background: color-mix(in srgb, #e53935 14%, var(--paper-raised)); color: var(--ink); border: 1px solid color-mix(in srgb, #e53935 40%, var(--paper-raised)); }
+.cr-report-btn {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--ink);
+    opacity: 0.6;
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.cr-report-btn:hover { opacity: 1; color: var(--accent); }
+.cr-report-done { align-self: flex-end; font-size: 12px; opacity: 0.7; margin: 0; }
 
 .cr-session-score {
     font-size: 13px;

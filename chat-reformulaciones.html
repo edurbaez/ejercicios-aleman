@@ -462,7 +462,7 @@ async function evaluateAnswer(userText) {
             ruleId: State.currentRule.id, source: ex.source, instruction: ex.instruction,
             userAnswer: userText, symbol: '✅', explanation: ex.explanation,
         });
-        addFeedbackCard(feedback);
+        addFeedbackCard(feedback, bankReportContext(ex, userText, '✅', feedback));
         showNextExercise();
         return;
     }
@@ -527,7 +527,7 @@ Bewerte NUR die Antwort des Studenten. Antworte als JSON-Objekt mit genau diesen
             userAnswer: userText, symbol: payload.symbol, explanation: payload.explicacion || '',
         });
         removeBubble(thinkingId);
-        addFeedbackCard(evaluation);
+        addFeedbackCard(evaluation, bankReportContext(ex, userText, payload.symbol, evaluation));
         showNextExercise();
     } catch (e) {
         updateBubble(thinkingId, `Error: ${e.message}`);
@@ -651,6 +651,7 @@ async function sendToAI(userText) {
         }
 
         const task = `Reformuliere: ${payload.tarea_source}\nAnweisung: ${payload.tarea_instruction}`;
+        const prevTask = lastAITask();
         State.messages.push({ role: 'assistant', content: JSON.stringify(payload) });
 
         if (!payload.evaluacion) {
@@ -665,7 +666,11 @@ async function sendToAI(userText) {
             recordScore(evaluation);
             updateRuleSRS(State.currentRule.id, evaluation.includes('✅'));
             removeBubble(thinkingId);
-            addFeedbackCard(evaluation);
+            addFeedbackCard(evaluation, prevTask && {
+                app: 'chat-reformulaciones', origen: 'ia', rule_id: rule.id, nivel: rule.nivel,
+                source: prevTask.tarea_source, instruction: prevTask.tarea_instruction,
+                user_answer: userText, symbol, evaluacion: evaluation,
+            });
 
             addBubble('ai', task);
             speakTask(task);
@@ -963,7 +968,7 @@ function removeBubble(id) {
     document.getElementById(id)?.remove();
 }
 
-function addFeedbackCard(text) {
+function addFeedbackCard(text, report) {
     const area = document.getElementById('chatArea');
     const card = document.createElement('div');
     const cls = text.startsWith('✅') ? 'cr-fb-correct'
@@ -972,8 +977,58 @@ function addFeedbackCard(text) {
     card.className = `cr-feedback-card ${cls}`;
     card.textContent = text;
     area.appendChild(card);
+    if (report) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cr-report-btn';
+        btn.textContent = '⚑ ¿Este ejercicio tiene un error? Repórtalo';
+        btn.onclick = () => reportExercise(report, btn);
+        area.appendChild(btn);
+    }
     area.scrollTop = area.scrollHeight;
 }
+
+// ── REPORT EXERCISE (stored in feedback_reports.contexto) ────────────────────
+function bankReportContext(ex, userText, symbol, evaluation) {
+    const rule = State.currentRule;
+    return {
+        app: 'chat-reformulaciones', origen: rule.rules ? 'banco-combo' : 'banco',
+        rule_id: rule.id, nivel: rule.nivel,
+        source: ex.source, instruction: ex.instruction, solutions: ex.solutions,
+        user_answer: userText, symbol, evaluacion: evaluation,
+    };
+}
+
+function lastAITask() {
+    for (let i = State.messages.length - 1; i >= 0; i--) {
+        if (State.messages[i].role !== 'assistant') continue;
+        try { return JSON.parse(State.messages[i].content); } catch { return null; }
+    }
+    return null;
+}
+
+let _pendingReportBtn = null;
+
+function reportExercise(report, btn) {
+    if (typeof window.openFeedbackModal !== 'function') return;
+    _pendingReportBtn = btn;
+    const sol = report.solutions ? ` → ${report.solutions[0]}` : '';
+    window.openFeedbackModal({
+        tipo: 'bug',
+        resumen: `${report.source}${sol} (${report.instruction}) — tu respuesta: ${report.user_answer} ${report.symbol}`,
+        placeholder: '¿Qué está mal? (p. ej. la solución es incorrecta, mi respuesta también era válida, la frase no es natural…)',
+        contexto: report,
+    });
+}
+
+window.onFeedbackReported = function (contexto) {
+    if (contexto.app !== 'chat-reformulaciones' || !_pendingReportBtn) return;
+    const done = document.createElement('p');
+    done.className = 'cr-report-done';
+    done.textContent = '⚑ Reporte enviado. ¡Gracias!';
+    _pendingReportBtn.replaceWith(done);
+    _pendingReportBtn = null;
+};
 
 // ── TTS ───────────────────────────────────────────────────────────────────────
 function loadVoices() {

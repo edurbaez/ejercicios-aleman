@@ -1000,6 +1000,12 @@
             ? `<div style="margin-bottom:6px;padding:6px 8px;background:#f5f5f5;border-left:3px solid #1976D2;border-radius:5px;font-size:12px;color:#333;">
                 <strong>${esc(r.contexto.app || '')}</strong> · ${esc(r.contexto.rule_id || '')}${reportedSetOculto.get(r.contexto.set_id) ? ' · <em>set oculto</em>' : ''}<br>
                 ${esc(r.contexto.frase)} → <strong>${esc(r.contexto.respuesta || '')}</strong> <em>(${esc(r.contexto.pista || '')})</em></div>`
+            : r.contexto?.source
+            ? `<div style="margin-bottom:6px;padding:6px 8px;background:#f5f5f5;border-left:3px solid #6A1B9A;border-radius:5px;font-size:12px;color:#333;">
+                <strong>${esc(r.contexto.app || '')}</strong> · ${esc(r.contexto.rule_id || '')} · ${esc(r.contexto.origen || '')}<br>
+                ${esc(r.contexto.source)} <em>(${esc(r.contexto.instruction || '')})</em><br>
+                ${r.contexto.solutions ? `Solución: <strong>${esc(r.contexto.solutions.join(' | '))}</strong><br>` : ''}
+                Alumno: ${esc(r.contexto.user_answer || '')} ${esc(r.contexto.symbol || '')}</div>`
             : '';
           const mensajeCell = ctx + (r.respuesta
             ? `${esc(msgShort)}<div style="margin-top:6px;padding:6px 8px;background:#e8f5e9;border-radius:5px;font-size:12px;color:#2e7d32;" title="${esc(r.respuesta)}"><strong>↳ Respondido:</strong> ${esc(r.respuesta.length > 80 ? r.respuesta.slice(0, 80) + '…' : r.respuesta)}</div>`

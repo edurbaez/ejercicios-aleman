@@ -6515,1622 +6515,407 @@
   ],
   "c1-01": [
     {
-      "source": "Das Problem kann nicht gelöst werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
+      "source": "Die Wissenschaftler sind überzeugt, dass man die Auswirkungen des Klimawandels auf die Biodiversität nicht vollständig verstehen kann.",
+      "instruction": "Reescribe la subordinada con lassen + sich.",
       "solutions": [
-        "Das Problem lässt sich nicht lösen."
+        "Die Wissenschaftler sind überzeugt, dass sich die Auswirkungen des Klimawandels auf die Biodiversität nicht vollständig verstehen lassen."
       ],
-      "explanation": "La estructura 'lassen + sich' se usa para expresar la imposibilidad de resolver el problema de manera más elegante."
+      "explanation": "Se cambió 'man kann ... verstehen' por 'sich ... verstehen lassen' para expresar posibilidad de manera más elegante."
     },
     {
-      "source": "Der Text kann leicht übersetzt werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
+      "source": "Es wird angenommen, dass die wirtschaftlichen Herausforderungen durch neue Technologien bewältigt werden können.",
+      "instruction": "Reescribe la subordinada con lassen + sich.",
       "solutions": [
-        "Der Text lässt sich leicht übersetzen."
+        "Es wird angenommen, dass sich die wirtschaftlichen Herausforderungen durch neue Technologien bewältigen lassen."
       ],
-      "explanation": "Se utiliza 'lassen + sich' para indicar que el texto es fácilmente traducible, evitando la pasiva."
+      "explanation": "Se transformó la pasiva con 'können' en 'lassen + sich' para expresar factibilidad."
     },
     {
-      "source": "Die Aufgabe ist nicht zu bewältigen.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
+      "source": "Es ist unmöglich, die kulturellen Unterschiede in kurzer Zeit zu überwinden.",
+      "instruction": "Reescribe la oración con lassen + sich.",
       "solutions": [
-        "Die Aufgabe lässt sich nicht bewältigen."
+        "Die kulturellen Unterschiede lassen sich in kurzer Zeit nicht überwinden."
       ],
-      "explanation": "La frase se transforma usando 'lassen + sich' para expresar la imposibilidad de realizar la tarea."
+      "explanation": "Se cambió 'ist unmöglich, ... zu überwinden' por 'lassen sich nicht ... überwinden' para expresar imposibilidad."
     },
     {
-      "source": "Das Projekt kann erfolgreich abgeschlossen werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
+      "source": "Die Forscher stellten fest, dass die Daten im Labor nicht reproduziert werden konnten.",
+      "instruction": "Reescribe la subordinada con ließ sich.",
       "solutions": [
-        "Das Projekt lässt sich erfolgreich abschließen."
+        "Die Forscher stellten fest, dass sich die Daten im Labor nicht reproduzieren ließen."
       ],
-      "explanation": "La estructura 'lassen + sich' se usa para expresar la posibilidad de completar el proyecto con éxito."
+      "explanation": "Se transformó la pasiva con 'konnten' en 'ließ sich' para expresar imposibilidad en pasado."
     },
     {
-      "source": "Der Vertrag kann nicht geändert werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
+      "source": "Die Experten sind der Meinung, dass die neuen Sicherheitsmaßnahmen in der Praxis nicht umsetzbar sind.",
+      "instruction": "Reescribe la subordinada con lassen + sich.",
       "solutions": [
-        "Der Vertrag lässt sich nicht ändern."
+        "Die Experten sind der Meinung, dass sich die neuen Sicherheitsmaßnahmen in der Praxis nicht umsetzen lassen."
       ],
-      "explanation": "Se utiliza 'lassen + sich' para expresar que el contrato no puede ser modificado, de manera más elegante."
-    },
-    {
-      "source": "Das Problem ist lösbar.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Das Problem lässt sich lösen."
-      ],
-      "explanation": "La frase se transforma para indicar que el problema se puede resolver usando 'lassen + sich'."
-    },
-    {
-      "source": "Die Daten können nicht gelöscht werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Daten lassen sich nicht löschen."
-      ],
-      "explanation": "La estructura 'lassen + sich' se usa para expresar la imposibilidad de eliminar los datos."
-    },
-    {
-      "source": "Der Bericht kann vervollständigt werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Der Bericht lässt sich vervollständigen."
-      ],
-      "explanation": "Se utiliza 'lassen + sich' para indicar que el informe puede ser completado."
-    },
-    {
-      "source": "Diese Theorie kann nicht bewiesen werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Diese Theorie lässt sich nicht beweisen."
-      ],
-      "explanation": "La frase se transforma para expresar la imposibilidad de probar la teoría usando 'lassen + sich'."
-    },
-    {
-      "source": "Die Maschine kann repariert werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Maschine lässt sich reparieren."
-      ],
-      "explanation": "La estructura 'lassen + sich' se usa para expresar que la máquina se puede reparar."
-    },
-    {
-      "source": "Die Regeln können nicht geändert werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Regeln lassen sich nicht ändern."
-      ],
-      "explanation": "Se utiliza 'lassen + sich' para expresar que las reglas no pueden ser modificadas."
-    },
-    {
-      "source": "Das Dokument ist nicht zu öffnen.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Das Dokument lässt sich nicht öffnen."
-      ],
-      "explanation": "La frase se transforma usando 'lassen + sich' para expresar la imposibilidad de abrir el documento."
-    },
-    {
-      "source": "Die Frage kann beantwortet werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Frage lässt sich beantworten."
-      ],
-      "explanation": "La estructura 'lassen + sich' se usa para indicar que la pregunta puede ser respondida."
-    },
-    {
-      "source": "Die Situation kann nicht verbessert werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Situation lässt sich nicht verbessern."
-      ],
-      "explanation": "Se utiliza 'lassen + sich' para expresar que la situación no puede ser mejorada."
-    },
-    {
-      "source": "Der Plan ist umsetzbar.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Der Plan lässt sich umsetzen."
-      ],
-      "explanation": "La frase se transforma para indicar que el plan se puede implementar usando 'lassen + sich'."
-    },
-    {
-      "source": "Das Problem kann nicht vermieden werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Das Problem lässt sich nicht vermeiden."
-      ],
-      "explanation": "La estructura 'lassen + sich' se usa para expresar la imposibilidad de evitar el problema."
-    },
-    {
-      "source": "Die Aufgabe kann erledigt werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Die Aufgabe lässt sich erledigen."
-      ],
-      "explanation": "Se utiliza 'lassen + sich' para indicar que la tarea puede ser realizada."
-    },
-    {
-      "source": "Das Ziel kann nicht erreicht werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Das Ziel lässt sich nicht erreichen."
-      ],
-      "explanation": "La frase se transforma usando 'lassen + sich' para expresar la imposibilidad de alcanzar el objetivo."
-    },
-    {
-      "source": "Der Fehler kann korrigiert werden.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Der Fehler lässt sich korrigieren."
-      ],
-      "explanation": "La estructura 'lassen + sich' se usa para indicar que el error puede ser corregido."
-    },
-    {
-      "source": "Das Problem ist nicht lösbar.",
-      "instruction": "Reescribe la frase usando 'lassen + sich'.",
-      "solutions": [
-        "Das Problem lässt sich nicht lösen."
-      ],
-      "explanation": "Se utiliza 'lassen + sich' para expresar que el problema no se puede resolver."
+      "explanation": "Se cambió el adjetivo 'umsetzbar' por 'lassen sich ... umsetzen' para expresar imposibilidad."
     }
   ],
   "c1-02": [
     {
-      "source": "Man muss das Problem sofort lösen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
+      "source": "Die neuen Richtlinien müssen von allen Abteilungen ohne Ausnahme befolgt werden.",
+      "instruction": "Reescribe la frase con sein + zu + infinitivo.",
       "solutions": [
-        "Das Problem ist sofort zu lösen."
+        "Die neuen Richtlinien sind von allen Abteilungen ohne Ausnahme zu befolgen."
       ],
-      "explanation": "La estructura 'sein + zu + Infinitiv' expresa la obligación de resolver el problema inmediatamente."
+      "explanation": "Se transforma 'müssen ... werden' a 'sind ... zu + Infinitiv' para expresar obligación."
     },
     {
-      "source": "Es ist wichtig, dass die Regeln beachtet werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
+      "source": "In der aktuellen Situation müssen alternative Energiequellen konsequent genutzt werden, um den steigenden Energiebedarf der Industrie zu decken.",
+      "instruction": "Reescribe la frase con sein + zu + infinitivo.",
       "solutions": [
-        "Die Regeln sind zu beachten."
+        "In der aktuellen Situation sind alternative Energiequellen konsequent zu nutzen, um den steigenden Energiebedarf der Industrie zu decken."
       ],
-      "explanation": "La estructura indica que es obligatorio prestar atención a las reglas."
+      "explanation": "\"Müssen + Partizip II + werden\" (obligación pasiva) se sustituye por \"sind … zu nutzen\", que aquí expresa obligación."
     },
     {
-      "source": "Die Tür kann nicht geöffnet werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
+      "source": "Man darf die Sicherheitsvorschriften beim Umgang mit Chemikalien nicht ignorieren.",
+      "instruction": "Reescribe la frase con sein + zu + infinitivo.",
       "solutions": [
-        "Die Tür ist nicht zu öffnen."
+        "Die Sicherheitsvorschriften beim Umgang mit Chemikalien sind nicht zu ignorieren."
       ],
-      "explanation": "La estructura 'sein + zu + Infinitiv' expresa la imposibilidad de abrir la puerta."
+      "explanation": "Se transforma 'man darf nicht' a 'sind nicht zu + Infinitiv' para expresar imposibilidad o recomendación negativa."
     },
     {
-      "source": "Man sollte die Anweisungen genau lesen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
+      "source": "Die Vorschläge mussten vor der endgültigen Entscheidung gründlich geprüft werden.",
+      "instruction": "Reescribe la frase con sein + zu + infinitivo.",
       "solutions": [
-        "Die Anweisungen sind genau zu lesen."
+        "Die Vorschläge waren vor der endgültigen Entscheidung gründlich zu prüfen."
       ],
-      "explanation": "La estructura indica que es recomendable leer las instrucciones con atención."
+      "explanation": "Se transforma 'mussten ... werden' a 'waren ... zu + Infinitiv' para expresar obligación en pasado."
     },
     {
-      "source": "Die Aufgabe kann nicht ohne Hilfe gelöst werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
+      "source": "Die Folgen dieser Entscheidung für den regionalen Arbeitsmarkt können nach Ansicht der Gewerkschaften derzeit kaum abgeschätzt werden.",
+      "instruction": "Reescribe la frase con sein + zu + infinitivo.",
       "solutions": [
-        "Die Aufgabe ist ohne Hilfe nicht zu lösen."
+        "Die Folgen dieser Entscheidung für den regionalen Arbeitsmarkt sind nach Ansicht der Gewerkschaften derzeit kaum abzuschätzen."
       ],
-      "explanation": "La estructura expresa la imposibilidad de resolver la tarea sin ayuda."
-    },
-    {
-      "source": "Es ist unmöglich, den Plan zu ändern.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Der Plan ist nicht zu ändern."
-      ],
-      "explanation": "La estructura indica la imposibilidad de modificar el plan."
-    },
-    {
-      "source": "Man darf das Dokument nicht verlieren.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Das Dokument ist nicht zu verlieren."
-      ],
-      "explanation": "La estructura expresa que no es recomendable perder el documento."
-    },
-    {
-      "source": "Die Entscheidung muss bis morgen getroffen werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Entscheidung ist bis morgen zu treffen."
-      ],
-      "explanation": "La estructura indica la obligación de tomar la decisión antes de mañana."
-    },
-    {
-      "source": "Es ist notwendig, dass die Daten überprüft werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Daten sind zu überprüfen."
-      ],
-      "explanation": "La estructura expresa la obligación de verificar los datos."
-    },
-    {
-      "source": "Man kann den Fehler nicht übersehen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Der Fehler ist nicht zu übersehen."
-      ],
-      "explanation": "La estructura indica que es imposible pasar por alto el error."
-    },
-    {
-      "source": "Es ist ratsam, die Sicherheitsvorkehrungen zu beachten.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Sicherheitsvorkehrungen sind zu beachten."
-      ],
-      "explanation": "La estructura expresa que es recomendable seguir las medidas de seguridad."
-    },
-    {
-      "source": "Man kann die Präsentation nicht mehr ändern.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Präsentation ist nicht mehr zu ändern."
-      ],
-      "explanation": "La estructura indica la imposibilidad de modificar la presentación."
-    },
-    {
-      "source": "Die Informationen müssen aktualisiert werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Informationen sind zu aktualisieren."
-      ],
-      "explanation": "La estructura expresa la obligación de actualizar la información."
-    },
-    {
-      "source": "Es ist unerlässlich, die Frist einzuhalten.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Frist ist einzuhalten."
-      ],
-      "explanation": "La estructura indica la obligación de cumplir con el plazo."
-    },
-    {
-      "source": "Man sollte die Vorschläge ernst nehmen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Vorschläge sind ernst zu nehmen."
-      ],
-      "explanation": "La estructura expresa que es recomendable tomar en serio las sugerencias."
-    },
-    {
-      "source": "Es ist unmöglich, die Datei wiederherzustellen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Datei ist nicht wiederherzustellen."
-      ],
-      "explanation": "La estructura indica la imposibilidad de recuperar el archivo."
-    },
-    {
-      "source": "Man muss die Ergebnisse sorgfältig analysieren.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Ergebnisse sind sorgfältig zu analysieren."
-      ],
-      "explanation": "La estructura expresa la obligación de analizar los resultados con cuidado."
-    },
-    {
-      "source": "Es ist nicht möglich, die Sitzung zu verschieben.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Sitzung ist nicht zu verschieben."
-      ],
-      "explanation": "La estructura indica la imposibilidad de posponer la reunión."
-    },
-    {
-      "source": "Man sollte die Risiken nicht unterschätzen.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Risiken sind nicht zu unterschätzen."
-      ],
-      "explanation": "La estructura expresa que no es recomendable subestimar los riesgos."
-    },
-    {
-      "source": "Es ist erforderlich, dass die Dokumente unterschrieben werden.",
-      "instruction": "Reescribe la frase usando 'sein + zu + Infinitiv'.",
-      "solutions": [
-        "Die Dokumente sind zu unterschreiben."
-      ],
-      "explanation": "La estructura expresa la obligación de firmar los documentos."
+      "explanation": "\"Können + Partizip II + werden\" (posibilidad pasiva) pasa a \"sind … abzuschätzen\"; con \"kaum\" expresa casi imposibilidad. El \"zu\" va dentro del verbo separable."
     }
   ],
   "c1-04": [
     {
-      "source": "Das Buch, das von vielen Kritikern gelobt wurde, ist ein Bestseller.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
+      "source": "Der Bericht, der von der Regierung im letzten Jahr veröffentlicht wurde, analysiert die wirtschaftlichen Auswirkungen, die durch die neuen Gesetze verursacht wurden.",
+      "instruction": "Convierte las dos oraciones de relativo en atributos participiales extendidos.",
       "solutions": [
-        "Das von vielen Kritikern gelobte Buch ist ein Bestseller."
+        "Der im letzten Jahr von der Regierung veröffentlichte Bericht analysiert die durch die neuen Gesetze verursachten wirtschaftlichen Auswirkungen."
       ],
-      "explanation": "Se elimina el pronombre relativo y el auxiliar, y se convierte el verbo en participio para formar el atributo participial."
+      "explanation": "Se eliminaron los pronombres relativos y los auxiliares, convirtiendo los verbos en participios pasivos e insertándolos como atributos participiales."
     },
     {
-      "source": "Die Ausstellung, die von einem berühmten Künstler organisiert wurde, zieht viele Besucher an.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
+      "source": "Die Studie, die von renommierten Wissenschaftlern durchgeführt wird, untersucht die sozialen Veränderungen, die in den letzten Jahrzehnten stattgefunden haben.",
+      "instruction": "Convierte las dos oraciones de relativo en atributos participiales extendidos.",
       "solutions": [
-        "Die von einem berühmten Künstler organisierte Ausstellung zieht viele Besucher an."
+        "Die von renommierten Wissenschaftlern durchgeführte Studie untersucht die in den letzten Jahrzehnten stattgefundenen sozialen Veränderungen."
       ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
+      "explanation": "Se transformaron las oraciones de relativo en atributos participiales pasivos y activos, eliminando pronombres relativos y auxiliares."
     },
     {
-      "source": "Der Vertrag, der von beiden Parteien unterzeichnet wurde, ist rechtskräftig.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
+      "source": "Die Technologien, die in den letzten Jahren entwickelt wurden, haben die Arbeitswelt grundlegend verändert.",
+      "instruction": "Convierte la oración de relativo en un atributo participial extendido.",
       "solutions": [
-        "Der von beiden Parteien unterzeichnete Vertrag ist rechtskräftig."
+        "Die in den letzten Jahren entwickelten Technologien haben die Arbeitswelt grundlegend verändert."
       ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
+      "explanation": "El pronombre relativo y el auxiliar fueron eliminados, y el verbo fue convertido en un participio pasivo para formar el atributo."
     },
     {
-      "source": "Die Entscheidung, die nach langen Diskussionen getroffen wurde, war umstritten.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
+      "source": "Das Buch, das von einem bekannten Autor geschrieben wird, wird nächste Woche veröffentlicht.",
+      "instruction": "Convierte la oración de relativo en un atributo participial extendido.",
       "solutions": [
-        "Die nach langen Diskussionen getroffene Entscheidung war umstritten."
+        "Das von einem bekannten Autor geschriebene Buch wird nächste Woche veröffentlicht."
       ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
+      "explanation": "El pronombre relativo y el auxiliar fueron eliminados, y el verbo fue convertido en un participio pasivo para formar el atributo."
     },
     {
-      "source": "Das Projekt, das von der EU finanziert wird, ist sehr innovativ.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
+      "source": "Die Konferenz, die jedes Jahr in Berlin stattfindet, zieht viele internationale Experten an.",
+      "instruction": "Convierte la oración de relativo en un atributo participial extendido.",
       "solutions": [
-        "Das von der EU finanzierte Projekt ist sehr innovativ."
+        "Die jedes Jahr in Berlin stattfindende Konferenz zieht viele internationale Experten an."
       ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Lösung, die von den Experten vorgeschlagen wurde, ist effektiv.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die von den Experten vorgeschlagene Lösung ist effektiv."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Der Bericht, der von der Kommission veröffentlicht wurde, enthält wichtige Daten.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Der von der Kommission veröffentlichte Bericht enthält wichtige Daten."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Maschine, die in Japan hergestellt wurde, ist sehr effizient.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die in Japan hergestellte Maschine ist sehr effizient."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Der Roman, der von einem bekannten Autor geschrieben wurde, ist spannend.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Der von einem bekannten Autor geschriebene Roman ist spannend."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Theorie, die von vielen Wissenschaftlern unterstützt wird, ist umstritten.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die von vielen Wissenschaftlern unterstützte Theorie ist umstritten."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Das Konzert, das von einem berühmten Dirigenten geleitet wird, ist ausverkauft.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Das von einem berühmten Dirigenten geleitete Konzert ist ausverkauft."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Der Film, der von einem preisgekrönten Regisseur gedreht wurde, ist beeindruckend.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Der von einem preisgekrönten Regisseur gedrehte Film ist beeindruckend."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Technik, die in diesem Labor entwickelt wurde, ist revolutionär.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die in diesem Labor entwickelte Technik ist revolutionär."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Das Gemälde, das von einem berühmten Künstler gemalt wurde, ist sehr wertvoll.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Das von einem berühmten Künstler gemalte Gemälde ist sehr wertvoll."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Strategie, die von der Firma entwickelt wurde, war erfolgreich.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die von der Firma entwickelte Strategie war erfolgreich."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Der Artikel, der von einem renommierten Journalisten geschrieben wurde, ist lesenswert.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Der von einem renommierten Journalisten geschriebene Artikel ist lesenswert."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Das Gebäude, das von einem bekannten Architekten entworfen wurde, ist beeindruckend.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Das von einem bekannten Architekten entworfene Gebäude ist beeindruckend."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Methode, die von den Forschern angewendet wurde, ist innovativ.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die von den Forschern angewendete Methode ist innovativ."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Der Vorschlag, der von der Kommission gemacht wurde, ist umstritten.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Der von der Kommission gemachte Vorschlag ist umstritten."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
-    },
-    {
-      "source": "Die Studie, die von einem internationalen Team durchgeführt wurde, ist bahnbrechend.",
-      "instruction": "Reescribe la frase usando un atributo participial extendido.",
-      "solutions": [
-        "Die von einem internationalen Team durchgeführte Studie ist bahnbrechend."
-      ],
-      "explanation": "El pronombre relativo y el auxiliar se eliminan, y el verbo se transforma en participio para formar el atributo participial."
+      "explanation": "El pronombre relativo fue eliminado, y el verbo fue convertido en un participio presente para formar el atributo."
     }
   ],
   "c1-14": [
     {
-      "source": "Wir müssen die Möglichkeit in Betracht ziehen, dass das Projekt scheitert.",
-      "instruction": "Reescribe la frase usando 'eine Möglichkeit in Betracht ziehen'.",
+      "source": "Die Wissenschaftler haben beschlossen, die neuen Forschungsergebnisse in die Praxis umzusetzen, um die Effizienz zu steigern.",
+      "instruction": "Sustituye 'umzusetzen' por el Funktionsverbgefüge 'zur Anwendung bringen'.",
       "solutions": [
-        "Wir müssen die Möglichkeit in Betracht ziehen, dass das Projekt scheitert."
+        "Die Wissenschaftler haben beschlossen, die neuen Forschungsergebnisse zur Anwendung zu bringen, um die Effizienz zu steigern."
       ],
-      "explanation": "La expresión 'in Betracht ziehen' es un Funktionsverbgefüge que se usa para expresar que se considera una posibilidad."
+      "explanation": "Se cambió el verbo 'umzusetzen' por el Funktionsverbgefüge 'zur Anwendung bringen' para expresar la misma idea de manera más formal."
     },
     {
-      "source": "Er hat die Entscheidung getroffen, das Unternehmen zu verlassen.",
-      "instruction": "Reescribe la frase usando 'eine Entscheidung treffen'.",
+      "source": "Der Kritiker hat den neuen Roman des Autors scharf kritisiert, was zu einer hitzigen Debatte führte.",
+      "instruction": "Sustituye 'kritisieren' por el Funktionsverbgefüge 'Kritik üben an'.",
       "solutions": [
-        "Er hat die Entscheidung getroffen, das Unternehmen zu verlassen."
+        "Der Kritiker hat scharfe Kritik an dem neuen Roman des Autors geübt, was zu einer hitzigen Debatte führte."
       ],
-      "explanation": "La expresión 'eine Entscheidung treffen' se utiliza para indicar que alguien toma una decisión."
+      "explanation": "Se cambió 'kritisieren' por 'Kritik üben an', adaptando el caso del complemento directo al dativo requerido por el Funktionsverbgefüge."
     },
     {
-      "source": "Die Regierung hat eine neue Strategie entwickelt.",
-      "instruction": "Reescribe la frase usando 'eine Strategie entwickeln'.",
+      "source": "Die Firma plant, ihre Produktionskapazitäten im Ausland zu erweitern, um den internationalen Markt zu erobern.",
+      "instruction": "Sustituye 'erweitern' por el Funktionsverbgefüge 'eine Erweiterung vornehmen'.",
       "solutions": [
-        "Die Regierung hat eine neue Strategie entwickelt."
+        "Die Firma plant, eine Erweiterung ihrer Produktionskapazitäten im Ausland vorzunehmen, um den internationalen Markt zu erobern."
       ],
-      "explanation": "El Funktionsverbgefüge 'eine Strategie entwickeln' se usa para expresar que se ha desarrollado una estrategia."
+      "explanation": "El verbo 'erweitern' se transformó en el Funktionsverbgefüge 'eine Erweiterung vornehmen', lo que requirió ajustar la estructura de la oración."
     },
     {
-      "source": "Man sollte die Möglichkeit nicht ausschließen, dass es zu Verzögerungen kommt.",
-      "instruction": "Reescribe la frase usando 'eine Möglichkeit ausschließen'.",
+      "source": "Die Stadtwerke werden das neue Windkraftwerk voraussichtlich im Frühjahr starten, nachdem die letzten Genehmigungen der Behörden erteilt worden sind.",
+      "instruction": "Sustituye 'starten' por el Funktionsverbgefüge 'in Betrieb nehmen'.",
       "solutions": [
-        "Man sollte die Möglichkeit nicht ausschließen, dass es zu Verzögerungen kommt."
+        "Die Stadtwerke werden das neue Windkraftwerk voraussichtlich im Frühjahr in Betrieb nehmen, nachdem die letzten Genehmigungen der Behörden erteilt worden sind."
       ],
-      "explanation": "El uso de 'eine Möglichkeit ausschließen' es una forma de expresar que no se debe descartar una posibilidad."
+      "explanation": "\"In Betrieb nehmen\" es el Funktionsverbgefüge propio de instalaciones y máquinas; con \"werden\" el grupo completo va al final de la oración principal."
     },
     {
-      "source": "Das Unternehmen hat eine Vereinbarung mit den Partnern getroffen.",
-      "instruction": "Reescribe la frase usando 'eine Vereinbarung treffen'.",
+      "source": "Die Forscher haben die Hypothese überprüft, um die Gültigkeit der Ergebnisse sicherzustellen.",
+      "instruction": "Sustituye 'überprüfen' por el Funktionsverbgefüge 'einer Prüfung unterziehen'.",
       "solutions": [
-        "Das Unternehmen hat eine Vereinbarung mit den Partnern getroffen."
+        "Die Forscher haben die Hypothese einer Prüfung unterzogen, um die Gültigkeit der Ergebnisse sicherzustellen."
       ],
-      "explanation": "La expresión 'eine Vereinbarung treffen' se utiliza para indicar que se ha llegado a un acuerdo."
-    },
-    {
-      "source": "Wir müssen die Sicherheit der Daten gewährleisten.",
-      "instruction": "Reescribe la frase usando 'Sicherheit gewährleisten'.",
-      "solutions": [
-        "Wir müssen die Sicherheit der Daten gewährleisten."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Sicherheit gewährleisten' se usa para expresar que se debe garantizar la seguridad."
-    },
-    {
-      "source": "Er hat den Verdacht geäußert, dass jemand die Informationen gestohlen hat.",
-      "instruction": "Reescribe la frase usando 'einen Verdacht äußern'.",
-      "solutions": [
-        "Er hat den Verdacht geäußert, dass jemand die Informationen gestohlen hat."
-      ],
-      "explanation": "La expresión 'einen Verdacht äußern' se usa para expresar que alguien ha manifestado una sospecha."
-    },
-    {
-      "source": "Die Firma hat den Vertrag mit sofortiger Wirkung gekündigt.",
-      "instruction": "Reescribe la frase usando 'einen Vertrag kündigen'.",
-      "solutions": [
-        "Die Firma hat den Vertrag mit sofortiger Wirkung gekündigt."
-      ],
-      "explanation": "El Funktionsverbgefüge 'einen Vertrag kündigen' se usa para indicar que se ha rescindido un contrato."
-    },
-    {
-      "source": "Die Experten haben eine Analyse der Daten durchgeführt.",
-      "instruction": "Reescribe la frase usando 'eine Analyse durchführen'.",
-      "solutions": [
-        "Die Experten haben eine Analyse der Daten durchgeführt."
-      ],
-      "explanation": "La expresión 'eine Analyse durchführen' se utiliza para indicar que se ha realizado un análisis."
-    },
-    {
-      "source": "Der Manager hat den Vorschlag abgelehnt.",
-      "instruction": "Reescribe la frase usando 'einen Vorschlag ablehnen'.",
-      "solutions": [
-        "Der Manager hat den Vorschlag abgelehnt."
-      ],
-      "explanation": "El Funktionsverbgefüge 'einen Vorschlag ablehnen' se usa para expresar que se ha rechazado una propuesta."
-    },
-    {
-      "source": "Die Wissenschaftler haben den Einfluss des Klimawandels untersucht.",
-      "instruction": "Reescribe la frase usando 'einen Einfluss untersuchen'.",
-      "solutions": [
-        "Die Wissenschaftler haben den Einfluss des Klimawandels untersucht."
-      ],
-      "explanation": "La expresión 'einen Einfluss untersuchen' se utiliza para indicar que se ha examinado un impacto."
-    },
-    {
-      "source": "Die Polizei hat die Ermittlungen abgeschlossen.",
-      "instruction": "Reescribe la frase usando 'Ermittlungen abschließen'.",
-      "solutions": [
-        "Die Polizei hat die Ermittlungen abgeschlossen."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Ermittlungen abschließen' se usa para expresar que se han concluido las investigaciones."
-    },
-    {
-      "source": "Der Lehrer hat die Schüler zur Teilnahme an dem Projekt ermutigt.",
-      "instruction": "Reescribe la frase usando 'zur Teilnahme ermutigen'.",
-      "solutions": [
-        "Der Lehrer hat die Schüler zur Teilnahme an dem Projekt ermutigt."
-      ],
-      "explanation": "La expresión 'zur Teilnahme ermutigen' se utiliza para indicar que se ha animado a alguien a participar."
-    },
-    {
-      "source": "Die Firma hat die Produktion erhöht.",
-      "instruction": "Reescribe la frase usando 'Produktion erhöhen'.",
-      "solutions": [
-        "Die Firma hat die Produktion erhöht."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Produktion erhöhen' se usa para expresar que se ha incrementado la producción."
-    },
-    {
-      "source": "Der Wissenschaftler hat die Hypothese bestätigt.",
-      "instruction": "Reescribe la frase usando 'eine Hypothese bestätigen'.",
-      "solutions": [
-        "Der Wissenschaftler hat die Hypothese bestätigt."
-      ],
-      "explanation": "La expresión 'eine Hypothese bestätigen' se utiliza para indicar que se ha confirmado una hipótesis."
-    },
-    {
-      "source": "Der Politiker hat die Verantwortung übernommen.",
-      "instruction": "Reescribe la frase usando 'Verantwortung übernehmen'.",
-      "solutions": [
-        "Der Politiker hat die Verantwortung übernommen."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Verantwortung übernehmen' se usa para expresar que se ha asumido una responsabilidad."
-    },
-    {
-      "source": "Die Organisation hat die Unterstützung zugesagt.",
-      "instruction": "Reescribe la frase usando 'Unterstützung zusagen'.",
-      "solutions": [
-        "Die Organisation hat die Unterstützung zugesagt."
-      ],
-      "explanation": "La expresión 'Unterstützung zusagen' se utiliza para indicar que se ha prometido apoyo."
-    },
-    {
-      "source": "Der Chef hat die Mitarbeiter informiert.",
-      "instruction": "Reescribe la frase usando 'Mitarbeiter informieren'.",
-      "solutions": [
-        "Der Chef hat die Mitarbeiter informiert."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Mitarbeiter informieren' se usa para expresar que se ha informado a los empleados."
-    },
-    {
-      "source": "Der Arzt hat die Behandlung empfohlen.",
-      "instruction": "Reescribe la frase usando 'eine Behandlung empfehlen'.",
-      "solutions": [
-        "Der Arzt hat die Behandlung empfohlen."
-      ],
-      "explanation": "La expresión 'eine Behandlung empfehlen' se utiliza para indicar que se ha recomendado un tratamiento."
-    },
-    {
-      "source": "Der Ingenieur hat die Pläne überprüft.",
-      "instruction": "Reescribe la frase usando 'Pläne überprüfen'.",
-      "solutions": [
-        "Der Ingenieur hat die Pläne überprüft."
-      ],
-      "explanation": "El Funktionsverbgefüge 'Pläne überprüfen' se usa para expresar que se han revisado los planes."
+      "explanation": "Se reemplazó 'überprüfen' por 'einer Prüfung unterziehen', lo que requirió modificar el caso del complemento."
     }
   ],
   "c1-05": [
     {
-      "source": "Es war ein Fehler, dass du nicht früher gekommen bist.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
+      "source": "Der Wissenschaftler hatte die Möglichkeit, die Ergebnisse früher zu veröffentlichen, aber er entschied sich dagegen.",
+      "instruction": "Expresa la posibilidad no aprovechada con hätte + infinitivo + können.",
       "solutions": [
-        "Du hättest früher kommen sollen."
+        "Der Wissenschaftler hätte die Ergebnisse früher veröffentlichen können, aber er entschied sich dagegen."
       ],
-      "explanation": "La frase original expresa un reproche por no haber venido antes. Usamos 'hätte sollen' para indicar la obligación no cumplida."
+      "explanation": "Se cambió el verbo al irrealis del pasado para expresar una posibilidad no realizada."
     },
     {
-      "source": "Er verpasste die Chance, das Projekt zu leiten.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
+      "source": "Es war seine Pflicht, die Daten korrekt zu analysieren, aber er hat es nicht getan.",
+      "instruction": "Expresa la obligación incumplida con hätte + infinitivo + müssen.",
       "solutions": [
-        "Er hätte die Chance haben können, das Projekt zu leiten."
+        "Er hätte die Daten korrekt analysieren müssen, aber er hat es nicht getan."
       ],
-      "explanation": "La frase original indica una posibilidad perdida. Usamos 'hätte können' para expresar que podría haber tenido la oportunidad."
+      "explanation": "El verbo se transformó al irrealis del pasado para indicar una obligación no cumplida."
     },
     {
-      "source": "Du musstest den Bericht rechtzeitig abgeben.",
-      "instruction": "Reescribe la frase usando 'hätte müssen'.",
+      "source": "Die Firma hatte die Möglichkeit, in neue Technologien zu investieren, entschied sich jedoch dagegen.",
+      "instruction": "Expresa la posibilidad no aprovechada con hätte + infinitivo + können.",
       "solutions": [
-        "Du hättest den Bericht rechtzeitig abgeben müssen."
+        "Die Firma hätte in neue Technologien investieren können, entschied sich jedoch dagegen."
       ],
-      "explanation": "La frase original indica una obligación que no se cumplió. Usamos 'hätte müssen' para expresar que debiste haberlo hecho."
+      "explanation": "Se usó el irrealis del pasado para expresar una oportunidad perdida."
     },
     {
-      "source": "Sie war nicht da, als ich ankam.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
+      "source": "Es war seine Pflicht, die Mitarbeiter über die Änderungen zu informieren, aber er tat es nicht.",
+      "instruction": "Expresa la obligación incumplida con hätte + infinitivo + sollen.",
       "solutions": [
-        "Sie hätte da sein können, als ich ankam."
+        "Er hätte die Mitarbeiter über die Änderungen informieren sollen, aber er tat es nicht."
       ],
-      "explanation": "La frase original indica una posibilidad de presencia. Usamos 'hätte können' para expresar la posibilidad perdida de que ella estuviera allí."
-    },
-    {
-      "source": "Wir sollten die Tickets vorher kaufen.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Wir hätten die Tickets vorher kaufen sollen."
-      ],
-      "explanation": "La frase original sugiere una acción que debió realizarse. Usamos 'hätte sollen' para expresar el reproche por no haberlo hecho."
-    },
-    {
-      "source": "Er entschied sich, nicht zu kommen.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Er hätte kommen können."
-      ],
-      "explanation": "La frase original indica una decisión de no venir. Usamos 'hätte können' para expresar la posibilidad perdida de que él viniera."
-    },
-    {
-      "source": "Du hast die Warnungen ignoriert.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Du hättest die Warnungen nicht ignorieren sollen."
-      ],
-      "explanation": "La frase original indica un reproche por ignorar las advertencias. Usamos 'hätte sollen' para expresar la crítica por no haber prestado atención."
-    },
-    {
-      "source": "Sie konnte nicht teilnehmen, weil sie krank war.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Sie hätte teilnehmen können, wenn sie nicht krank gewesen wäre."
-      ],
-      "explanation": "La frase original explica una imposibilidad. Usamos 'hätte können' para indicar la posibilidad perdida si no hubiera estado enferma."
-    },
-    {
-      "source": "Ich musste die Prüfung bestehen.",
-      "instruction": "Reescribe la frase usando 'hätte müssen'.",
-      "solutions": [
-        "Ich hätte die Prüfung bestehen müssen."
-      ],
-      "explanation": "La frase original indica una obligación de aprobar. Usamos 'hätte müssen' para expresar la obligación no cumplida."
-    },
-    {
-      "source": "Er vergaß, den Vertrag zu unterschreiben.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Er hätte den Vertrag unterschreiben sollen."
-      ],
-      "explanation": "La frase original indica un olvido importante. Usamos 'hätte sollen' para expresar el reproche por no haber firmado."
-    },
-    {
-      "source": "Du hast die Gelegenheit verpasst, sie zu treffen.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Du hättest die Gelegenheit haben können, sie zu treffen."
-      ],
-      "explanation": "La frase original indica una oportunidad perdida. Usamos 'hätte können' para expresar la posibilidad no realizada."
-    },
-    {
-      "source": "Wir mussten das Problem sofort lösen.",
-      "instruction": "Reescribe la frase usando 'hätte müssen'.",
-      "solutions": [
-        "Wir hätten das Problem sofort lösen müssen."
-      ],
-      "explanation": "La frase original indica una obligación urgente. Usamos 'hätte müssen' para expresar que debimos haberlo resuelto inmediatamente."
-    },
-    {
-      "source": "Sie entschied sich, nicht zu antworten.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Sie hätte antworten können."
-      ],
-      "explanation": "La frase original indica una decisión de no responder. Usamos 'hätte können' para expresar la posibilidad perdida de que ella respondiera."
-    },
-    {
-      "source": "Ihr habt die Regeln nicht beachtet.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Ihr hättet die Regeln beachten sollen."
-      ],
-      "explanation": "La frase original indica un reproche por no seguir las reglas. Usamos 'hätte sollen' para expresar la crítica por no haberlas seguido."
-    },
-    {
-      "source": "Er konnte nicht gewinnen, weil er nicht trainiert hatte.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Er hätte gewinnen können, wenn er trainiert hätte."
-      ],
-      "explanation": "La frase original explica una imposibilidad. Usamos 'hätte können' para indicar la posibilidad perdida si hubiera entrenado."
-    },
-    {
-      "source": "Du musstest die Wahrheit sagen.",
-      "instruction": "Reescribe la frase usando 'hätte müssen'.",
-      "solutions": [
-        "Du hättest die Wahrheit sagen müssen."
-      ],
-      "explanation": "La frase original indica una obligación de decir la verdad. Usamos 'hätte müssen' para expresar que debiste haberlo hecho."
-    },
-    {
-      "source": "Sie vergaß, die Dokumente zu schicken.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Sie hätte die Dokumente schicken sollen."
-      ],
-      "explanation": "La frase original indica un olvido importante. Usamos 'hätte sollen' para expresar el reproche por no haber enviado los documentos."
-    },
-    {
-      "source": "Du hast die Möglichkeit nicht genutzt, mit ihm zu sprechen.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Du hättest die Möglichkeit haben können, mit ihm zu sprechen."
-      ],
-      "explanation": "La frase original indica una oportunidad perdida. Usamos 'hätte können' para expresar la posibilidad no realizada de hablar con él."
-    },
-    {
-      "source": "Wir sollten die Präsentation besser vorbereiten.",
-      "instruction": "Reescribe la frase usando 'hätte sollen'.",
-      "solutions": [
-        "Wir hätten die Präsentation besser vorbereiten sollen."
-      ],
-      "explanation": "La frase original sugiere una acción que debió realizarse. Usamos 'hätte sollen' para expresar el reproche por no haberlo hecho mejor."
-    },
-    {
-      "source": "Er entschied sich, nicht zu reisen.",
-      "instruction": "Reescribe la frase usando 'hätte können'.",
-      "solutions": [
-        "Er hätte reisen können."
-      ],
-      "explanation": "La frase original indica una decisión de no viajar. Usamos 'hätte können' para expresar la posibilidad perdida de que él viajara."
+      "explanation": "Se usó el irrealis del pasado para indicar un deber no cumplido."
     }
   ],
   "c1-06": [
     {
-      "source": "Ich sehe, dass er den Kuchen isst.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
+      "source": "Die Forscher mussten die Ergebnisse der Studie veröffentlichen, obwohl die Daten noch nicht vollständig ausgewertet waren.",
+      "instruction": "Pon la oración principal en Perfekt con Ersatzinfinitiv.",
       "solutions": [
-        "Ich habe ihn den Kuchen essen sehen."
+        "Die Forscher haben die Ergebnisse der Studie veröffentlichen müssen, obwohl die Daten noch nicht vollständig ausgewertet waren."
       ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'sehen', se usa el Ersatzinfinitiv."
+      "explanation": "El verbo modal 'mussten' se transforma en 'haben müssen' y el infinitivo 'veröffentlichen' se mantiene al final."
     },
     {
-      "source": "Sie lässt ihn die Aufgabe machen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
+      "source": "Der Ingenieur ließ die Maschine regelmäßig warten, um ihre Leistung zu optimieren.",
+      "instruction": "Transforma la oración principal a Perfekt con Ersatzinfinitiv.",
       "solutions": [
-        "Sie hat ihn die Aufgabe machen lassen."
+        "Der Ingenieur hat die Maschine regelmäßig warten lassen, um ihre Leistung zu optimieren."
       ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'lassen', se usa el Ersatzinfinitiv."
+      "explanation": "El verbo 'ließ' se transforma en 'hat lassen' y el infinitivo 'warten' se mantiene al final."
     },
     {
-      "source": "Wir können das Problem lösen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
+      "source": "Die Bürger hörten die Politiker über die neuen Umweltgesetze diskutieren.",
+      "instruction": "Pon la oración en Perfekt con Ersatzinfinitiv.",
       "solutions": [
-        "Wir haben das Problem lösen können."
+        "Die Bürger haben die Politiker über die neuen Umweltgesetze diskutieren hören."
       ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'können', se usa el Ersatzinfinitiv."
+      "explanation": "El verbo 'hörten' se transforma en 'haben hören' y el infinitivo 'diskutieren' se mantiene al final."
     },
     {
-      "source": "Ich höre, dass sie das Lied singt.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
+      "source": "Weil die Firma die Produktion steigern musste, investierte sie in neue Technologien.",
+      "instruction": "Pon la subordinada en Perfekt (cuidado con el orden del verbo).",
       "solutions": [
-        "Ich habe sie das Lied singen hören."
+        "Weil die Firma die Produktion hat steigern müssen, investierte sie in neue Technologien."
       ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'hören', se usa el Ersatzinfinitiv."
+      "explanation": "El verbo modal 'musste' se transforma en 'hat müssen' y el infinitivo 'steigern' se mantiene al final de la subordinada."
     },
     {
-      "source": "Er will das Projekt beenden.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
+      "source": "Der Lehrer hörte die Schüler im Klassenzimmer laut sprechen.",
+      "instruction": "Pon la oración en Perfekt con Ersatzinfinitiv.",
       "solutions": [
-        "Er hat das Projekt beenden wollen."
+        "Der Lehrer hat die Schüler im Klassenzimmer laut sprechen hören."
       ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'wollen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Wir müssen die Arbeit erledigen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Wir haben die Arbeit erledigen müssen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'müssen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Sie sieht, dass das Kind spielt.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Sie hat das Kind spielen sehen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'sehen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Er lässt den Hund im Garten laufen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Er hat den Hund im Garten laufen lassen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'lassen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Sie kann die Aufgabe alleine lösen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Sie hat die Aufgabe alleine lösen können."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'können', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Ich höre, dass sie die Wahrheit sagt.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Ich habe sie die Wahrheit sagen hören."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'hören', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Er will die Prüfung bestehen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Er hat die Prüfung bestehen wollen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'wollen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Wir müssen die Regeln befolgen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Wir haben die Regeln befolgen müssen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'müssen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Sie sieht, dass er das Buch liest.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Sie hat ihn das Buch lesen sehen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'sehen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Er lässt das Kind die Tür öffnen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Er hat das Kind die Tür öffnen lassen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'lassen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Sie kann die Aufgabe schnell erledigen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Sie hat die Aufgabe schnell erledigen können."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'können', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Ich höre, dass sie die Musik spielt.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Ich habe sie die Musik spielen hören."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'hören', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Er will das Auto reparieren.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Er hat das Auto reparieren wollen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'wollen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Wir müssen die Präsentation vorbereiten.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Wir haben die Präsentation vorbereiten müssen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'müssen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Sie sieht, dass er den Film schaut.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Sie hat ihn den Film schauen sehen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'sehen', se usa el Ersatzinfinitiv."
-    },
-    {
-      "source": "Er lässt den Schüler die Aufgabe lösen.",
-      "instruction": "Reescribe la frase en Perfekt usando Ersatzinfinitiv.",
-      "solutions": [
-        "Er hat den Schüler die Aufgabe lösen lassen."
-      ],
-      "explanation": "La frase original está en Präsens. En Perfekt con 'lassen', se usa el Ersatzinfinitiv."
+      "explanation": "El verbo 'hörte' se transforma en 'hat hören' y el infinitivo 'sprechen' se mantiene al final."
     }
   ],
   "c1-09": [
     {
-      "source": "Die Tür des Hauses ist rot gestrichen.",
-      "instruction": "Reescribe la frase usando un compuesto.",
+      "source": "Die Debatte über die Reform des Arbeitsmarktes hat in den letzten Wochen auch innerhalb der Regierungskoalition deutlich an Intensität gewonnen.",
+      "instruction": "Sustituye 'die Reform des Arbeitsmarktes' por un compuesto.",
       "solutions": [
-        "Die Haustür ist rot gestrichen."
+        "Die Debatte über die Arbeitsmarktreform hat in den letzten Wochen auch innerhalb der Regierungskoalition deutlich an Intensität gewonnen."
       ],
-      "explanation": "La palabra compuesta 'Haustür' se forma de 'Haus' y 'Tür', donde 'Tür' es el núcleo y determina el género femenino."
+      "explanation": "El genitivo \"des Arbeitsmarktes\" pasa a ser el modificador: Arbeitsmarkt + Reform. El género lo da el núcleo (die Reform), por eso se mantiene \"die\"."
     },
     {
-      "source": "Der Beitrag zur Krankenversicherung wurde erhöht.",
-      "instruction": "Reescribe la frase usando un compuesto.",
+      "source": "Die Beteiligung an der Wahl zum Bundestag lag nach Angaben der Bundeswahlleiterin deutlich höher als bei der letzten Abstimmung vor vier Jahren.",
+      "instruction": "Sustituye 'die Beteiligung an der Wahl' y 'der Wahl zum Bundestag' por compuestos.",
       "solutions": [
-        "Der Krankenversicherungsbeitrag wurde erhöht."
+        "Die Wahlbeteiligung bei der Bundestagswahl lag nach Angaben der Bundeswahlleiterin deutlich höher als bei der letzten Abstimmung vor vier Jahren."
       ],
-      "explanation": "El compuesto 'Krankenversicherungsbeitrag' se forma de 'Krankenversicherung' y 'Beitrag', donde 'Beitrag' es el núcleo y determina el género masculino."
+      "explanation": "Se forman dos compuestos: Wahl + Beteiligung y Bundestag + s + Wahl (con Fugen-s). El grupo preposicional cambia a \"bei der Bundestagswahl\"."
     },
     {
-      "source": "Die Wahl zum Bundestag findet alle vier Jahre statt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
+      "source": "Die Nutzung der Energie aus der Sonne soll in den kommenden Jahren durch staatliche Förderprogramme für private Haushalte deutlich ausgebaut werden.",
+      "instruction": "Sustituye 'der Energie aus der Sonne' por un compuesto.",
       "solutions": [
-        "Die Bundestagswahl findet alle vier Jahre statt."
+        "Die Nutzung der Sonnenenergie soll in den kommenden Jahren durch staatliche Förderprogramme für private Haushalte deutlich ausgebaut werden."
       ],
-      "explanation": "El compuesto 'Bundestagswahl' se forma de 'Bundestag' y 'Wahl', donde 'Wahl' es el núcleo y determina el género femenino."
+      "explanation": "Sonne + n + Energie: el elemento de enlace -n- es puramente fonético. El núcleo \"Energie\" (femenino) determina el artículo \"der\" en genitivo."
     },
     {
-      "source": "Das Tuch für die Hände liegt im Badezimmer.",
-      "instruction": "Reescribe la frase usando un compuesto.",
+      "source": "In ihrem aktuellen Bericht über die Lage der Umwelt warnt die Bundesregierung vor den langfristigen Folgen des Artensterbens für die Landwirtschaft.",
+      "instruction": "Sustituye 'Bericht über die Lage der Umwelt' por un compuesto.",
       "solutions": [
-        "Das Handtuch liegt im Badezimmer."
+        "In ihrem aktuellen Umweltbericht warnt die Bundesregierung vor den langfristigen Folgen des Artensterbens für die Landwirtschaft."
       ],
-      "explanation": "El compuesto 'Handtuch' se forma de 'Hand' y 'Tuch', donde 'Tuch' es el núcleo y determina el género neutro."
+      "explanation": "Umwelt + Bericht: aunque \"Umwelt\" es femenino, el compuesto es masculino porque el núcleo es \"der Bericht\"; por eso se mantiene \"ihrem\"."
     },
     {
-      "source": "Die Versicherung für das Auto ist teuer.",
-      "instruction": "Reescribe la frase usando un compuesto.",
+      "source": "In vielen Arztpraxen auf dem Land sind die Räume, in denen man wartet, inzwischen so überfüllt, dass manche Patienten draußen stehen müssen.",
+      "instruction": "Sustituye 'die Räume, in denen man wartet' por un compuesto.",
       "solutions": [
-        "Die Autoversicherung ist teuer."
+        "In vielen Arztpraxen auf dem Land sind die Wartezimmer inzwischen so überfüllt, dass manche Patienten draußen stehen müssen.",
+        "In vielen Arztpraxen auf dem Land sind die Warteräume inzwischen so überfüllt, dass manche Patienten draußen stehen müssen."
       ],
-      "explanation": "El compuesto 'Autoversicherung' se forma de 'Auto' y 'Versicherung', donde 'Versicherung' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Der Plan für das Projekt wurde genehmigt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Der Projektplan wurde genehmigt."
-      ],
-      "explanation": "El compuesto 'Projektplan' se forma de 'Projekt' y 'Plan', donde 'Plan' es el núcleo y determina el género masculino."
-    },
-    {
-      "source": "Die Karte für den Stadtplan ist sehr detailliert.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Stadtkarte ist sehr detailliert."
-      ],
-      "explanation": "El compuesto 'Stadtkarte' se forma de 'Stadt' y 'Karte', donde 'Karte' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Das Buch für die Schule ist sehr interessant.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Das Schulbuch ist sehr interessant."
-      ],
-      "explanation": "El compuesto 'Schulbuch' se forma de 'Schule' y 'Buch', donde 'Buch' es el núcleo y determina el género neutro."
-    },
-    {
-      "source": "Der Bericht über das Wetter wird im Radio gesendet.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Der Wetterbericht wird im Radio gesendet."
-      ],
-      "explanation": "El compuesto 'Wetterbericht' se forma de 'Wetter' y 'Bericht', donde 'Bericht' es el núcleo y determina el género masculino."
-    },
-    {
-      "source": "Die Lampe für den Tisch ist sehr modern.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Tischlampe ist sehr modern."
-      ],
-      "explanation": "El compuesto 'Tischlampe' se forma de 'Tisch' y 'Lampe', donde 'Lampe' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Das Wasser im Glas ist kalt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Das Glaswasser ist kalt."
-      ],
-      "explanation": "El compuesto 'Glaswasser' se forma de 'Glas' y 'Wasser', donde 'Wasser' es el núcleo y determina el género neutro."
-    },
-    {
-      "source": "Der Bericht über die Finanzlage wurde veröffentlicht.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Der Finanzbericht wurde veröffentlicht."
-      ],
-      "explanation": "El compuesto 'Finanzbericht' se forma de 'Finanz' y 'Bericht', donde 'Bericht' es el núcleo y determina el género masculino."
-    },
-    {
-      "source": "Die Steuer auf das Einkommen wurde erhöht.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Einkommensteuer wurde erhöht."
-      ],
-      "explanation": "El compuesto 'Einkommensteuer' se forma de 'Einkommen' y 'Steuer', donde 'Steuer' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Das Gerät zur Messung der Temperatur ist defekt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Das Temperaturmessgerät ist defekt."
-      ],
-      "explanation": "El compuesto 'Temperaturmessgerät' se forma de 'Temperatur' y 'Messgerät', donde 'Messgerät' es el núcleo y determina el género neutro."
-    },
-    {
-      "source": "Der Plan für die Stadtentwicklung wurde vorgestellt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Der Stadtentwicklungsplan wurde vorgestellt."
-      ],
-      "explanation": "El compuesto 'Stadtentwicklungsplan' se forma de 'Stadtentwicklung' y 'Plan', donde 'Plan' es el núcleo y determina el género masculino."
-    },
-    {
-      "source": "Die Versicherung für das Haus ist wichtig.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Hausversicherung ist wichtig."
-      ],
-      "explanation": "El compuesto 'Hausversicherung' se forma de 'Haus' y 'Versicherung', donde 'Versicherung' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Das Handtuch für die Küche ist sauber.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Das Küchenhandtuch ist sauber."
-      ],
-      "explanation": "El compuesto 'Küchenhandtuch' se forma de 'Küche' y 'Handtuch', donde 'Handtuch' es el núcleo y determina el género neutro."
-    },
-    {
-      "source": "Die Lampe für den Schreibtisch ist kaputt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Schreibtischlampe ist kaputt."
-      ],
-      "explanation": "El compuesto 'Schreibtischlampe' se forma de 'Schreibtisch' y 'Lampe', donde 'Lampe' es el núcleo y determina el género femenino."
-    },
-    {
-      "source": "Der Bericht über die Umweltsituation ist alarmierend.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Der Umweltbericht ist alarmierend."
-      ],
-      "explanation": "El compuesto 'Umweltbericht' se forma de 'Umwelt' y 'Bericht', donde 'Bericht' es el núcleo y determina el género masculino."
-    },
-    {
-      "source": "Die Steuer auf den Umsatz wurde gesenkt.",
-      "instruction": "Reescribe la frase usando un compuesto.",
-      "solutions": [
-        "Die Umsatzsteuer wurde gesenkt."
-      ],
-      "explanation": "El compuesto 'Umsatzsteuer' se forma de 'Umsatz' y 'Steuer', donde 'Steuer' es el núcleo y determina el género femenino."
+      "explanation": "La raíz verbal (warten → Warte-) funciona como modificador: Warte + Zimmer/Raum. El compuesto sustituye toda la oración de relativo."
     }
   ],
   "c1-07": [
     {
-      "source": "Man sagt, dass er ein großes Vermögen hat.",
-      "instruction": "Reescribe la frase usando 'soll'.",
+      "source": "Man sagt, dass die neuen wissenschaftlichen Erkenntnisse die bisherigen Theorien infrage stellen.",
+      "instruction": "Expresa que es un rumor usando soll.",
       "solutions": [
-        "Er soll ein großes Vermögen haben."
+        "Die neuen wissenschaftlichen Erkenntnisse sollen die bisherigen Theorien infrage stellen."
       ],
-      "explanation": "La transformación usa 'soll' para indicar que la fuente de información es externa."
+      "explanation": "Se ha cambiado la estructura de 'Man sagt, dass' a 'sollen', indicando que es un rumor."
     },
     {
-      "source": "Sie behauptet, dass sie die Wahrheit kennt.",
-      "instruction": "Reescribe la frase usando 'will'.",
+      "source": "Er behauptet, dass er die Software-Entwicklung bis Ende des Monats abgeschlossen hat.",
+      "instruction": "Expresa que es una afirmación del propio sujeto usando will.",
       "solutions": [
-        "Sie will die Wahrheit kennen."
+        "Er will die Software-Entwicklung bis Ende des Monats abgeschlossen haben."
       ],
-      "explanation": "La transformación usa 'will' para indicar que la fuente de información es la propia persona."
+      "explanation": "Se ha transformado 'Er behauptet, dass' a 'will', indicando que es una afirmación del propio sujeto."
     },
     {
-      "source": "Es ist wahrscheinlich, dass das Wetter morgen besser wird.",
-      "instruction": "Reescribe la frase usando 'dürfte'.",
+      "source": "Es ist wahrscheinlich, dass die wirtschaftliche Erholung länger dauern wird als erwartet.",
+      "instruction": "Expresa que es una estimación usando dürfte.",
       "solutions": [
-        "Das Wetter dürfte morgen besser werden."
+        "Die wirtschaftliche Erholung dürfte länger dauern als erwartet."
       ],
-      "explanation": "La transformación usa 'dürfte' para expresar una estimación o probabilidad."
+      "explanation": "Se ha cambiado 'Es ist wahrscheinlich, dass' a 'dürfte', indicando que es una estimación."
     },
     {
-      "source": "Es ist logisch, dass das Projekt bald abgeschlossen ist.",
-      "instruction": "Reescribe la frase usando 'müsste'.",
+      "source": "Alles deutet darauf hin, dass die Umweltmaßnahmen die Emissionen signifikant reduzieren werden.",
+      "instruction": "Expresa que es un cálculo lógico usando müsste.",
       "solutions": [
-        "Das Projekt müsste bald abgeschlossen sein."
+        "Die Umweltmaßnahmen müssten die Emissionen signifikant reduzieren."
       ],
-      "explanation": "La transformación usa 'müsste' para indicar un cálculo lógico sobre el estado del proyecto."
+      "explanation": "Se ha transformado 'Alles deutet darauf hin' a 'müssten', indicando un cálculo lógico."
     },
     {
-      "source": "Die Leute sagen, dass der Film sehr spannend ist.",
-      "instruction": "Reescribe la frase usando 'soll'.",
+      "source": "Es wird berichtet, dass das neue Kulturzentrum bereits eröffnet worden ist.",
+      "instruction": "Expresa que es un rumor usando soll.",
       "solutions": [
-        "Der Film soll sehr spannend sein."
+        "Das neue Kulturzentrum soll bereits eröffnet worden sein."
       ],
-      "explanation": "La transformación usa 'soll' para indicar que la información proviene de otras personas."
-    },
-    {
-      "source": "Er gibt an, dass er die Prüfung bestanden hat.",
-      "instruction": "Reescribe la frase usando 'will'.",
-      "solutions": [
-        "Er will die Prüfung bestanden haben."
-      ],
-      "explanation": "La transformación usa 'will' para mostrar que la afirmación proviene del propio sujeto."
-    },
-    {
-      "source": "Es ist möglich, dass die Preise steigen.",
-      "instruction": "Reescribe la frase usando 'dürfte'.",
-      "solutions": [
-        "Die Preise dürften steigen."
-      ],
-      "explanation": "La transformación usa 'dürfte' para expresar una estimación sobre el aumento de precios."
-    },
-    {
-      "source": "Es ist zu erwarten, dass der Bericht fertig ist.",
-      "instruction": "Reescribe la frase usando 'müsste'.",
-      "solutions": [
-        "Der Bericht müsste fertig sein."
-      ],
-      "explanation": "La transformación usa 'müsste' para indicar una expectativa lógica sobre el estado del informe."
-    },
-    {
-      "source": "Man hört, dass sie eine neue Wohnung gefunden hat.",
-      "instruction": "Reescribe la frase usando 'soll'.",
-      "solutions": [
-        "Sie soll eine neue Wohnung gefunden haben."
-      ],
-      "explanation": "La transformación usa 'soll' para indicar que la información proviene de una fuente externa."
-    },
-    {
-      "source": "Sie sagt, dass sie das Buch gelesen hat.",
-      "instruction": "Reescribe la frase usando 'will'.",
-      "solutions": [
-        "Sie will das Buch gelesen haben."
-      ],
-      "explanation": "La transformación usa 'will' para indicar que la afirmación proviene de la propia persona."
-    },
-    {
-      "source": "Es ist anzunehmen, dass der Plan funktioniert.",
-      "instruction": "Reescribe la frase usando 'dürfte'.",
-      "solutions": [
-        "Der Plan dürfte funktionieren."
-      ],
-      "explanation": "La transformación usa 'dürfte' para expresar una estimación sobre el funcionamiento del plan."
-    },
-    {
-      "source": "Es ist logisch, dass das Problem gelöst ist.",
-      "instruction": "Reescribe la frase usando 'müsste'.",
-      "solutions": [
-        "Das Problem müsste gelöst sein."
-      ],
-      "explanation": "La transformación usa 'müsste' para indicar un cálculo lógico sobre la resolución del problema."
-    },
-    {
-      "source": "Man munkelt, dass der Politiker zurücktreten wird.",
-      "instruction": "Reescribe la frase usando 'soll'.",
-      "solutions": [
-        "Der Politiker soll zurücktreten."
-      ],
-      "explanation": "La transformación usa 'soll' para indicar que la información es un rumor o proviene de otros."
-    },
-    {
-      "source": "Er behauptet, dass er im Urlaub war.",
-      "instruction": "Reescribe la frase usando 'will'.",
-      "solutions": [
-        "Er will im Urlaub gewesen sein."
-      ],
-      "explanation": "La transformación usa 'will' para mostrar que la afirmación proviene del propio sujeto."
-    },
-    {
-      "source": "Es ist wahrscheinlich, dass die Lieferung pünktlich ankommt.",
-      "instruction": "Reescribe la frase usando 'dürfte'.",
-      "solutions": [
-        "Die Lieferung dürfte pünktlich ankommen."
-      ],
-      "explanation": "La transformación usa 'dürfte' para expresar una estimación sobre la puntualidad de la entrega."
-    },
-    {
-      "source": "Es ist zu erwarten, dass das Gebäude renoviert ist.",
-      "instruction": "Reescribe la frase usando 'müsste'.",
-      "solutions": [
-        "Das Gebäude müsste renoviert sein."
-      ],
-      "explanation": "La transformación usa 'müsste' para indicar una expectativa lógica sobre la renovación del edificio."
-    },
-    {
-      "source": "Man sagt, dass die Ausstellung sehr interessant ist.",
-      "instruction": "Reescribe la frase usando 'soll'.",
-      "solutions": [
-        "Die Ausstellung soll sehr interessant sein."
-      ],
-      "explanation": "La transformación usa 'soll' para indicar que la información proviene de una fuente externa."
-    },
-    {
-      "source": "Sie gibt an, dass sie den Vertrag unterschrieben hat.",
-      "instruction": "Reescribe la frase usando 'will'.",
-      "solutions": [
-        "Sie will den Vertrag unterschrieben haben."
-      ],
-      "explanation": "La transformación usa 'will' para mostrar que la afirmación proviene de la propia persona."
-    },
-    {
-      "source": "Es ist möglich, dass der Kurs erfolgreich ist.",
-      "instruction": "Reescribe la frase usando 'dürfte'.",
-      "solutions": [
-        "Der Kurs dürfte erfolgreich sein."
-      ],
-      "explanation": "La transformación usa 'dürfte' para expresar una estimación sobre el éxito del curso."
-    },
-    {
-      "source": "Es ist logisch, dass das Auto repariert ist.",
-      "instruction": "Reescribe la frase usando 'müsste'.",
-      "solutions": [
-        "Das Auto müsste repariert sein."
-      ],
-      "explanation": "La transformación usa 'müsste' para indicar un cálculo lógico sobre la reparación del coche."
+      "explanation": "Se ha cambiado 'Es wird berichtet, dass' a 'soll', indicando que es un rumor."
     }
   ],
   "c1-15": [
     {
-      "source": "Er hat das Thema bereits angesprochen. Er hat es ausführlich erklärt.",
-      "instruction": "Reescribe usando 'darüber'.",
+      "source": "Die Forscher untersuchten die Auswirkungen des Klimawandels auf die Biodiversität. Über die Auswirkungen des Klimawandels wurde ein Bericht veröffentlicht.",
+      "instruction": "Evita la repetición en la segunda frase con un pronombre adverbial.",
       "solutions": [
-        "Er hat das Thema bereits angesprochen. Darüber hat er ausführlich erklärt."
+        "Die Forscher untersuchten die Auswirkungen des Klimawandels auf die Biodiversität. Darüber wurde ein Bericht veröffentlicht."
       ],
-      "explanation": "Se usa 'darüber' para referirse a un tema ya mencionado."
+      "explanation": "Se sustituye 'über die Auswirkungen des Klimawandels' por 'darüber' para evitar la repetición."
     },
     {
-      "source": "Sie hat den Vertrag gelesen. Sie hat ihn unterschrieben.",
-      "instruction": "Reescribe usando 'dafür'.",
+      "source": "Die Journalistin sprach mit dem Minister über die neuen Umweltgesetze. Über den Minister wurde in der Zeitung ein Artikel veröffentlicht.",
+      "instruction": "Evita la repetición en la segunda frase con un pronombre personal.",
       "solutions": [
-        "Sie hat den Vertrag gelesen. Dafür hat sie ihn unterschrieben."
+        "Die Journalistin sprach mit dem Minister über die neuen Umweltgesetze. Über ihn wurde in der Zeitung ein Artikel veröffentlicht."
       ],
-      "explanation": "Se usa 'dafür' para indicar que la firma es en relación con el contrato."
+      "explanation": "Se reemplaza 'über den Minister' por 'über ihn' para referirse correctamente a una persona."
     },
     {
-      "source": "Er denkt über das Projekt nach. Er hat viele Ideen dazu.",
-      "instruction": "Reescribe usando 'daran'.",
+      "source": "Der Professor erklärte die Theorien von Einstein. Die Studenten diskutierten über die Theorien von Einstein.",
+      "instruction": "Evita la repetición en la segunda frase con un pronombre adverbial.",
       "solutions": [
-        "Er denkt über das Projekt nach. Daran hat er viele Ideen."
+        "Der Professor erklärte die Theorien von Einstein. Darüber diskutierten die Studenten."
       ],
-      "explanation": "Se usa 'daran' para referirse al proyecto mencionado."
+      "explanation": "Se sustituye 'über die Theorien von Einstein' por 'darüber' para evitar la repetición."
     },
     {
-      "source": "Sie sprach über das neue Gesetz. Sie äußerte sich kritisch dazu.",
-      "instruction": "Reescribe usando 'darüber'.",
+      "source": "Die Ärztin sprach mit den Patienten über die Risiken der Operation. Über die Risiken der Operation wurde auch ein ausführlicher Bericht verfasst.",
+      "instruction": "Evita la repetición en la segunda frase con un pronombre adverbial.",
       "solutions": [
-        "Sie sprach über das neue Gesetz. Darüber äußerte sie sich kritisch."
+        "Die Ärztin sprach mit den Patienten über die Risiken der Operation. Darüber wurde auch ein ausführlicher Bericht verfasst."
       ],
-      "explanation": "Se usa 'darüber' para referirse al tema del nuevo ley."
+      "explanation": "Se reemplaza 'über die Risiken der Operation' por 'darüber' para evitar la repetición."
     },
     {
-      "source": "Er hat den Vorschlag abgelehnt. Er hatte gute Gründe dafür.",
-      "instruction": "Reescribe usando 'dafür'.",
+      "source": "Die Schüler bereiteten sich auf die Abschlussprüfungen vor. Die Lehrer halfen den Schülern bei der Vorbereitung auf die Prüfungen.",
+      "instruction": "Evita la repetición en la segunda frase con un pronombre adverbial.",
       "solutions": [
-        "Er hat den Vorschlag abgelehnt. Dafür hatte er gute Gründe."
+        "Die Schüler bereiteten sich auf die Abschlussprüfungen vor. Dabei halfen ihnen die Lehrer."
       ],
-      "explanation": "Se usa 'dafür' para conectar la razón con el rechazo del propuesta."
-    },
-    {
-      "source": "Sie diskutierte über die neuen Regeln. Sie war nicht einverstanden damit.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Sie diskutierte über die neuen Regeln. Darüber war sie nicht einverstanden."
-      ],
-      "explanation": "Se usa 'darüber' para referirse a las reglas discutidas."
-    },
-    {
-      "source": "Er hat das Buch gelesen. Er hat es sehr interessant gefunden.",
-      "instruction": "Reescribe usando 'daran'.",
-      "solutions": [
-        "Er hat das Buch gelesen. Daran hat er es sehr interessant gefunden."
-      ],
-      "explanation": "Se usa 'daran' para conectar el interés con la lectura del libro."
-    },
-    {
-      "source": "Sie hat das Gemälde gesehen. Sie war beeindruckt davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie hat das Gemälde gesehen. Davon war sie beeindruckt."
-      ],
-      "explanation": "Se usa 'davon' para referirse al impacto del cuadro visto."
-    },
-    {
-      "source": "Er sprach über den Artikel. Er fand ihn sehr informativ.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Er sprach über den Artikel. Darüber fand er ihn sehr informativ."
-      ],
-      "explanation": "Se usa 'darüber' para referirse al contenido del artículo."
-    },
-    {
-      "source": "Sie hat die Präsentation gehört. Sie hat viel daraus gelernt.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie hat die Präsentation gehört. Davon hat sie viel gelernt."
-      ],
-      "explanation": "Se usa 'davon' para conectar el aprendizaje con la presentación."
-    },
-    {
-      "source": "Er hat die Aufgabe erledigt. Er ist stolz darauf.",
-      "instruction": "Reescribe usando 'darauf'.",
-      "solutions": [
-        "Er hat die Aufgabe erledigt. Darauf ist er stolz."
-      ],
-      "explanation": "Se usa 'darauf' para conectar el orgullo con la tarea completada."
-    },
-    {
-      "source": "Sie hat die Nachricht gehört. Sie war überrascht davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie hat die Nachricht gehört. Davon war sie überrascht."
-      ],
-      "explanation": "Se usa 'davon' para conectar la sorpresa con la noticia."
-    },
-    {
-      "source": "Er arbeitet an dem Projekt. Er ist begeistert davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Er arbeitet an dem Projekt. Davon ist er begeistert."
-      ],
-      "explanation": "Se usa 'davon' para conectar la emoción con el proyecto."
-    },
-    {
-      "source": "Sie hat das Konzert besucht. Sie war begeistert davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie hat das Konzert besucht. Davon war sie begeistert."
-      ],
-      "explanation": "Se usa 'davon' para conectar la emoción con el concierto."
-    },
-    {
-      "source": "Er hat den Film gesehen. Er hat viel darüber nachgedacht.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Er hat den Film gesehen. Darüber hat er viel nachgedacht."
-      ],
-      "explanation": "Se usa 'darüber' para conectar la reflexión con la película."
-    },
-    {
-      "source": "Sie sprach über das Ereignis. Sie war sehr betroffen davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie sprach über das Ereignis. Davon war sie sehr betroffen."
-      ],
-      "explanation": "Se usa 'davon' para conectar la afectación con el evento."
-    },
-    {
-      "source": "Er hat die Prüfung bestanden. Er ist glücklich darüber.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Er hat die Prüfung bestanden. Darüber ist er glücklich."
-      ],
-      "explanation": "Se usa 'darüber' para conectar la felicidad con el éxito en el examen."
-    },
-    {
-      "source": "Sie hat die Ausstellung besucht. Sie war beeindruckt davon.",
-      "instruction": "Reescribe usando 'davon'.",
-      "solutions": [
-        "Sie hat die Ausstellung besucht. Davon war sie beeindruckt."
-      ],
-      "explanation": "Se usa 'davon' para conectar la impresión con la exposición."
-    },
-    {
-      "source": "Er hat die Nachricht gelesen. Er hat darüber nachgedacht.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Er hat die Nachricht gelesen. Darüber hat er nachgedacht."
-      ],
-      "explanation": "Se usa 'darüber' para conectar la reflexión con la noticia."
-    },
-    {
-      "source": "Sie hat den Vortrag gehört. Sie hat viel darüber gelernt.",
-      "instruction": "Reescribe usando 'darüber'.",
-      "solutions": [
-        "Sie hat den Vortrag gehört. Darüber hat sie viel gelernt."
-      ],
-      "explanation": "Se usa 'darüber' para conectar el aprendizaje con la conferencia."
+      "explanation": "Se usa 'dabei' para conectar la preparación con la ayuda de los profesores."
     }
   ],
   "c1-16": [
     {
-      "source": "Als er ankam, begann das Konzert.",
-      "instruction": "Transforma usando 'Kaum...als'.",
+      "source": "Sobald die neuen Richtlinien in Kraft traten, begannen die Unternehmen, ihre Strategien anzupassen.",
+      "instruction": "Reescribe con Kaum … als.",
       "solutions": [
-        "Kaum war er angekommen, als das Konzert begann."
+        "Kaum waren die neuen Richtlinien in Kraft getreten, als die Unternehmen begannen, ihre Strategien anzupassen."
       ],
-      "explanation": "Se usa 'Kaum...als' para enfatizar la simultaneidad de las acciones, con ambos verbos en Präteritum."
+      "explanation": "Se utiliza 'Kaum ... als' con los verbos en Plusquamperfekt y Präteritum para enfatizar la inmediatez de la acción."
     },
     {
-      "source": "Als sie das Buch las, verstand sie alles.",
-      "instruction": "Transforma usando 'Kaum...als'.",
+      "source": "Die Diskussion war so intensiv, dass sie bis spät in die Nacht dauerte.",
+      "instruction": "Reescribe con So + Adj. + Verb + Subjekt, dass …",
       "solutions": [
-        "Kaum hatte sie das Buch gelesen, als sie alles verstand."
+        "So intensiv war die Diskussion, dass sie bis spät in die Nacht dauerte."
       ],
-      "explanation": "La estructura 'Kaum...als' indica que la comprensión ocurrió inmediatamente después de la lectura, ambos en Präteritum."
+      "explanation": "La estructura 'So ... dass' se transforma para enfatizar el adjetivo al inicio, seguido de la inversión verbo-sujeto."
     },
     {
-      "source": "Wenn du die Arbeit beendet hast, kannst du gehen.",
-      "instruction": "Transforma usando 'Erst wenn'.",
+      "source": "Die Entscheidung wurde von der Regierung getroffen, nachdem alle Berichte geprüft worden waren.",
+      "instruction": "Reescribe con Kaum … als.",
       "solutions": [
-        "Erst wenn du die Arbeit beendet hast, kannst du gehen."
+        "Kaum waren alle Berichte geprüft worden, als die Entscheidung von der Regierung getroffen wurde."
       ],
-      "explanation": "La frase se transforma para enfatizar que solo al terminar el trabajo se puede ir, usando 'Erst wenn'."
+      "explanation": "Se utiliza 'Kaum ... als' con los verbos en Plusquamperfekt y Präteritum para indicar la rapidez de la acción."
     },
     {
-      "source": "Er dachte nie, dass er gewinnen könnte.",
-      "instruction": "Transforma usando 'Nie' al inicio.",
+      "source": "Die Auswirkungen der Klimapolitik sind so tiefgreifend, dass sie alle Sektoren betreffen.",
+      "instruction": "Reescribe con So + Adj. + Verb + Subjekt, dass …",
       "solutions": [
-        "Nie hätte er gedacht, dass er gewinnen könnte."
+        "So tiefgreifend sind die Auswirkungen der Klimapolitik, dass sie alle Sektoren betreffen."
       ],
-      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
-    },
-    {
-      "source": "Als der Sturm begann, suchten sie Schutz.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum hatte der Sturm begonnen, als sie Schutz suchten."
-      ],
-      "explanation": "La estructura 'Kaum...als' se usa para mostrar que buscaron refugio inmediatamente después de que comenzara la tormenta."
-    },
-    {
-      "source": "Wenn du das Problem löst, wirst du belohnt.",
-      "instruction": "Transforma usando 'Erst wenn'.",
-      "solutions": [
-        "Erst wenn du das Problem löst, wirst du belohnt."
-      ],
-      "explanation": "La transformación enfatiza que la recompensa solo llegará después de resolver el problema, usando 'Erst wenn'."
-    },
-    {
-      "source": "Als sie die Nachricht hörte, war sie überrascht.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum hatte sie die Nachricht gehört, als sie überrascht war."
-      ],
-      "explanation": "La estructura 'Kaum...als' indica que la sorpresa ocurrió inmediatamente después de escuchar la noticia."
-    },
-    {
-      "source": "Er dachte selten daran, wie glücklich er war.",
-      "instruction": "Transforma usando 'Selten' al inicio.",
-      "solutions": [
-        "Selten dachte er daran, wie glücklich er war."
-      ],
-      "explanation": "Iniciar con 'Selten' crea un énfasis retórico y requiere la inversión del verbo y el sujeto."
-    },
-    {
-      "source": "Als das Telefon klingelte, sprang sie auf.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum hatte das Telefon geklingelt, als sie aufsprang."
-      ],
-      "explanation": "La estructura 'Kaum...als' muestra que ella reaccionó inmediatamente al sonido del teléfono."
-    },
-    {
-      "source": "Wenn du die Aufgabe erledigst, bekommst du eine Pause.",
-      "instruction": "Transforma usando 'Erst wenn'.",
-      "solutions": [
-        "Erst wenn du die Aufgabe erledigst, bekommst du eine Pause."
-      ],
-      "explanation": "La transformación enfatiza que la pausa solo se permite después de completar la tarea, usando 'Erst wenn'."
-    },
-    {
-      "source": "Als das Licht ausging, wurde es dunkel.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum war das Licht ausgegangen, als es dunkel wurde."
-      ],
-      "explanation": "La estructura 'Kaum...als' se usa para mostrar que la oscuridad siguió inmediatamente al apagado de la luz."
-    },
-    {
-      "source": "Er dachte nie, dass er so weit kommen würde.",
-      "instruction": "Transforma usando 'Nie' al inicio.",
-      "solutions": [
-        "Nie hätte er gedacht, dass er so weit kommen würde."
-      ],
-      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
-    },
-    {
-      "source": "Wenn du die Prüfung bestehst, feiern wir.",
-      "instruction": "Transforma usando 'Erst wenn'.",
-      "solutions": [
-        "Erst wenn du die Prüfung bestehst, feiern wir."
-      ],
-      "explanation": "La transformación enfatiza que la celebración solo ocurrirá después de pasar el examen, usando 'Erst wenn'."
-    },
-    {
-      "source": "Als der Regen aufhörte, gingen sie spazieren.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum hatte der Regen aufgehört, als sie spazieren gingen."
-      ],
-      "explanation": "La estructura 'Kaum...als' indica que el paseo comenzó inmediatamente después de que cesó la lluvia."
-    },
-    {
-      "source": "Er dachte selten über seine Zukunft nach.",
-      "instruction": "Transforma usando 'Selten' al inicio.",
-      "solutions": [
-        "Selten dachte er über seine Zukunft nach."
-      ],
-      "explanation": "Iniciar con 'Selten' crea un énfasis retórico y requiere la inversión del verbo y el sujeto."
-    },
-    {
-      "source": "Als das Konzert endete, klatschten alle.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum hatte das Konzert geendet, als alle klatschten."
-      ],
-      "explanation": "La estructura 'Kaum...als' se usa para mostrar que los aplausos siguieron inmediatamente al final del concierto."
-    },
-    {
-      "source": "Wenn du die Tür schließt, wird es ruhig.",
-      "instruction": "Transforma usando 'Erst wenn'.",
-      "solutions": [
-        "Erst wenn du die Tür schließt, wird es ruhig."
-      ],
-      "explanation": "La transformación enfatiza que la tranquilidad solo llega después de cerrar la puerta, usando 'Erst wenn'."
-    },
-    {
-      "source": "Als der Zug abfuhr, winkte sie zum Abschied.",
-      "instruction": "Transforma usando 'Kaum...als'.",
-      "solutions": [
-        "Kaum war der Zug abgefahren, als sie zum Abschied winkte."
-      ],
-      "explanation": "La estructura 'Kaum...als' muestra que su despedida ocurrió inmediatamente después de la partida del tren."
-    },
-    {
-      "source": "Er dachte nie, dass er so erfolgreich sein würde.",
-      "instruction": "Transforma usando 'Nie' al inicio.",
-      "solutions": [
-        "Nie hätte er gedacht, dass er so erfolgreich sein würde."
-      ],
-      "explanation": "Iniciar con 'Nie' crea un énfasis retórico, forzando la inversión del verbo y el sujeto."
-    },
-    {
-      "source": "Wenn du das Fenster öffnest, kommt frische Luft herein.",
-      "instruction": "Transforma usando 'Erst wenn'.",
-      "solutions": [
-        "Erst wenn du das Fenster öffnest, kommt frische Luft herein."
-      ],
-      "explanation": "La transformación enfatiza que el aire fresco solo entra después de abrir la ventana, usando 'Erst wenn'."
+      "explanation": "La estructura 'So ... dass' se reordena para enfatizar el adjetivo, seguido de la inversión verbo-sujeto."
     }
   ],
   "c2-01": [
@@ -13155,6 +11940,276 @@
         "Das im Park rennende Mädchen ist schnell."
       ],
       "explanation": "Se emplea 'rennende' como adjetivo delante de 'Mädchen' para indicar que la acción de correr ocurre al mismo tiempo."
+    }
+  ],
+  "c1-03": [
+    {
+      "source": "Die Maßnahmen, die von der Regierung ergriffen werden müssen, sind entscheidend für den Klimaschutz.",
+      "instruction": "Sustituye la oración de relativo por un Gerundivum (zu + Partizip I).",
+      "solutions": [
+        "Die von der Regierung zu ergreifenden Maßnahmen sind entscheidend für den Klimaschutz."
+      ],
+      "explanation": "La oración de relativo fue sustituida por un Gerundivum que expresa obligación."
+    },
+    {
+      "source": "Die Bücher, die bis Ende des Monats gelesen werden müssen, sind auf der Liste.",
+      "instruction": "Sustituye la oración de relativo por un Gerundivum (zu + Partizip I).",
+      "solutions": [
+        "Die bis Ende des Monats zu lesenden Bücher sind auf der Liste."
+      ],
+      "explanation": "Se ha utilizado el Gerundivum para expresar la obligación de leer los libros."
+    },
+    {
+      "source": "Die Dokumente, die bis morgen eingereicht werden müssen, sind noch nicht vollständig.",
+      "instruction": "Sustituye la oración de relativo por un Gerundivum (zu + Partizip I).",
+      "solutions": [
+        "Die bis morgen einzureichenden Dokumente sind noch nicht vollständig."
+      ],
+      "explanation": "El Gerundivum expresa la obligación de entregar los documentos."
+    },
+    {
+      "source": "Die Berichte, die bis Ende der Woche eingereicht werden müssen, sind noch nicht fertig.",
+      "instruction": "Sustituye la oración de relativo por un Gerundivum (zu + Partizip I).",
+      "solutions": [
+        "Die bis Ende der Woche einzureichenden Berichte sind noch nicht fertig."
+      ],
+      "explanation": "Se transformó la oración de relativo en un Gerundivum para expresar obligación."
+    }
+  ],
+  "c1-08": [
+    {
+      "source": "Der Professor erklärte den Studierenden: \"Bereiten Sie sich gründlich auf die Prüfung vor und bringen Sie alle notwendigen Materialien mit!\"",
+      "instruction": "Pasa la orden a estilo indirecto.",
+      "solutions": [
+        "Der Professor erklärte den Studierenden, sie sollten sich gründlich auf die Prüfung vorbereiten und alle notwendigen Materialien mitbringen."
+      ],
+      "explanation": "Se ha transformado el imperativo directo en una orden indirecta usando 'sollen'."
+    },
+    {
+      "source": "Der Umweltaktivist sagte: \"Wir müssen sofort handeln, um den Klimawandel zu stoppen.\"",
+      "instruction": "Pasa la declaración a estilo indirecto.",
+      "solutions": [
+        "Der Umweltaktivist sagte, sie müssten sofort handeln, um den Klimawandel zu stoppen."
+      ],
+      "explanation": "La declaración y la orden se han transformado usando 'müssen' en Konjunktiv I para expresar necesidad."
+    },
+    {
+      "source": "Die Lehrerin sagte zu den Schülern: \"Lest das Buch bis nächste Woche und bereitet eine Präsentation vor!\"",
+      "instruction": "Pasa la orden a estilo indirecto.",
+      "solutions": [
+        "Die Lehrerin sagte zu den Schülern, sie sollten das Buch bis nächste Woche lesen und eine Präsentation vorbereiten."
+      ],
+      "explanation": "El imperativo directo se ha transformado en una orden indirecta usando 'sollen'."
+    },
+    {
+      "source": "Der Politiker sagte: \"Wir werden die Steuern senken, sobald es möglich ist.\"",
+      "instruction": "Pasa la declaración a estilo indirecto.",
+      "solutions": [
+        "Der Politiker sagte, sie würden die Steuern senken, sobald es möglich sei."
+      ],
+      "explanation": "La declaración se ha transformado usando el Konjunktiv I para expresar un plan futuro condicionado."
+    }
+  ],
+  "c1-10": [
+    {
+      "source": "Die Wissenschaftler haben die Ergebnisse der Studie in einer internationalen Konferenz präsentiert, um die neuesten Erkenntnisse zu teilen. (vorstellen)",
+      "instruction": "Sustituye 'präsentiert' por el verbo entre paréntesis en el mismo tiempo verbal.",
+      "solutions": [
+        "Die Wissenschaftler haben die Ergebnisse der Studie in einer internationalen Konferenz vorgestellt, um die neuesten Erkenntnisse zu teilen."
+      ],
+      "explanation": "Se usa 'vorgestellt' en lugar de 'präsentiert', ya que 'vorstellen' es un verbo inseparable en este contexto."
+    },
+    {
+      "source": "Der Politiker kündigte an, dass die neuen Maßnahmen zur Förderung der Wirtschaft bald umgesetzt werden. (bekanntgeben)",
+      "instruction": "Sustituye 'ankündigte' por el verbo entre paréntesis en el mismo tiempo verbal.",
+      "solutions": [
+        "Der Politiker gab bekannt, dass die neuen Maßnahmen zur Förderung der Wirtschaft bald umgesetzt werden."
+      ],
+      "explanation": "Se usa 'gab bekannt' en lugar de 'kündigte an', ya que 'bekanntgeben' es un verbo separable y el prefijo va al final."
+    },
+    {
+      "source": "Die Firma plant, die neuen Produkte auf der Messe anzukündigen, um das Interesse der Kunden zu wecken. (bekanntgeben)",
+      "instruction": "Sustituye 'anzukündigen' por el verbo entre paréntesis en la misma forma.",
+      "solutions": [
+        "Die Firma plant, die neuen Produkte auf der Messe bekanntzugeben, um das Interesse der Kunden zu wecken."
+      ],
+      "explanation": "Se usa 'bekanntzugeben' en lugar de 'anzukündigen', ya que 'bekanntgeben' es un verbo separable y requiere 'zu' en la forma de infinitivo."
+    },
+    {
+      "source": "Die Aktivisten haben es geschafft, dass ihre Forderungen im Umweltausschuss Gehör fanden, indem sie ihre Argumente klar darlegten. (durchsetzen)",
+      "instruction": "Sustituye 'haben es geschafft' por el verbo entre paréntesis en el mismo tiempo verbal.",
+      "solutions": [
+        "Die Aktivisten haben ihre Forderungen im Umweltausschuss durchgesetzt, indem sie ihre Argumente klar darlegten."
+      ],
+      "explanation": "Se usa 'durchgesetzt' en lugar de 'haben es geschafft', ya que 'durchsetzen' es un verbo inseparable en este contexto."
+    }
+  ],
+  "c1-11": [
+    {
+      "source": "Auf welche Weise auch immer müssen die Kommunen die fehlenden Mittel für die Sanierung der Schulen noch bis zum Jahresende auftreiben.",
+      "instruction": "Sustituye la expresión de indeterminación por una forma con irgend-.",
+      "solutions": [
+        "Irgendwie müssen die Kommunen die fehlenden Mittel für die Sanierung der Schulen noch bis zum Jahresende auftreiben."
+      ],
+      "explanation": "\"Auf welche Weise auch immer\" equivale a \"irgendwie\": no importa el modo. Al ocupar la posición 1, el verbo conjugado sigue inmediatamente."
+    },
+    {
+      "source": "In einem Bericht wurde erwähnt, dass eine beliebige Person Zugang zu den Daten erhalten könnte, was ein Sicherheitsrisiko darstellt.",
+      "instruction": "Sustituye las expresiones de indeterminación por formas con irgend-.",
+      "solutions": [
+        "In einem Bericht wurde erwähnt, dass irgendjemand Zugang zu den Daten erhalten könnte, was ein Sicherheitsrisiko darstellt."
+      ],
+      "explanation": "La frase 'eine beliebige Person' se transformó en 'irgendjemand' para indicar que cualquier persona podría tener acceso, sin importar quién."
+    },
+    {
+      "source": "Die Regierung plant, die neuen Regelungen zu einem unbestimmten Zeitpunkt in Kraft zu setzen, um die Wirtschaft zu stabilisieren.",
+      "instruction": "Sustituye las expresiones de indeterminación por formas con irgend-.",
+      "solutions": [
+        "Die Regierung plant, die neuen Regelungen irgendwann in Kraft zu setzen, um die Wirtschaft zu stabilisieren."
+      ],
+      "explanation": "La expresión 'zu einem unbestimmten Zeitpunkt' fue reemplazada por 'irgendwann' para indicar que no se sabe cuándo se implementarán las regulaciones."
+    },
+    {
+      "source": "Die Forscher haben an einem beliebigen Ort auf der Welt eine neue Art von Bakterien entdeckt, die Plastik abbauen kann.",
+      "instruction": "Sustituye las expresiones de indeterminación por formas con irgend-.",
+      "solutions": [
+        "Die Forscher haben irgendwo auf der Welt eine neue Art von Bakterien entdeckt, die Plastik abbauen kann."
+      ],
+      "explanation": "Se cambió 'an einem beliebigen Ort' por 'irgendwo' para indicar que el lugar exacto del descubrimiento no es relevante."
+    },
+    {
+      "source": "Die Behörde darf die Daten der Bürger nicht einfach einem beliebigen privaten Unternehmen überlassen, ohne vorher deren Zustimmung einzuholen.",
+      "instruction": "Sustituye la expresión de indeterminación por una forma con irgend-.",
+      "solutions": [
+        "Die Behörde darf die Daten der Bürger nicht einfach irgendeinem privaten Unternehmen überlassen, ohne vorher deren Zustimmung einzuholen."
+      ],
+      "explanation": "\"Einem beliebigen\" se sustituye por \"irgendeinem\", que se declina como el artículo indefinido (dativo neutro, por \"überlassen\" + Dat.)."
+    }
+  ],
+  "c1-12": [
+    {
+      "source": "Das Unternehmen musste die Produktion reduzieren, weil die Nachfrage stark gesunken war.",
+      "instruction": "Reescribe la frase empezando con una subordinada con da.",
+      "solutions": [
+        "Da die Nachfrage stark gesunken war, musste das Unternehmen die Produktion reduzieren."
+      ],
+      "explanation": "La oración subordinada con 'weil' se ha transformado en una oración subordinada con 'da', que va al inicio de la frase."
+    },
+    {
+      "source": "Die Regierung hat die Steuern erhöht, denn die Staatsverschuldung ist gestiegen.",
+      "instruction": "Reescribe la frase empezando con una subordinada con da.",
+      "solutions": [
+        "Da die Staatsverschuldung gestiegen ist, hat die Regierung die Steuern erhöht."
+      ],
+      "explanation": "La conjunción 'denn' se ha reemplazado por 'da' al inicio de la frase, cambiando el orden de las cláusulas."
+    },
+    {
+      "source": "Aus Mangel an qualifizierten Fachkräften konnte das Projekt nicht rechtzeitig abgeschlossen werden.",
+      "instruction": "Reescribe la frase usando una subordinada con da.",
+      "solutions": [
+        "Da es an qualifizierten Fachkräften mangelte, konnte das Projekt nicht rechtzeitig abgeschlossen werden."
+      ],
+      "explanation": "La frase nominal con 'aus Mangel an' se ha verbalizado en una oración subordinada con 'da'."
+    },
+    {
+      "source": "Die Konferenz war sehr informativ, allerdings gab es einige technische Probleme.",
+      "instruction": "Reescribe la frase usando una subordinada con wobei.",
+      "solutions": [
+        "Die Konferenz war sehr informativ, wobei es einige technische Probleme gab."
+      ],
+      "explanation": "El comentario con 'allerdings' se ha transformado en una oración subordinada con 'wobei'."
+    },
+    {
+      "source": "Die neue Software ist sehr effizient. Sie benötigt jedoch regelmäßige Updates.",
+      "instruction": "Reescribe las frases usando una subordinada con wobei.",
+      "solutions": [
+        "Die neue Software ist sehr effizient, wobei sie regelmäßige Updates benötigt."
+      ],
+      "explanation": "La segunda oración que relativiza la primera se ha convertido en una oración subordinada con 'wobei'."
+    }
+  ],
+  "c1-13": [
+    {
+      "source": "Durch den Einsatz moderner Technologien konnte das Unternehmen seine Produktionskosten erheblich senken.",
+      "instruction": "Sustituye 'durch + sustantivo' por una subordinada con indem.",
+      "solutions": [
+        "Das Unternehmen konnte seine Produktionskosten erheblich senken, indem es moderne Technologien einsetzte."
+      ],
+      "explanation": "Se cambió 'durch den Einsatz' por 'indem es einsetzte', transformando el sustantivo en una acción verbal."
+    },
+    {
+      "source": "Die Forscher analysierten die Daten gründlich, und sie entdeckten dadurch neue Muster.",
+      "instruction": "Transforma las dos oraciones principales en una sola oración con indem.",
+      "solutions": [
+        "Die Forscher entdeckten neue Muster, indem sie die Daten gründlich analysierten."
+      ],
+      "explanation": "Las dos oraciones principales se combinaron usando 'indem', haciendo que el análisis sea el medio para descubrir patrones."
+    },
+    {
+      "source": "Indem die Regierung neue Gesetze einführte, verbesserte sich die Luftqualität in den Städten.",
+      "instruction": "Reformula la oración usando 'dadurch, dass' en lugar de 'indem'.",
+      "solutions": [
+        "Dadurch, dass die Regierung neue Gesetze einführte, verbesserte sich die Luftqualität in den Städten."
+      ],
+      "explanation": "Se usó 'dadurch, dass' para enfatizar la conexión causal entre la introducción de leyes y la mejora de la calidad del aire."
+    },
+    {
+      "source": "Das Unternehmen investierte in erneuerbare Energien, wodurch es seine Umweltbilanz verbessern konnte.",
+      "instruction": "Reformula la oración usando 'indem' en lugar de 'wodurch'.",
+      "solutions": [
+        "Das Unternehmen konnte seine Umweltbilanz verbessern, indem es in erneuerbare Energien investierte."
+      ],
+      "explanation": "Se cambió 'wodurch' por 'indem' para hacer explícito el método mediante el cual se mejoró la balanza ambiental."
+    },
+    {
+      "source": "Die Kosten wurden durch die Automatisierung der Prozesse gesenkt.",
+      "instruction": "Sustituye 'durch + sustantivo' por una subordinada con indem.",
+      "solutions": [
+        "Die Kosten wurden gesenkt, indem die Prozesse automatisiert wurden."
+      ],
+      "explanation": "Se transformó 'durch die Automatisierung' en 'indem ... automatisiert wurden', cambiando el sustantivo por una acción verbal."
+    }
+  ],
+  "c1-17": [
+    {
+      "source": "Dass die Regierung neue Maßnahmen zur Förderung der erneuerbaren Energien plant, wird von vielen Experten begrüßt.",
+      "instruction": "Empieza la frase con 'es' como correlato.",
+      "solutions": [
+        "Es wird von vielen Experten begrüßt, dass die Regierung neue Maßnahmen zur Förderung der erneuerbaren Energien plant."
+      ],
+      "explanation": "El 'es' como correlato se usa para introducir la oración subordinada, cambiando el orden de los elementos."
+    },
+    {
+      "source": "In der Konferenz wurden viele innovative Ideen zur Digitalisierung vorgestellt.",
+      "instruction": "Empieza la frase con 'es' como Platzhalter.",
+      "solutions": [
+        "Es wurden viele innovative Ideen zur Digitalisierung in der Konferenz vorgestellt."
+      ],
+      "explanation": "El 'es' Platzhalter se usa para ocupar la posición inicial, moviendo el sujeto al final."
+    },
+    {
+      "source": "Die Mitarbeiter haben es im Homeoffice oft schwer, sich zu konzentrieren.",
+      "instruction": "Reordena la frase manteniendo la expresión fija con 'es'.",
+      "solutions": [
+        "Im Homeoffice haben die Mitarbeiter es oft schwer, sich zu konzentrieren."
+      ],
+      "explanation": "La expresión fija con 'es' se mantiene, aunque el orden de los elementos cambia."
+    },
+    {
+      "source": "Es wird in der Stadt viel über die neuen Verkehrsregeln diskutiert.",
+      "instruction": "Empieza la frase con 'über die neuen Verkehrsregeln'.",
+      "solutions": [
+        "Über die neuen Verkehrsregeln wird in der Stadt viel diskutiert."
+      ],
+      "explanation": "El 'es' Platzhalter desaparece cuando otro elemento ocupa la posición inicial."
+    },
+    {
+      "source": "Es freut die Lehrer, dass die Schüler so gute Fortschritte machen.",
+      "instruction": "Empieza la frase con 'dass'.",
+      "solutions": [
+        "Dass die Schüler so gute Fortschritte machen, freut die Lehrer."
+      ],
+      "explanation": "El 'es' Platzhalter se elimina cuando la oración subordinada ocupa el Vorfeld."
     }
   ]
 }

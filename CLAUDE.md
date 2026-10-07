@@ -79,7 +79,7 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 |------|---------|
 | `DATA.json` | Legacy B2 vocabulary (old format). Kept for backward compatibility with `sw.js` cache. |
 | `DataA1.json` … `DataC2.json` (6 files) | Hand-curated vocabulary per level (core lists + extras + `tema: …`); **never regenerate with `generate-vocab.js`**. Detail: `docs/data.md` |
-| `reformulaciones-data.json` / `reformulaciones-combos.js` / `reformulaciones-combos-data.json` | Umformung exercise bank, combo catalog, combo bank. Detail: `docs/apps/chat-reformulaciones.md` |
+| `reformulaciones-data.json` / `reformulaciones-guias.js` / `reformulaciones-combos.js` / `reformulaciones-combos-data.json` | Umformung exercise bank, per-rule generator guides (C1), combo catalog, combo bank. Detail: `docs/apps/chat-reformulaciones.md` |
 | `grammar-data.js` + `grammar-data-{a1..c2}.js` | Loader shim (plain blocking `<script>`) + per-level `window.GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
 | `teacher/clases-a1.js` / `-a2` / `-b1` / `-b2` | `window.TEACHER_CLASES[level]` 30-day class mapping. Detail: `teacher/CLAUDE.md` |
 | `redemittel-data.js` | `window.REDEMITTEL[level][teilId]` (only B1 populated). Detail: `docs/apps/mundliche.md` |
@@ -92,7 +92,7 @@ Files in `scripts/`. Detail: `scripts/CLAUDE.md`.
 |------|---------|
 | `seed-word-lists.js` | Upserts `Data{LEVEL}.json` into `word_lists` (optional level arg). |
 | `generate-vocab.js` | Generates `Data{LEVEL}.json` via GPT-4o (not for the hand-curated files). |
-| `generate-reformulaciones.js` | Generates `reformulaciones-data.json` (incremental). |
+| `generate-reformulaciones.js` | Generates `reformulaciones-data.json` (incremental; guided prompt + review pass for levels in `reformulaciones-guias.js`). |
 | `generate-reformulaciones-combos.js` | Generates `reformulaciones-combos-data.json` with review pass. |
 | `fix-duplicate-words.js` | One-off repair of duplicated words in Data files. |
 

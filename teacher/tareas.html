@@ -208,7 +208,7 @@
 
   function showMsg(text) { document.getElementById('msg').textContent = text || ''; }
 
-  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  // LEVELS comes from grammar-data.js (global const; redeclaring it here is a SyntaxError).
   const LETRAS = 'abcdefghijklmnopqrstuvwxyz';
 
   // Keep in sync with READING_TEILE_SPECS (api/_reading-topics.js) / TEIL_NOMBRES (lectura veloz.html).

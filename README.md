@@ -192,6 +192,10 @@ Admin-only editorial calendar for the `marketing_posts` pipeline. Month view (Mo
 
 Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketing_views.sql](supabase/migrations/005_marketing_views.sql), all `security_invoker` so admin RLS applies): summary cards (total users, active last 7/30 days, simple retention — users active in ≥2 distinct weeks of the last 8), weekly signups and weekly active-users bar charts with a 8/12/26/52-week range selector (missing weeks shown as zero), and per-app usage (events + distinct users) with a 30-days/all-time toggle. It also correlates marketing with growth: weeks with published `marketing_posts` pieces get a 📣 marker on the weekly charts, and a "Publicaciones → registros" table shows how many users signed up within 3 days after each published piece. Pure-CSS bar charts, no external library.
 
+### Generador de tareas ([teacher/tareas.html](teacher/tareas.html))
+
+Admin/teacher-only worksheet builder (linked from the class planner `teacher/index.html`: header "📝 Tareas" and a per-class "Generar tarea con estas reglas" deep link). Per level it combines up to three blocks from the existing banks: **Leseverstehen** (one `reading_texts` v2 text, chosen or random, with selectable Teile), **Kasus** (sentences from the `grammar_practice_exercises` `kasus:*` bank, optional "✨ Generar con IA" to top up the bank via `generate-kasus`) and **Reformulaciones** (`reformulaciones-data.json` rules + combos). "Preparar tarea" shows a preview with answers; the same selection downloads as a student PDF (no solutions) and a teacher PDF (answer key appended). PDFs are built client-side with jsPDF via the shared [pdf-worksheet.js](pdf-worksheet.js).
+
 ---
 
 ## API
@@ -268,6 +272,9 @@ Also tracks daily active screen time per app: a local heartbeat accumulates it i
 Also tracks active sessions per device (for concurrent-login detection): a device id generated once per browser is upserted into Supabase (`active_sessions` table) every 60 seconds while a tab is visible and signed in. Admins see each user's devices, with a warning when 2+ are active at the same time, in [admin/index.html](admin/index.html)'s user detail panel.
 
 Also injects a floating 💬 feedback button on every page: a modal with a "✍️ Nuevo" tab (message/bug/suggestion, `mensaje` is the default) and a "📨 Mis mensajes" tab showing the user's own history plus any admin reply (`feedback_reports` table, private to that user via RLS). The button turns green when there's an unread reply, until the user opens "Mis mensajes". Admins reply per-report from [admin/index.html](admin/index.html)'s "📬 Reportes" section.
+
+### `pdf-worksheet.js`
+Shared jsPDF (2.5.1, loaded on demand from cdnjs) A4 worksheet builder: `PdfWorksheet.load()`, `create()` (returns `write`, `box`, `choiceRow`, `writingLines`, `ensure`, `newPage`, `space`, `save`), `sanitize()` (maps typographic characters to Latin-1 for the built-in Helvetica) and `slug()`. Used by the Comprensión PDF in `lectura veloz.html` and by `teacher/tareas.html`.
 
 ### `config.js`
 Single source of truth for Supabase credentials. Exposes `window.SUPA_URL` and `window.SUPA_KEY`. Must be loaded before `auth.js` on every page that uses Supabase.

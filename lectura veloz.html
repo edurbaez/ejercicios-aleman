@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
+    <script src="pdf-worksheet.js"></script>
 <style>
 #comp-a-gen { margin-bottom: 14px; }
 #comp-a-level-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
@@ -2015,38 +2016,15 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
             document.getElementById('comp-pdf-btn').style.display = 'inline-block';
         }
 
-        function compCargarJsPdf() {
-            if (window.jspdf) return Promise.resolve();
-            return new Promise((resolve, reject) => {
-                const s = document.createElement('script');
-                s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-                s.onload = resolve;
-                s.onerror = () => reject(new Error('No se pudo cargar jsPDF'));
-                document.head.appendChild(s);
-            });
-        }
-
         // Paper worksheet: text + questions with answer boxes, answer key on its own last page.
         async function compDescargarPdf() {
             const texto = document.getElementById('comp-texto-input').value.trim();
             if (!texto || !compPreguntas.length) { showToast('Genera primero el texto y las preguntas'); return; }
-            try { await compCargarJsPdf(); } catch { showToast('No se pudo cargar el generador de PDF. Revisa tu conexión.'); return; }
+            try { await PdfWorksheet.load(); } catch { showToast('No se pudo cargar el generador de PDF. Revisa tu conexión.'); return; }
 
             const g = compTextoGenerado && texto === String(compTextoGenerado.contenido).trim() ? compTextoGenerado : null;
-            const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-            const M = 20, W = 210 - 2 * M, BOTTOM = 297 - M;
-            let y = M;
-            const write = (str, { size = 11, style = 'normal', gap = 1.5, indent = 0 } = {}) => {
-                doc.setFont('helvetica', style);
-                doc.setFontSize(size);
-                const lh = size * 0.42;
-                doc.splitTextToSize(str, W - indent).forEach(line => {
-                    if (y + lh > BOTTOM) { doc.addPage(); y = M; }
-                    doc.text(line, M + indent, y);
-                    y += lh;
-                });
-                y += gap;
-            };
+            const pdf = PdfWorksheet.create();
+            const write = pdf.write;
             const LETRAS = ['A', 'B', 'C', 'D'];
 
             write(g?.titulo || 'Leseverstehen', { size: 16, style: 'bold', gap: 2 });
@@ -2054,29 +2032,27 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
             texto.split(/\n\s*\n/).forEach(p => write(p.replace(/\s*\n\s*/g, ' '), { size: 11, gap: 3.5 }));
             if (g?.palabras?.length) write('Wortschatz: ' + g.palabras.join(' · '), { size: 9, style: 'italic', gap: 6 });
 
-            y += 2;
+            pdf.space(2);
             write('Aufgaben — Kreuzen Sie die richtige Antwort an.', { size: 13, style: 'bold', gap: 3 });
             compPreguntas.forEach((q, i) => {
-                if (y + 30 > BOTTOM) { doc.addPage(); y = M; }
+                pdf.ensure(30);
                 write((i + 1) + '. ' + q.pregunta, { size: 11, style: 'bold', gap: 1.5 });
                 q.opciones.forEach((op, j) => {
-                    if (y + 5 > BOTTOM) { doc.addPage(); y = M; }
-                    doc.setLineWidth(0.3);
-                    doc.rect(M + 5, y - 3, 3.2, 3.2);
+                    pdf.ensure(5);
+                    pdf.box(5);
                     write(LETRAS[j] + ') ' + op, { size: 11, gap: 0.8, indent: 11 });
                 });
-                y += 4;
+                pdf.space(4);
             });
 
-            doc.addPage(); y = M;
+            pdf.newPage();
             write('Lösungen', { size: 13, style: 'bold', gap: 3 });
             compPreguntas.forEach((q, i) => {
                 write((i + 1) + '. ' + LETRAS[q.correcta] + ') ' + q.opciones[q.correcta], { size: 11, style: 'bold', gap: 0.8 });
                 if (q.explicacion) write(q.explicacion, { size: 10, gap: 3, indent: 5 });
             });
 
-            const slug = (g?.titulo || 'texto').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40);
-            doc.save('lesen-' + (g ? g.level.toLowerCase() + '-' : '') + (slug || 'texto') + '.pdf');
+            pdf.save('lesen-' + (g ? g.level.toLowerCase() + '-' : '') + (PdfWorksheet.slug(g?.titulo) || 'texto') + '.pdf');
         }
 
         async function compGenerarTexto() {

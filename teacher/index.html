@@ -110,6 +110,10 @@
     .clase-tabla th { background: #f5f6fa; font-weight: 600; }
     body.dark .clase-tabla th { background: #252842; }
 
+    .tarea-link { display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 600; color: #00695C; text-decoration: none; }
+    .tarea-link:hover { text-decoration: underline; }
+    body.dark .tarea-link { color: #4db6ac; }
+
     .clase-resumen { font-size: 12px; background: #e0f2f1; color: #00695C; padding: 6px 10px; border-radius: 6px; margin: 6px 0 0; line-height: 1.4; }
     body.dark .clase-resumen { background: #00302b; color: #4db6ac; }
   </style>
@@ -130,6 +134,7 @@
       <span class="adm-logo">Clases — Profesor</span>
     </div>
     <div class="adm-header-actions">
+      <a class="adm-btn" href="/teacher/tareas.html">📝 Tareas</a>
       <button class="adm-btn" onclick="toggleDark()">
         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
         Oscuro
@@ -282,6 +287,7 @@
       <div class="class-detail">
         ${cls.ruleIds.map(renderRule).join('')}
         ${renderContenido(cls.contenido)}
+        <a class="tarea-link" href="/teacher/tareas.html?nivel=${currentLevel}&rules=${encodeURIComponent(cls.ruleIds.join(','))}">📝 Generar tarea con estas reglas</a>
       </div>
     </div>`;
   }

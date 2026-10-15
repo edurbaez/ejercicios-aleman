@@ -50,6 +50,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `plan.html` | 30-day study plan SPA, progress synced to `user_data.plan_progress`; installable PWA. Detail: `docs/apps/plan.md` |
 | `admin/index.html` | Admin-only dashboard (stats, users, access control, reports). Detail: `admin/CLAUDE.md` |
 | `teacher/index.html` | Admin/teacher class planner per level (martes/jueves classes vs `GRAMMAR_DATA`). Detail: `teacher/CLAUDE.md` |
+| `teacher/tareas.html` | Admin/teacher worksheet generator: Lesen + Kasus + Reformulaciones from the banks → student/teacher PDF. Detail: `teacher/CLAUDE.md` |
 | `marketing/index.html` / `contenido.html` / `emails.html` / `calendario.html` / `resultados.html` | Admin-only marketing: strategy, content generator, emails, editorial calendar, KPIs. Detail: `marketing/CLAUDE.md` |
 
 ### API
@@ -121,6 +122,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `017_feedback_reports.sql` | `feedback_reports`. |
 | `018_active_sessions.sql` | `active_sessions` + `upsert_active_session()`. |
 | `019_feedback_reports_respuesta.sql` | Admin replies on `feedback_reports` + `mark_feedback_seen()`. |
+| `020_content_audit_oculto.sql` | `oculto` on `reading_texts` / `grammar_practice_exercises` + admin UPDATE policies (filter is client-side). |
 | `020_device_trials.sql` | `device_trials` + `claim_device_trial()`. |
 | `021_user_data_cv_scenarios.sql` | `user_data.cv_scenarios`. |
 | `022_reading_sessions.sql` | `reading_sessions`. |
@@ -147,6 +149,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 |------|---------|
 | `config.js` | Supabase URL/anon key + VAPID public key globals; loaded before `auth.js`. Detail: `docs/apps/auth.md` |
 | `auth.js` | Shared auth, login modal, stats panel, `NAV_ITEMS` menu, time/session tracking, feedback FAB, access gate. Detail: `docs/apps/auth.md` |
+| `pdf-worksheet.js` | Shared jsPDF A4 worksheet builder (`window.PdfWorksheet`) for `lectura veloz.html` and `teacher/tareas.html`. Detail: `teacher/CLAUDE.md` |
 | `shared-game.js` | Quiz engine (state, TTS, SM-2 SRS, lists, Modo Escritura). Detail: `docs/apps/vocab-quiz.md` |
 | `diccionario.js` | All JS for `diccionario.html`. Detail: `docs/apps/diccionario.md` |
 | `corrector.js` | All JS for `corrector.html`. Detail: `docs/apps/corrector.md` |

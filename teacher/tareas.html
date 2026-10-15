@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de tareas — Profesor</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/config.js"></script>
+  <script src="../grammar-data.js"></script>
+  <script src="../reformulaciones-combos.js"></script>
+  <script src="../pdf-worksheet.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f7; color: #222; margin: 0; min-height: 100vh; }
+    body.dark { background: #13141f; color: #dde1ec; }
+
+    #loading-overlay { position: fixed; inset: 0; background: #fff; display: flex; align-items: center; justify-content: center; z-index: 9999; font-size: 15px; color: #888; }
+    body.dark #loading-overlay { background: #13141f; }
+
+    .adm-header { background: #00695C; color: #fff; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.25); height: 52px; }
+    .adm-header-left { display: flex; align-items: center; gap: 14px; }
+    .adm-logo { font-size: 16px; font-weight: 700; letter-spacing: -.2px; white-space: nowrap; }
+    .adm-sep { width: 1px; height: 20px; background: rgba(255,255,255,.25); }
+    .adm-header-actions { display: flex; gap: 8px; align-items: center; }
+    .adm-btn { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.28); color: #fff; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 500; transition: background .15s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; white-space: nowrap; }
+    .adm-btn:hover { background: rgba(255,255,255,.24); }
+    @media (max-width: 600px) { .adm-header { padding: 0 10px; } .adm-logo { font-size: 14px; } .adm-sep { display: none; } }
+
+    .adm-main { padding: 20px 24px 32px; max-width: 900px; margin: 0 auto; }
+    @media (max-width: 600px) { .adm-main { padding: 12px 10px 24px; } }
+
+    #level-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .level-btn { padding: 6px 16px; border: 2px solid #00695C; border-radius: 20px; background: transparent; color: #00695C; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .15s, color .15s; }
+    .level-btn:hover, .level-btn.active { background: #00695C; color: #fff; }
+    body.dark .level-btn { border-color: #4db6ac; color: #4db6ac; }
+    body.dark .level-btn:hover, body.dark .level-btn.active { background: #4db6ac; color: #13141f; }
+
+    .card { background: #fff; border-radius: 12px; padding: 16px 20px; box-shadow: 0 1px 4px rgba(0,0,0,.06); margin-bottom: 16px; }
+    body.dark .card { background: #1e2035; }
+    .card.off .card-body { opacity: .4; pointer-events: none; }
+    .card-title { font-size: 14px; font-weight: 700; color: #00695C; margin: 0; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+    body.dark .card-title { color: #4db6ac; }
+    .card-body { margin-top: 12px; }
+    .note { font-size: 12px; color: #888; margin: 6px 0 0; line-height: 1.4; }
+    body.dark .note { color: #6a7090; }
+
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; font-size: 13px; }
+    .row label { font-weight: 600; }
+    select, input[type=text] { font: inherit; font-size: 13px; padding: 6px 8px; border: 1px solid #d5d9e3; border-radius: 6px; background: #fff; color: inherit; max-width: 100%; }
+    body.dark select, body.dark input[type=text] { background: #13141f; border-color: #2a2d45; }
+    input[type=text] { flex: 1; min-width: 180px; }
+    #lesen-texto { flex: 1; min-width: 0; }
+
+    .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 14px; margin-bottom: 10px; }
+    .checks label { font-size: 12.5px; display: flex; gap: 6px; align-items: flex-start; line-height: 1.35; cursor: pointer; }
+    .checks label small { color: #888; }
+    .checks-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #888; margin: 6px 0 4px; }
+
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 16px; }
+    .btn { background: #00695C; color: #fff; border: none; padding: 9px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn:hover { background: #00564b; }
+    .btn.secondary { background: transparent; color: #00695C; border: 2px solid #00695C; }
+    body.dark .btn.secondary { color: #4db6ac; border-color: #4db6ac; }
+    .btn:disabled { opacity: .5; cursor: wait; }
+
+    #msg { font-size: 13px; color: #c0392b; margin: 0 0 12px; min-height: 1em; }
+    body.dark #msg { color: #e57373; }
+
+    #preview h3 { margin: 0 0 4px; font-size: 16px; }
+    #preview h4 { margin: 16px 0 6px; font-size: 13px; color: #00695C; }
+    body.dark #preview h4 { color: #4db6ac; }
+    #preview ol { margin: 0; padding-left: 22px; font-size: 13px; line-height: 1.5; }
+    #preview li { margin-bottom: 4px; }
+    .sol { color: #00695C; font-weight: 600; }
+    body.dark .sol { color: #4db6ac; }
+    .instr { color: #888; font-style: italic; font-size: 12px; }
+  </style>
+</head>
+<body>
+
+<div id="loading-overlay">Verificando acceso…</div>
+
+<div id="teacher-app" style="display:none">
+
+  <div class="adm-header">
+    <div class="adm-header-left">
+      <a href="/teacher/" class="adm-btn" style="gap:4px">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Clases
+      </a>
+      <div class="adm-sep"></div>
+      <span class="adm-logo">Generador de tareas</span>
+    </div>
+    <div class="adm-header-actions">
+      <button class="adm-btn" onclick="toggleDark()">Oscuro</button>
+      <button class="adm-btn" onclick="signOut()">Salir</button>
+    </div>
+  </div>
+
+  <div class="adm-main">
+    <div id="level-selector"></div>
+
+    <div class="card">
+      <div class="row">
+        <label for="titulo">Título</label>
+        <input type="text" id="titulo" value="Hausaufgaben">
+      </div>
+      <p class="note">Elige los bloques y pulsa «Preparar tarea». Revisa la vista previa y descarga el PDF del alumno (sin soluciones) y el tuyo (con soluciones al final): ambos llevan exactamente los mismos ejercicios.</p>
+    </div>
+
+    <div class="card" id="card-lesen">
+      <p class="card-title"><input type="checkbox" id="sec-lesen" checked onchange="syncCards()"> <label for="sec-lesen">📖 Leseverstehen</label></p>
+      <div class="card-body">
+        <div class="row">
+          <label for="lesen-texto">Texto</label>
+          <select id="lesen-texto"></select>
+        </div>
+        <div class="checks-title">Teile</div>
+        <div class="checks" id="lesen-teile"></div>
+        <p class="note" id="lesen-note"></p>
+      </div>
+    </div>
+
+    <div class="card" id="card-kasus">
+      <p class="card-title"><input type="checkbox" id="sec-kasus" checked onchange="syncCards()"> <label for="sec-kasus">🧩 Kasus</label></p>
+      <div class="card-body">
+        <div class="row">
+          <label for="kasus-n">Frases</label>
+          <select id="kasus-n"><option>6</option><option>8</option><option selected>10</option><option>12</option><option>15</option><option>20</option></select>
+          <label style="font-weight:400"><input type="checkbox" id="kasus-opciones"> Mostrar opciones</label>
+          <button class="btn secondary" id="btn-kasus-ia" onclick="generarKasusIA()" style="padding:5px 12px;font-size:12px">✨ Generar con IA</button>
+        </div>
+        <div class="checks" id="kasus-targets"></div>
+        <p class="note" id="kasus-note"></p>
+      </div>
+    </div>
+
+    <div class="card" id="card-reform">
+      <p class="card-title"><input type="checkbox" id="sec-reform" checked onchange="syncCards()"> <label for="sec-reform">🔁 Reformulaciones</label></p>
+      <div class="card-body">
+        <div class="row">
+          <label for="reform-n">Frases</label>
+          <select id="reform-n"><option>5</option><option selected>8</option><option>10</option><option>12</option><option>15</option></select>
+        </div>
+        <div class="checks-title">Reglas</div>
+        <div class="checks" id="reform-reglas"></div>
+        <div class="checks-title" id="reform-combos-title">Combos</div>
+        <div class="checks" id="reform-combos"></div>
+        <p class="note">Si no marcas ninguna regla ni combo, se mezclan todas las del nivel.</p>
+      </div>
+    </div>
+
+    <p id="msg"></p>
+    <div class="actions">
+      <button class="btn" id="btn-preparar" onclick="prepararTarea()">Preparar tarea</button>
+    </div>
+
+    <div class="card" id="preview-card" style="display:none">
+      <div class="actions">
+        <button class="btn" onclick="descargarPdf(false)">⬇️ PDF alumno</button>
+        <button class="btn" onclick="descargarPdf(true)">⬇️ PDF con soluciones</button>
+        <button class="btn secondary" onclick="prepararTarea()">🔄 Otra selección</button>
+      </div>
+      <div id="preview"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+  function toggleDark() {
+    const dark = document.body.classList.toggle('dark');
+    localStorage.setItem('darkMode_teacher', dark ? '1' : '0');
+  }
+  if (localStorage.getItem('darkMode_teacher') === '1') document.body.classList.add('dark');
+
+  async function signOut() {
+    await sb.auth.signOut();
+    location.href = '/';
+  }
+
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Takes items alternately from each pool so every selected rule/target gets represented.
+  function pickRoundRobin(pools, n) {
+    const queues = pools.map(p => ({ key: p.key, items: shuffle(p.items) })).filter(q => q.items.length);
+    const out = [];
+    for (let i = 0; out.length < n && queues.some(q => q.items.length); i++) {
+      const q = queues[i % queues.length];
+      if (q.items.length) out.push({ key: q.key, ...q.items.pop() });
+    }
+    return out;
+  }
+
+  function showMsg(text) { document.getElementById('msg').textContent = text || ''; }
+
+  const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+  const LETRAS = 'abcdefghijklmnopqrstuvwxyz';
+
+  // Keep in sync with READING_TEILE_SPECS (api/_reading-topics.js) / TEIL_NOMBRES (lectura veloz.html).
+  const TEIL_NOMBRES = {
+    A1: ['Richtig oder falsch', '¿Dónde encuentras la información?', 'Avisos públicos'],
+    A2: ['Artículo: preguntas', 'Guía/directorio: preguntas', 'Correo electrónico: preguntas', 'Anuncios y personas'],
+    B1: ['Texto y preguntas', 'Personas y anuncios', 'Foro de opiniones', 'Richtig oder falsch', 'Situaciones y reglas'],
+    B2: ['Personas y afirmaciones', 'Texto con huecos', 'Preguntas de comprensión', 'Opiniones y titulares', 'Reglamento y párrafos'],
+    C1: ['Texto con huecos (léxico)', 'Artículo y preguntas', 'Texto con huecos (frases)', 'Opiniones de expertos'],
+    C2: ['Comentario y preguntas', 'Artículo por secciones', 'Texto con huecos (fragmentos)', 'Anuncios de empleo'],
+  };
+
+  // Mirror of kasus.html level config; C1/C2 use the B2 bank.
+  const KASUS_NIVELES = {
+    A1: { casos: ['Nominativ', 'Akkusativ', 'Dativ'], wechsel: false, rellenos: ['articulo', 'posesivo', 'pronombre'] },
+    A2: { casos: ['Nominativ', 'Akkusativ', 'Dativ'], wechsel: true, rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo'] },
+    B1: { casos: ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'], wechsel: true, rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo', 'ndekl'] },
+    B2: { casos: ['Nominativ', 'Akkusativ', 'Dativ', 'Genitiv'], wechsel: true, rellenos: ['articulo', 'posesivo', 'pronombre', 'adjetivo', 'ndekl'] },
+  };
+  const KASUS_ALIAS = { C1: 'B2', C2: 'B2' };
+  const RELLENO_LABEL = { articulo: 'Artículo', posesivo: 'Posesivo', pronombre: 'Pronombre', adjetivo: 'Adjetivo', ndekl: 'n-Deklination' };
+
+  function kasusTargets(nivel) {
+    const cfg = KASUS_NIVELES[nivel];
+    const out = [];
+    cfg.casos.forEach(caso => cfg.rellenos.forEach(relleno => {
+      if (relleno === 'pronombre' && caso === 'Genitiv') return;
+      if (relleno === 'ndekl' && caso === 'Nominativ') return;
+      out.push({ key: `kasus:${nivel}:${caso}:${relleno}`, label: `${caso} · ${RELLENO_LABEL[relleno]}` });
+    }));
+    if (cfg.wechsel) ['Akkusativ', 'Dativ'].forEach(caso => ['articulo', 'adjetivo'].forEach(relleno => {
+      if (cfg.rellenos.includes(relleno)) out.push({ key: `kasus:${nivel}:W-${caso}:${relleno}`, label: `Wechsel → ${caso} · ${RELLENO_LABEL[relleno]}` });
+    }));
+    return out;
+  }
+
+  const S = { level: 'B1', lecturas: [], kasusPools: {}, reformData: {}, combosData: {}, preselectRules: [], tarea: null };
+
+  function syncCards() {
+    ['lesen', 'kasus', 'reform'].forEach(k =>
+      document.getElementById('card-' + k).classList.toggle('off', !document.getElementById('sec-' + k).checked));
+  }
+
+  function renderLevelSelector() {
+    document.getElementById('level-selector').innerHTML = LEVELS.map(l =>
+      `<button class="level-btn ${l === S.level ? 'active' : ''}" onclick="selectLevel('${l}')">${l}</button>`).join('');
+  }
+
+  async function selectLevel(level) {
+    S.level = level;
+    localStorage.setItem('teacher_tareas_level', level);
+    document.getElementById('preview-card').style.display = 'none';
+    S.tarea = null;
+    showMsg('');
+    renderLevelSelector();
+    renderReform();
+    await Promise.all([loadLesen(), loadKasus()]);
+  }
+
+  async function loadLesen() {
+    const level = S.level;
+    const sel = document.getElementById('lesen-texto');
+    sel.innerHTML = '<option>Cargando…</option>';
+    const { data, error } = await sb.from('reading_texts')
+      .select('id, title, created_at')
+      .eq('level', level).eq('format_version', 2).eq('oculto', false)
+      .order('created_at', { ascending: false });
+    if (level !== S.level) return;
+    S.lecturas = error ? [] : (data || []);
+    sel.innerHTML = '<option value="">🎲 Aleatorio</option>' + S.lecturas.map(r =>
+      `<option value="${r.id}">${esc(r.title || 'Sin título')} · ${new Date(r.created_at).toLocaleDateString('es')}</option>`).join('');
+    document.getElementById('lesen-teile').innerHTML = TEIL_NOMBRES[level].map((n, i) =>
+      `<label><input type="checkbox" value="teil${i + 1}" checked> Teil ${i + 1} — ${esc(n)}</label>`).join('');
+    document.getElementById('lesen-note').textContent = error
+      ? 'No se pudieron cargar los textos.'
+      : `${S.lecturas.length} textos disponibles en el banco para ${level}.`;
+    document.getElementById('sec-lesen').checked = S.lecturas.length > 0;
+    syncCards();
+  }
+
+  async function loadKasus() {
+    const level = S.level;
+    const nivel = KASUS_ALIAS[level] || level;
+    const box = document.getElementById('kasus-targets');
+    box.innerHTML = '<span class="note">Cargando…</span>';
+    const { data, error } = await sb.from('grammar_practice_exercises')
+      .select('rule_id, oraciones')
+      .like('rule_id', `kasus:${nivel}:%`).eq('oculto', false);
+    if (level !== S.level) return;
+    const pools = {};
+    (error ? [] : data || []).forEach(row => {
+      const seen = pools[row.rule_id] ||= new Map();
+      (row.oraciones || []).forEach(o => { if (o?.frase?.includes('___') && !seen.has(o.frase)) seen.set(o.frase, o); });
+    });
+    S.kasusPools = Object.fromEntries(Object.entries(pools).map(([k, m]) => [k, [...m.values()]]));
+    const prev = new Set(checked('kasus-targets'));
+    const targets = kasusTargets(nivel);
+    box.innerHTML = targets.map(t =>
+      `<label><input type="checkbox" value="${t.key}" ${prev.has(t.key) ? 'checked' : ''}> ${esc(t.label)} <small>(${S.kasusPools[t.key]?.length || 0})</small></label>`).join('');
+    const total = targets.reduce((n, t) => n + (S.kasusPools[t.key]?.length || 0), 0);
+    document.getElementById('kasus-note').textContent = error
+      ? 'No se pudo cargar el banco de Kasus.'
+      : (KASUS_ALIAS[level] ? `${level} usa el banco B2+. ` : '') +
+        `${total} frases en el banco. Si no marcas ningún objetivo, se mezclan todos los que tengan frases. ` +
+        '«Generar con IA» añade un set verificado (3–6 frases) por objetivo marcado; queda en el banco compartido con kasus.html.';
+    document.getElementById('sec-kasus').checked = total > 0;
+    syncCards();
+  }
+
+  const KASUS_IA_MAX = 6;
+
+  async function generarKasusIA() {
+    const keys = checked('kasus-targets');
+    if (!keys.length) return showMsg('Marca los objetivos de Kasus para los que quieres generar frases.');
+    if (keys.length > KASUS_IA_MAX) return showMsg(`Marca como máximo ${KASUS_IA_MAX} objetivos por tanda.`);
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return showMsg('Sesión caducada: vuelve a entrar.');
+    const btn = document.getElementById('btn-kasus-ia');
+    btn.disabled = true;
+    const level = S.level;
+    let fallos = 0;
+    for (let i = 0; i < keys.length; i++) {
+      btn.textContent = `Generando ${i + 1}/${keys.length}…`;
+      const [, nivel, objetivo, relleno] = keys[i].split(':');
+      const wechsel = objetivo.startsWith('W-');
+      try {
+        const resp = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({ action: 'generate-kasus', level: nivel, caso: objetivo.replace('W-', ''), wechsel, relleno }),
+        });
+        const raw = await resp.text();
+        if (!resp.ok) throw new Error(raw.slice(0, 120));
+      } catch {
+        fallos++;
+      }
+    }
+    btn.disabled = false;
+    btn.textContent = '✨ Generar con IA';
+    showMsg(fallos ? `${fallos} de ${keys.length} objetivos no se pudieron generar (verificación fallida o error); vuelve a intentarlo.` : '');
+    if (level === S.level) await loadKasus();
+  }
+
+  function renderReform() {
+    const rules = (GRAMMAR_DATA[S.level] || []).filter(r => S.reformData[r.id]?.length);
+    document.getElementById('reform-reglas').innerHTML = rules.length ? rules.map(r =>
+      `<label><input type="checkbox" value="${r.id}" ${S.preselectRules.includes(r.id) ? 'checked' : ''}> ${esc(r.titulo)} <small>(${S.reformData[r.id].length})</small></label>`).join('')
+      : '<span class="note">Sin reglas en el banco para este nivel.</span>';
+    const combos = ((window.REFORMULACIONES_COMBOS || {})[S.level] || []).filter(c => S.combosData[c.id]?.length);
+    document.getElementById('reform-combos-title').style.display = combos.length ? '' : 'none';
+    document.getElementById('reform-combos').innerHTML = combos.map(c =>
+      `<label><input type="checkbox" value="${c.id}"> ${esc(c.titulo)} <small>(${S.combosData[c.id].length})</small></label>`).join('');
+    document.getElementById('sec-reform').checked = rules.length > 0;
+    syncCards();
+  }
+
+  function checked(boxId) {
+    return [...document.querySelectorAll(`#${boxId} input:checked`)].map(i => i.value);
+  }
+
+  function reformTitulo(key) {
+    const rule = (GRAMMAR_DATA[S.level] || []).find(r => r.id === key);
+    if (rule) return rule.titulo;
+    const combo = ((window.REFORMULACIONES_COMBOS || {})[S.level] || []).find(c => c.id === key);
+    return combo ? combo.titulo : key;
+  }
+
+  async function prepararTarea() {
+    showMsg('');
+    const btn = document.getElementById('btn-preparar');
+    btn.disabled = true;
+    try {
+      const secciones = [];
+      const avisos = [];
+
+      if (document.getElementById('sec-lesen').checked) {
+        const teileSel = checked('lesen-teile');
+        if (!S.lecturas.length) return showMsg('No hay textos de lectura para este nivel.');
+        if (!teileSel.length) return showMsg('Marca al menos un Teil de Leseverstehen.');
+        const id = document.getElementById('lesen-texto').value || shuffle(S.lecturas)[0].id;
+        const { data: row, error } = await sb.from('reading_texts').select('id, title, questions').eq('id', id).single();
+        if (error || !row?.questions?.teile) return showMsg('No se pudo cargar el texto de lectura.');
+        const elegidos = row.questions.teile.filter(t => teileSel.includes(t.id));
+        const teile = elegidos
+          .filter(teilUsable)
+          .map(t => t.tipo === 'emparejar' ? { ...t, derecha: shuffle(t.columnaDerecha || []) } : t);
+        if (!teile.length) return showMsg('El texto elegido no tiene los Teile marcados (o están incompletos). Prueba otro texto.');
+        if (teile.length < elegidos.length) avisos.push(`Se omitieron ${elegidos.length - teile.length} Teil(e) incompletos de «${row.title}» (falta el texto con huecos).`);
+        secciones.push({ tipo: 'lesen', titulo: row.title, teile });
+      }
+
+      if (document.getElementById('sec-kasus').checked) {
+        const keys = checked('kasus-targets');
+        const pools = (keys.length ? keys : Object.keys(S.kasusPools)).map(key => ({ key, items: S.kasusPools[key] || [] }));
+        const items = pickRoundRobin(pools, +document.getElementById('kasus-n').value)
+          .map(it => ({ ...it, opciones: shuffle(it.opciones || []) }));
+        if (!items.length) return showMsg('No hay frases de Kasus en el banco para este nivel.');
+        secciones.push({ tipo: 'kasus', items, conOpciones: document.getElementById('kasus-opciones').checked });
+      }
+
+      if (document.getElementById('sec-reform').checked) {
+        let keys = [...checked('reform-reglas'), ...checked('reform-combos')];
+        if (!keys.length) keys = (GRAMMAR_DATA[S.level] || []).map(r => r.id).filter(id => S.reformData[id]?.length);
+        const pools = keys.map(key => ({ key, items: S.reformData[key] || S.combosData[key] || [] }));
+        const items = pickRoundRobin(pools, +document.getElementById('reform-n').value);
+        if (!items.length) return showMsg('No hay reformulaciones en el banco para este nivel.');
+        secciones.push({ tipo: 'reform', items });
+      }
+
+      if (!secciones.length) return showMsg('Activa al menos un bloque.');
+      S.tarea = { titulo: document.getElementById('titulo').value.trim() || 'Hausaufgaben', level: S.level, secciones };
+      renderPreview();
+      showMsg(avisos.join(' '));
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ── Section renderers: aufgabe (student part), loesung (answer key), preview (HTML) ──
+
+  // Some older bank rows lack the gapped text that "Lücke N" / "Abschnitt N" items refer to.
+  function teilUsable(t) {
+    const refs = [...(t.columnaIzquierda || []).map(i => i.texto), ...(t.items || []).map(i => i.pregunta)];
+    if (!refs.some(r => /^(Lücke|Abschnitt)\s*\d+/i.test(String(r || '')))) return true;
+    return (t.textos || []).some(tx => /\[1\]/.test(tx.contenido || ''));
+  }
+
+  function sharedOptions(t) {
+    const first = JSON.stringify(t.items?.[0]?.opciones);
+    return t.items?.length > 1 && t.items.every(it => JSON.stringify(it.opciones) === first) ? t.items[0].opciones : null;
+  }
+
+  function emparejarLetra(t, izqId) {
+    const j = t.derecha.findIndex(d => d.id === t.solucion?.[izqId]);
+    return j < 0 ? '?' : LETRAS[j];
+  }
+
+  function corto(s, n = 70) {
+    s = String(s || '').replace(/\s+/g, ' ');
+    return s.length > n ? s.slice(0, n - 1) + '…' : s;
+  }
+
+  const TEIL_PDF = {
+    mcq(pdf, t) {
+      const shared = sharedOptions(t);
+      if (shared) {
+        pdf.write('Optionen:  ' + shared.map((o, j) => `${LETRAS[j]}) ${o}`).join('    '), { size: 10, gap: 3 });
+        t.items.forEach((it, i) => pdf.write(`${i + 1}. ____  ${it.pregunta}`, { size: 11, gap: 2 }));
+        return;
+      }
+      t.items.forEach((it, i) => {
+        pdf.ensure(25);
+        pdf.write(`${i + 1}. ${it.pregunta}`, { size: 11, style: 'bold', gap: 1.5 });
+        it.opciones.forEach((op, j) => {
+          pdf.ensure(5);
+          pdf.box(5);
+          pdf.write(`${LETRAS[j]}) ${op}`, { size: 11, gap: 0.8, indent: 11 });
+        });
+        pdf.space(3);
+      });
+    },
+    richtig_falsch(pdf, t) {
+      t.items.forEach((it, i) => {
+        pdf.ensure(14);
+        pdf.write(`${i + 1}. ${it.afirmacion}`, { size: 11, gap: 1.5 });
+        pdf.choiceRow(['richtig', 'falsch']);
+      });
+    },
+    emparejar(pdf, t) {
+      pdf.write('Ordnen Sie zu:', { size: 10, style: 'bold', gap: 1.5 });
+      t.derecha.forEach((d, j) => pdf.write(`${LETRAS[j]}) ${d.texto}`, { size: 10.5, gap: 1.5, indent: 5 }));
+      pdf.space(2);
+      t.columnaIzquierda.forEach((iz, i) => {
+        pdf.ensure(7);
+        pdf.write(`${i + 1}. ____  ${iz.texto}`, { size: 11, gap: 1.5 });
+      });
+    },
+  };
+
+  function teilLoesungen(t) {
+    if (t.tipo === 'mcq') return t.items.map((it, i) => ({ linea: `${i + 1}. ${LETRAS[it.correcta]}) ${it.opciones[it.correcta]}`, expl: it.explicacion }));
+    if (t.tipo === 'richtig_falsch') return t.items.map((it, i) => ({ linea: `${i + 1}. ${it.correcta ? 'richtig' : 'falsch'}`, expl: it.explicacion }));
+    return t.columnaIzquierda.map((iz, i) => {
+      const letra = emparejarLetra(t, iz.id);
+      const der = t.derecha[LETRAS.indexOf(letra)];
+      return { linea: `${i + 1}. ${letra}) ${der ? corto(der.texto) : ''}`, expl: t.explicaciones?.[iz.id] };
+    });
+  }
+
+  function heading(pdf, text) {
+    pdf.ensure(25);
+    pdf.space(2);
+    pdf.write(text, { size: 13, style: 'bold', gap: 3 });
+  }
+
+  function writeLoesung(pdf, { linea, expl }) {
+    pdf.write(linea, { size: 10.5, gap: expl ? 0.5 : 1.5 });
+    if (expl) pdf.write(expl, { size: 9, style: 'italic', gap: 2, indent: 5 });
+  }
+
+  const SECCION = {
+    lesen: {
+      aufgabe(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Leseverstehen`);
+        s.teile.forEach((t, ti) => {
+          pdf.ensure(20);
+          pdf.write(`Teil ${ti + 1}`, { size: 12, style: 'bold', gap: 1.5 });
+          if (t.instrucciones) pdf.write(t.instrucciones, { size: 10, style: 'italic', gap: 3 });
+          (t.textos || []).forEach(tx => {
+            if (tx.titulo) pdf.write(tx.titulo, { size: 11, style: 'bold', gap: 1 });
+            String(tx.contenido || '').split(/\n\s*\n/).forEach(p => pdf.write(p, { size: 11, gap: 2.5 }));
+            pdf.space(2);
+          });
+          TEIL_PDF[t.tipo]?.(pdf, t);
+          pdf.space(4);
+        });
+      },
+      loesung(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Leseverstehen`);
+        s.teile.forEach((t, ti) => {
+          pdf.write(`Teil ${ti + 1}`, { size: 11, style: 'bold', gap: 1.5 });
+          teilLoesungen(t).forEach(l => writeLoesung(pdf, l));
+          pdf.space(2);
+        });
+      },
+      preview(s) {
+        return `<p><b>Texto:</b> ${esc(s.titulo)}</p>` + s.teile.map((t, ti) =>
+          `<p style="font-size:13px;margin:6px 0 2px"><b>Teil ${ti + 1}</b> <span class="instr">(${esc(TEIL_NOMBRES[S.tarea.level][+t.id.replace('teil', '') - 1] || t.tipo)})</span></p>
+           <ol>${teilLoesungen(t).map(l => `<li><span class="sol">${esc(l.linea.replace(/^\d+\.\s*/, ''))}</span></li>`).join('')}</ol>`).join('');
+      },
+    },
+    kasus: {
+      aufgabe(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Ergänzen Sie die Lücken.`);
+        s.items.forEach((it, i) => {
+          pdf.ensure(10);
+          pdf.write(`${i + 1}. ${it.frase.replace('___', '__________')}    (${it.pista})`, { size: 11, gap: s.conOpciones ? 0.8 : 2.5 });
+          if (s.conOpciones) pdf.write(it.opciones.join('   |   '), { size: 9.5, gap: 2.5, indent: 6 });
+        });
+      },
+      loesung(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Kasus`);
+        s.items.forEach((it, i) => writeLoesung(pdf, { linea: `${i + 1}. ${it.frase.replace('___', it.respuesta)}`, expl: it.explicacion }));
+      },
+      preview(s) {
+        return `<ol>${s.items.map(it => {
+          const [a, b] = it.frase.split('___');
+          return `<li>${esc(a)}<span class="sol">${esc(it.respuesta)}</span>${esc(b)} <span class="instr">(${esc(it.pista)} · ${esc(it.caso)})</span></li>`;
+        }).join('')}</ol>`;
+      },
+    },
+    reform: {
+      aufgabe(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Formulieren Sie die Sätze um.`);
+        s.items.forEach((it, i) => {
+          pdf.ensure(28);
+          pdf.write(`${i + 1}. ${it.source}`, { size: 11, gap: 1 });
+          pdf.write(it.instruction, { size: 9.5, style: 'italic', gap: 0, indent: 5 });
+          pdf.writingLines(2, 5);
+        });
+      },
+      loesung(pdf, s, n) {
+        heading(pdf, `Aufgabe ${n}: Umformung`);
+        s.items.forEach((it, i) => writeLoesung(pdf, { linea: `${i + 1}. ${(it.solutions || []).join('  /  ')}`, expl: it.explanation }));
+      },
+      preview(s) {
+        return `<ol>${s.items.map(it => `<li>${esc(it.source)} <span class="instr">— ${esc(it.instruction)} [${esc(reformTitulo(it.key))}]</span><br><span class="sol">${esc((it.solutions || []).join(' / '))}</span></li>`).join('')}</ol>`;
+      },
+    },
+  };
+
+  const SECCION_NOMBRE = { lesen: 'Leseverstehen', kasus: 'Kasus', reform: 'Reformulaciones' };
+
+  function renderPreview() {
+    const t = S.tarea;
+    document.getElementById('preview').innerHTML = `<h3>${esc(t.titulo)} — ${t.level}</h3>` +
+      t.secciones.map((s, i) => `<h4>Aufgabe ${i + 1}: ${SECCION_NOMBRE[s.tipo]}</h4>${SECCION[s.tipo].preview(s)}`).join('');
+    const card = document.getElementById('preview-card');
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  async function descargarPdf(conSoluciones) {
+    const t = S.tarea;
+    if (!t) return;
+    try { await PdfWorksheet.load(); } catch { showMsg('No se pudo cargar el generador de PDF. Revisa tu conexión.'); return; }
+    const pdf = PdfWorksheet.create();
+    pdf.write(t.titulo, { size: 16, style: 'bold', gap: 2 });
+    pdf.write(`Niveau ${t.level}   ·   Name: ______________________   Datum: ____________`, { size: 9, gap: 6 });
+    t.secciones.forEach((s, i) => SECCION[s.tipo].aufgabe(pdf, s, i + 1));
+    if (conSoluciones) {
+      pdf.newPage();
+      pdf.write('Lösungen', { size: 15, style: 'bold', gap: 3 });
+      t.secciones.forEach((s, i) => SECCION[s.tipo].loesung(pdf, s, i + 1));
+    }
+    pdf.save(`tarea-${t.level.toLowerCase()}-${PdfWorksheet.slug(t.titulo) || 'hausaufgaben'}${conSoluciones ? '-loesungen' : ''}.pdf`);
+  }
+
+  async function init() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { location.href = '/'; return; }
+
+    const { data: profile } = await sb
+      .from('profiles')
+      .select('role')
+      .eq('id', session.user.id)
+      .maybeSingle();
+
+    if (!profile || profile.role !== 'admin') { location.href = '/'; return; }
+
+    const [reform, combos] = await Promise.all([
+      fetch('../reformulaciones-data.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+      fetch('../reformulaciones-combos-data.json').then(r => r.ok ? r.json() : {}).catch(() => ({})),
+    ]);
+    S.reformData = reform || {};
+    S.combosData = combos || {};
+
+    // ?nivel=b1&rules=b1-01,b1-02 — deep link from a class card in teacher/index.html.
+    const params = new URLSearchParams(location.search);
+    const nivelParam = (params.get('nivel') || '').toUpperCase();
+    S.preselectRules = (params.get('rules') || '').split(',').filter(Boolean);
+    const saved = localStorage.getItem('teacher_tareas_level');
+    const level = LEVELS.includes(nivelParam) ? nivelParam : (LEVELS.includes(saved) ? saved : 'B1');
+
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('teacher-app').style.display = 'block';
+    await selectLevel(level);
+  }
+
+  init();
+</script>
+</body>
+</html>

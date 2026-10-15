@@ -29,6 +29,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 | `supabase/migrations/019_feedback_reports_respuesta.sql` | Añade `tipo = 'mensaje'` al CHECK de `feedback_reports.tipo` (junto a `bug`/`sugerencia`, ahora el default en el modal de `auth.js`) y las columnas `respuesta`/`respuesta_at`/`respuesta_leida` para que el admin pueda responderle a un reporte y el usuario vea esa respuesta. Crea `mark_feedback_seen(p_report_id)` (`security definer`, mismo patrón que `upsert_active_session`) para que el propio usuario pueda marcar una respuesta como leída sin necesitar una policy de UPDATE genérica. |
 | `supabase/migrations/022_reading_sessions.sql` | Crea `reading_sessions` (historial de sesiones de Leseverstehen de `lectura veloz.html`: nivel, texto, aciertos/total, duración, modo examen y desglose por Teil en jsonb). RLS: INSERT/SELECT propio (INSERT con `is_access_valid()`, patrón de la migración 009) más SELECT admin (patrón 014-018). Antes la puntuación solo vivía en pantalla. |
 | `supabase/migrations/023_feedback_reports_contexto.sql` | Añade `feedback_reports.contexto` (jsonb, nullable): contexto estructurado de un reporte enviado desde un ejercicio concreto (hoy `kasus.html`). Sin políticas nuevas: lo cubre el INSERT propio de 017. |
+| `supabase/migrations/024_writing_submissions.sql` | Crea `writing_submissions` (cada texto corregido en `escritura.html`: tarea, texto o transcripción del manuscrito, nota y evaluación completa). RLS: INSERT/SELECT propio (INSERT con `is_access_valid()`) más SELECT admin (patrón 022). Antes los textos solo vivían en el IndexedDB del alumno y el profesor no podía revisarlos. |
 | `supabase/migrations/021_user_data_cv_scenarios.sql` | Añade `user_data.cv_scenarios` (jsonb, default `{}`) para sincronizar entre dispositivos los escenarios de rol personalizados de `chat-voz.html`, más cuál está seleccionado. Forma: `{ selected, custom: [...], deleted: [...] }`. A diferencia de `plan_progress` (013), el remoto **no** gana sin más: `custom` se fusiona por `key` porque son escenarios que escribió el alumno y un overwrite plano borraría el creado en otro dispositivo; `deleted` son tombstones para que un borrado se propague en vez de resucitar en ese mismo merge. Las personas generadas por IA (`cv_rol_cache_<key>` en localStorage) se quedan locales a propósito — si faltan, la app ya las regenera vía `/api/chat`. |
 
 ## Supabase table schemas
@@ -136,6 +137,23 @@ PK compuesta: `(user_id, text_id)`. RLS: cada usuario solo lee y escribe sus pro
 | `created_at` | timestamptz | Auto |
 
 RLS: cada usuario inserta (con `is_access_valid()`) y lee solo sus propias filas; los admins leen todas (mismo patrón que 014-018). Ver migración `022_reading_sessions.sql`. Escrita por `compGuardarSesion()` en `lectura veloz.html` al terminar una sesión de Comprensión y leída por `compRenderHistorial()` para el panel "📈 Mi progreso en comprensión".
+
+### Supabase table: `writing_submissions`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | PK, auto-generado |
+| `user_id` | uuid | FK → auth.users |
+| `level` | text | Nivel de la tarea (`t.level`) |
+| `tipo` | text | `tipoId` de la tarea (nullable) |
+| `modo` | text | `texto` \| `foto` |
+| `tarea` | jsonb | `{ titulo, situacion, puntos[], registro, tipoNombre, min_palabras, max_palabras }` |
+| `texto` | text | Texto del alumno; en modo `foto`, la transcripción que devuelve `/api/vision` (la imagen no se guarda) |
+| `palabras` | integer | Recuento de palabras |
+| `puntuacion` | integer | Nota 0–100 |
+| `evaluacion` | jsonb | JSON completo de la evaluación (subscores, puntos_cubiertos, errores, version_mejorada, comentario) |
+| `created_at` | timestamptz | Auto |
+
+RLS: cada usuario inserta (con `is_access_valid()`) y lee solo sus filas; los admins leen todas. Ver migración `024_writing_submissions.sql`. Escrita por `saveSubmission()` en `escritura.html` tras cada corrección; leída bajo demanda por `renderDetEscritura()` en `admin/index.html`.
 
 ### Supabase table: `grammar_practice_exercises`
 | Column | Type | Description |

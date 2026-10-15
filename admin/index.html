@@ -639,6 +639,7 @@
       <div id="det-stats" style="margin-top:16px;"></div>
       <div id="det-tiempo" style="margin-top:16px;"></div>
       <div id="det-lesen" style="margin-top:16px;"></div>
+      <div id="det-escritura" style="margin-top:16px;"></div>
       <div id="det-sessions" style="margin-top:16px;"></div>
       <div id="det-events"></div>
       <div id="det-exams" style="margin-top:16px;"></div>
@@ -1585,6 +1586,7 @@
     renderDetStats(userId);
     renderDetTiempo(userId);
     renderDetLesen(userId);
+    renderDetEscritura(userId);
     renderDetSessions(userId);
 
     document.getElementById('det-events').innerHTML = evs.length === 0
@@ -1904,6 +1906,59 @@
       ${teilRows ? `<div style="font-size:12px;color:#888;margin:8px 0 4px;">Acierto por Teil</div>${teilRows}` : ''}
       <div style="font-size:12px;color:#888;margin:8px 0 4px;">Últimas sesiones</div>
       ${last}`;
+  }
+
+  // Loaded on demand (not in the bulk load) because rows carry full texts + evaluations.
+  // Requires migration 024 (writing_submissions + admin read policy) — silently empty otherwise.
+  async function renderDetEscritura(userId) {
+    const el = document.getElementById('det-escritura');
+    el.innerHTML = '';
+    const { data, error } = await sb.from('writing_submissions')
+      .select('id, level, modo, tarea, texto, palabras, puntuacion, evaluacion, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (currentDetailUserId !== userId) return;
+    if (error || !data || data.length === 0) return;
+
+    const scoreColor = p => p >= 70 ? '#2e7d32' : p >= 50 ? '#ef6c00' : '#c62828';
+    const items = data.map(r => {
+      const t = r.tarea || {}, ev = r.evaluacion || {};
+      const score = r.puntuacion ?? ev.puntuacion;
+      const range = t.min_palabras ? ` / ${t.min_palabras}–${t.max_palabras}` : '';
+      const puntos = (t.puntos || []).map((pt, i) => {
+        const ok = Array.isArray(ev.puntos_cubiertos) ? (ev.puntos_cubiertos[i] ? '✅' : '❌') : '•';
+        return `<li style="list-style:none;">${ok} ${esc(pt)}</li>`;
+      }).join('');
+      const errores = (ev.errores || []).map(e => `<div class="event-row" style="font-size:13px;">
+          <span style="color:#c62828;text-decoration:line-through;">${esc(e.original || '')}</span>
+          <span>→ <strong style="color:#2e7d32;">${esc(e.correccion || '')}</strong></span>
+          <span style="color:#888;">${esc(e.explicacion || '')}</span>
+        </div>`).join('');
+      return `<details style="border:1px solid rgba(128,128,128,.25);border-radius:8px;padding:8px 10px;margin-bottom:6px;">
+        <summary style="cursor:pointer;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <span class="ev-time">${fmtDateFull(r.created_at)}</span>
+          <span>${esc(r.level)} · ${esc(t.tipoNombre || t.titulo || '')}${r.modo === 'foto' ? ' 📷' : ''}</span>
+          ${typeof score === 'number' ? `<span style="color:${scoreColor(score)};font-weight:600;">${score}/100</span>` : ''}
+          <span style="color:#888;font-size:12px;">${r.palabras ?? '?'}${range} palabras</span>
+        </summary>
+        <div style="margin-top:8px;font-size:13px;">
+          <div style="font-weight:600;">${esc(t.titulo || '')}</div>
+          <div style="color:#888;margin:4px 0;">${esc(t.situacion || '')}${t.registro ? ` · registro ${esc(t.registro)}` : ''}</div>
+          ${puntos ? `<ul style="margin:4px 0 8px;padding-left:4px;">${puntos}</ul>` : ''}
+          <div style="font-size:12px;color:#888;margin-bottom:4px;">${r.modo === 'foto' ? 'Transcripción del manuscrito' : 'Texto del alumno'}</div>
+          <div style="white-space:pre-wrap;padding:8px;border-radius:6px;background:rgba(128,128,128,.08);">${esc(r.texto)}</div>
+          ${ev.comentario ? `<div style="margin-top:8px;"><strong>Comentario IA:</strong> ${esc(ev.comentario)}</div>` : ''}
+          ${errores ? `<div style="font-size:12px;color:#888;margin:8px 0 4px;">Errores (${ev.errores.length})</div>${errores}` : ''}
+          ${ev.version_mejorada ? `<details style="margin-top:8px;"><summary style="cursor:pointer;font-size:12px;color:#888;">Versión mejorada</summary><div style="white-space:pre-wrap;padding:8px;">${esc(ev.version_mejorada)}</div></details>` : ''}
+        </div>
+      </details>`;
+    }).join('');
+
+    const scored = data.filter(r => typeof r.puntuacion === 'number');
+    const avg = scored.length ? Math.round(scored.reduce((s, r) => s + r.puntuacion, 0) / scored.length) : null;
+    el.innerHTML = `<div style="font-size:12px;font-weight:600;color:#8D6E63;margin-bottom:8px;">✍️ Escritura (${data.length} textos${avg !== null ? ` · media ${avg}` : ''})</div>
+      ${items}`;
   }
 
   function renderDetSessions(userId) {

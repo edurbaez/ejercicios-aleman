@@ -556,6 +556,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
             saveToHistory(t, 'foto', ev.texto_transcrito || '', ev);
+            saveSubmission(t, 'foto', ev.texto_transcrito || '', ev);
             if (typeof window.logEvent === 'function') {
                 window.logEvent('escritura', 'photo_evaluated', { level: lvl, tipo: t.tipoId, score: ev.puntuacion });
             }
@@ -662,6 +663,7 @@ ${texto}`;
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
             saveToHistory(t, 'texto', texto, ev);
+            saveSubmission(t, 'texto', texto, ev);
             if (typeof window.logEvent === 'function') {
                 window.logEvent('escritura', 'text_evaluated', { level: lvl, tipo: t.tipoId, words: n, score: ev.puntuacion });
             }
@@ -821,6 +823,31 @@ ${texto}`;
             req.onsuccess = () => resolve(req.result || []);
             req.onerror = () => reject(req.error);
         });
+    }
+
+    // Copia en Supabase para que el profesor la revise desde admin/index.html (migración 024).
+    async function saveSubmission(tarea, modo, texto, evaluacion) {
+        if (!window.currentUser || !window.sb || !texto) return;
+        try {
+            const { error } = await window.sb.from('writing_submissions').insert({
+                user_id: window.currentUser.id,
+                level: tarea.level || EscState.level,
+                tipo: tarea.tipoId || null,
+                modo,
+                tarea: {
+                    titulo: tarea.titulo, situacion: tarea.situacion, puntos: tarea.puntos,
+                    registro: tarea.registro, tipoNombre: tarea.tipoNombre || '',
+                    min_palabras: tarea.min_palabras, max_palabras: tarea.max_palabras,
+                },
+                texto,
+                palabras: countWords(texto),
+                puntuacion: typeof evaluacion.puntuacion === 'number' ? Math.round(evaluacion.puntuacion) : null,
+                evaluacion,
+            });
+            if (error) throw error;
+        } catch (err) {
+            console.error('[saveSubmission]', err);
+        }
     }
 
     async function saveToHistory(tarea, modo, texto, evaluacion) {

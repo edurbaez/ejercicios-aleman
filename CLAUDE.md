@@ -127,6 +127,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `021_user_data_cv_scenarios.sql` | `user_data.cv_scenarios`. |
 | `022_reading_sessions.sql` | `reading_sessions`. |
 | `023_feedback_reports_contexto.sql` | `feedback_reports.contexto` (jsonb) for per-exercise reports. |
+| `024_writing_submissions.sql` | `writing_submissions` (texts corrected in `escritura.html`, admin-readable). |
 
 ### PWA & Deploy
 

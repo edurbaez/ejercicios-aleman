@@ -219,6 +219,7 @@
             </div>
             <p class="cv-hint" id="cvHint">Selecciona un nivel y presiona Iniciar</p>
             <p class="cv-daily-info" id="cvDailyInfo"></p>
+            <p class="cv-daily-info" id="cvDailyWords"></p>
         </div>
     </div>
 
@@ -343,6 +344,33 @@
             info.textContent = `Tiempo usado hoy: ${fmt(usedMins, usedSecs)}/${fmt(totalMins, 0)}`;
             info.className = 'cv-daily-info';
         }
+        updateDailyWordsUI();
+    }
+
+    // Device-only daily word counter; the key embeds the local date so it resets at 00:00.
+    const DAILY_WORDS_KEY = 'cv2_daily_words';
+    function todayKey() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function getDailyWords() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(DAILY_WORDS_KEY) || 'null');
+            return saved && saved.date === todayKey() ? saved.count : 0;
+        } catch { return 0; }
+    }
+    function addDailyWords(text) {
+        const n = (text.match(/[\p{L}\p{N}]+(?:['’-][\p{L}\p{N}]+)*/gu) || []).length;
+        if (!n) return;
+        try {
+            localStorage.setItem(DAILY_WORDS_KEY, JSON.stringify({ date: todayKey(), count: getDailyWords() + n }));
+        } catch {}
+        updateDailyWordsUI();
+    }
+    function updateDailyWordsUI() {
+        const el = document.getElementById('cvDailyWords');
+        if (!el) return;
+        el.textContent = window.currentUser ? `Palabras dichas hoy: ${getDailyWords()}` : '';
     }
 
     // --- User preferences ---
@@ -679,6 +707,7 @@ Antworte IMMER mit einem JSON-Objekt:
         if (userText) {
             State.messages.push({ role: 'user', content: userText });
             addBubble('user', userText);
+            addDailyWords(userText);
         }
 
         const thinkingId = addBubble('ai', '...', true);

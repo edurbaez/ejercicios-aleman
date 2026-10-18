@@ -39,7 +39,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `lectura veloz.html` | "Entrenamiento de lectura": ⚡ Sprint de vocabulario, 📚 Lectura veloz (RSVP), 📖 Comprensión (Modo A/B, Leseverstehen by Teile). Detail: `docs/apps/lectura-veloz.md` |
 | `diccionario.html` | German dictionary via `/api/chat`, cached in Supabase + IndexedDB. Detail: `docs/apps/diccionario.md` |
 | `chat-voz.html` | Voice chat (Whisper → GPT-4o-mini → TTS), A1–C2, roleplay scenarios, vocab summary. Detail: `docs/apps/chat-voz.md` |
-| `chatvoz2/index.html` | Second voice chat via `/api/deepseek-chat`, scenarios with missions, multi-language, grammar focus. Detail: `chatvoz2/CLAUDE.md` |
+| `chatvoz2/index.html` | Admin-only second voice chat via `/api/deepseek-chat` (kept separate from `chat-voz.html`; check parity on every change), scenarios with missions, multi-language, grammar focus. Detail: `chatvoz2/CLAUDE.md` |
 | `corrector.html` | Grammar correction of photos (`/api/vision`) or pasted text (`/api/chat`). Detail: `docs/apps/corrector.md` |
 | `escritura.html` | Goethe/telc-style writing tasks + AI evaluation (text or handwritten photo). Detail: `docs/apps/escritura.md` |
 | `kasus.html` | Case trainer per level (articles, possessives, pronouns, adjectives, n-Deklination), shared verified bank, write mode, weak points. Detail: `docs/apps/kasus.md` |

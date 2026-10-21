@@ -1,4 +1,5 @@
 import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
+import { normalizeTask, weightedScore, saveSubmission } from './_writing.js';
 
 const isRateLimited = createRateLimiter(5, 60_000, 'rl:vision');
 
@@ -89,7 +90,8 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Máximo 5 revisiones por minuto.' });
     }
 
-    const { image_base64, mime_type, type, task } = req.body;
+    const { image_base64, mime_type, type } = req.body || {};
+    const task = type === 'escritura' ? normalizeTask(req.body.task) : null;
 
     if (!image_base64 || typeof image_base64 !== 'string') {
         return res.status(400).json({ error: 'image_base64 requerido' });
@@ -100,8 +102,8 @@ export default async function handler(req, res) {
 
     let systemPrompt;
     if (type === 'escritura') {
-        if (!task || typeof task !== 'object') {
-            return res.status(400).json({ error: 'task requerido para type escritura' });
+        if (!task) {
+            return res.status(400).json({ error: 'task inválida para type escritura' });
         }
         systemPrompt = buildEscrituraPrompt(task);
     } else if (type === 'style-analysis') {
@@ -160,7 +162,15 @@ export default async function handler(req, res) {
             const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
             result = JSON.parse(cleaned);
         } catch {
-            return res.status(500).json({ error: 'La IA devolvió una respuesta no estructurada.', raw });
+            return res.status(500).json({ error: 'La IA devolvió una respuesta no estructurada.' });
+        }
+
+        if (type === 'escritura') {
+            if (!Array.isArray(result.errores) || weightedScore(result) === null) {
+                return res.status(502).json({ error: 'La corrección llegó incompleta. Inténtalo de nuevo.' });
+            }
+            result.puntuacion = weightedScore(result);
+            await saveSubmission(jwtPayload.sub, task, 'foto', String(result.texto_transcrito || ''), result);
         }
 
         return res.status(200).json(result);

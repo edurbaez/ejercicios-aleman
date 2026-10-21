@@ -104,6 +104,7 @@
         mediaRecorder: null,
         audioChunks: [],
         recTimerInterval: null,
+        recStream: null,
         recSeconds: 0,
         totalRecSeconds: 0,
         // TTS
@@ -320,6 +321,7 @@
             btn.addEventListener('click', () => {
                 wrap.querySelectorAll('[data-teil]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                cancelRecording();
                 MpState.teilId = btn.dataset.teil;
             });
         });
@@ -341,6 +343,7 @@
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#mp-level-btns .mp-pill').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
+                cancelRecording();
                 MpState.level = btn.dataset.level;
                 localStorage.setItem('mp_level', MpState.level);
                 MpState.teilId = null;
@@ -483,11 +486,33 @@ ${esquemaPuntos}${evitarRepetir}`;
         MpState.prefetch = { key, promise: fetchTarea(token).catch(() => null) };
     }
 
+    function cancelRecording() {
+        clearInterval(MpState.recTimerInterval);
+        const rec = MpState.mediaRecorder;
+        if (rec) {
+            rec.ondataavailable = null;
+            rec.onstop = null;
+            if (rec.state !== 'inactive') { try { rec.stop(); } catch {} }
+        }
+        MpState.recStream?.getTracks().forEach(t => t.stop());
+        MpState.recStream = null;
+        if (!MpState.isRecording) return;
+        MpState.isRecording = false;
+        const timer = document.getElementById('mp-rec-timer');
+        if (timer) timer.style.display = 'none';
+        const sendBtn = document.getElementById('mp-send-btn');
+        if (sendBtn) sendBtn.style.display = 'none';
+        const recBtn = document.getElementById('mp-record-btn');
+        if (recBtn) recBtn.style.display = 'inline-flex';
+    }
+    window.addEventListener('pagehide', cancelRecording);
+
     async function generarTarea() {
         if (MpState.cargando) return;
         if (MpState.dailyUsedMs >= DAILY_LIMIT_MS()) { setPracticeError(`Límite diario de ${dailyLimitMin()} min alcanzado. Vuelve mañana.`); return; }
         MpState.cargando = true;
         cancelCurrentSpeech();
+        cancelRecording();
         stopVorbereitungTimer();
         document.getElementById('mp-result').style.display = 'none';
         const nextBtn = document.getElementById('mp-next-btn');
@@ -697,9 +722,11 @@ ${esquemaPuntos}${evitarRepetir}`;
             const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
                 .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
             MpState.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            MpState.recStream = stream;
             MpState.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) MpState.audioChunks.push(e.data); };
             MpState.mediaRecorder.onstop = async () => {
                 stream.getTracks().forEach(t => t.stop());
+                MpState.recStream = null;
                 const blob = new Blob(MpState.audioChunks, { type: MpState.mediaRecorder.mimeType || 'audio/webm' });
                 showOwnRecording(blob, 'mp-own-recording-wrap');
                 await transcribeMonologo(blob);
@@ -754,12 +781,12 @@ ${esquemaPuntos}${evitarRepetir}`;
     async function transcribeMonologo(audioBlob) {
         const durationMs = MpState.recSeconds * 1000;
         MpState.totalRecSeconds += MpState.recSeconds;
-        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
-        MpState.dailyUsedMs += durationMs;
-        updateDailyUI();
 
         const text = await transcribeBlob(audioBlob);
         if (text === null) return; // error already shown
+        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
+        MpState.dailyUsedMs += durationMs;
+        updateDailyUI();
         if (!text) { setHint('No se detectó voz. Intenta de nuevo.'); startMonologoUI(); return; }
 
         const wpm = MpState.totalRecSeconds > 0 ? Math.round(text.trim().split(/\s+/).filter(Boolean).length / (MpState.totalRecSeconds / 60)) : null;
@@ -893,9 +920,11 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
             const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
                 .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
             MpState.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            MpState.recStream = stream;
             MpState.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) MpState.audioChunks.push(e.data); };
             MpState.mediaRecorder.onstop = async () => {
                 stream.getTracks().forEach(t => t.stop());
+                MpState.recStream = null;
                 const blob = new Blob(MpState.audioChunks, { type: MpState.mediaRecorder.mimeType || 'audio/webm' });
                 showOwnRecording(blob, 'mp-own-recording-wrap');
                 await transcribeDialogoTurn(blob);
@@ -936,12 +965,12 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
     async function transcribeDialogoTurn(audioBlob) {
         const durationMs = MpState.recSeconds * 1000;
         MpState.totalRecSeconds += MpState.recSeconds;
-        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
-        MpState.dailyUsedMs += durationMs;
-        updateDailyUI();
 
         const text = await transcribeBlob(audioBlob);
         if (text === null) return;
+        window.logEvent?.('mundliche', 'audio_sent', { level: MpState.level, duration_ms: durationMs });
+        MpState.dailyUsedMs += durationMs;
+        updateDailyUI();
         if (!text) {
             setHint('No se detectó voz. Intenta de nuevo.');
             document.getElementById('mp-record-btn').style.display = 'inline-flex';
@@ -956,6 +985,7 @@ Antworte IMMER mit einem JSON-Objekt: {"antwort":"deine kurze Antwort/Frage auf 
         formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', 'de');
+        formData.append('duration_ms', String(MpState.recSeconds * 1000));
         try {
             const token = await window.getAuthToken?.();
             const resp = await fetch('/api/whisper', {
@@ -1509,6 +1539,7 @@ ${transcript}
         const e = _histCache.find(x => x.id === id);
         if (!e) return;
         cancelCurrentSpeech();
+        cancelRecording();
         stopVorbereitungTimer();
         document.getElementById('mp-practice-area').style.display = 'none';
         document.getElementById('mp-next-btn').style.display = 'none';

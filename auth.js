@@ -830,26 +830,32 @@
     const content = document.getElementById('stats-content');
     content.innerHTML = '<p style="color:#999;font-size:13px;">Cargando estadísticas…</p>';
 
-    const token = window.getAuthToken();
     const last5Cutoff = new Date();
     last5Cutoff.setHours(0, 0, 0, 0);
     last5Cutoff.setDate(last5Cutoff.getDate() - 4); // today + 4 previous days
+    // PostgREST caps responses at 1000 rows: page through instead of a large .limit().
+    const fetchAll = async (build, max = 20000) => {
+      const rows = [];
+      for (let from = 0; from < max; from += 1000) {
+        const { data: page, error } = await build().range(from, from + 999);
+        if (error) throw error;
+        rows.push(...page);
+        if (page.length < 1000) break;
+      }
+      return rows;
+    };
     let data, recentEvents = [];
     try {
-      const [evRes, recentRes] = await Promise.all([
-        fetch(
-          `${SUPA_URL}/rest/v1/usage_events?select=event_type,app,payload,created_at&user_id=eq.${window.currentUser.id}&event_type=in.(quiz_session_end,auto_session_end,audio_sent,text_evaluated,photo_evaluated,kasus_answered,revision,sprint_end,comp_completed,quiz_completed)&order=created_at.asc&limit=10000`,
-          { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${token}` } }
-        ),
-        window.sb.from('usage_events').select('app,event_type,payload,created_at')
+      [data, recentEvents] = await Promise.all([
+        fetchAll(() => window.sb.from('usage_events').select('event_type,app,payload,created_at')
+          .eq('user_id', window.currentUser.id)
+          .in('event_type', ['quiz_session_end', 'auto_session_end', 'audio_sent', 'text_evaluated', 'photo_evaluated', 'kasus_answered', 'revision', 'sprint_end', 'comp_completed', 'quiz_completed'])
+          .order('created_at', { ascending: true })),
+        fetchAll(() => window.sb.from('usage_events').select('app,event_type,payload,created_at')
           .eq('user_id', window.currentUser.id)
           .gte('created_at', last5Cutoff.toISOString())
-          .order('created_at', { ascending: false })
-          .limit(5000)
+          .order('created_at', { ascending: false }), 5000),
       ]);
-      if (!evRes.ok) throw new Error(await evRes.text());
-      data = await evRes.json();
-      recentEvents = recentRes.data || [];
     } catch (err) {
       content.innerHTML = '<p style="color:#e53935;">Error al cargar estadísticas.</p>';
       return;

@@ -392,7 +392,7 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
         }
 
         function escHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
         function explicacionHtml(text) {
@@ -1526,22 +1526,14 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
                 const res = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                    body: JSON.stringify({
-                        messages: [
-                            { role: 'system', content: 'Traduce al español la palabra alemana que recibas. Responde SOLO con la traducción, máximo 4 palabras, sin comillas ni punto final.' },
-                            { role: 'user', content: palabra }
-                        ]
-                    })
+                    body: JSON.stringify({ action: 'lookup-word', mode: 'translate', palabra })
                 });
                 const raw = await res.text();
                 if (!res.ok) throw new Error('Error del servidor (' + res.status + ')');
                 let data;
                 try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
-                traduccion = (data?.reply || '')
-                    .trim().replace(/^["']+|["'.]+$/g, '');
+                traduccion = data?.entry?.traduccion || '';
                 if (!traduccion) throw new Error('El modelo no devolvió traducción');
-                window.sb.from('diccionario_cache').upsert({ id: clave, palabra, traduccion })
-                    .then(() => {}, () => {});
             }
 
             _lvTradCache.set(clave, traduccion);
@@ -1792,13 +1784,8 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
                     method: 'POST',
                     headers,
                     body: JSON.stringify({
-                        messages: [
-                            {
-                                role: 'system',
-                                content: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0,"explicacion": "una frase breve en español explicando por qué es correcta"}]}'
-                            },
-                            { role: 'user', content: texto }
-                        ],
+                        system: 'Eres un asistente de alemán. Dado un texto en alemán, genera exactamente 4 preguntas de comprensión de selección múltiple. Responde SOLO con JSON válido, sin markdown, con este formato exacto: {"preguntas": [{"pregunta": "...","opciones": ["A","B","C","D"],"correcta": 0,"explicacion": "una frase breve en español explicando por qué es correcta"}]}',
+                        messages: [{ role: 'user', content: texto }],
                         max_tokens: 1200,
                         json: true
                     })

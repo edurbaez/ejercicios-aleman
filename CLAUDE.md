@@ -25,7 +25,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `auth.js`, `config.js`, `onboarding.js` | `docs/apps/auth.md` |
 | `styles.css` / `Data*.json` | `docs/styles.md` / `docs/data.md` |
 | `chatvoz2/`, `admin/`, `teacher/`, `marketing/`, `scripts/` | `<subdir>/CLAUDE.md` |
-| `*.js`, Push Notifications flow, push env vars, Cron | `CLAUDE.md` |
+| `api/*.js`, Push Notifications flow, push env vars, Cron | `api/CLAUDE.md` |
 | Migrations + every "Supabase table: X" schema | `supabase/CLAUDE.md` |
 | Manual browser validation recipe | `docs/dev/browser-validation.md` |
 
@@ -59,8 +59,10 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 
 | File | Purpose |
 |------|---------|
-| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-kasus`, `generate-mitexto`. |
+| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-kasus`, `generate-mitexto`, `lookup-word`, `evaluate-writing`. |
 | `_kasus.js` | Level config + server-side prompt/validator for `generate-kasus` (`kasus.html`); not a function (`_` prefix). |
+| `_writing.js` | Shared escritura grading: task normalization, server-side weighted score, prompt, `writing_submissions` insert (service role); not a function. |
+| `_practice.js` | Server-side prompt + `ruleId` whitelist for `generate-practice` (loads `grammar-data-*.js`); not a function (`_` prefix). |
 | `_reading-topics.js` | Shared data for `generate-reading` (`TEMAS`, `READING_SPECS`, `READING_TEILE_SPECS`…); not a function (`_` prefix). |
 | `whisper.js` | Audio transcription, model forced server-side to `gpt-4o-mini-transcribe`; enforces voice-STT daily cap. |
 | `vision.js` | GPT-4o vision: `tarea`/`carta`/`frases`/`escritura`/`style-analysis`. |
@@ -78,7 +80,7 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 
 | File | Purpose |
 |------|---------|
-| `DATA.json` | Legacy B2 vocabulary (old format). Kept for backward compatibility with `sw.js` cache. |
+| `DATA.json` | Legacy B2 vocabulary (old format). Only the `shared-game.js` fallback when `APP_CONFIG.dataFile` is missing; no SW or page references it. |
 | `DataA1.json` … `DataC2.json` (6 files) | Hand-curated vocabulary per level (core lists + extras + `tema: …`); **never regenerate with `generate-vocab.js`**. Detail: `docs/data.md` |
 | `reformulaciones-data.json` / `reformulaciones-guias.js` / `reformulaciones-combos.js` / `reformulaciones-combos-data.json` | Umformung exercise bank, per-rule generator guides (C1), combo catalog, combo bank. Detail: `docs/apps/chat-reformulaciones.md` |
 | `grammar-data.js` + `grammar-data-{a1..c2}.js` | Loader shim (plain blocking `<script>`) + per-level `window.GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
@@ -128,6 +130,12 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `022_reading_sessions.sql` | `reading_sessions`. |
 | `023_feedback_reports_contexto.sql` | `feedback_reports.contexto` (jsonb) for per-exercise reports. |
 | `024_writing_submissions.sql` | `writing_submissions` (texts corrected in `escritura.html`, admin-readable). |
+| `025_diccionario_cache_server_write.sql` | `diccionario_cache` SELECT-only for clients; written by `api/chat.js` `lookup-word`. |
+| `026_profiles_lock_client_writes.sql` | `profiles` read-only for clients + trigger guarding `role`/`status`/`access_expires_at`. |
+| `027_app_id_all_levels.sql` | `app_id` CHECK on `word_lists`/`srs_progress` covers a1–c2. |
+| `028_stt_usage.sql` | `stt_usage` (server-billed voice-STT minutes, service role only + admin read). |
+| `029_admin_aggregates.sql` | Per-user aggregate views for `admin/index.html` + indexes on `usage_events`/`exam_results`. |
+| `030_writing_submissions_server_insert.sql` | `writing_submissions` insert only from the server (`evaluate-writing`, `vision.js`). |
 
 ### PWA & Deploy
 
@@ -138,7 +146,8 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `manifest-plan.json` / `sw-plan.js` / `icon-plan.svg` | PWA trio for `plan.html`. Detail: `docs/apps/plan.md` |
 | `index.html` | Landing page (app cards, navbar, SEO meta). Detail: `docs/apps/landing.md` |
 | `privacidad.html` | Public privacy policy, no `auth.js` on purpose. Detail: `docs/apps/landing.md` |
-| `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
+| `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` e `includeFiles: grammar-data-*.js` (para `api/_practice.js`) (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
+| `.vercelignore` | Keeps internal files out of the deploy (`*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `finance/schema.sql`…). Keep runtime files out of it. |
 | `robots.txt` | Permite indexación completa (`Allow: /`) y referencia `sitemap.xml`. |
 | `sitemap.xml` | Sitemap con la landing (`/`) como única URL pública — las apps internas no se listan (requieren login/uso). |
 | `package.json` | Node.js package declaration — forces Vercel to treat the project as Node. Dependencies: `@vercel/kv`, `web-push` (used by `api/push-notify.js`). |
@@ -189,9 +198,9 @@ All apps that send audio to `/api/whisper` (`mundliche.html`, `chat-voz.html`, `
 - `auth.js` defines `window.VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulaciones']`.
 - Each app logs `duration_ms` (client-reported recording length) via `window.logEvent(appId, 'audio_sent', { duration_ms })` into `usage_events`, keeping its own `app` value for per-app analytics (`admin/index.html`).
 - Each app's `loadDailyUsage()` sums today's `duration_ms` across `.in('app', window.VOICE_STT_APPS)` (not just its own `app`) to compute the shared total and gate new recordings client-side.
-- `api/whisper.js` also enforces the cap server-side (queries `usage_events` with `SUPABASE_SERVICE_ROLE_KEY` before calling OpenAI) so the client-side gate can't be bypassed by calling the endpoint directly.
+- `api/whisper.js` also enforces the cap server-side with its own ledger: after each successful transcription it inserts a row into `stt_usage` (migration 028, service role only) and sums today's rows before calling OpenAI, so a client that never logs `audio_sent` can't stretch the cap. Until 028 runs it falls back to summing the client-logged `usage_events`.
 - **The cap is 60 min/day for authorized users and 10 min/day for accounts still on the automatic 15-day trial** (`profiles.status <> 'approved'`; admins always get the full cap). `auth.js` sets `window.VOICE_DAILY_LIMIT_MS` from the profile in `updateAuthUI()` and the four apps read it via a local `DAILY_LIMIT_MS()` helper instead of hardcoding a constant; `api/whisper.js` re-derives the same two values from `checkAccess().role`/`.status`.
-- `duration_ms` is still self-reported by the client, but it is no longer trusted on its own: `api/whisper.js` also derives a duration from the size of the audio part (`MAX_AUDIO_BYTES_PER_SECOND`, deliberately set above MediaRecorder's real Opus bitrate so the derived figure stays *below* the true duration and an honest client is never overcharged) and bills the cap with whichever is larger. Sending `duration_ms: 0` no longer buys unlimited transcription.
+- The apps also send `duration_ms` as a form field to `/api/whisper` (stripped before forwarding to OpenAI). It is self-reported, so it is not trusted on its own: `api/whisper.js` also derives a duration from the size of the audio part (`MAX_AUDIO_BYTES_PER_SECOND`, deliberately set above MediaRecorder's real Opus bitrate so the derived figure stays *below* the true duration and an honest client is never overcharged) and bills the cap with whichever is larger. Sending `duration_ms: 0` no longer buys unlimited transcription.
 
 ---
 
@@ -237,7 +246,7 @@ Manual browser validation of logged-in flows (session-token injection + Playwrig
 
 - **`res.text()` → `JSON.parse()` instead of `res.json()`** — used in all frontend API calls (e.g. `diccionario.js`, `chat-voz.html`). If the server returns an empty body or an HTML error page, `res.json()` throws a silent parse error with no useful message. The manual pattern preserves the raw response for debugging.
 
-- **`DATA.json` is for the Service Worker, not the app** — `B2.html` embeds its vocabulary inline in a `DATA` object. `DATA.json` exists only so the SW cache manifest has a file to reference. Do not rely on `DATA.json` for runtime logic.
+- **`DATA.json` is orphaned** — no Service Worker or page lists it; it is only the default of `shared-game.js` `CFG.dataFile` (every quiz page sets its own `Data{LEVEL}.json`). Do not rely on it for runtime logic.
 
 - **JWT verification supports ES256 and HS256** — `_lib.js` tries ES256 first (JWKS from Supabase, no secret needed). Falls back to HS256 only if the token header specifies it, requiring `SUPABASE_JWT_SECRET`. Default Supabase tokens are ES256; HS256 is legacy.
 

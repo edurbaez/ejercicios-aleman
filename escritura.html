@@ -535,15 +535,7 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
                     image_base64: EscState.fotoBase64,
                     mime_type: 'image/jpeg',
                     type: 'escritura',
-                    task: {
-                        level: lvl,
-                        titulo: t.titulo,
-                        situacion: t.situacion,
-                        puntos: t.puntos,
-                        registro: t.registro,
-                        min_palabras: t.min_palabras,
-                        max_palabras: t.max_palabras,
-                    },
+                    task: tareaParaServidor(t, lvl),
                 }),
             });
             const raw = await resp.text();
@@ -556,7 +548,6 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
             saveToHistory(t, 'foto', ev.texto_transcrito || '', ev);
-            saveSubmission(t, 'foto', ev.texto_transcrito || '', ev);
             if (typeof window.logEvent === 'function') {
                 window.logEvent('escritura', 'photo_evaluated', { level: lvl, tipo: t.tipoId, score: ev.puntuacion });
             }
@@ -635,35 +626,22 @@ Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estruct
             if (!token) throw new Error('Inicia sesión para corregir tu texto');
 
             const lvl = t.level || EscState.level;
-            const system = `Eres un examinador oficial de alemán (Goethe-Institut) que corrige tareas de expresión escrita de nivel ${lvl}. Evalúa con los criterios del nivel: cumplimiento de la tarea, corrección gramatical, vocabulario, cohesión y registro. Sé exigente pero pedagógico; las explicaciones van en español.
-Calcula 4 subpuntuaciones 0-100 y pondéralas así para obtener "puntuacion": cumplimiento de la tarea 40%, gramática y vocabulario 30%, cohesión 15%, registro 15%. Antes de dar la puntuación final, escribe una breve justificación (1-2 frases en español) que referencie los subscores.
-Devuelve SOLO JSON sin texto adicional, sin markdown ni fences, con esta estructura exacta:
-{"puntuacion": número 0-100, "subscores": {"cumplimiento": número 0-100, "gramatica_vocabulario": número 0-100, "cohesion": número 0-100, "registro": número 0-100}, "justificacion_puntuacion": "1-2 frases en español", "puntos_cubiertos": [true|false por cada punto guía, en el mismo orden], "registro_adecuado": true|false, "errores": [{"original":"fragmento con error","correccion":"fragmento corregido","explicacion":"explicación breve en español","categoria":"gramática|vocabulario|ortografía|registro|estructura"}], "version_mejorada":"el texto completo del alumno corregido y ligeramente mejorado manteniendo su contenido", "comentario":"valoración global en español (2-4 frases) con lo mejor y lo prioritario a mejorar"}
-Si el texto no tiene errores, devuelve "errores": [].`;
-
-            const userMsg = `TAREA (nivel ${lvl}, registro ${t.registro}, ${t.min_palabras}-${t.max_palabras} palabras):
-${t.titulo}
-${t.situacion}
-Puntos guía: ${t.puntos.join(' | ')}
-
-TEXTO DEL ALUMNO (${n} palabras):
-${texto}`;
-
-            let ev = null;
-            for (let intento = 0; intento < 2 && !ev; intento++) {
-                const reply = await apiChat(token, system, userMsg, { json: true, max_tokens: 4000 });
-                try {
-                    const parsed = JSON.parse(stripFences(reply));
-                    if (typeof parsed.puntuacion === 'number' && Array.isArray(parsed.errores)) ev = parsed;
-                } catch {}
-            }
+            const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ action: 'evaluate-writing', task: tareaParaServidor(t, lvl), texto }),
+            });
+            const raw = await resp.text();
+            let data;
+            try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inválida del servidor'); }
+            if (!resp.ok) throw new Error(data.error || 'Error de API');
+            const ev = data.evaluacion;
             if (!ev) throw new Error('La corrección llegó en un formato inválido. Inténtalo de nuevo.');
 
             stopExamTimer();
             renderEvaluacion(ev, t);
             document.getElementById('esc-next-btn').style.display = 'block';
             saveToHistory(t, 'texto', texto, ev);
-            saveSubmission(t, 'texto', texto, ev);
             if (typeof window.logEvent === 'function') {
                 window.logEvent('escritura', 'text_evaluated', { level: lvl, tipo: t.tipoId, words: n, score: ev.puntuacion });
             }
@@ -825,29 +803,14 @@ ${texto}`;
         });
     }
 
-    // Copia en Supabase para que el profesor la revise desde admin/index.html (migración 024).
-    async function saveSubmission(tarea, modo, texto, evaluacion) {
-        if (!window.currentUser || !window.sb || !texto) return;
-        try {
-            const { error } = await window.sb.from('writing_submissions').insert({
-                user_id: window.currentUser.id,
-                level: tarea.level || EscState.level,
-                tipo: tarea.tipoId || null,
-                modo,
-                tarea: {
-                    titulo: tarea.titulo, situacion: tarea.situacion, puntos: tarea.puntos,
-                    registro: tarea.registro, tipoNombre: tarea.tipoNombre || '',
-                    min_palabras: tarea.min_palabras, max_palabras: tarea.max_palabras,
-                },
-                texto,
-                palabras: countWords(texto),
-                puntuacion: typeof evaluacion.puntuacion === 'number' ? Math.round(evaluacion.puntuacion) : null,
-                evaluacion,
-            });
-            if (error) throw error;
-        } catch (err) {
-            console.error('[saveSubmission]', err);
-        }
+    // The server grades and stores the submission for the teacher (writing_submissions,
+    // migrations 024/030), so the score can't be set from the browser.
+    function tareaParaServidor(t, lvl) {
+        return {
+            level: lvl, titulo: t.titulo, situacion: t.situacion, puntos: t.puntos,
+            registro: t.registro, min_palabras: t.min_palabras, max_palabras: t.max_palabras,
+            tipoId: t.tipoId || null, tipoNombre: t.tipoNombre || '',
+        };
     }
 
     async function saveToHistory(tarea, modo, texto, evaluacion) {

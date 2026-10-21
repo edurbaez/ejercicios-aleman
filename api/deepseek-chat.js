@@ -1,4 +1,4 @@
-import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry, validateProxyMessages } from './_lib.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:deepseek-chat');
 
@@ -26,14 +26,10 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { messages, system, max_tokens, json } = req.body;
+    const { messages, system, max_tokens, json } = req.body || {};
 
-    if (!Array.isArray(messages) || messages.length === 0) {
-        return res.status(400).json({ error: 'messages requerido' });
-    }
-    if (messages.length > 40) {
-        return res.status(400).json({ error: 'Demasiados mensajes' });
-    }
+    const invalid = validateProxyMessages(messages, system);
+    if (invalid) return res.status(400).json({ error: invalid });
     if (system && String(system).length > 2000) {
         return res.status(400).json({ error: 'System prompt demasiado largo' });
     }

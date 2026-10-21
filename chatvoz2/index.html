@@ -327,6 +327,7 @@
         mediaRecorder: null,
         audioChunks: [],
         recTimerInterval: null,
+        recStream: null,
         recSeconds: 0,
         isSpeaking: false,
         voices: [],
@@ -449,6 +450,7 @@
             .join('');
         sel.value = State.lang;
         sel.addEventListener('change', () => {
+            cancelRecording();
             State.lang = sel.value;
             localStorage.setItem(STORAGE_PREFIX + 'lang', State.lang);
             loadVoices();
@@ -466,6 +468,7 @@
         btn.addEventListener('click', () => {
             document.querySelectorAll('.cv-level-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
+            cancelRecording();
             State.level = btn.dataset.level;
         });
     });
@@ -615,6 +618,7 @@ Antworte IMMER mit einem JSON-Objekt:
     }
 
     async function selectScenario(key) {
+        cancelRecording();
         const scenario = SCENARIOS.find(s => s.key === key);
         if (!scenario) return;
         State.selectedScenario = key;
@@ -757,6 +761,7 @@ Antworte IMMER mit einem JSON-Objekt:
         showBtnLabel(document.getElementById('newConvBtn'), 'Nueva conversación');
         State.sessionId++;
         cancelCurrentSpeech();
+        cancelRecording();
         clearInterval(State.recTimerInterval);
         if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') {
             State.mediaRecorder.stop();
@@ -975,9 +980,11 @@ Antworte IMMER mit einem JSON-Objekt:
             const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
                 .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
             State.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            State.recStream = stream;
             State.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) State.audioChunks.push(e.data); };
             State.mediaRecorder.onstop = async () => {
                 stream.getTracks().forEach(t => t.stop());
+                State.recStream = null;
                 if (recSession !== State.sessionId) return;
                 const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
                 const durationMs = (State.recStoppedAt || Date.now()) - State.recStartedAt;
@@ -1042,9 +1049,6 @@ Antworte IMMER mit einem JSON-Objekt:
             enableRecord();
             return;
         }
-        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level || '', lang: State.lang, duration_ms: audioDurationMs });
-        State.dailyUsedMs += audioDurationMs;
-        updateDailyUI();
         setHint('Transcribiendo...');
         disableRecord();
 
@@ -1052,6 +1056,7 @@ Antworte IMMER mit einem JSON-Objekt:
         formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', State.lang);
+        formData.append('duration_ms', String(Math.round(audioDurationMs)));
 
         try {
             const whisperToken = await window.getAuthToken?.();
@@ -1065,6 +1070,11 @@ Antworte IMMER mit einem JSON-Objekt:
                 throw new Error('Inicia sesión para usar el chat de voz.');
             }
             const rawText = await resp.text();
+            if (resp.ok) {
+                window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level || '', lang: State.lang, duration_ms: audioDurationMs });
+                State.dailyUsedMs += audioDurationMs;
+                updateDailyUI();
+            }
             if (sid !== State.sessionId) return;
             let data;
             try { data = JSON.parse(rawText); }
@@ -1180,7 +1190,45 @@ Antworte IMMER mit einem JSON-Objekt:
         startedAt: 0,
         stoppedAt: 0,
         timerInterval: null,
+        stream: null,
     };
+
+    function cancelRecording() {
+        if (State.isRecording || State.mediaRecorder?.state === 'recording') {
+            clearInterval(State.recTimerInterval);
+            if (State.mediaRecorder) {
+                State.mediaRecorder.ondataavailable = null;
+                State.mediaRecorder.onstop = null;
+                if (State.mediaRecorder.state !== 'inactive') { try { State.mediaRecorder.stop(); } catch {} }
+            }
+            State.recStream?.getTracks().forEach(t => t.stop());
+            State.recStream = null;
+            if (State.isRecording) {
+                State.isRecording = false;
+                document.getElementById('recTimer').style.display = 'none';
+                document.getElementById('recTimerBar').style.width = '0%';
+                enableRecord();
+            }
+        }
+        if (RepetirRec.isRecording) {
+            RepetirRec.isRecording = false;
+            clearInterval(RepetirRec.timerInterval);
+            if (RepetirRec.mediaRecorder) {
+                RepetirRec.mediaRecorder.ondataavailable = null;
+                RepetirRec.mediaRecorder.onstop = null;
+                if (RepetirRec.mediaRecorder.state !== 'inactive') { try { RepetirRec.mediaRecorder.stop(); } catch {} }
+            }
+            RepetirRec.stream?.getTracks().forEach(t => t.stop());
+            RepetirRec.stream = null;
+            const btn = document.getElementById('repetirRecBtn');
+            btn.textContent = '🎙 Repetir';
+            btn.classList.remove('recording');
+            document.getElementById('repetirListenBtn').disabled = false;
+            document.getElementById('recTimer').style.display = 'none';
+            document.getElementById('recTimerBar').style.width = '0%';
+        }
+    }
+    window.addEventListener('pagehide', cancelRecording);
 
     function toggleRepetirMode() {
         State.repetirMode = !State.repetirMode;
@@ -1192,13 +1240,14 @@ Antworte IMMER mit einem JSON-Objekt:
         const controls = document.querySelector('.cv-controls');
         if (State.repetirMode) {
             cancelCurrentSpeech();
+            cancelRecording();
             chat.style.display = 'none';
             controls.style.display = 'none';
             panel.style.display = 'flex';
             loadRepetirFrases();
         } else {
             cancelCurrentSpeech();
-            if (RepetirRec.isRecording) stopRepetirRecording();
+            cancelRecording();
             panel.style.display = 'none';
             chat.style.display = '';
             controls.style.display = '';
@@ -1291,9 +1340,11 @@ Antworte IMMER mit einem JSON-Objekt:
             const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
                 .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
             RepetirRec.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+            RepetirRec.stream = stream;
             RepetirRec.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) RepetirRec.audioChunks.push(e.data); };
             RepetirRec.mediaRecorder.onstop = async () => {
                 stream.getTracks().forEach(t => t.stop());
+                RepetirRec.stream = null;
                 const blob = new Blob(RepetirRec.audioChunks, { type: RepetirRec.mediaRecorder.mimeType || 'audio/webm' });
                 await transcribeAndCheck(blob, (RepetirRec.stoppedAt || Date.now()) - RepetirRec.startedAt);
             };
@@ -1340,12 +1391,11 @@ Antworte IMMER mit einem JSON-Objekt:
             document.getElementById('repetirListenBtn').disabled = false;
             return;
         }
-        window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, lang: State.lang, duration_ms: durationMs });
-        State.dailyUsedMs += durationMs;
         const formData = new FormData();
         formData.append('file', audioBlob, audioFileName(audioBlob));
         formData.append('model', 'gpt-4o-mini-transcribe');
         formData.append('language', State.lang);
+        formData.append('duration_ms', String(Math.round(durationMs)));
         try {
             const token = await window.getAuthToken?.();
             const resp = await fetch('/api/whisper', {
@@ -1358,6 +1408,8 @@ Antworte IMMER mit einem JSON-Objekt:
             let data;
             try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
             if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+            window.logEvent?.('chatvoz2', 'audio_sent', { level: State.level, lang: State.lang, duration_ms: durationMs });
+            State.dailyUsedMs += durationMs;
             const text = data.text?.trim();
             if (!text) {
                 document.getElementById('repetirHint').textContent = 'No se detectó voz. Intenta de nuevo.';
@@ -1406,6 +1458,7 @@ Antworte IMMER mit einem JSON-Objekt:
 
     function nextRepetirPhrase() {
         cancelCurrentSpeech();
+        cancelRecording();
         if (State.repetirIndex >= State.repetirFrases.length - 1) {
             State.repetirFrases = [];
             State.repetirIndex = 0;

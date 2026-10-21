@@ -1,8 +1,22 @@
-import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry } from './_lib.js';
+import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry, validateProxyMessages } from './_lib.js';
 import { KASUS_VERIFY_SYSTEM, buildKasusPrompt, normalizeKasusItem, validKasusItem, kasusVerified, validateKasusRequest, kasusRuleId } from './_kasus.js';
+import { normalizeTask, countWords, weightedScore, writingEvalSystem, writingEvalUser, saveSubmission } from './_writing.js';
+import { PRACTICE_SYSTEM_PROMPT, findRule, buildPracticePrompt, cleanSentence } from './_practice.js';
 import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, READING_TEILE_SPECS, READING_CALIDAD, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
+
+// Generation actions cost several (or pricier) OpenAI calls each, so they get their own
+// per-minute window plus a daily cap instead of sharing the chat limit.
+const DAY_MS = 86_400_000;
+const ACTIONS = {
+    'generate-reading':  { run: (req, res) => generateReading(req, res),  perMin: createRateLimiter(3, 60_000, 'rl:reading'),  perDay: createRateLimiter(20, DAY_MS, 'rl:reading:day') },
+    'generate-practice': { run: (req, res) => generatePractice(req, res), perMin: createRateLimiter(6, 60_000, 'rl:practice'), perDay: createRateLimiter(60, DAY_MS, 'rl:practice:day') },
+    'generate-kasus':    { run: (req, res) => generateKasus(req, res),    perMin: createRateLimiter(6, 60_000, 'rl:kasus'),    perDay: createRateLimiter(60, DAY_MS, 'rl:kasus:day') },
+    'generate-mitexto':  { run: (req, res) => generateMiTexto(req, res),  perMin: createRateLimiter(4, 60_000, 'rl:mitexto'),  perDay: createRateLimiter(30, DAY_MS, 'rl:mitexto:day') },
+    'evaluate-writing':  { run: (req, res, sub) => evaluateWriting(req, res, sub),  perMin: createRateLimiter(6, 60_000, 'rl:writing'),  perDay: createRateLimiter(40, DAY_MS, 'rl:writing:day') },
+    'lookup-word':       { run: (req, res) => lookupWord(req, res),       perMin: createRateLimiter(30, 60_000, 'rl:lookup'),  perDay: createRateLimiter(500, DAY_MS, 'rl:lookup:day') },
+};
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -30,34 +44,25 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Acceso restringido', status: access.status, expires_at: access.expires_at });
     }
 
+    const { action, messages, system, max_tokens, json, temperature } = req.body || {};
+
+    const named = Object.hasOwn(ACTIONS, action) ? ACTIONS[action] : null;
+    if (named) {
+        if (await named.perMin(jwtPayload.sub)) {
+            return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
+        }
+        if (await named.perDay(jwtPayload.sub)) {
+            return res.status(429).json({ error: 'Has alcanzado el límite diario de generaciones. Vuelve mañana.' });
+        }
+        return named.run(req, res, jwtPayload.sub);
+    }
+
     if (await isRateLimited(jwtPayload.sub)) {
         return res.status(429).json({ error: 'Demasiadas peticiones. Espera un momento.' });
     }
 
-    const { action, messages, system, max_tokens, json, temperature } = req.body;
-
-    if (action === 'generate-reading') {
-        return generateReading(req, res);
-    }
-
-    if (action === 'generate-practice') {
-        return generatePractice(req, res);
-    }
-
-    if (action === 'generate-kasus') {
-        return generateKasus(req, res);
-    }
-
-    if (action === 'generate-mitexto') {
-        return generateMiTexto(req, res);
-    }
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-        return res.status(400).json({ error: 'messages requerido' });
-    }
-    if (messages.length > 40) {
-        return res.status(400).json({ error: 'Demasiados mensajes' });
-    }
+    const invalid = validateProxyMessages(messages, system);
+    if (invalid) return res.status(400).json({ error: invalid });
     if (system && String(system).length > 4000) {
         return res.status(400).json({ error: 'System prompt demasiado largo' });
     }
@@ -97,6 +102,130 @@ export default async function handler(req, res) {
 
         const data = await response.json();
         return res.status(200).json({ reply: data.choices[0].message.content });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// ── evaluate-writing: escritura.html typed-text grading ──────────────────────
+// Prompt built here and the submission stored with the service role (see _writing.js).
+async function evaluateWriting(req, res, jwtSub) {
+    const task = normalizeTask(req.body.task);
+    const texto = typeof req.body.texto === 'string' ? req.body.texto.trim() : '';
+    if (!task) return res.status(400).json({ error: 'task inválida' });
+    if (countWords(texto) < 5 || texto.length > 12000) return res.status(400).json({ error: 'texto inválido' });
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+
+    let ev = null;
+    for (let intento = 0; intento < 2 && !ev; intento++) {
+        try {
+            const parsed = await openaiJson('gpt-4o-mini', writingEvalSystem(task.level), writingEvalUser(task, texto), 4000);
+            if (Array.isArray(parsed.errores) && weightedScore(parsed) !== null) ev = parsed;
+        } catch { /* retry once */ }
+    }
+    if (!ev) return res.status(502).json({ error: 'La corrección llegó en un formato inválido. Inténtalo de nuevo.' });
+
+    ev.puntuacion = weightedScore(ev);
+    await saveSubmission(jwtSub, task, 'texto', texto, ev);
+    return res.status(200).json({ evaluacion: ev });
+}
+
+// ── lookup-word: shared diccionario_cache, written only here ─────────────────
+// The cache is read by every user (diccionario.html, lectura veloz.html), so clients
+// only SELECT it; entries come from a fixed server-side prompt with sanitized fields.
+
+const LOOKUP_SYSTEM_FULL = `Eres un diccionario de alemán preciso. El usuario te dará una palabra en alemán.
+Responde SIEMPRE con un JSON válido con exactamente estas claves:
+{
+  "traduccion": "traducción al español",
+  "nivel": "A1|A2|B1|B2|C1|C2",
+  "definicion": "definición en alemán, clara y concisa",
+  "sinonimos": ["palabra1", "palabra2"],
+  "antonimo": "antónimo en alemán o null si no tiene"
+}
+No incluyas nada fuera del JSON.`;
+const LOOKUP_SYSTEM_TRANSLATE = 'Traduce al español la palabra alemana que recibas. Responde SOLO con la traducción, máximo 4 palabras, sin comillas ni punto final.';
+const LOOKUP_WORD_RE = /^[\p{L}\p{M}][\p{L}\p{M}' .-]{0,59}$/u;
+
+function cleanText(v, max) {
+    if (typeof v !== 'string') return null;
+    const t = v.replace(/[<>]/g, '').trim().slice(0, max);
+    return t && t.toLowerCase() !== 'null' ? t : null;
+}
+
+function supaHeaders(extra = {}) {
+    return {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+        ...extra,
+    };
+}
+
+async function lookupWord(req, res) {
+    const palabra = String(req.body.palabra || '').trim();
+    const mode = req.body.mode === 'translate' ? 'translate' : 'full';
+    if (!LOOKUP_WORD_RE.test(palabra)) return res.status(400).json({ error: 'palabra inválida' });
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+    const id = palabra.toLowerCase();
+    const hasSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+    try {
+        if (hasSupabase) {
+            const r = await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/diccionario_cache?id=eq.${encodeURIComponent(id)}&select=*`,
+                { headers: supaHeaders() }
+            );
+            const [row] = r.ok ? await r.json() : [];
+            if (row && (mode === 'translate' ? row.traduccion : row.definicion)) {
+                return res.status(200).json({ entry: row });
+            }
+        }
+
+        let entry;
+        if (mode === 'full') {
+            const info = await openaiJson('gpt-4o-mini', LOOKUP_SYSTEM_FULL, palabra, 400);
+            const nivel = String(info.nivel || '').toUpperCase();
+            entry = {
+                id, palabra,
+                traduccion: cleanText(info.traduccion, 200),
+                nivel: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(nivel) ? nivel : null,
+                definicion: cleanText(info.definicion, 600),
+                sinonimos: (Array.isArray(info.sinonimos) ? info.sinonimos : [])
+                    .map(x => cleanText(x, 60)).filter(Boolean).slice(0, 8),
+                antonimo: cleanText(info.antonimo, 60),
+            };
+            if (!entry.traduccion) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+        } else {
+            const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    max_tokens: 30,
+                    messages: [{ role: 'system', content: LOOKUP_SYSTEM_TRANSLATE }, { role: 'user', content: palabra }],
+                }),
+            });
+            if (!aiRes.ok) return res.status(502).json({ error: 'Error de OpenAI' });
+            const data = await aiRes.json();
+            const traduccion = cleanText((data.choices[0].message.content || '').replace(/^["']+|["'.]+$/g, ''), 80);
+            if (!traduccion) return res.status(502).json({ error: 'El modelo no devolvió traducción' });
+            entry = { id, palabra, traduccion };
+        }
+
+        if (hasSupabase) {
+            // merge-duplicates only overwrites the columns sent, so a translate-only
+            // entry never wipes the definition of a full one.
+            await fetch(`${process.env.SUPABASE_URL}/rest/v1/diccionario_cache`, {
+                method: 'POST',
+                headers: supaHeaders({ 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' }),
+                body: JSON.stringify(entry),
+            }).catch(() => {});
+        }
+        return res.status(200).json({ entry });
     } catch {
         return res.status(500).json({ error: 'Error interno' });
     }
@@ -214,16 +343,13 @@ Luego genera 4 preguntas de comprensión de selección múltiple. Responde SOLO 
 async function generatePractice(req, res) {
     const ruleId = String(req.body.ruleId || '');
     const level  = String(req.body.level || '').toUpperCase();
-    const { system, prompt } = req.body;
 
-    if (!ruleId) return res.status(400).json({ error: 'ruleId requerido' });
     if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
         return res.status(400).json({ error: 'level inválido (A1–C2)' });
     }
-    if (typeof prompt !== 'string' || !prompt) return res.status(400).json({ error: 'prompt requerido' });
-    if (system && String(system).length > 4000) {
-        return res.status(400).json({ error: 'System prompt demasiado largo' });
-    }
+    let rule;
+    try { rule = findRule(level, ruleId); } catch { return res.status(500).json({ error: 'Datos de gramática no disponibles' }); }
+    if (!rule) return res.status(400).json({ error: 'ruleId inválido' });
 
     if (!process.env.OPENAI_API_KEY) {
         return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
@@ -231,6 +357,15 @@ async function generatePractice(req, res) {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
         return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
     }
+
+    let extraUsed = [];
+    try {
+        const usedRes = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/grammar_practice_exercises?rule_id=eq.${encodeURIComponent(ruleId)}&select=oraciones&order=created_at.desc&limit=6`,
+            { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } }
+        );
+        if (usedRes.ok) extraUsed = (await usedRes.json()).flatMap(r => (r.oraciones || []).map(o => o.de)).filter(Boolean);
+    } catch { /* best-effort — a failed lookup shouldn't block generation */ }
 
     try {
         const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
@@ -242,9 +377,10 @@ async function generatePractice(req, res) {
             body: JSON.stringify({
                 model: 'gpt-4o-mini',
                 max_tokens: 1500,
-                messages: system
-                    ? [{ role: 'system', content: String(system) }, { role: 'user', content: prompt }]
-                    : [{ role: 'user', content: prompt }],
+                messages: [
+                    { role: 'system', content: PRACTICE_SYSTEM_PROMPT },
+                    { role: 'user', content: buildPracticePrompt(rule, level, extraUsed) },
+                ],
             }),
         });
         if (!aiRes.ok) {
@@ -268,24 +404,20 @@ async function generatePractice(req, res) {
 
         // Los distractores de par mínimo son opcionales: se guardan solo si vienen completos,
         // para que el cliente pueda distinguirlos de las filas antiguas (que no los tienen).
-        oraciones = oraciones.map(o => {
-            const row = { de: o.de, es: o.es };
-            const ds = Array.isArray(o.distractores)
-                ? o.distractores.filter(d => typeof d === 'string' && d.trim() && d.trim() !== o.de.trim())
-                : [];
+        const cleanList = arr => (Array.isArray(arr) ? arr : []).map(x => cleanSentence(x)).filter(Boolean);
+        oraciones = oraciones.slice(0, 10).map(o => {
+            const row = { de: cleanSentence(o.de), es: cleanSentence(o.es) };
+            const ds = cleanList(o.distractores).filter(d => d !== row.de);
             if (ds.length >= 3) {
                 row.distractores = ds.slice(0, 3);
-                const ws = Array.isArray(o.por_que_mal)
-                    ? o.por_que_mal.filter(w => typeof w === 'string' && w.trim())
-                    : [];
+                const ws = cleanList(o.por_que_mal);
                 if (ws.length >= 3) row.por_que_mal = ws.slice(0, 3);
             }
-            const ordenes = Array.isArray(o.ordenes_validos)
-                ? o.ordenes_validos.filter(x => typeof x === 'string' && x.trim())
-                : [];
+            const ordenes = cleanList(o.ordenes_validos);
             if (ordenes.length) row.ordenes_validos = ordenes.slice(0, 3);
             return row;
-        });
+        }).filter(o => o.de && o.es);
+        if (!oraciones.length) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
 
         const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/grammar_practice_exercises`, {
             method: 'POST',

@@ -166,6 +166,7 @@ const State = {
     audioChunks: [],
     recSeconds: 0,
     recTimerInterval: null,
+    recStream: null,
     dailyUsedMs: 0,
     isSpeaking: false,
     currentAudio: null,
@@ -367,6 +368,7 @@ function loadRule(rule) {
     State.currentRule = rule;
     State.messages = [];
     cancelCurrentSpeech();
+    cancelRecording();
 
     document.getElementById('nivelBadge').textContent = rule.nivel;
     document.getElementById('ruleTitle').textContent = rule.titulo;
@@ -730,6 +732,7 @@ function skipRule() {
 
 function endSession() {
     cancelCurrentSpeech();
+    cancelRecording();
     window.logEvent?.('chat-reformulaciones', 'session_end', {
         ...State.sessionScore,
         mode: State.mode,
@@ -812,8 +815,8 @@ async function renderHistory(db) {
             const { correct, partial, incorrect } = e.sessionScore || {};
             const rulesHtml = (e.rules || []).map(r =>
                 `<div class="cr-hist-rule">
-                    <span class="cr-nivel-badge">${r.nivel}</span>
-                    <span class="cr-hist-rule-titulo">${r.titulo}</span>
+                    <span class="cr-nivel-badge">${escHtml(r.nivel)}</span>
+                    <span class="cr-hist-rule-titulo">${escHtml(r.titulo)}</span>
                     <span class="cr-hist-rule-score">✅ ${r.correct} ⚠️ ${r.partial} ❌ ${r.incorrect}</span>
                 </div>`
             ).join('');
@@ -823,9 +826,9 @@ async function renderHistory(db) {
                     ${e.turns.map(t => {
                         const cls = t.symbol === '✅' ? 'cr-hist-turn-correct' : t.symbol === '⚠️' ? 'cr-hist-turn-partial' : 'cr-hist-turn-incorrect';
                         return `<div class="cr-hist-turn ${cls}">
-                            <div class="cr-hist-turn-source">${t.source}${t.instruction ? ` — ${t.instruction}` : ''}</div>
-                            <div class="cr-hist-turn-answer">${t.userAnswer}</div>
-                            <div class="cr-hist-turn-fb">${t.symbol} ${t.explanation || ''}</div>
+                            <div class="cr-hist-turn-source">${escHtml(t.source)}${t.instruction ? ` — ${escHtml(t.instruction)}` : ''}</div>
+                            <div class="cr-hist-turn-answer">${escHtml(t.userAnswer)}</div>
+                            <div class="cr-hist-turn-fb">${escHtml(t.symbol)} ${escHtml(t.explanation || '')}</div>
                         </div>`;
                     }).join('')}
                 </details>` : '';
@@ -840,6 +843,10 @@ async function renderHistory(db) {
             </div>`;
         }).join('');
     } catch { /* ignore */ }
+}
+
+function escHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
 function renderWeakRulesBlock(sessions) {
@@ -863,8 +870,8 @@ function renderWeakRulesBlock(sessions) {
         <div class="cr-hist-weak">
             <div class="cr-hist-weak-title">📉 Reglas con más dificultad</div>
             ${weak.map(r => `<div class="cr-hist-rule">
-                <span class="cr-nivel-badge">${r.nivel}</span>
-                <span class="cr-hist-rule-titulo">${r.titulo}</span>
+                <span class="cr-nivel-badge">${escHtml(r.nivel)}</span>
+                <span class="cr-hist-rule-titulo">${escHtml(r.titulo)}</span>
                 <span class="cr-hist-rule-score">${r.correct}/${r.total} correctas</span>
             </div>`).join('')}
         </div>`;
@@ -1113,9 +1120,11 @@ async function startRecording() {
         const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg', '']
             .find(m => !m || MediaRecorder.isTypeSupported(m)) || '';
         State.mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+        State.recStream = stream;
         State.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) State.audioChunks.push(e.data); };
         State.mediaRecorder.onstop = async () => {
             stream.getTracks().forEach(t => t.stop());
+            State.recStream = null;
             const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
             await transcribeAndSend(blob);
         };
@@ -1152,6 +1161,25 @@ function stopRecording() {
     if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') State.mediaRecorder.stop();
 }
 
+function cancelRecording() {
+    clearInterval(State.recTimerInterval);
+    const rec = State.mediaRecorder;
+    if (rec) {
+        rec.ondataavailable = null;
+        rec.onstop = null;
+        if (rec.state !== 'inactive') { try { rec.stop(); } catch {} }
+    }
+    State.recStream?.getTracks().forEach(t => t.stop());
+    State.recStream = null;
+    if (!State.isRecording) return;
+    State.isRecording = false;
+    document.getElementById('recTimer').style.display = 'none';
+    document.getElementById('sendBtn').style.display = 'none';
+    document.getElementById('recTimerBar').style.width = '0%';
+    document.getElementById('recordBtn').style.display = 'inline-flex';
+}
+window.addEventListener('pagehide', cancelRecording);
+
 function updateRecTimer() {
     const s = State.recSeconds;
     document.getElementById('recTimerText').textContent =
@@ -1168,12 +1196,11 @@ function updateRecTimer() {
 async function transcribeAndSend(blob) {
     setHint('Transcribiendo...');
     const durationMs = State.recSeconds * 1000;
-    window.logEvent?.('chat-reformulaciones', 'audio_sent', { duration_ms: durationMs });
-    State.dailyUsedMs += durationMs;
     const formData = new FormData();
     formData.append('file', blob, audioFileName(blob));
     formData.append('model', 'gpt-4o-mini-transcribe');
     formData.append('language', 'de');
+    formData.append('duration_ms', String(durationMs));
     try {
         const token = await window.getAuthToken?.();
         const resp = await fetch('/api/whisper', {
@@ -1186,6 +1213,8 @@ async function transcribeAndSend(blob) {
         let data;
         try { data = JSON.parse(raw); } catch { throw new Error('Respuesta inesperada del servidor.'); }
         if (!resp.ok) throw new Error(data.error || 'Error de transcripción');
+        window.logEvent?.('chat-reformulaciones', 'audio_sent', { duration_ms: durationMs });
+        State.dailyUsedMs += durationMs;
         const text = data.text?.trim();
         if (!text) { setHint('No se detectó voz. Intenta de nuevo.'); enableInput(); return; }
         const ta = document.getElementById('textInput');

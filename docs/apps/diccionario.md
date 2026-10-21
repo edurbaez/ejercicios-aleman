@@ -18,8 +18,8 @@ Looks up a German word and returns: translation (ES), CEFR level badge, definiti
 1. User types a word → `buscar()` fires.
 2. Check **IndexedDB** cache first (`cacheGet()`).
 3. If miss, check **Supabase** table (`supaGet()`).
-4. If still miss, call `POST /api/chat` → GPT-4o-mini returns structured JSON.
-5. Result is stored in both Supabase (`supaSet()`) and IndexedDB (`cacheSet()`).
+4. If still miss, call `POST /api/chat` with `{ action: "lookup-word", palabra }` → the server builds the prompt, sanitizes the GPT-4o-mini JSON and writes `diccionario_cache` with the service role (clients only SELECT it, migration 025).
+5. The returned `entry` is stored in IndexedDB (`cacheSet()`); all user-facing values are escaped (`escHtml()`) before `innerHTML`.
 
 ### API fetch pattern
 Uses `res.text()` → manual `JSON.parse()` (same pattern as `chat-voz.html`) to avoid silent failures when the server returns an empty or non-JSON body. Error message includes the raw response for easier debugging.
@@ -29,7 +29,7 @@ Uses `res.text()` → manual `JSON.parse()` (same pattern as `chat-voz.html`) to
 
 ### Key functions (in `diccionario.js`)
 - `buscar()` — orchestrates the lookup chain (IndexedDB → Supabase → API).
-- `supaGet(palabra)` / `supaSet(palabra, info)` — Supabase read/write.
+- `supaGet(palabra)` — Supabase read (ignores translate-only rows without `definicion`).
 - `cacheGet(palabra)` / `cacheSet(palabra, info)` — IndexedDB read/write.
 - `abrirDB()` — opens/upgrades the local IndexedDB store.
 - `mostrarResultado(palabra, info)` — renders the result card.

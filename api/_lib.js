@@ -157,3 +157,38 @@ export function createRateLimiter(limit, windowMs = 60_000, namespace = 'rl') {
         return false;
     };
 }
+
+// The push cron POSTs to whatever endpoint a subscription carries, so only accept the
+// browsers' own push services over https (blind SSRF otherwise).
+const PUSH_HOSTS = [/^fcm\.googleapis\.com$/, /^android\.googleapis\.com$/, /(^|\.)push\.services\.mozilla\.com$/,
+    /(^|\.)notify\.windows\.com$/, /(^|\.)push\.apple\.com$/];
+
+export function isValidPushSubscription(sub) {
+    if (!sub || typeof sub !== 'object' || typeof sub.endpoint !== 'string' || sub.endpoint.length > 1000) return false;
+    let url;
+    try { url = new URL(sub.endpoint); } catch { return false; }
+    if (url.protocol !== 'https:' || url.port) return false;
+    if (!PUSH_HOSTS.some(re => re.test(url.hostname))) return false;
+    const k = sub.keys;
+    return !!k && typeof k.p256dh === 'string' && typeof k.auth === 'string' && k.p256dh.length <= 200 && k.auth.length <= 100;
+}
+
+// Generic LLM proxies (chat.js, deepseek-chat.js): the system prompt only travels in
+// `system`, never as an injected message, and total input is bounded so the proxy
+// can't be used for arbitrarily large (costly) prompts.
+export const MAX_PROXY_INPUT_CHARS = 30_000;
+
+export function validateProxyMessages(messages, system) {
+    if (!Array.isArray(messages) || messages.length === 0) return 'messages requerido';
+    if (messages.length > 40) return 'Demasiados mensajes';
+    let total = system ? String(system).length : 0;
+    for (const m of messages) {
+        if (!m || (m.role !== 'user' && m.role !== 'assistant') || typeof m.content !== 'string') {
+            return 'Formato de mensaje inválido';
+        }
+        total += m.content.length;
+    }
+    if (total > MAX_PROXY_INPUT_CHARS) return 'Conversación demasiado larga';
+    return null;
+}
+

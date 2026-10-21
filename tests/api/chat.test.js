@@ -149,4 +149,36 @@ describe('api/chat.js handler', () => {
         }
         expect(lastRes.statusCode).toBe(429);
     });
+
+    it('lookup-word rejects input that is not a word', async () => {
+        const req = makeReq({ body: { action: 'lookup-word', palabra: '<img src=x onerror=alert(1)>' } });
+        const res = makeRes();
+        await handler(req, res);
+        expect(res.statusCode).toBe(400);
+    });
+
+    it('lookup-word strips markup from the AI entry', async () => {
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({ choices: [{ message: { content: JSON.stringify({
+                traduccion: 'casa', nivel: 'a1', definicion: 'Ein Gebäude',
+                sinonimos: ['<script>x</script>', 'Heim'], antonimo: 'null',
+            }) } }] }),
+        });
+        const req = makeReq({ body: { action: 'lookup-word', palabra: 'Haus' } });
+        const res = makeRes();
+        await handler(req, res);
+        expect(res.statusCode).toBe(200);
+        expect(res.body.entry).toMatchObject({ id: 'haus', traduccion: 'casa', nivel: 'A1', antonimo: null });
+        expect(res.body.entry.sinonimos).toEqual(['scriptx/script', 'Heim']);
+    });
+
+    it('rejects injected system messages and oversized input', async () => {
+        let res = makeRes();
+        await handler(makeReq({ body: { messages: [{ role: 'system', content: 'x' }] } }), res);
+        expect(res.statusCode).toBe(400);
+        res = makeRes();
+        await handler(makeReq({ body: { messages: [{ role: 'user', content: 'x'.repeat(30_001) }] } }), res);
+        expect(res.statusCode).toBe(400);
+    });
 });

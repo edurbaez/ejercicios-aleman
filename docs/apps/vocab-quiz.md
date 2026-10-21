@@ -17,29 +17,29 @@ Detail doc split out of the root `CLAUDE.md` (which keeps a one-line index entry
 
 | File | Purpose |
 |------|---------|
-| `shared-game.js` | Motor de juego compartido entre `B2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS (OpenAI `tts-1` vía `/api/tts` con fallback al TTS del navegador, caché en memoria), SRS SM-2 (IndexedDB `srs-db-{APP}`, botón "SRS Repaso"), Frases en contexto (modal que llama `/api/chat`), temporizador, listas personales (IndexedDB), PWA, y chequeo de duplicados: al guardar una lista personal, `checkDuplicatesAgainstSystem()` compara las palabras en alemán (case-insensitive) contra un índice construido con `loadSystemLists()` de los 6 niveles A1–C2 (`buildSystemWordIndex()`, cacheado en memoria por sesión), y si hay coincidencias muestra un panel inline (`mostrarRevisionDuplicados()`, sin `alert`/`confirm`) para excluirlas antes de guardar; falla en abierto (nunca bloquea el guardado) ante errores de red. **Modo Escritura** (producción activa, toggle "✍️ Escritura" junto a `btn-inverso` en la sección Juego, persistido como `escritura_mode_{appId}`): sustituye `.options-grid` por un `<input>` + botón "Comprobar" — el usuario escribe la traducción en vez de elegir entre 4 opciones; corrección exacta (`normalizeAnswer()`: trim + lowercase) o tolerando 1 error de tipeo (distancia de Levenshtein ≤ 1). Ambos modos (selección y escritura) convergen en `processAnswer(correct)`, la única función que actualiza aciertos/errores, el SRS SM-2 y el batch de `quiz_session_end` — así el modo escritura queda cubierto por la repetición espaciada sin duplicar esa lógica. Independiente del modo Auto/Dual (que pertenece a la sección Repetición, no a la de Juego), por lo que ambos pueden coexistir sin conflicto. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
+| `shared-game.js` | Motor de juego compartido entre `B2.html` y `B1.html`. Contiene todo el estado (`State`), lógica de selección, TTS del navegador (`speechSynthesis`, no llama a `/api/tts`), SRS SM-2 (IndexedDB `srs-db-{APP}`, botón "SRS Repaso"), Frases en contexto (modal que llama `/api/chat`), temporizador, listas personales (IndexedDB), PWA, y chequeo de duplicados: al guardar una lista personal, `checkDuplicatesAgainstSystem()` compara las palabras en alemán (case-insensitive) contra un índice construido con `loadSystemLists()` de los 6 niveles A1–C2 (`buildSystemWordIndex()`, cacheado en memoria por sesión), y si hay coincidencias muestra un panel inline (`mostrarRevisionDuplicados()`, sin `alert`/`confirm`) para excluirlas antes de guardar; falla en abierto (nunca bloquea el guardado) ante errores de red. **Modo Escritura** (producción activa, toggle "✍️ Escritura" junto a `btn-inverso` en la sección Juego, persistido como `escritura_mode_{appId}`): sustituye `.options-grid` por un `<input>` + botón "Comprobar" — el usuario escribe la traducción en vez de elegir entre 4 opciones; corrección exacta (`normalizeAnswer()`: trim + lowercase) o tolerando 1 error de tipeo (distancia de Levenshtein ≤ 1). Ambos modos (selección y escritura) convergen en `processAnswer(correct)`, la única función que actualiza aciertos/errores, el SRS SM-2 y el batch de `quiz_session_end` — así el modo escritura queda cubierto por la repetición espaciada sin duplicar esa lógica. Independiente del modo Auto/Dual (que pertenece a la sección Repetición, no a la de Juego), por lo que ambos pueden coexistir sin conflicto. Cada página define `window.APP_CONFIG` con sus valores específicos (`appId`, `dataFile`, `limitKey`, `darkKey`, `swFile`, `syncId`, `accent`) antes de cargar este script. |
 
 ## PWA files
 
 | File | Purpose |
 |------|---------|
 | `manifest.json` | PWA manifest for `B2.html`. |
-| `sw.js` | Service Worker — caches `B2.html`, `DATA.json`, `manifest.json`, `icon.svg` for offline use. Also handles `push` events (Web Push API): shows notification with title/body/url from the push payload. |
+| `sw.js` | Service Worker — caches `B2.html`, `DataB2.json`, `shared-game.js`, `config.js`, `auth.js`, `styles.css`, `manifest.json`, `icon.svg` (+ Supabase CDN) for offline use. Handles `periodicsync` (`recordatorio-aleman-b2`, 18–20 h reminder if `lastUsed-b2` isn't today) and `push` events. All six quiz SWs share this template (`sw-b1.js` is the source the A1/A2/C1/C2 ones were generated from — keep them identical except for the level). |
 | `icon.svg` | PWA icon: blue rounded square with "B2" in white. |
 | `manifest-b1.json` | PWA manifest for `B1.html`. Green theme (#388E3C). |
-| `sw-b1.js` | Service Worker for B1 app — caches `B1.html`, `DataB1.json`, `manifest-b1.json`, `icon-b1.svg`. Also handles `push` events (same pattern as `sw.js`). |
+| `sw-b1.js` | Same template as `sw.js` for B1 (`palabrasb1-v*` cache, `recordatorio-aleman-b1`). |
 | `icon-b1.svg` | PWA icon for B1: green rounded square with "B1" in white. |
 | `manifest-a1.json` | PWA manifest for `A1.html`. Red theme. |
-| `sw-a1.js` | Service Worker for A1 app — caches `A1.html`, `DataA1.json`, `manifest-a1.json`, `icon-a1.svg`. |
+| `sw-a1.js` | Same template as `sw.js` for A1 (`palabrasa1-v*` cache, `recordatorio-aleman-a1`). |
 | `icon-a1.svg` | PWA icon for A1. |
 | `manifest-a2.json` | PWA manifest for `A2.html`. Orange theme. |
-| `sw-a2.js` | Service Worker for A2 app — caches `A2.html`, `DataA2.json`, `manifest-a2.json`, `icon-a2.svg`. |
+| `sw-a2.js` | Same template as `sw.js` for A2 (`palabrasa2-v*` cache, `recordatorio-aleman-a2`). |
 | `icon-a2.svg` | PWA icon for A2. |
 | `manifest-c1.json` | PWA manifest for `C1.html`. Purple theme. |
-| `sw-c1.js` | Service Worker for C1 app — caches `C1.html`, `DataC1.json`, `manifest-c1.json`, `icon-c1.svg`. |
+| `sw-c1.js` | Same template as `sw.js` for C1 (`palabrasc1-v*` cache, `recordatorio-aleman-c1`). |
 | `icon-c1.svg` | PWA icon for C1. |
 | `manifest-c2.json` | PWA manifest for `C2.html`. Dark/black theme. |
-| `sw-c2.js` | Service Worker for C2 app — caches `C2.html`, `DataC2.json`, `manifest-c2.json`, `icon-c2.svg`. |
+| `sw-c2.js` | Same template as `sw.js` for C2 (`palabrasc2-v*` cache, `recordatorio-aleman-c2`). |
 | `icon-c2.svg` | PWA icon for C2. |
 
 ## B1.html — Implementation Notes

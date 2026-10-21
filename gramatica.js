@@ -329,7 +329,9 @@ function renderSearchResults() {
   container.innerHTML = results.map(function(rule, i) { return renderRuleCard(rule, i, read, true); }).join('');
 }
 
-function esc(s) { return String(s).replace(/'/g, '&#39;').replace(/"/g, '&quot;'); }
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 function renderTabla(tabla) {
   if (!tabla) return '';
@@ -462,9 +464,7 @@ function updateDailyDisplay() {
   el.style.display = n > 0 ? '' : 'none';
 }
 
-function safeAttr(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+const safeAttr = esc;
 
 // Devuelve los 3 distractores de par mínimo de una oración generada por IA, o null
 // para las filas antiguas (y para rule.ejemplos), que no los llevan.
@@ -644,34 +644,34 @@ function renderQuizQuestion() {
   let bodyHtml = '';
   if (q.type === 'opcion_multiple') {
     const opts = q.options.map(o =>
-      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + esc(o) + '</button>'
     ).join('');
-    bodyHtml = '<div class="gram-quiz-question"><small>¿Cómo se dice en alemán?</small>' + q.example.es + '</div>' +
+    bodyHtml = '<div class="gram-quiz-question"><small>¿Cómo se dice en alemán?</small>' + esc(q.example.es) + '</div>' +
       '<div class="gram-quiz-options">' + opts + '</div>';
   } else if (q.type === 'identificar') {
     const opts = q.options.map(o =>
-      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + esc(o) + '</button>'
     ).join('');
-    bodyHtml = '<div class="gram-quiz-question"><small>¿Qué significa en español?</small>' + q.example.de + '</div>' +
+    bodyHtml = '<div class="gram-quiz-question"><small>¿Qué significa en español?</small>' + esc(q.example.de) + '</div>' +
       '<div class="gram-quiz-options">' + opts + '</div>';
   } else if (q.type === 'articulo' || q.type === 'hueco') {
     const opts = q.options.map(o =>
-      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + o + '</button>'
+      '<button class="gram-quiz-opt" data-val="' + safeAttr(o) + '" onclick="checkQuizAnswer(this.dataset.val)">' + esc(o) + '</button>'
     ).join('');
-    bodyHtml = '<div class="gram-quiz-question"><small>' + (q.prompt || 'Completa con el artículo correcto:') + '</small>' + q.sentence + '</div>' +
+    bodyHtml = '<div class="gram-quiz-question"><small>' + (q.prompt || 'Completa con el artículo correcto:') + '</small>' + esc(q.sentence) + '</div>' +
       '<div class="gram-quiz-options gram-quiz-opts-4">' + opts + '</div>';
   } else if (q.type === 'escribir_hueco') {
-    bodyHtml = '<div class="gram-quiz-question"><small>Escribe la forma correcta en el hueco:</small>' + q.sentence + '</div>' +
+    bodyHtml = '<div class="gram-quiz-question"><small>Escribe la forma correcta en el hueco:</small>' + esc(q.sentence) + '</div>' +
       '<div class="gram-quiz-input-wrap">' +
         '<input id="quiz-input" class="gram-quiz-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe aquí…" onkeydown="if(event.key===&quot;Enter&quot;)submitQuizInput()">' +
         '<button class="gram-quiz-btn primary" id="submit-escribir" onclick="submitQuizInput()">Comprobar</button>' +
       '</div>';
   } else if (q.type === 'ordenar') {
     const wordBtns = q.words.map((w, i) =>
-      '<button class="gram-quiz-word" onclick="ordenarClick(this,' + i + ')">' + w + '</button>'
+      '<button class="gram-quiz-word" onclick="ordenarClick(this,' + i + ')">' + esc(w) + '</button>'
     ).join('');
     bodyHtml = '<div class="gram-quiz-question"><small>Ordena las palabras:</small>' +
-      '<small class="gram-quiz-q-hint">' + q.example.es + '</small></div>' +
+      '<small class="gram-quiz-q-hint">' + esc(q.example.es) + '</small></div>' +
       '<div class="gram-quiz-ordenar-result" id="ordenar-result">' +
         '<span class="gram-quiz-ordenar-placeholder">Toca las palabras en orden…</span>' +
       '</div>' +
@@ -722,10 +722,10 @@ function checkQuizAnswer(chosen) {
   // Con pares mínimos sabemos qué error concreto cometió: eso enseña más que el tip genérico.
   const motivo = !isCorrect && q.porQueMal ? q.porQueMal[chosen] : null;
   fb.innerHTML =
-    (isCorrect ? '<span class="qfb-correct">✓ ¡Correcto!</span>' : '<span class="qfb-wrong">✗ Era: <strong>' + q.correct + '</strong></span>') +
+    (isCorrect ? '<span class="qfb-correct">✓ ¡Correcto!</span>' : '<span class="qfb-wrong">✗ Era: <strong>' + esc(q.correct) + '</strong></span>') +
     (motivo
-      ? '<div class="qfb-motivo">⚠️ ' + motivo + '</div>'
-      : '<div class="qfb-tip">💡 ' + rule.tip + '</div>') +
+      ? '<div class="qfb-motivo">⚠️ ' + esc(motivo) + '</div>'
+      : '<div class="qfb-tip">💡 ' + esc(rule.tip) + '</div>') +
     '<div class="gram-quiz-actions">' +
     (isLast
       ? '<button class="gram-quiz-btn primary" onclick="showQuizResult()">Ver resultado →</button>'
@@ -792,7 +792,7 @@ function updateOrdenarResult() {
   if (!el) return;
   const text = ordenarSelected.map(i => q.words[i]).join(' ');
   el.innerHTML = text
-    ? '<span>' + text + '</span>'
+    ? '<span>' + esc(text) + '</span>'
     : '<span class="gram-quiz-ordenar-placeholder">Toca las palabras en orden…</span>';
   if (btn) btn.disabled = ordenarSelected.length !== q.words.length;
 }
@@ -914,30 +914,6 @@ const LEVEL_TOPICS = {
 
 const PRACTICE_EXERCISE_COUNT = 5;
 
-const PRACTICE_SYSTEM_PROMPT =
-  'Eres un profesor de alemán. Genera exactamente ' + PRACTICE_EXERCISE_COUNT + ' oraciones de práctica en JSON para una regla gramatical.\n' +
-  'Responde ÚNICAMENTE con un array JSON válido, sin texto adicional ni bloques de código markdown:\n' +
-  '[{"de":"...","es":"...","distractores":["...","...","..."],"por_que_mal":["...","...","..."]},...]\n' +
-  '"de": la oración correcta en alemán. "es": su traducción al español.\n' +
-  '"distractores": exactamente 3 variantes INCORRECTAS de esa MISMA oración. Cada una idéntica a "de" salvo en el punto gramatical que evalúa la regla (el caso, la terminación, la posición del verbo, el auxiliar). No cambies el vocabulario, el tema ni la longitud: solo el rasgo gramatical. Ninguna puede ser correcta en alemán.\n' +
-  '"por_que_mal": exactamente 3 explicaciones en español, una por distractor y en el mismo orden, de máximo 15 palabras, diciendo qué error concreto contiene.\n' +
-  '"ordenes_validos" (opcional): otros órdenes de palabras de "de" igualmente correctos, con las MISMAS palabras (p. ej. anteponer un complemento manteniendo el verbo en 2ª posición). Omite el campo si no hay ninguno.\n' +
-  'Las oraciones deben ser distintas entre sí y distintas a los ejemplos ya usados en la explicación.\n' +
-  'Usa vocabulario y temas apropiados al nivel CEFR indicado.';
-
-function buildPracticePrompt(rule, level, extraUsed) {
-  const topics = LEVEL_TOPICS[level] || LEVEL_TOPICS.A1;
-  const existing = [...rule.ejemplos.map(e => e.de), ...(extraUsed || [])].join(' / ');
-  return (
-    'Nivel: ' + level + '\n' +
-    'Regla: ' + rule.titulo + ' — ' + rule.subtitulo + '\n' +
-    'Clave: ' + rule.tip + '\n' +
-    'Temas disponibles: ' + topics + '\n' +
-    'Ejemplos YA USADOS (no repetir): ' + existing + '\n\n' +
-    'Genera ' + PRACTICE_EXERCISE_COUNT + ' oraciones nuevas que practiquen esta regla. Varía los temas entre sí.'
-  );
-}
-
 // Fetches (from cache) or generates a set of practice sentences for a rule.
 // Reuses sets already generated by other users before asking the AI for a new one,
 // mirroring the reading_texts/user_reading_seen pattern in lectura veloz.html.
@@ -964,8 +940,7 @@ async function getPracticeSentences(rule, level) {
   if (unseen.length > 0) {
     chosen = unseen[Math.floor(Math.random() * unseen.length)];
   } else {
-    const extraUsed = (existingSets || []).flatMap(s => (s.oraciones || []).map(o => o.de));
-    chosen = await generatePracticeSet(rule, level, extraUsed);
+    chosen = await generatePracticeSet(rule, level);
   }
 
   await window.sb.from('user_grammar_practice_seen').upsert(
@@ -976,7 +951,7 @@ async function getPracticeSentences(rule, level) {
   return chosen.oraciones;
 }
 
-async function generatePracticeSet(rule, level, extraUsed) {
+async function generatePracticeSet(rule, level) {
   const token = typeof window.getAuthToken === 'function' ? await window.getAuthToken() : null;
   if (!token) throw new Error('no_auth');
 
@@ -986,9 +961,7 @@ async function generatePracticeSet(rule, level, extraUsed) {
     body: JSON.stringify({
       action: 'generate-practice',
       ruleId: rule.id,
-      level: level,
-      system: PRACTICE_SYSTEM_PROMPT,
-      prompt: buildPracticePrompt(rule, level, extraUsed)
+      level: level
     })
   });
 
@@ -1263,7 +1236,7 @@ function renderExamQuestion(index) {
   if (q.tipo === 'elegir') {
     html += '<div class="exam-options">' +
       (q.opciones || []).map(function(op) {
-        return '<button class="exam-option-btn" onclick="selectExamOption(this,\'' + esc(op) + '\')">' + esc(op) + '</button>';
+        return '<button class="exam-option-btn" data-val="' + esc(op) + '" onclick="selectExamOption(this,this.dataset.val)">' + esc(op) + '</button>';
       }).join('') + '</div>';
   } else {
     html += '<div class="exam-input-wrap">' +

@@ -1,4 +1,4 @@
-const CACHE = "palabrasb2-v6";
+const CACHE = "palabrasb2-v7";
 const ASSETS = [
   "/B2.html",
   "/styles.css",
@@ -7,6 +7,7 @@ const ASSETS = [
   "/DataB2.json",
   "/config.js",
   "/auth.js",
+  "/shared-game.js",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"
 ];
 
@@ -124,7 +125,7 @@ self.addEventListener("notificationclick", (e) => {
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   const url = new URL(e.request.url);
-  if (!ASSETS.some((a) => url.pathname === a)) return;
+  if (!ASSETS.some((a) => url.pathname === a || url.href === a)) return;
 
   e.respondWith(
     fetch(e.request)

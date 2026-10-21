@@ -4,7 +4,7 @@ Split out of the root `CLAUDE.md` "Local Development" section.
 
 ## Manual browser validation (logged-in flows, e.g. reading a Supabase table, calling `/api/chat`)
 
-Several apps require a real logged-in session (`window.currentUser`) before their core flow runs (Modo B of `lectura veloz.html`, `escritura.html`, etc.), and login only supports email OTP or Google OAuth — no password auth, so it can't be scripted end-to-end without the user's help. Recipe used and verified working (session 2026-07-31, see `lecturaplan.md` §11):
+Several apps require a real logged-in session (`window.currentUser`) before their core flow runs (Modo B of `lectura veloz.html`, `escritura.html`, etc.), and login is email OTP, Google OAuth or email + password (`signInWithPassword` in `auth.js`); prefer the token recipe below rather than handling the user's password. Recipe used and verified working (session 2026-07-31, see `lecturaplan.md` §11):
 
 1. **Get a session token from the user.** Ask them to log in at the real app in their own browser, open DevTools console, and run `localStorage.getItem('sb-mzitpnacjcjpokmiqwtd-auth-token')` (project ref from `config.js` `SUPA_URL`), then paste the JSON value. Save it to a file **outside the repo** (scratchpad dir) — never commit it, delete it once the test is done. It's a live session; tell the user they can log out afterward to invalidate it.
 2. **Start `vercel dev`** in the background (`nohup vercel dev --yes --listen <port> > log.txt 2>&1 &`), poll `curl localhost:<port>/` until it's up (don't blind-sleep).

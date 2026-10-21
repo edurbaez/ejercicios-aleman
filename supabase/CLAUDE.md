@@ -30,6 +30,12 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 | `supabase/migrations/022_reading_sessions.sql` | Crea `reading_sessions` (historial de sesiones de Leseverstehen de `lectura veloz.html`: nivel, texto, aciertos/total, duración, modo examen y desglose por Teil en jsonb). RLS: INSERT/SELECT propio (INSERT con `is_access_valid()`, patrón de la migración 009) más SELECT admin (patrón 014-018). Antes la puntuación solo vivía en pantalla. |
 | `supabase/migrations/023_feedback_reports_contexto.sql` | Añade `feedback_reports.contexto` (jsonb, nullable): contexto estructurado de un reporte enviado desde un ejercicio concreto (hoy `kasus.html`). Sin políticas nuevas: lo cubre el INSERT propio de 017. |
 | `supabase/migrations/024_writing_submissions.sql` | Crea `writing_submissions` (cada texto corregido en `escritura.html`: tarea, texto o transcripción del manuscrito, nota y evaluación completa). RLS: INSERT/SELECT propio (INSERT con `is_access_valid()`) más SELECT admin (patrón 022). Antes los textos solo vivían en el IndexedDB del alumno y el profesor no podía revisarlos. |
+| `supabase/migrations/025_diccionario_cache_server_write.sql` | Borra todas las policies (no versionadas) de `diccionario_cache`, deja solo SELECT para `anon`/`authenticated`, revoca INSERT/UPDATE/DELETE y purga filas con `<`/`>`. Desde entonces solo escribe `api/chat.js` acción `lookup-word` (service role), cerrando el XSS almacenado entre usuarios (auditoría S1). |
+| `supabase/migrations/026_profiles_lock_client_writes.sql` | Borra las policies de escritura (no versionadas) de `profiles`, revoca INSERT/UPDATE/DELETE a `anon`/`authenticated` y añade el trigger `profiles_guard_privileged_columns` (rechaza cambios de `role`/`status`/`access_expires_at` hechos como `anon`/`authenticated`). El cliente solo lee `profiles`; escriben `handle_new_user()` y `api/admin.js` (service role). Auditoría S4. |
+| `supabase/migrations/027_app_id_all_levels.sql` | Sustituye los CHECK de `app_id` de `word_lists` y `srs_progress` (001 solo admitía b1/b2) por los 6 niveles (+ `shared` en `word_lists`); borra los CHECK existentes por nombre dinámico. Auditoría D1. |
+| `supabase/migrations/028_stt_usage.sql` | Crea `stt_usage` (`user_id`, `duration_ms`, `created_at`; índice `(user_id, created_at)`): libro de minutos de voz facturados por `api/whisper.js` tras cada transcripción correcta, base del tope diario en el servidor. RLS sin policies de cliente (solo service role) + SELECT para admins. Auditoría S5. |
+| `supabase/migrations/029_admin_aggregates.sql` | Vistas `security_invoker` con una fila por usuario para `admin/index.html`: `admin_srs_summary` / `admin_grammar_summary` (`total`, `mastered` = reps ≥ 2), `admin_reading_seen_counts` y `admin_grammar_practice_counts` (`n`, excluye `kasus:%`). Sustituyen las descargas de filas crudas con `.limit(20000)` que PostgREST truncaba a 1000 (auditoría D3). Añade índices `usage_events(user_id, event_type, created_at)`, `usage_events(created_at DESC)` y `exam_results(user_id, created_at)` (D4). |
+| `supabase/migrations/030_writing_submissions_server_insert.sql` | Quita la policy de INSERT de cliente de `writing_submissions` y revoca escrituras a `anon`/`authenticated`: desde entonces solo insertan `api/chat.js` (`evaluate-writing`) y `api/vision.js` (`type: escritura`) con el service role, recalculando la nota desde los subscores (auditoría S11). |
 | `supabase/migrations/021_user_data_cv_scenarios.sql` | Añade `user_data.cv_scenarios` (jsonb, default `{}`) para sincronizar entre dispositivos los escenarios de rol personalizados de `chat-voz.html`, más cuál está seleccionado. Forma: `{ selected, custom: [...], deleted: [...] }`. A diferencia de `plan_progress` (013), el remoto **no** gana sin más: `custom` se fusiona por `key` porque son escenarios que escribió el alumno y un overwrite plano borraría el creado en otro dispositivo; `deleted` son tombstones para que un borrado se propague en vez de resucitar en ese mismo merge. Las personas generadas por IA (`cv_rol_cache_<key>` en localStorage) se quedan locales a propósito — si faltan, la app ya las regenera vía `/api/chat`. |
 
 ## Supabase table schemas
@@ -39,7 +45,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 |--------|------|-------------|
 | `id` | uuid | PK (client-generated via `crypto.randomUUID()` for user lists) |
 | `user_id` | uuid | FK → auth.users; NULL for system (built-in) lists |
-| `app_id` | text | `'b1'`, `'b2'`, or `'shared'` (user lists are always `'shared'`) |
+| `app_id` | text | `'a1'`…`'c2'` or `'shared'` (user lists are always `'shared'`; CHECK widened in migration 027) |
 | `name` | text | List key, e.g. `'lista1'`, `'mis: Deportes'` |
 | `is_system` | boolean | `true` for built-in vocab (seeded from JSON); `false` for user-created |
 | `words` | jsonb | `{ de: string[], es: string[] }` — parallel arrays, same length |
@@ -51,7 +57,7 @@ RLS: system lists are publicly readable (no auth). User lists are readable/writa
 | Column | Type | Description |
 |--------|------|-------------|
 | `user_id` | uuid | PK component, FK → auth.users |
-| `app_id` | text | PK component — `'b1'` or `'b2'` |
+| `app_id` | text | PK component — `'a1'`…`'c2'` (migration 027) |
 | `word` | text | PK component — German word |
 | `ease` | numeric | SM-2 easiness factor (starts 2.5, min 1.3) |
 | `interval` | int | Days between reviews |
@@ -220,7 +226,7 @@ RLS: cada usuario lee solo sus propias filas (más SELECT admin, mismo patrón 0
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | uuid | PK, auto-generated |
-| `kind` | text | `carrusel` \| `reel` \| `testimonio` \| `email` |
+| `kind` | text | `carrusel` \| `reel` \| `testimonio` \| `email` \| `infografia` \| `curso_ad` (migration 007) |
 | `tema` | text | Brief / tema de la pieza |
 | `nivel` | text | A1–C2 o NULL (nichos no-alemán) |
 | `contenido` | jsonb | Según `kind`; carrusel: `{ slides, hashtags, niche, modo, review }` |

@@ -1,5 +1,5 @@
 import webpush from 'web-push';
-import { verifyJWT, createRateLimiter } from './_lib.js';
+import { verifyJWT, createRateLimiter, isValidPushSubscription } from './_lib.js';
 
 const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
 
@@ -10,6 +10,13 @@ webpush.setVapidDetails(
 );
 
 const isNotifyRateLimited = createRateLimiter(5, 60_000, 'notify-admins');
+const isRateLimited = createRateLimiter(20, 60_000, 'rl:push');
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function intInRange(v, min, max, fallback) {
+    if (v === undefined || v === null) return fallback;
+    return Number.isInteger(v) && v >= min && v <= max ? v : NaN;
+}
 
 function supaFetch(path, options = {}) {
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -26,17 +33,13 @@ function supaFetch(path, options = {}) {
 }
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-    if (req.method === 'OPTIONS') return res.status(200).end();
-
     const token = (req.headers.authorization || '').replace('Bearer ', '');
     if (!token) return res.status(401).json({ error: 'No token' });
 
     const payload = await verifyJWT(token);
     if (!payload) return res.status(401).json({ error: 'Token inválido' });
     const userId = payload.sub;
+    if (await isRateLimited(userId)) return res.status(429).json({ error: 'Demasiadas solicitudes' });
 
     if (req.method === 'GET') {
         const r = await supaFetch(
@@ -54,7 +57,7 @@ export default async function handler(req, res) {
         }
 
         const { report_id } = req.body || {};
-        if (!report_id) return res.status(400).json({ error: 'report_id requerido' });
+        if (typeof report_id !== 'string' || !UUID_RE.test(report_id)) return res.status(400).json({ error: 'report_id inválido' });
 
         const reportR = await supaFetch(`feedback_reports?id=eq.${report_id}&select=user_id,tipo,mensaje`);
         const [report] = reportR.ok ? await reportR.json() : [];
@@ -96,24 +99,28 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST') {
         const { subscription, interval_hours, window_start, window_end, utc_offset_minutes } = req.body || {};
-        if (!subscription) return res.status(400).json({ error: 'subscription requerida' });
+        if (!isValidPushSubscription(subscription)) return res.status(400).json({ error: 'subscription inválida' });
+        const prefs = {
+            interval_hours: intInRange(interval_hours, 1, 168, 1),
+            window_start: intInRange(window_start, 0, 23, 8),
+            window_end: intInRange(window_end, 1, 24, 20),
+            utc_offset_minutes: intInRange(utc_offset_minutes, -840, 840, 0),
+        };
+        if (Object.values(prefs).some(Number.isNaN)) return res.status(400).json({ error: 'Preferencias inválidas' });
 
         const r = await supaFetch('push_subscriptions', {
             method: 'POST',
             headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
             body: JSON.stringify({
                 user_id: userId,
-                subscription,
-                interval_hours: interval_hours ?? 1,
-                window_start: window_start ?? 8,
-                window_end: window_end ?? 20,
-                utc_offset_minutes: utc_offset_minutes ?? 0,
+                subscription: { endpoint: subscription.endpoint, keys: { p256dh: subscription.keys.p256dh, auth: subscription.keys.auth } },
+                ...prefs,
             }),
         });
 
         if (!r.ok) {
-            const err = await r.text();
-            return res.status(500).json({ error: err });
+            console.error('[push-subscribe] upsert failed', r.status, await r.text().catch(() => ''));
+            return res.status(500).json({ error: 'No se pudo guardar la suscripción' });
         }
         return res.status(200).json({ ok: true });
     }

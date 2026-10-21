@@ -1,4 +1,5 @@
 import webpush from 'web-push';
+import { isValidPushSubscription } from './_lib.js';
 
 const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
 
@@ -59,6 +60,11 @@ export default async function handler(req, res) {
                 results.skipped++;
                 return;
             }
+        }
+
+        if (!isValidPushSubscription(row.subscription)) {
+            results.skipped++;
+            return;
         }
 
         try {

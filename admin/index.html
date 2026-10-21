@@ -791,43 +791,52 @@
   }
 
   // ── Data loading ──────────────────────────────────────────
+  // PostgREST caps every response at 1000 rows, so .limit(N > 1000) silently truncates.
+  // Pages through with .range() until a short page or `max` rows.
+  async function fetchAll(build, max = 50000) {
+    const PAGE = 1000;
+    const data = [];
+    for (let from = 0; from < max; from += PAGE) {
+      const { data: rows, error } = await build().range(from, from + PAGE - 1);
+      if (error) return { data, error };
+      data.push(...rows);
+      if (rows.length < PAGE) break;
+    }
+    return { data, error: null };
+  }
+
   async function loadData() {
     const [profRes, evRes, exRes, srsRes, gramRes, summaryRes, readingRes, gramPracticeRes, dailyTimeRes, reportsRes, sessionsRes, lesenRes] = await Promise.all([
-      sb.from('profiles')
+      fetchAll(() => sb.from('profiles')
         .select('id, email, display_name, role, created_at, status, access_expires_at')
-        .order('created_at', { ascending: false }),
-      sb.from('usage_events')
+        .order('created_at', { ascending: false })),
+      fetchAll(() => sb.from('usage_events')
         .select('id, user_id, app, event_type, payload, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10000),
+        .order('created_at', { ascending: false })),
       sb.from('exam_results')
         .select('id, user_id, created_at, level, score, total')
         .order('created_at', { ascending: false })
         .limit(500),
-      sb.from('srs_progress').select('user_id, reps').limit(20000),
-      sb.from('grammar_rule_progress').select('user_id, reps').limit(20000),
+      // Per-user aggregate views require migration 029 — silently empty otherwise.
+      fetchAll(() => sb.from('admin_srs_summary').select('user_id, total, mastered')),
+      fetchAll(() => sb.from('admin_grammar_summary').select('user_id, total, mastered')),
       sb.from('marketing_summary').select('*').single(),
-      // Requires migration 015 (admin read-all policy) — silently empty otherwise.
-      sb.from('user_reading_seen').select('user_id').limit(20000),
-      // Excludes kasus.html sets, which share the bank table but aren't gramatica.html practice.
-      sb.from('user_grammar_practice_seen').select('user_id, grammar_practice_exercises!inner(rule_id)')
-        .not('grammar_practice_exercises.rule_id', 'like', 'kasus:%').limit(20000),
+      fetchAll(() => sb.from('admin_reading_seen_counts').select('user_id, n')),
+      fetchAll(() => sb.from('admin_grammar_practice_counts').select('user_id, n')),
       // Requires migration 016 (admin read-all policy) — silently empty otherwise.
-      sb.from('daily_usage_time').select('user_id, date, apps')
+      fetchAll(() => sb.from('daily_usage_time').select('user_id, date, apps')
         .gte('date', new Date(Date.now() - 30 * 86400 * 1000).toLocaleDateString('sv-SE'))
-        .limit(20000),
+        .order('date', { ascending: false })),
       // contexto requires migration 023.
       sb.from('feedback_reports').select('id, user_id, tipo, mensaje, pagina, estado, respuesta, respuesta_at, contexto, created_at')
         .order('created_at', { ascending: false })
         .limit(500),
       // Requires migration 018 (active_sessions + admin read policy) — silently empty otherwise.
-      sb.from('active_sessions').select('user_id, session_id, device, last_seen')
-        .order('last_seen', { ascending: false })
-        .limit(5000),
+      fetchAll(() => sb.from('active_sessions').select('user_id, session_id, device, last_seen')
+        .order('last_seen', { ascending: false }), 5000),
       // Requires migration 022 (reading_sessions + admin read policy) — silently empty otherwise.
-      sb.from('reading_sessions').select('user_id, level, format_version, aciertos, total, duracion_seg, modo_examen, teile, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10000),
+      fetchAll(() => sb.from('reading_sessions').select('user_id, level, format_version, aciertos, total, duracion_seg, modo_examen, teile, created_at')
+        .order('created_at', { ascending: false })),
     ]);
 
     allProfiles      = profRes.data || [];
@@ -849,22 +858,10 @@
       if (!examsByUser[x.user_id]) examsByUser[x.user_id] = [];
       examsByUser[x.user_id].push(x);
     }
-    for (const r of srsRes.data || []) {
-      if (!srsByUser[r.user_id]) srsByUser[r.user_id] = { total: 0, mastered: 0 };
-      srsByUser[r.user_id].total++;
-      if (r.reps >= 2) srsByUser[r.user_id].mastered++;
-    }
-    for (const r of gramRes.data || []) {
-      if (!grammarByUser[r.user_id]) grammarByUser[r.user_id] = { total: 0, mastered: 0 };
-      grammarByUser[r.user_id].total++;
-      if (r.reps >= 2) grammarByUser[r.user_id].mastered++;
-    }
-    for (const r of readingRes.data || []) {
-      readingByUser[r.user_id] = (readingByUser[r.user_id] || 0) + 1;
-    }
-    for (const r of gramPracticeRes.data || []) {
-      grammarPracticeByUser[r.user_id] = (grammarPracticeByUser[r.user_id] || 0) + 1;
-    }
+    for (const r of srsRes.data || []) srsByUser[r.user_id] = { total: r.total, mastered: r.mastered };
+    for (const r of gramRes.data || []) grammarByUser[r.user_id] = { total: r.total, mastered: r.mastered };
+    for (const r of readingRes.data || []) readingByUser[r.user_id] = r.n;
+    for (const r of gramPracticeRes.data || []) grammarPracticeByUser[r.user_id] = r.n;
     for (const r of dailyTimeRes.data || []) {
       if (!dailyTimeByUser[r.user_id]) dailyTimeByUser[r.user_id] = { totalMs: 0, byApp: {} };
       const t = dailyTimeByUser[r.user_id];

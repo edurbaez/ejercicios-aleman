@@ -1,0 +1,14 @@
+# Internal files that must not be served publicly (audit S10).
+# Runtime needs: *.html, *.js, *.css, *.json, *.svg, api/, admin/, teacher/,
+# marketing/, chatvoz2/, finance/ (dashboard), grammar-data-*.js (also read by api/_practice.js).
+*.md
+supabase/
+migrations/
+scripts/
+tests/
+docs/
+otrascosas/
+.impeccable/
+.claude/
+finance/schema.sql
+lectura-veloz-devtest.html

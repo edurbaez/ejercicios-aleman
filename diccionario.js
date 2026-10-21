@@ -8,23 +8,13 @@ async function supaGet(palabra) {
             .select("*")
             .eq("id", palabra.toLowerCase())
             .maybeSingle();
-        return data || null;
+        // Rows written by the translate-only lookup (lectura veloz) have no definition yet.
+        return data && data.definicion ? data : null;
     } catch { return null; }
 }
 
-async function supaSet(palabra, info) {
-    try {
-        const { error } = await sb.from("diccionario_cache").upsert({
-            id: palabra.toLowerCase(),
-            palabra,
-            traduccion: info.traduccion || null,
-            nivel: info.nivel || null,
-            definicion: info.definicion || null,
-            sinonimos: info.sinonimos || [],
-            antonimo: info.antonimo || null,
-        });
-        if (error) console.warn("[supaSet]", error.message, error.details);
-    } catch (e) { console.warn("[supaSet exception]", e); }
+function escHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
 // ── Dark mode ──────────────────────────────────────────
@@ -107,9 +97,9 @@ input.addEventListener("input", async () => {
     divSug.innerHTML = matches.map((k, i) => {
         const nivel = cache[k].nivel || "";
         const original = cache[k]._palabra || k;
-        return `<div class="sug-item" data-palabra="${original}" data-idx="${i}">
-            <span>${original}</span>
-            ${nivel ? `<span class="sug-nivel">${nivel}</span>` : ""}
+        return `<div class="sug-item" data-palabra="${escHtml(original)}" data-idx="${i}">
+            <span>${escHtml(original)}</span>
+            ${nivel ? `<span class="sug-nivel">${escHtml(nivel)}</span>` : ""}
         </div>`;
     }).join("");
 
@@ -203,17 +193,6 @@ async function buscar() {
         return;
     }
 
-    const system = `Eres un diccionario de alemán preciso. El usuario te dará una palabra en alemán.
-Responde SIEMPRE con un JSON válido con exactamente estas claves:
-{
-  "traduccion": "traducción al español",
-  "nivel": "A1|A2|B1|B2|C1|C2",
-  "definicion": "definición en alemán, clara y concisa",
-  "sinonimos": ["palabra1", "palabra2"],
-  "antonimo": "antónimo en alemán o null si no tiene"
-}
-No incluyas nada fuera del JSON.`;
-
     try {
         const token = await (window.getAuthToken?.());
         const res = await fetch("/api/chat", {
@@ -222,10 +201,7 @@ No incluyas nada fuera del JSON.`;
                 "Content-Type": "application/json",
                 ...(token ? { "Authorization": `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({
-                system,
-                messages: [{ role: "user", content: palabra }]
-            })
+            body: JSON.stringify({ action: "lookup-word", palabra })
         });
 
         if (res.status === 401) {
@@ -239,16 +215,8 @@ No incluyas nada fuera del JSON.`;
         catch { throw new Error(`Respuesta inválida del servidor: ${rawText.slice(0, 120)}`); }
         if (!res.ok || data.error) throw new Error(data.error || "Error del servidor");
 
-        let info;
-        try {
-            const raw = data.reply.replace(/```json[\s\S]*?```|```/g, "").trim();
-            info = JSON.parse(raw);
-        } catch {
-            throw new Error("La IA no devolvió JSON válido: " + (data.reply || "").slice(0, 120));
-        }
-
-        // 3. Guardar en ambos cachés
-        await Promise.all([cacheSet(palabra, info), supaSet(palabra, info)]);
+        const info = data.entry;
+        await cacheSet(palabra, info);
         window.logEvent('diccionario', 'lookup', { word: palabra, source: 'api' });
         mostrarResultado(palabra, info);
 
@@ -271,7 +239,7 @@ function mostrarResultado(palabra, info) {
     const sinEl = document.getElementById("r-sinonimos");
     const sins = Array.isArray(info.sinonimos) ? info.sinonimos : [];
     sinEl.innerHTML = sins.length > 0
-        ? `<div class="chips">${sins.map(s => `<span class="chip">${s}</span>`).join("")}</div>`
+        ? `<div class="chips">${sins.map(s => `<span class="chip">${escHtml(s)}</span>`).join("")}</div>`
         : `<span class="sin-datos">sin sinónimos</span>`;
 
     const rowAnt = document.getElementById("row-antonimo");

@@ -15,9 +15,9 @@ const VOICE_STT_APPS = ['mundliche', 'chat-voz', 'chatvoz2', 'chat-reformulacion
 const STT_MODEL = 'gpt-4o-mini-transcribe';
 const MAX_AUDIO_BYTES = 25 * 1024 * 1024; // OpenAI's own per-file limit
 
-// duration_ms is client-reported, so it can be under-reported (or sent as 0) to dodge
-// the daily cap. We also derive a floor from the payload size and bill whichever is
-// larger. 6 kB/s (~48 kbps) is above what MediaRecorder's Opus actually produces, so
+// duration_ms (form field) is client-reported, so it can be under-reported (or sent
+// as 0) to dodge the daily cap. We also derive a floor from the payload size and bill
+// whichever is larger. 6 kB/s (~48 kbps) is above what MediaRecorder's Opus actually produces, so
 // the derived value stays *below* the true duration — an honest client is never
 // overcharged, while a client reporting 0 still burns most of its real usage.
 const MAX_AUDIO_BYTES_PER_SECOND = 6000;
@@ -59,39 +59,72 @@ function _buildMultipart(parts, boundary) {
     return Buffer.concat(chunks);
 }
 
-// Rewrites the body so `model` is always ours, and reports the audio part's size.
+// Rewrites the body so `model` is always ours (and drops our own `duration_ms` field),
+// and reports the audio part's size plus the client-reported duration.
 // Falls back to the original buffer (model not forced) if the payload can't be parsed,
 // so a browser quirk degrades the guard instead of breaking transcription outright.
 export function forceModel(buffer, contentType) {
     const m = /boundary=(?:"([^"]+)"|([^;]+))/i.exec(contentType || '');
-    if (!m) return { body: buffer, audioBytes: buffer.length };
+    if (!m) return { body: buffer, audioBytes: buffer.length, clientMs: 0 };
     const boundary = (m[1] || m[2]).trim();
     const parts = _parseMultipart(buffer, boundary);
-    if (!parts) return { body: buffer, audioBytes: buffer.length };
+    if (!parts) return { body: buffer, audioBytes: buffer.length, clientMs: 0 };
 
-    const kept = parts.filter(p => _partName(p.headers) !== 'model');
+    const durPart = parts.find(p => _partName(p.headers) === 'duration_ms');
+    const clientMs = durPart ? Math.max(0, Number(durPart.body.toString('latin1')) || 0) : 0;
+    const kept = parts.filter(p => !['model', 'duration_ms'].includes(_partName(p.headers)));
     kept.push({ headers: 'Content-Disposition: form-data; name="model"', body: Buffer.from(STT_MODEL) });
     const file = kept.find(p => _partName(p.headers) === 'file');
-    return { body: _buildMultipart(kept, boundary), audioBytes: file ? file.body.length : buffer.length };
+    return { body: _buildMultipart(kept, boundary), audioBytes: file ? file.body.length : buffer.length, clientMs };
 }
 
-// duration_ms is client-reported (browser recording timer), not verified against actual audio bytes —
-// this check only prevents bypassing the client-side gate via a direct fetch, not a spoofed duration_ms.
+const MAX_CLIENT_MS_PER_CALL = 10 * 60 * 1000;
+
+function _supaHeaders(key, extra = {}) {
+    return { apikey: key, Authorization: `Bearer ${key}`, ...extra };
+}
+
+// Usage is billed by this endpoint itself into stt_usage (migration 028, service role
+// only), so a client that never logs `audio_sent` can't stretch the cap. Until that
+// migration runs, fall back to the client-logged usage_events.
 async function getDailyUsageMs(userId) {
     const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!key) return 0;
+    if (!key) {
+        console.warn('[whisper] SUPABASE_SERVICE_ROLE_KEY unset: daily STT cap not enforced');
+        return 0;
+    }
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    const appsFilter = `(${VOICE_STT_APPS.join(',')})`;
-    const url = `${SUPA_URL}/rest/v1/usage_events?select=payload&user_id=eq.${userId}&event_type=eq.audio_sent&app=in.${appsFilter}&created_at=gte.${startOfDay.toISOString()}`;
+    const since = startOfDay.toISOString();
     try {
-        const resp = await fetch(url, { headers: { apikey: key, Authorization: `Bearer ${key}` } });
-        if (!resp.ok) return 0;
-        const rows = await resp.json();
-        return rows.reduce((sum, r) => sum + (r.payload?.duration_ms || 0), 0);
+        const resp = await fetch(
+            `${SUPA_URL}/rest/v1/stt_usage?select=duration_ms&user_id=eq.${userId}&created_at=gte.${since}`,
+            { headers: _supaHeaders(key) }
+        );
+        if (resp.ok) return (await resp.json()).reduce((sum, r) => sum + (r.duration_ms || 0), 0);
+
+        const appsFilter = `(${VOICE_STT_APPS.join(',')})`;
+        const legacy = await fetch(
+            `${SUPA_URL}/rest/v1/usage_events?select=payload&user_id=eq.${userId}&event_type=eq.audio_sent&app=in.${appsFilter}&created_at=gte.${since}`,
+            { headers: _supaHeaders(key) }
+        );
+        if (!legacy.ok) return 0;
+        return (await legacy.json()).reduce((sum, r) => sum + (r.payload?.duration_ms || 0), 0);
     } catch {
         return 0;
     }
+}
+
+async function recordUsage(userId, durationMs) {
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!key) return;
+    try {
+        await fetch(`${SUPA_URL}/rest/v1/stt_usage`, {
+            method: 'POST',
+            headers: _supaHeaders(key, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+            body: JSON.stringify({ user_id: userId, duration_ms: durationMs }),
+        });
+    } catch { /* billing is best-effort; the transcription already succeeded */ }
 }
 
 export default async function handler(req, res) {
@@ -134,7 +167,7 @@ export default async function handler(req, res) {
         return res.status(413).json({ error: 'El audio supera el límite de 25 MB.' });
     }
 
-    const { body, audioBytes } = forceModel(buffer, contentType);
+    const { body, audioBytes, clientMs } = forceModel(buffer, contentType);
 
     // Admins and authorized students get the full cap; accounts still on the
     // automatic trial get a tenth of it (see migration 009_access_control.sql).
@@ -142,7 +175,10 @@ export default async function handler(req, res) {
     const limitMs = onTrial ? TRIAL_DAILY_LIMIT_MS : DAILY_LIMIT_MS;
 
     const usedMs = await getDailyUsageMs(jwtPayload.sub);
-    const thisCallMs = Math.round((audioBytes / MAX_AUDIO_BYTES_PER_SECOND) * 1000);
+    const thisCallMs = Math.max(
+        Math.round((audioBytes / MAX_AUDIO_BYTES_PER_SECOND) * 1000),
+        Math.min(Math.round(clientMs), MAX_CLIENT_MS_PER_CALL)
+    );
     if (usedMs + thisCallMs > limitMs) {
         return res.status(429).json({
             error: `Límite diario de ${Math.round(limitMs / 60000)} minutos de voz alcanzado.`,
@@ -170,6 +206,7 @@ export default async function handler(req, res) {
         if (!resp.ok) {
             return res.status(resp.status).json({ error: data?.error?.message || 'Error de Whisper' });
         }
+        await recordUsage(jwtPayload.sub, thisCallMs);
         return res.status(200).json({ text: data.text });
     } catch {
         return res.status(500).json({ error: 'Error interno' });

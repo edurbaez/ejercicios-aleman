@@ -59,7 +59,7 @@ A secondary reading mode: the saved text is displayed as a full paragraph with 1
 `lvMostrarPaneles(visible)` is the single place that shows/hides the Lectura veloz panels, used by both `switchActivity()` and `entrarBlogView()`/`salirBlogView()`. `LECTURA_IDS` are restored unconditionally; `LECTURA_IDS_COND` (`lv-analisis`, `lv-finish`) only reappear when they still hold content (`dataset.active === '1'`).
 
 ### Navbar
-All pages share a fixed navbar. **Inicio** (`B2.html`) is always visible as a standalone link. The remaining pages (Lectura Veloz, Diccionario, B1, Chat de Voz) are grouped under a **Menú ▾** dropdown button. Dropdown toggled via `classList.toggle('open')` on click; closes on outside click via a `document` listener in each HTML file. Styles in `styles.css` under the shared navbar section.
+Shared navbar from `auth.js` (`NAV_ITEMS`): **Inicio** (`index.html`) as a standalone link plus the **Menú ▾** dropdown — see `docs/apps/auth.md`.
 
 ### Dark mode
 Toggled by a fixed button; persisted via `window.ThemePref` (shared `ejaleman_theme` key, see `auth.js`).

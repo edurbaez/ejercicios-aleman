@@ -652,7 +652,7 @@ Responde SOLO con JSON válido: {"titulo": "...", "contenido": "..."} — títul
             const parsed = JSON.parse(aiData.choices[0].message.content);
             if (!(parsed && typeof parsed.titulo === 'string' && typeof parsed.contenido === 'string')) continue;
 
-            const n = countWords(parsed.contenido);
+            const n = countLetterWords(parsed.contenido);
             if (n < Math.floor(minWords * MIN_WORDS_RATIO)) { lastErr = `Texto demasiado corto (${n} palabras)`; continue; }
             const lower = parsed.contenido.toLowerCase();
             const usadas = palabras.filter(p => apareceEn(p, lower));
@@ -734,14 +734,14 @@ const TEIL_VALIDATORS = { mcq: validMcqTeil, richtig_falsch: validRichtigFalschT
 // text at a third of the requested length — what gpt-4o-mini produced for C1 — is rejected.
 const MIN_WORDS_RATIO = 0.8;
 
-function countWords(s) {
+function countLetterWords(s) {
     return s.trim().split(/\s+/).filter(w => /\p{L}/u.test(w)).length;
 }
 
 function shortTexts(t, expected) {
     if (!expected.palabras || !Array.isArray(t.textos)) return [];
     const min = Math.floor(expected.palabras[0] * MIN_WORDS_RATIO);
-    return t.textos.map(x => countWords(x.contenido)).filter(n => n < min);
+    return t.textos.map(x => countLetterWords(x.contenido)).filter(n => n < min);
 }
 
 // gpt-4o-mini occasionally emits token soup like "Was_KIND_sicht_Erne_autonomie" inside an

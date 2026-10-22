@@ -956,6 +956,15 @@ Antworte IMMER mit einem JSON-Objekt:
         });
     }
 
+    // iOS Safari can fire the final dataavailable after onstop, leaving the chunk list empty
+    // when the blob is built — wait briefly for it instead of rejecting as "too short".
+    async function waitForChunks(chunks, timeoutMs = 1500) {
+        const t0 = Date.now();
+        while (chunks.reduce((n, c) => n + c.size, 0) < MIN_RECORDING_BYTES && Date.now() - t0 < timeoutMs) {
+            await new Promise(r => setTimeout(r, 50));
+        }
+    }
+
     // iOS Safari doesn't support webm/ogg MediaRecorder output, so it silently falls back to
     // audio/mp4 — the filename extension sent to Whisper must match or the API rejects the file.
     function audioFileName(blob) {
@@ -986,6 +995,7 @@ Antworte IMMER mit einem JSON-Objekt:
                 stream.getTracks().forEach(t => t.stop());
                 State.recStream = null;
                 if (recSession !== State.sessionId) return;
+                await waitForChunks(State.audioChunks);
                 const blob = new Blob(State.audioChunks, { type: State.mediaRecorder.mimeType || 'audio/webm' });
                 const durationMs = (State.recStoppedAt || Date.now()) - State.recStartedAt;
                 await transcribeAndSend(blob, durationMs, recSession);
@@ -1345,6 +1355,7 @@ Antworte IMMER mit einem JSON-Objekt:
             RepetirRec.mediaRecorder.onstop = async () => {
                 stream.getTracks().forEach(t => t.stop());
                 RepetirRec.stream = null;
+                await waitForChunks(RepetirRec.audioChunks);
                 const blob = new Blob(RepetirRec.audioChunks, { type: RepetirRec.mediaRecorder.mimeType || 'audio/webm' });
                 await transcribeAndCheck(blob, (RepetirRec.stoppedAt || Date.now()) - RepetirRec.startedAt);
             };

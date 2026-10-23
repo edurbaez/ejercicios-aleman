@@ -209,7 +209,6 @@
   function showMsg(text) { document.getElementById('msg').textContent = text || ''; }
 
   // LEVELS comes from grammar-data.js (global const; redeclaring it here is a SyntaxError).
-  const LETRAS = 'abcdefghijklmnopqrstuvwxyz';
 
   // Keep in sync with READING_TEILE_SPECS (api/_reading-topics.js) / TEIL_NOMBRES (lectura veloz.html).
   const TEIL_NOMBRES = {
@@ -393,7 +392,7 @@
         if (error || !row?.questions?.teile) return showMsg('No se pudo cargar el texto de lectura.');
         const elegidos = row.questions.teile.filter(t => teileSel.includes(t.id));
         const teile = elegidos
-          .filter(teilUsable)
+          .filter(PdfWorksheet.teilUsable)
           .map(t => t.tipo === 'emparejar' ? { ...t, derecha: shuffle(t.columnaDerecha || []) } : t);
         if (!teile.length) return showMsg('El texto elegido no tiene los Teile marcados (o están incompletos). Prueba otro texto.');
         if (teile.length < elegidos.length) avisos.push(`Se omitieron ${elegidos.length - teile.length} Teil(e) incompletos de «${row.title}» (falta el texto con huecos).`);
@@ -429,115 +428,26 @@
 
   // ── Section renderers: aufgabe (student part), loesung (answer key), preview (HTML) ──
 
-  // Some older bank rows lack the gapped text that "Lücke N" / "Abschnitt N" items refer to.
-  function teilUsable(t) {
-    const refs = [...(t.columnaIzquierda || []).map(i => i.texto), ...(t.items || []).map(i => i.pregunta)];
-    if (!refs.some(r => /^(Lücke|Abschnitt)\s*\d+/i.test(String(r || '')))) return true;
-    return (t.textos || []).some(tx => /\[1\]/.test(tx.contenido || ''));
-  }
-
-  function sharedOptions(t) {
-    const first = JSON.stringify(t.items?.[0]?.opciones);
-    return t.items?.length > 1 && t.items.every(it => JSON.stringify(it.opciones) === first) ? t.items[0].opciones : null;
-  }
-
-  function emparejarLetra(t, izqId) {
-    const j = t.derecha.findIndex(d => d.id === t.solucion?.[izqId]);
-    return j < 0 ? '?' : LETRAS[j];
-  }
-
-  function corto(s, n = 70) {
-    s = String(s || '').replace(/\s+/g, ' ');
-    return s.length > n ? s.slice(0, n - 1) + '…' : s;
-  }
-
-  const TEIL_PDF = {
-    mcq(pdf, t) {
-      const shared = sharedOptions(t);
-      if (shared) {
-        pdf.write('Optionen:  ' + shared.map((o, j) => `${LETRAS[j]}) ${o}`).join('    '), { size: 10, gap: 3 });
-        t.items.forEach((it, i) => pdf.write(`${i + 1}. ____  ${it.pregunta}`, { size: 11, gap: 2 }));
-        return;
-      }
-      t.items.forEach((it, i) => {
-        pdf.ensure(25);
-        pdf.write(`${i + 1}. ${it.pregunta}`, { size: 11, style: 'bold', gap: 1.5 });
-        it.opciones.forEach((op, j) => {
-          pdf.ensure(5);
-          pdf.box(5);
-          pdf.write(`${LETRAS[j]}) ${op}`, { size: 11, gap: 0.8, indent: 11 });
-        });
-        pdf.space(3);
-      });
-    },
-    richtig_falsch(pdf, t) {
-      t.items.forEach((it, i) => {
-        pdf.ensure(14);
-        pdf.write(`${i + 1}. ${it.afirmacion}`, { size: 11, gap: 1.5 });
-        pdf.choiceRow(['richtig', 'falsch']);
-      });
-    },
-    emparejar(pdf, t) {
-      pdf.write('Ordnen Sie zu:', { size: 10, style: 'bold', gap: 1.5 });
-      t.derecha.forEach((d, j) => pdf.write(`${LETRAS[j]}) ${d.texto}`, { size: 10.5, gap: 1.5, indent: 5 }));
-      pdf.space(2);
-      t.columnaIzquierda.forEach((iz, i) => {
-        pdf.ensure(7);
-        pdf.write(`${i + 1}. ____  ${iz.texto}`, { size: 11, gap: 1.5 });
-      });
-    },
-  };
-
-  function teilLoesungen(t) {
-    if (t.tipo === 'mcq') return t.items.map((it, i) => ({ linea: `${i + 1}. ${LETRAS[it.correcta]}) ${it.opciones[it.correcta]}`, expl: it.explicacion }));
-    if (t.tipo === 'richtig_falsch') return t.items.map((it, i) => ({ linea: `${i + 1}. ${it.correcta ? 'richtig' : 'falsch'}`, expl: it.explicacion }));
-    return t.columnaIzquierda.map((iz, i) => {
-      const letra = emparejarLetra(t, iz.id);
-      const der = t.derecha[LETRAS.indexOf(letra)];
-      return { linea: `${i + 1}. ${letra}) ${der ? corto(der.texto) : ''}`, expl: t.explicaciones?.[iz.id] };
-    });
-  }
-
   function heading(pdf, text) {
     pdf.ensure(25);
     pdf.space(2);
     pdf.write(text, { size: 13, style: 'bold', gap: 3 });
   }
 
-  function writeLoesung(pdf, { linea, expl }) {
-    pdf.write(linea, { size: 10.5, gap: expl ? 0.5 : 1.5 });
-    if (expl) pdf.write(expl, { size: 9, style: 'italic', gap: 2, indent: 5 });
-  }
-
   const SECCION = {
     lesen: {
       aufgabe(pdf, s, n) {
         heading(pdf, `Aufgabe ${n}: Leseverstehen`);
-        s.teile.forEach((t, ti) => {
-          pdf.ensure(20);
-          pdf.write(`Teil ${ti + 1}`, { size: 12, style: 'bold', gap: 1.5 });
-          if (t.instrucciones) pdf.write(t.instrucciones, { size: 10, style: 'italic', gap: 3 });
-          (t.textos || []).forEach(tx => {
-            if (tx.titulo) pdf.write(tx.titulo, { size: 11, style: 'bold', gap: 1 });
-            String(tx.contenido || '').split(/\n\s*\n/).forEach(p => pdf.write(p, { size: 11, gap: 2.5 }));
-            pdf.space(2);
-          });
-          TEIL_PDF[t.tipo]?.(pdf, t);
-          pdf.space(4);
-        });
+        PdfWorksheet.lesenTeile(pdf, s.teile);
       },
       loesung(pdf, s, n) {
         heading(pdf, `Aufgabe ${n}: Leseverstehen`);
-        s.teile.forEach((t, ti) => {
-          pdf.write(`Teil ${ti + 1}`, { size: 11, style: 'bold', gap: 1.5 });
-          teilLoesungen(t).forEach(l => writeLoesung(pdf, l));
-          pdf.space(2);
-        });
+        PdfWorksheet.lesenLoesungen(pdf, s.teile);
       },
       preview(s) {
         return `<p><b>Texto:</b> ${esc(s.titulo)}</p>` + s.teile.map((t, ti) =>
           `<p style="font-size:13px;margin:6px 0 2px"><b>Teil ${ti + 1}</b> <span class="instr">(${esc(TEIL_NOMBRES[S.tarea.level][+t.id.replace('teil', '') - 1] || t.tipo)})</span></p>
-           <ol>${teilLoesungen(t).map(l => `<li><span class="sol">${esc(l.linea.replace(/^\d+\.\s*/, ''))}</span></li>`).join('')}</ol>`).join('');
+           <ol>${PdfWorksheet.teilLoesungen(t).map(l => `<li><span class="sol">${esc(l.linea.replace(/^\d+\.\s*/, ''))}</span></li>`).join('')}</ol>`).join('');
       },
     },
     kasus: {
@@ -551,7 +461,7 @@
       },
       loesung(pdf, s, n) {
         heading(pdf, `Aufgabe ${n}: Kasus`);
-        s.items.forEach((it, i) => writeLoesung(pdf, { linea: `${i + 1}. ${it.frase.replace('___', it.respuesta)}`, expl: it.explicacion }));
+        s.items.forEach((it, i) => PdfWorksheet.writeLoesung(pdf, { linea: `${i + 1}. ${it.frase.replace('___', it.respuesta)}`, expl: it.explicacion }));
       },
       preview(s) {
         return `<ol>${s.items.map(it => {
@@ -572,7 +482,7 @@
       },
       loesung(pdf, s, n) {
         heading(pdf, `Aufgabe ${n}: Umformung`);
-        s.items.forEach((it, i) => writeLoesung(pdf, { linea: `${i + 1}. ${(it.solutions || []).join('  /  ')}`, expl: it.explanation }));
+        s.items.forEach((it, i) => PdfWorksheet.writeLoesung(pdf, { linea: `${i + 1}. ${(it.solutions || []).join('  /  ')}`, expl: it.explanation }));
       },
       preview(s) {
         return `<ol>${s.items.map(it => `<li>${esc(it.source)} <span class="instr">— ${esc(it.instruction)} [${esc(reformTitulo(it.key))}]</span><br><span class="sol">${esc((it.solutions || []).join(' / '))}</span></li>`).join('')}</ol>`;

@@ -213,6 +213,7 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
             <h3 style="font-size:var(--text-base);margin-bottom:10px">¿Qué quieres practicar?</h3>
             <div id="comp-teil-selector-list"></div>
             <button class="btn comp-action-btn" id="comp-teil-empezar-btn">Empezar</button>
+            <button class="btn secondary" id="comp-teil-pdf-btn" onclick="modoB_descargarPdfTeile()">⬇️ Imprimir (PDF)</button>
         </div>
 
         <div id="comp-teil-session" style="display:none">
@@ -2965,6 +2966,29 @@ mark.comp-vocab-mark { background: color-mix(in srgb, #ffd54f 70%, transparent);
             _pendingTeilSesion = null;
             document.getElementById('comp-teil-selector').style.display = 'none';
             modoB_iniciarTeilSession(titulo, teile, level, segundos);
+        }
+
+        // Paper version of the checked Teile (no session started); answer key on its own last page.
+        async function modoB_descargarPdfTeile() {
+            if (!_pendingTeilSesion) return;
+            const sel = [...document.querySelectorAll('#comp-teil-selector-list input:checked')]
+                .map(cb => _pendingTeilSesion.teile[parseInt(cb.dataset.idx)]);
+            if (sel.length === 0) { showToast('Selecciona al menos un Teil'); return; }
+            const usables = sel.filter(PdfWorksheet.teilUsable);
+            if (usables.length === 0) { showToast('Los Teile seleccionados están incompletos y no se pueden imprimir'); return; }
+            if (usables.length < sel.length) showToast('Se omitieron ' + (sel.length - usables.length) + ' Teil(e) incompletos');
+            const teile = usables.map(t => t.tipo === 'emparejar' ? { ...t, derecha: shuffleArr(t.columnaDerecha || []) } : t);
+            try { await PdfWorksheet.load(); } catch { showToast('No se pudo cargar el generador de PDF. Revisa tu conexión.'); return; }
+
+            const { titulo, level } = _pendingTeilSesion;
+            const pdf = PdfWorksheet.create();
+            pdf.write(titulo || 'Leseverstehen', { size: 16, style: 'bold', gap: 2 });
+            pdf.write('Nivel ' + level + '   ·   Name: ______________________   Datum: ____________', { size: 9, gap: 6 });
+            PdfWorksheet.lesenTeile(pdf, teile);
+            pdf.newPage();
+            pdf.write('Lösungen', { size: 15, style: 'bold', gap: 3 });
+            PdfWorksheet.lesenLoesungen(pdf, teile);
+            pdf.save('lesen-' + String(level).toLowerCase() + '-' + (PdfWorksheet.slug(titulo) || 'texto') + '.pdf');
         }
 
         document.getElementById('comp-teil-empezar-btn').addEventListener('click', modoB_empezarTeilesSeleccionados);

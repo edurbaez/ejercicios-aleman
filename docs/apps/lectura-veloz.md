@@ -66,5 +66,5 @@ Toggled by a fixed button; persisted via `window.ThemePref` (shared `ejaleman_th
 
 ### External libraries (CDN)
 - `pdf.js 3.11.174` — PDF parsing.
-- `jsPDF 2.5.1` — "⬇️ Descargar PDF para imprimir" in Comprensión Modo A (`compDescargarPdf()`), loaded on demand through the shared `pdf-worksheet.js`.
+- `jsPDF 2.5.1` — "⬇️ Descargar PDF para imprimir" in Comprensión Modo A (`compDescargarPdf()`) and "⬇️ Imprimir (PDF)" in the Modo B Teil picker (`modoB_descargarPdfTeile()`: checked Teile only, `teilUsable` filter with toast, emparejar right column shuffled once, answer key on last page, no session started), loaded on demand through the shared `pdf-worksheet.js`.
 - `mammoth 1.6.0` — `.docx` parsing.

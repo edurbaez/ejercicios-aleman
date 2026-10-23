@@ -14,7 +14,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 
 | File | Purpose |
 |------|---------|
-| `pdf-worksheet.js` (repo root) | `window.PdfWorksheet`: `load()` lazy-loads jsPDF 2.5.1 from cdnjs; `create()` returns an A4 builder (20 mm margins) with `write(str, {size, style, gap, indent})` (auto page breaks), `box(indent)`, `choiceRow(labels)`, `writingLines(n, indent)`, `ensure(h)`, `newPage()`, `space(h)`, `save(name)`; `sanitize()` maps „“”‚‘’–—…€•→ to Latin-1/ASCII and strips anything else outside Latin-1 (the built-in Helvetica can't encode it); `slug()` for file names. Used by `teacher/tareas.html` and `compDescargarPdf()` in `lectura veloz.html`. |
+| `pdf-worksheet.js` (repo root) | `window.PdfWorksheet`: `load()` lazy-loads jsPDF 2.5.1 from cdnjs; `create()` returns an A4 builder (20 mm margins) with `write(str, {size, style, gap, indent})` (auto page breaks), `box(indent)`, `choiceRow(labels)`, `writingLines(n, indent)`, `ensure(h)`, `newPage()`, `space(h)`, `save(name)`; `sanitize()` maps „“”‚‘’–—…€•→ to Latin-1/ASCII and strips anything else outside Latin-1 (the built-in Helvetica can't encode it); `slug()` for file names; Leseverstehen Teile helpers `teilUsable(t)`, `teilLoesungen(t)`, `writeLoesung()`, `lesenTeile(pdf, teile)`, `lesenLoesungen(pdf, teile)` (emparejar Teile need `derecha` pre-shuffled by the caller). Used by `teacher/tareas.html`, and `compDescargarPdf()` / `modoB_descargarPdfTeile()` in `lectura veloz.html`. |
 
 ## Data
 

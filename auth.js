@@ -233,18 +233,33 @@
       return;
     }
 
+    const subscribe = () => reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: _urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
+    });
+
     try {
-      const pushSub = await reg.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: _urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
-      });
+      let pushSub = await reg.pushManager.getSubscription();
+      if (!pushSub) {
+        try {
+          pushSub = await subscribe();
+        } catch (err) {
+          // Chrome sometimes fails right after an unsubscribe ("push service error"); one retry usually clears it.
+          if (err.name !== 'AbortError') throw err;
+          await new Promise(r => setTimeout(r, 1500));
+          pushSub = await subscribe();
+        }
+      }
       await _pushSubscribeOnServer(pushSub);
       const label = document.getElementById('notif-status-label');
       if (label) { label.textContent = 'Activados'; label.style.color = '#2e7d32'; }
       const s = document.getElementById('notif-settings');
       if (s) s.style.display = 'block';
     } catch (err) {
-      alert('Error al activar notificaciones: ' + err.message);
+      const blocked = err.name === 'NotAllowedError' || /permission denied/i.test(err.message);
+      alert(blocked
+        ? 'El teléfono tiene bloqueadas las notificaciones de esta app. Actívalas en Ajustes → Apps → (esta app o Chrome) → Notificaciones, y vuelve a intentarlo.'
+        : 'Error al activar notificaciones: ' + err.message);
       const cb = document.getElementById('notif-toggle');
       if (cb) cb.checked = false;
     }

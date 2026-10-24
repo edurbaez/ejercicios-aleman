@@ -136,6 +136,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `028_stt_usage.sql` | `stt_usage` (server-billed voice-STT minutes, service role only + admin read). |
 | `029_admin_aggregates.sql` | Per-user aggregate views for `admin/index.html` + indexes on `usage_events`/`exam_results`. |
 | `030_writing_submissions_server_insert.sql` | `writing_submissions` insert only from the server (`evaluate-writing`, `vision.js`). |
+| `031_push_notify_cron.sql` | pg_cron job `push-notify-hourly` → `/api/push-notify` via pg_net, `CRON_SECRET` from Vault (replaces cron-job.org). |
 
 ### PWA & Deploy
 

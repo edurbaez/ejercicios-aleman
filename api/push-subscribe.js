@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         const r = await supaFetch(
-            `push_subscriptions?select=interval_hours,window_start,window_end,last_notified_at&user_id=eq.${userId}`,
+            `push_subscriptions?select=interval_hours,interval_minutes,window_start,window_end,last_notified_at&user_id=eq.${userId}`,
             { method: 'GET', headers: { Prefer: 'return=representation' } }
         );
         const rows = await r.json();
@@ -98,10 +98,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { subscription, interval_hours, window_start, window_end, utc_offset_minutes } = req.body || {};
+        const { subscription, interval_minutes, interval_hours, window_start, window_end, utc_offset_minutes } = req.body || {};
         if (!isValidPushSubscription(subscription)) return res.status(400).json({ error: 'subscription inválida' });
+        const legacyHours = intInRange(interval_hours, 1, 168, 1);
+        const minutes = intInRange(interval_minutes, 30, 10080, legacyHours * 60);
         const prefs = {
-            interval_hours: intInRange(interval_hours, 1, 168, 1),
+            interval_minutes: minutes,
+            interval_hours: Number.isNaN(minutes) ? NaN : Math.max(1, Math.round(minutes / 60)),
             window_start: intInRange(window_start, 0, 23, 8),
             window_end: intInRange(window_end, 1, 24, 20),
             utc_offset_minutes: intInRange(utc_offset_minutes, -840, 840, 0),

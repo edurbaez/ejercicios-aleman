@@ -37,6 +37,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 | `supabase/migrations/029_admin_aggregates.sql` | Vistas `security_invoker` con una fila por usuario para `admin/index.html`: `admin_srs_summary` / `admin_grammar_summary` (`total`, `mastered` = reps ≥ 2), `admin_reading_seen_counts` y `admin_grammar_practice_counts` (`n`, excluye `kasus:%`). Sustituyen las descargas de filas crudas con `.limit(20000)` que PostgREST truncaba a 1000 (auditoría D3). Añade índices `usage_events(user_id, event_type, created_at)`, `usage_events(created_at DESC)` y `exam_results(user_id, created_at)` (D4). |
 | `supabase/migrations/030_writing_submissions_server_insert.sql` | Quita la policy de INSERT de cliente de `writing_submissions` y revoca escrituras a `anon`/`authenticated`: desde entonces solo insertan `api/chat.js` (`evaluate-writing`) y `api/vision.js` (`type: escritura`) con el service role, recalculando la nota desde los subscores (auditoría S11). |
 | `supabase/migrations/031_push_notify_cron.sql` | Activa `pg_net` y programa con `pg_cron` el job `push-notify-hourly` (`0 * * * *`), que hace `net.http_post` a `https://ejercicios-aleman-sand.vercel.app/api/push-notify` con `Authorization: Bearer` leído de `vault.decrypted_secrets` (`name = 'push_cron_secret'`). Sustituye a cron-job.org. **Prerrequisito manual**: `select vault.create_secret('<CRON_SECRET>', 'push_cron_secret');` con el mismo valor que la env var de Vercel — el secreto nunca va en el repo. Resultados en `net._http_response`. Convive con el job previo `purge-usage-events` (no versionado). |
+| `supabase/migrations/032_push_interval_minutes.sql` | Añade `push_subscriptions.interval_minutes` (int NOT NULL default 60, CHECK 30–10080, backfill `interval_hours*60`), desprograma `push-notify-hourly` y programa `push-notify-30min` (`*/30 * * * *`, mismo `net.http_post` que 031). |
 | `supabase/migrations/021_user_data_cv_scenarios.sql` | Añade `user_data.cv_scenarios` (jsonb, default `{}`) para sincronizar entre dispositivos los escenarios de rol personalizados de `chat-voz.html`, más cuál está seleccionado. Forma: `{ selected, custom: [...], deleted: [...] }`. A diferencia de `plan_progress` (013), el remoto **no** gana sin más: `custom` se fusiona por `key` porque son escenarios que escribió el alumno y un overwrite plano borraría el creado en otro dispositivo; `deleted` son tombstones para que un borrado se propague en vez de resucitar en ese mismo merge. Las personas generadas por IA (`cv_rol_cache_<key>` en localStorage) se quedan locales a propósito — si faltan, la app ya las regenera vía `/api/chat`. |
 
 ## Supabase table schemas
@@ -98,7 +99,8 @@ RLS: each user reads/writes only their own row. Used by `chat-voz.html` via `loa
 |--------|------|-------------|
 | `user_id` | uuid | FK → auth.users, UNIQUE |
 | `subscription` | jsonb | PushSubscription serializada |
-| `interval_hours` | int | Cada cuántas horas notificar (1/2/3/4/6) |
+| `interval_hours` | int | Legacy: `round(interval_minutes/60)`, mín. 1 — lo sigue escribiendo `push-subscribe.js` |
+| `interval_minutes` | int | Cada cuántos minutos notificar (30/60/120/180/240/360), migración 032 |
 | `window_start` | int | Hora local de inicio (0–23) |
 | `window_end` | int | Hora local de fin (1–24) |
 | `utc_offset_minutes` | int | `-new Date().getTimezoneOffset()` del browser |

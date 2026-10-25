@@ -97,6 +97,8 @@
     _passMsg('Listo. Ya puedes entrar con tu email y esta contraseña.', true);
   };
 
+  const NOTIF_INTERVALS_MIN = [30, 60, 120, 180, 240, 360];
+
   async function _renderNotifSection() {
     const el = document.getElementById('notif-section');
     if (!el) return;
@@ -113,25 +115,30 @@
     const sub = await reg.pushManager.getSubscription();
     const isEnabled = perm === 'granted' && !!sub;
 
-    let settings = { interval_hours: 1, window_start: 8, window_end: 20 };
+    let settings = { interval_minutes: 60, window_start: 8, window_end: 20 };
     if (isEnabled && window.getAuthToken()) {
       try {
         const r = await fetch('/api/push-subscribe', {
           headers: { Authorization: `Bearer ${window.getAuthToken()}` }
         });
-        if (r.ok) { const d = await r.json(); if (d.subscription) Object.assign(settings, d.subscription); }
+        if (r.ok) {
+          const d = await r.json();
+          if (d.subscription) {
+            Object.assign(settings, d.subscription);
+            settings.interval_minutes = d.subscription.interval_minutes ?? d.subscription.interval_hours * 60;
+          }
+        }
       } catch {}
     }
 
-    window._notifInterval = settings.interval_hours;
-    const intervals = [1, 2, 3, 4, 6];
+    window._notifInterval = settings.interval_minutes;
 
-    const intervalBtns = intervals.map(h => {
-      const active = settings.interval_hours === h;
-      return `<button onclick="window._setNotifInterval(${h})" id="notif-i-${h}"
+    const intervalBtns = NOTIF_INTERVALS_MIN.map(m => {
+      const active = settings.interval_minutes === m;
+      return `<button onclick="window._setNotifInterval(${m})" id="notif-i-${m}"
         style="padding:4px 10px;border-radius:4px;border:1px solid ${active ? '#1976D2' : '#ddd'};
                background:${active ? '#1976D2' : '#fff'};color:${active ? '#fff' : '#333'};
-               font-size:12px;cursor:pointer;">${h}h</button>`;
+               font-size:12px;cursor:pointer;">${m < 60 ? `${m} min` : `${m / 60}h`}</button>`;
     }).join('');
 
     el.innerHTML = `
@@ -178,12 +185,12 @@
     `;
   }
 
-  window._setNotifInterval = function (h) {
-    window._notifInterval = h;
-    [1, 2, 3, 4, 6].forEach(i => {
+  window._setNotifInterval = function (m) {
+    window._notifInterval = m;
+    NOTIF_INTERVALS_MIN.forEach(i => {
       const b = document.getElementById(`notif-i-${i}`);
       if (!b) return;
-      const active = i === h;
+      const active = i === m;
       b.style.background = active ? '#1976D2' : '#fff';
       b.style.color = active ? '#fff' : '#333';
       b.style.borderColor = active ? '#1976D2' : '#ddd';
@@ -198,7 +205,7 @@
       headers: { Authorization: `Bearer ${window.getAuthToken()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         subscription: pushSub.toJSON(),
-        interval_hours: window._notifInterval || 1,
+        interval_minutes: window._notifInterval || 60,
         window_start: start,
         window_end: end,
         utc_offset_minutes: -new Date().getTimezoneOffset(),

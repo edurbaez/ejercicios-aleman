@@ -2,6 +2,7 @@ import webpush from 'web-push';
 import { isValidPushSubscription } from './_lib.js';
 
 const SUPA_URL = 'https://mzitpnacjcjpokmiqwtd.supabase.co';
+const INTERVAL_SLACK_MINUTES = 5;
 
 webpush.setVapidDetails(
     process.env.VAPID_SUBJECT || 'mailto:admin@example.com',
@@ -55,8 +56,11 @@ export default async function handler(req, res) {
         }
 
         if (row.last_notified_at) {
-            const hoursSince = (now - new Date(row.last_notified_at)) / 3_600_000;
-            if (hoursSince < row.interval_hours) {
+            const minutesSince = (now - new Date(row.last_notified_at)) / 60_000;
+            const intervalMinutes = row.interval_minutes ?? row.interval_hours * 60;
+            // last_notified_at is stamped a few seconds after each cron tick, so without slack
+            // the next tick lands just short of the interval and every reminder skips one cycle.
+            if (minutesSince < intervalMinutes - INTERVAL_SLACK_MINUTES) {
                 results.skipped++;
                 return;
             }

@@ -27,12 +27,18 @@
     return new Uint8Array([...raw].map(c => c.charCodeAt(0)));
   }
 
+  function _collapsible(title, body) {
+    return `<details class="sp-collapse">
+      <summary>${title}</summary>
+      <div style="padding-top:10px;">${body}</div>
+    </details>`;
+  }
+
   function _renderPassSection() {
     const el = document.getElementById('pass-section');
     if (!el) return;
     const inputCss = 'width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;margin-bottom:8px;box-sizing:border-box;font-size:14px;';
-    el.innerHTML = `
-      <div style="font-size:13px;font-weight:600;color:#333;margin-bottom:4px;">🔑 Contraseña</div>
+    el.innerHTML = _collapsible('🔑 Contraseña', `
       <div style="font-size:12px;color:#777;line-height:1.4;margin-bottom:10px;">Créala una vez y entra sin abrir el correo.</div>
       <form onsubmit="event.preventDefault();window.savePassword()">
       <input type="email" name="username" autocomplete="username" value="${(window.currentUser && window.currentUser.email) || ''}" hidden>
@@ -41,7 +47,7 @@
       <button type="button" onclick="window.suggestPassword()" style="background:none;border:none;padding:0;margin-bottom:8px;color:#1976D2;cursor:pointer;font-size:12px;text-decoration:underline;">🎲 Sugerir una contraseña segura</button>
       <div id="pass-msg" style="display:none;font-size:12px;line-height:1.4;margin-bottom:8px;"></div>
       <button id="pass-save-btn" type="submit" style="width:100%;padding:8px;background:#1976D2;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">Guardar contraseña</button>
-      </form>`;
+      </form>`);
   }
 
   function _passMsg(text, ok) {
@@ -141,9 +147,9 @@
                font-size:12px;cursor:pointer;">${m < 60 ? `${m} min` : `${m / 60}h`}</button>`;
     }).join('');
 
-    el.innerHTML = `
+    el.innerHTML = _collapsible('🔔 Recordatorios', `
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <span style="font-size:13px;font-weight:600;color:#333;">🔔 Recordatorios</span>
+        <span style="font-size:12px;color:#666;">Avisos para practicar</span>
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;">
           <input type="checkbox" id="notif-toggle" ${isEnabled ? 'checked' : ''}
             onchange="window.toggleNotifications(this.checked)"
@@ -182,7 +188,7 @@
           Guardar preferencias
         </button>
       </div>
-    `;
+    `);
   }
 
   window._setNotifInterval = function (m) {
@@ -832,6 +838,12 @@
       panel.id = 'stats-panel';
       panel.style.cssText = 'display:none;position:fixed;top:0;right:0;height:100%;width:320px;max-width:92vw;background:#fff;box-shadow:-4px 0 28px rgba(0,0,0,.18);z-index:9998;overflow-y:auto;padding:24px 20px 32px;box-sizing:border-box;';
       panel.innerHTML = `
+        <style>
+          #stats-panel .sp-collapse > summary { list-style:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;font-size:13px;font-weight:600;color:#333; }
+          #stats-panel .sp-collapse > summary::-webkit-details-marker { display:none; }
+          #stats-panel .sp-collapse > summary::after { content:'▾';font-size:12px;color:#999;transition:transform .2s; }
+          #stats-panel .sp-collapse:not([open]) > summary::after { transform:rotate(-90deg); }
+        </style>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
           <h3 style="margin:0;font-size:17px;color:#222;">Mi progreso</h3>
           <button onclick="window.closeStatsPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#666;line-height:1;">✕</button>
@@ -1033,8 +1045,7 @@
           <span>${days30[0].slice(5).replace('-','/')}</span><span>hoy</span>
         </div>
       </div>
-      <div style="font-size:11px;font-weight:600;color:#999;letter-spacing:.5px;margin-bottom:4px;">ACTIVIDAD ÚLTIMOS 5 DÍAS</div>
-      ${last5Html}
+      ${_collapsible('📅 Actividad últimos 5 días', last5Html)}
     `;
 
     _renderPassSection();

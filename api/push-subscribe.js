@@ -111,7 +111,7 @@ export default async function handler(req, res) {
         };
         if (Object.values(prefs).some(Number.isNaN)) return res.status(400).json({ error: 'Preferencias inválidas' });
 
-        const r = await supaFetch('push_subscriptions', {
+        const r = await supaFetch('push_subscriptions?on_conflict=user_id', {
             method: 'POST',
             headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
             body: JSON.stringify({

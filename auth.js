@@ -200,7 +200,7 @@
   async function _pushSubscribeOnServer(pushSub) {
     const start = parseInt(document.getElementById('notif-start')?.value ?? '8');
     const end   = parseInt(document.getElementById('notif-end')?.value   ?? '20');
-    await fetch('/api/push-subscribe', {
+    const r = await fetch('/api/push-subscribe', {
       method: 'POST',
       headers: { Authorization: `Bearer ${window.getAuthToken()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -211,6 +211,7 @@
         utc_offset_minutes: -new Date().getTimezoneOffset(),
       }),
     });
+    if (!r.ok) throw new Error(`push-subscribe ${r.status}`);
   }
 
   window.toggleNotifications = async function (enable) {
@@ -288,7 +289,10 @@
         setTimeout(() => { btn.textContent = 'Guardar preferencias'; btn.disabled = false; }, 2000);
       }
     } catch {
-      if (btn) { btn.disabled = false; btn.textContent = 'Guardar preferencias'; }
+      if (btn) {
+        btn.textContent = 'Error al guardar — reintenta';
+        setTimeout(() => { btn.textContent = 'Guardar preferencias'; btn.disabled = false; }, 2500);
+      }
     }
   };
 

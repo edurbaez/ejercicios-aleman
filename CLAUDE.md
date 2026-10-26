@@ -221,7 +221,7 @@ All apps that send audio to `/api/whisper` (`mundliche.html`, `chat-voz.html`, `
 | `VAPID_PUBLIC_KEY` | `push-notify.js` | Yes | Must match `window.VAPID_PUBLIC_KEY` in `config.js` |
 | `VAPID_PRIVATE_KEY` | `push-notify.js` | Yes | Never sent to client |
 | `VAPID_SUBJECT` | `push-notify.js` | Yes | `mailto:ed.urbaez@gmail.com` |
-| `CRON_SECRET` | `push-notify.js`, `vocab-refresh.js` | Yes | Bearer token that cron-job.org sends |
+| `CRON_SECRET` | `push-notify.js`, `vocab-refresh.js` | Yes | Bearer token sent by the pg_cron job for `push-notify` (migrations 031/032, read from Vault) and by whatever scheduler calls `vocab-refresh` |
 
 For local dev, define these in `.env.local` (not committed). `vercel dev` loads them automatically.
 

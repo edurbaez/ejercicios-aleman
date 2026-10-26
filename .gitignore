@@ -25,3 +25,7 @@ node_modules/
 
 # ── Planes de desarrollo (solo locales, no se versionan) ───────────────────
 *plan*.md
+!docs/apps/plan.md
+
+# ── Artefactos generados ────────────────────────────────────────────────────
+scripts/validate-report.json

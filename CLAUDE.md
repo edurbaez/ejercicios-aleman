@@ -28,6 +28,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `api/*.js`, Push Notifications flow, push env vars, Cron | `api/CLAUDE.md` |
 | Migrations + every "Supabase table: X" schema | `supabase/CLAUDE.md` |
 | Manual browser validation recipe | `docs/dev/browser-validation.md` |
+| Planning/working notes (historical, not runtime; untracked except `mejorar.md`) | `docs/notas/` |
 
 ## Active Files (index)
 
@@ -80,7 +81,6 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 
 | File | Purpose |
 |------|---------|
-| `DATA.json` | Legacy B2 vocabulary (old format). Only the `shared-game.js` fallback when `APP_CONFIG.dataFile` is missing; no SW or page references it. |
 | `DataA1.json` … `DataC2.json` (6 files) | Hand-curated vocabulary per level (core lists + extras + `tema: …`); **never regenerate with `generate-vocab.js`**. Detail: `docs/data.md` |
 | `reformulaciones-data.json` / `reformulaciones-guias.js` / `reformulaciones-combos.js` / `reformulaciones-combos-data.json` | Umformung exercise bank, per-rule generator guides (C1), combo catalog, combo bank. Detail: `docs/apps/chat-reformulaciones.md` |
 | `grammar-data.js` + `grammar-data-{a1..c2}.js` | Loader shim (plain blocking `<script>`) + per-level `window.GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
@@ -138,6 +138,8 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `030_writing_submissions_server_insert.sql` | `writing_submissions` insert only from the server (`evaluate-writing`, `vision.js`). |
 | `031_push_notify_cron.sql` | pg_cron job `push-notify-hourly` → `/api/push-notify` via pg_net, `CRON_SECRET` from Vault (replaces cron-job.org). |
 | `032_push_interval_minutes.sql` | `push_subscriptions.interval_minutes` (allows 30 min) + replaces the hourly job with `push-notify-30min` (`*/30`). |
+| `legacy/add_user_status.sql` | Pre-numbering: `profiles.status` + first `handle_new_user()` (superseded by 009/020/026). Reference only, already applied. |
+| `legacy/finance_schema.sql` | Schema of the finance tables (`finance/finanzas-dashboard.html`). Reference only. |
 
 ### PWA & Deploy
 
@@ -149,7 +151,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `index.html` | Landing page (app cards, navbar, SEO meta). Detail: `docs/apps/landing.md` |
 | `privacidad.html` | Public privacy policy, no `auth.js` on purpose. Detail: `docs/apps/landing.md` |
 | `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` e `includeFiles: grammar-data-*.js` (para `api/_practice.js`) (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
-| `.vercelignore` | Keeps internal files out of the deploy (`*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `finance/schema.sql`…). Keep runtime files out of it. |
+| `.vercelignore` | Keeps internal files out of the deploy (`*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `.mcp.json`…). Keep runtime files out of it. |
 | `robots.txt` | Permite indexación completa (`Allow: /`) y referencia `sitemap.xml`. |
 | `sitemap.xml` | Sitemap con la landing (`/`) como única URL pública — las apps internas no se listan (requieren login/uso). |
 | `package.json` | Node.js package declaration — forces Vercel to treat the project as Node. Dependencies: `@vercel/kv`, `web-push` (used by `api/push-notify.js`). |
@@ -192,7 +194,7 @@ is_access_valid := profiles.status <> 'blocked'
   1. Postgres function `public.is_access_valid(user_id)` — used by the RLS `WITH CHECK`/`USING` on INSERT/UPDATE (not SELECT/DELETE) of `word_lists`, `srs_progress`, `grammar_rule_progress`, `user_reading_seen`, `user_data`.
   2. `api/_lib.js` `checkAccess(userId)` — called right after `verifyJWT()` in every endpoint that costs money (`chat.js`, `whisper.js`, `vision.js`, `tts.js`, `image.js`, `deepseek-chat.js`, `finanzas.js`); returns `403` if invalid. Fails open (allows the request) if `SUPABASE_SERVICE_ROLE_KEY` is unset or the Supabase REST call errors — same convention as `whisper.js`'s daily-usage check.
   3. `auth.js` `_isAccessValid()` — the universal gate: on every auth state change, `updateAuthUI()` shows a non-dismissable modal (`#access-blocked-modal`) blocking the whole page if the current user's profile fails the check. This is the only layer that covers apps with no serverless calls (B1–C2, `gramatica.html`, `plan.html`, …). Admins are always exempt, even from a stale row.
-- **Gotcha**: `profiles` was created directly in Supabase, not tracked in this repo's migrations (same as its `status` column, added by `migrations/add_user_status.sql`). Before adding new RLS policies on tables owned by a user, check `pg_policies` for pre-existing untracked policies — migration 009 found and removed one on `user_data` (`"own data" FOR ALL`, permissive with no access check) that would have silently bypassed the new gate.
+- **Gotcha**: `profiles` was created directly in Supabase, not tracked in this repo's migrations (same as its `status` column, added by `supabase/migrations/legacy/add_user_status.sql`). Before adding new RLS policies on tables owned by a user, check `pg_policies` for pre-existing untracked policies — migration 009 found and removed one on `user_data` (`"own data" FOR ALL`, permissive with no access check) that would have silently bypassed the new gate.
 
 ## Voice-STT daily usage cap
 
@@ -247,8 +249,6 @@ Manual browser validation of logged-in flows (session-token injection + Playwrig
 - **Rate limiter resets on cold start** — `createRateLimiter()` in `_lib.js` defaults to an in-memory Map. A new Vercel function instance starts with a clean counter. This is intentional (no external dependency), but means limits are per-instance. Add `KV_REST_API_URL` + `KV_REST_API_TOKEN` to get persistent rate limiting via Vercel KV.
 
 - **`res.text()` → `JSON.parse()` instead of `res.json()`** — used in all frontend API calls (e.g. `diccionario.js`, `chat-voz.html`). If the server returns an empty body or an HTML error page, `res.json()` throws a silent parse error with no useful message. The manual pattern preserves the raw response for debugging.
-
-- **`DATA.json` is orphaned** — no Service Worker or page lists it; it is only the default of `shared-game.js` `CFG.dataFile` (every quiz page sets its own `Data{LEVEL}.json`). Do not rely on it for runtime logic.
 
 - **JWT verification supports ES256 and HS256** — `_lib.js` tries ES256 first (JWKS from Supabase, no secret needed). Falls back to HS256 only if the token header specifies it, requiring `SUPABASE_JWT_SECRET`. Default Supabase tokens are ES256; HS256 is legacy.
 

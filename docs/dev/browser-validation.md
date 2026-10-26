@@ -4,7 +4,7 @@ Split out of the root `CLAUDE.md` "Local Development" section.
 
 ## Manual browser validation (logged-in flows, e.g. reading a Supabase table, calling `/api/chat`)
 
-Several apps require a real logged-in session (`window.currentUser`) before their core flow runs (Modo B of `lectura veloz.html`, `escritura.html`, etc.), and login is email OTP, Google OAuth or email + password (`signInWithPassword` in `auth.js`); prefer the token recipe below rather than handling the user's password. Recipe used and verified working (session 2026-07-31, see `lecturaplan.md` §11):
+Several apps require a real logged-in session (`window.currentUser`) before their core flow runs (Modo B of `lectura veloz.html`, `escritura.html`, etc.), and login is email OTP, Google OAuth or email + password (`signInWithPassword` in `auth.js`); prefer the token recipe below rather than handling the user's password. Recipe used and verified working (sessions 2026-07-31 and 2026-08-19, full Comprensión Modo B flow on B1/B2):
 
 1. **Get a session token from the user.** Ask them to log in at the real app in their own browser, open DevTools console, and run `localStorage.getItem('sb-mzitpnacjcjpokmiqwtd-auth-token')` (project ref from `config.js` `SUPA_URL`), then paste the JSON value. Save it to a file **outside the repo** (scratchpad dir) — never commit it, delete it once the test is done. It's a live session; tell the user they can log out afterward to invalidate it.
 2. **Start `vercel dev`** in the background (`nohup vercel dev --yes --listen <port> > log.txt 2>&1 &`), poll `curl localhost:<port>/` until it's up (don't blind-sleep).
@@ -13,4 +13,4 @@ Several apps require a real logged-in session (`window.currentUser`) before thei
 5. Drive the actual flow (`click`/`fill`/`selectOption`), screenshot at each step (`page.screenshot({path, fullPage:true})`), and check `page.on('console', ...)`/`page.on('pageerror', ...)` for JS errors during the run.
 6. **Cleanup after the test**: kill the `vercel dev` process (find the PID listening on the port and kill it — `npm`/`vercel dev` don't forward signals cleanly), delete the temp no-space file copy, delete the saved token file.
 
-This same recipe found a real bug on its first use (see `lecturaplan.md` §11) — worth reusing rather than skipping "can't test the UI" for logged-in flows.
+This same recipe found four real bugs in its first two runs — legacy texts served instead of the Teile format, and `emparejar` Teile rendered without their text (see `docs/apps/lectura-veloz.md` "Comprensión Modo B — design decisions") — worth reusing rather than skipping "can't test the UI" for logged-in flows.

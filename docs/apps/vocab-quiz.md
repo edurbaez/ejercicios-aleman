@@ -57,7 +57,7 @@ Data loaded from `DataB1.json` (22 lists: the 5 core ones `esenciales`/`verbos`/
 - Manifest: `manifest-b1.json`
 
 ### Differences from B2 (solo configuración — la lógica la comparte `shared-game.js`)
-- `APP_CONFIG.dataFile`: `DataB1.json` vs `DATA.json`
+- `APP_CONFIG.dataFile`: `DataB1.json` vs `DataB2.json`
 - `APP_CONFIG.accent`: `#388E3C` verde vs `#1976D2` azul
 - `APP_CONFIG.swFile`: `/sw-b1.js` vs `/sw.js`
 - Body ID: `page-b1` vs `page-b2`
@@ -65,7 +65,7 @@ Data loaded from `DataB1.json` (22 lists: the 5 core ones `esenciales`/`verbos`/
 ## B2.html — Implementation Notes
 
 ### Data & State
-- Vocabulary defined inline as sets in the `DATA` object (does not depend on `DATA.json` at runtime).
+- System lists load via `loadSystemLists()`: IndexedDB cache → Supabase `word_lists` → `APP_CONFIG.dataFile` (`DataB2.json`) as last fallback.
 - `State` object centralizes all runtime state: active lists, modes, timer, current index, errors set, etc.
 - Lists are grouped in sets (lista1, lista2, c1lista1…); multiple sets can be active simultaneously — their data is merged into `State.es` / `State.de`.
 

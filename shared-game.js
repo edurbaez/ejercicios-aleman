@@ -1,11 +1,11 @@
-// shared-game.js — lógica compartida entre B2.html y B1.html
+// shared-game.js — motor compartido de los quiz de vocabulario A1–C2
 // Define window.APP_CONFIG antes de cargar este script:
 //   { appId, dataFile, limitKey, swFile, syncId, accent }
 
 (function () {
   const CFG       = window.APP_CONFIG || {};
   const APP       = CFG.appId    || 'b2';
-  const DATA_FILE = CFG.dataFile  || 'DATA.json';
+  const DATA_FILE = CFG.dataFile  || 'DataB2.json';
   const LIMIT_KEY = CFG.limitKey  || 'b2_palabras_limite';
   const ESCRITURA_KEY = 'escritura_mode_' + APP;
   const SW_FILE   = CFG.swFile    || '/sw.js';
@@ -1029,8 +1029,8 @@
       }
     } catch {}
 
-    // 3. Fallback: original JSON file
-    const r = await fetch(DATA_FILE);
+    // 3. Fallback: the level's JSON file
+    const r = await fetch(appId === APP ? DATA_FILE : `Data${appId.toUpperCase()}.json`);
     return r.json();
   }
 

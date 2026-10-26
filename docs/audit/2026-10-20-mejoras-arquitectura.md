@@ -144,7 +144,7 @@ Después, `/api/chat` en modo libre puede restringirse o eliminarse [S9, S11]. *
 | Manifests generados | `scripts/build-manifests.js` desde una tabla de niveles | bajo | ⬜ |
 | Páginas generadas | `scripts/build-quiz.js` (A1–C2.html) y `scripts/build-gramatica-static.js` (gramaticaA1–C2 desde `GRAMMAR_DATA`, CSS compartido `gramatica-static.css`). Drift a cero [B15] y se conservan estáticos para SEO. | bajo-medio | ⬜ |
 | Política de caché | `"headers"` con `Cache-Control: no-cache` (revalidación por ETag) para `*.js`, `*.css` y `*.json` en `vercel.json`, sin tocar el patrón único de `functions`. Evita mezclar HTML nuevo con JS viejo. | bajo | ⬜ |
-| `.vercelignore` | `*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `migrations/`, `.impeccable/`, `.claude/`, `otrascosas/`, `finance/schema.sql` [S10] | muy bajo | ✅ |
+| `.vercelignore` | `*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `migrations/`, `.impeccable/`, `.claude/`, `otrascosas/`, `.mcp.json` [S10] | muy bajo | ✅ |
 | Dependencias CDN | Fijar `@supabase/supabase-js@2.x.y` (hoy `@2` flotante en 27 páginas). Quitarlo de `privacidad.html`. Actualizar la URL cacheada en los SW. | muy bajo | ⬜ |
 | Fuentes | Pasar el `@import` de Google Fonts de `styles.css` a `<link rel="preconnect">` + `<link>` en el `<head>`. | bajo | ⬜ |
 | CSS | Medir la cobertura (DevTools Coverage) antes de podar las 6938 líneas de `styles.css`. Hay que considerar partirlo en `base.css` + `<app>.css`. | medio | ⬜ |
@@ -158,7 +158,7 @@ Después, `/api/chat` en modo libre puede restringirse o eliminarse [S9, S11]. *
 | 1 | **El README como índice corto** (qué es, cómo correrlo, env vars, enlace a `CLAUDE.md` y `docs/`). Hoy duplica `docs/` y diverge. | ⬜ |
 | 2 | **Una sola fuente por dato**: env vars solo en el `CLAUDE.md` raíz, con la columna "Used by" completa; esquema solo en `supabase/CLAUDE.md`, generado desde la baseline. | ⬜ |
 | 3 | **Separar referencia e historial**: las notas tipo "medido 2026-09-27" o "migrada en agosto" pasan a un `docs/decisions.md` (ADR breves). Las filas de tabla vuelven a ser de una línea. | ⬜ |
-| 4 | **Planes versionados o fuera de los docs**: `docs/apps/lectura-veloz.md` y `docs/dev/browser-validation.md` enlazan a `lecturaplan.md`, que está en `.gitignore`. O se versionan en `docs/plans/` o se quitan las referencias. | ⬜ |
+| 4 | **Planes versionados o fuera de los docs**: `docs/apps/lectura-veloz.md` y `docs/dev/browser-validation.md` enlazan a `lecturaplan.md`, que está en `.gitignore`. O se versionan en `docs/plans/` o se quitan las referencias. | ✅ (2026-10-27: decisiones pasadas a `docs/apps/lectura-veloz.md`, enlaces quitados) |
 | 5 | **Automatizar la Maintenance rule**: `scripts/check-docs.js` que compare el árbol con el índice de `CLAUDE.md`, los `.from('x')` con `supabase/CLAUDE.md` y `process.env.X` con la tabla de env vars. Puede correr como hook pre-commit o en CI. | ⬜ |
 | 6 | **Documentar lo que falta**: `finance/` (dashboard, `plan.md`, `schema.sql`), `tests/`, scripts nuevos, el panel de auditoría y `generate-mitexto`. | ⬜ |
 | — | Corrección de los docs falsos (informe de deuda, sección 7). | ✅ |
@@ -169,7 +169,7 @@ Después, `/api/chat` en modo libre puede restringirse o eliminarse [S9, S11]. *
 
 | Fase | Contenido | Duración aprox. | Estado |
 |---|---|---|---|
-| 0. Higiene | `.vercelignore` ✅, borrar devtest ✅, corregir los docs falsos ✅. **Falta:** borrar `DATA.json` (antes quitar el fallback de `shared-game.js` y su fila de `CLAUDE.md`) y `mejorar.md`, y fijar la versión de Supabase. | 0,5 d | 🟡 |
+| 0. Higiene | `.vercelignore` ✅, borrar devtest ✅, corregir los docs falsos ✅. borrar `DATA.json` ✅, archivar `mejorar.md` en `docs/notas/` ✅. **Falta:** fijar la versión de Supabase. | 0,5 d | 🟡 |
 | 1. Seguridad | Escapes corregidos en diccionario, gramática, reformulaciones y lectura ✅ (sin `utils.js`); `generate-practice` y `lookup-word` en el servidor ✅; guarda de `profiles` ✅ (026); CHECK `app_id` ✅ (027). **Falta:** ejecutar 025–030, revisar `pg_policies`, baseline del esquema ⛔. | 2 d | 🟡 |
 | 2. Coste | Cuota STT en el servidor ✅, tope diario por acción ✅, validación de `messages` ✅, SSRF de push ✅. **Falta:** `withApi`. | 1,5 d | 🟡 |
 | 3. Infra cliente | `utils.js`, `api-client.js`, `voice-recorder.js` (unificar las 4 copias de B3/B4), `tts-client.js`, SW único (ahora solo deduplicación) | 3 d | ⬜ |

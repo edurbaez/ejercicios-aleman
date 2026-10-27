@@ -93,7 +93,6 @@
                     <div class="tm-field tm-sound-pick" data-slot="end"><span>Final</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
                     <label class="tm-check"><input id="tm-ed-countin" type="checkbox"> Pitidos 3-2-1 antes de cada cambio</label>
                     <div class="tm-field tm-sound-pick" data-slot="tick"><span>Sonido del 3-2-1</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
-                    <label class="tm-check"><input id="tm-ed-loopend" type="checkbox"> Repetir la alarma final hasta detenerla</label>
 
                     <p id="tm-ed-summary" class="tm-hint"></p>
                     <div class="tm-actions">
@@ -121,12 +120,15 @@
                 <p id="tm-run-total" class="tm-run-meta"></p>
                 <p id="tm-run-warn" class="tm-warn" hidden>Este navegador no puede mantener la pantalla encendida: no la bloquees o la alarma podría no sonar.</p>
                 <div class="tm-run-controls">
-                    <button id="tm-run-stop" class="tm-btn" type="button">■ Parar</button>
+                    <button id="tm-run-stop" class="tm-btn tm-hold" type="button" aria-label="Mantén pulsado para parar">■ Parar</button>
                     <button id="tm-run-pause" class="tm-btn tm-btn-primary tm-btn-big" type="button">❚❚ Pausa</button>
                     <button id="tm-run-skip" class="tm-btn" type="button">⏭ Saltar</button>
                 </div>
+                <p class="tm-hint tm-hold-hint">Mantén pulsado «Parar» 1 segundo para detener</p>
+                <button id="tm-run-pip" class="tm-btn tm-pip-btn" type="button" hidden>🗗 Ventana flotante</button>
+                <video id="tm-pip-video" class="tm-pip-video" muted playsinline></video>
                 <div id="tm-run-done" hidden>
-                    <button id="tm-run-dismiss" class="tm-btn tm-btn-primary tm-btn-big" type="button">Detener alarma</button>
+                    <button id="tm-run-dismiss" class="tm-btn tm-btn-primary tm-btn-big" type="button">Volver</button>
                 </div>
             </section>
         </div>

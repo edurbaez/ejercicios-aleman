@@ -6,9 +6,9 @@ Detail doc split out of the root `CLAUDE.md` (which keeps a one-line index entry
 
 | File | Purpose |
 |------|---------|
-| `timer.html` | Interval timer PWA, replaces an ad-filled phone timer app. Body `#page-timer` (in the EDITORIAL THEME LAYER list), orange accent `#E65100`. Three views toggled by `showView()`: list of presets, editor, run screen (SVG progress ring, phase, round x/N, next phase, total remaining, Pausa/Saltar/Parar). Navbar and feedback FAB are hidden while running. Listed in `auth.js` `NAV_ITEMS` ("Temporizador"). |
+| `timer.html` | Interval timer PWA, replaces an ad-filled phone timer app. Body `#page-timer` (in the EDITORIAL THEME LAYER list), orange accent `#E65100`. Three views toggled by `showView()`: list of presets, editor, run screen (SVG progress ring, phase, round x/N, next phase, total remaining, Pausa/Saltar/Parar). "Parar" has no confirm dialog: it must be held for 1 s (`HOLD_MS`, pointer or Enter/Space), and a fill bar shows the progress (`.tm-hold`). Navbar and feedback FAB are hidden while running. Listed in `auth.js` `NAV_ITEMS` ("Temporizador"). |
 | `timer.js` | All the logic for `timer.html` (IIFE, no globals, no Supabase calls). See sections below. |
-| `sounds/*.mp3` | Built-in sounds, synthesized with numpy + ffmpeg (64 kbps mono), so there are no license issues. 9 alarm sounds (`campana`, `gong`, `ding-dong`, `fanfarria`, `marimba`, `digital`, `despertador`, `pitido`, `doble-pitido`) and 4 count-in ticks (`tick`, `tick-grave`, `tick-agudo`, `tick-madera`). |
+| `sounds/*.mp3` | Built-in sounds, synthesized with numpy + ffmpeg (64 kbps mono), so there are no license issues. 13 alarm sounds (`campana`, `gong`, `ding-dong`, `fanfarria`, `marimba`, `digital`, `despertador`, `pitido`, `doble-pitido`, plus the woodblock rhythms `tick-tick-tock`, `tick-tock-tick`, `tick-tock`, `tick-tick-tick-tock`, made of a high tick and a low tock, each played once and under 1 s) and 4 count-in ticks (`tick`, `tick-grave`, `tick-agudo`, `tick-madera`). |
 | `manifest-timer.json` / `sw-timer.js` / `icon-timer.svg` | PWA trio. The SW is registered with `scope: '/timer.html'` so it does not replace the other apps' root-scoped workers. Network-first for app files, cache-first for `sounds/`. Bump `CACHE` (`timer-vN`) whenever the asset or sound list changes. |
 
 ## Access
@@ -17,16 +17,22 @@ Open to everyone, with no login and no role check. `<body data-access-free>` mak
 
 ## Presets (IndexedDB `timer-db`, store `presets`)
 
-`{ id, name, type, config, sounds: { work, rest, end, tick }, countIn, loopEnd, createdAt, updatedAt }`, local to the device and never synced. `type` + `config`:
+`{ id, name, type, config, sounds: { work, rest, end, tick }, countIn, createdAt, updatedAt, lastUsedAt }`, local to the device and never synced. `type` + `config`:
 - `intervals`: `{ prep, work, rest, rounds }` in seconds. No rest after the last round.
 - `pomodoro`: `{ focus, short, long, longEvery, cycles }` in minutes. Every `longEvery`-th break is long. No break after the last pomodoro.
 - `countdown`: `{ duration (s), repeats }`. Uses only the `end` sound, played at the end of every repeat.
 
-`sounds.tick` is the 3-2-1 sound. The selector only lists `TICK_SOUNDS` and is shown only while "Pitidos 3-2-1" is checked. Presets saved before this field existed fall back to `t:tick` via `tickOf()`. On first run (empty store and no `timer_seeded` flag) three examples are seeded.
+`sounds.tick` is the 3-2-1 sound. The selector only lists `TICK_SOUNDS` and is shown only while "Pitidos 3-2-1" is checked. Presets saved before this field existed fall back to `t:tick` via `tickOf()`. The list is sorted by `lastUsedAt` (set when a run starts) with `createdAt` as the fallback, newest first (`sortPresets()`), so the most used alarms stay on top and a just-created one appears first. On first run (empty store and no `timer_seeded` flag) three examples are seeded.
 
 ## Engine
 
-`buildPhases(preset)` returns a flat `[{ kind: prep|work|rest, label, secs, round, of }]` list. Time comes from absolute timestamps (`run.endAt`), with a `setInterval(tick, 200)` that only renders. After the tab has been throttled or frozen, the `while (now >= endAt)` loop catches up and plays just the last transition sound. `visibilitychange` re-requests the Wake Lock, resumes the AudioContext and ticks immediately. When the run finishes, the end sound loops if `loopEnd` is set, stopping itself after 60 s. On Android, phase changes also vibrate.
+`buildPhases(preset)` returns a flat `[{ kind: prep|work|rest, label, secs, round, of }]` list. Time comes from absolute timestamps (`run.endAt`), with a `setInterval(tick, 200)` that only renders. After the tab has been throttled or frozen, the `while (now >= endAt)` loop catches up and plays just the last transition sound. `visibilitychange` re-requests the Wake Lock, resumes the AudioContext and ticks immediately. When the run finishes, the end sound plays once (there is no looping) and a "Volver" button returns to the list. On Android, phase changes also vibrate.
+
+## Floating window (Picture-in-Picture)
+
+A PWA cannot draw over other apps, but a video in PiP can. The "🗗 Ventana flotante" button is only shown when `document.pictureInPictureEnabled` and `canvas.captureStream` are available. It paints the run state on an offscreen 320×320 canvas (`drawPip()`, called from `renderRun()`/`finish()`, using the page's CSS tokens so dark mode carries over). The canvas feeds `canvas.captureStream()` into the hidden `#tm-pip-video`, which then calls `requestPictureInPicture()`. That video must stay rendered (1 px, `opacity: 0`); `display: none` is not allowed into PiP. The PiP window's ⏯/⏭ buttons arrive as Media Session `play`/`pause`/`nexttrack` actions (`setupMediaSession()`), which call `togglePause()`/`skipPhase()`. `closeRun()` exits PiP and clears the Media Session. The Document PiP API (a real HTML mini window) is desktop-only, so it is not used.
+
+Works on Android Chrome and installed PWAs; iOS with a canvas stream is unverified. Whether the page keeps ticking and playing phase sounds while only the PiP window is visible depends on the browser and must be checked on a device.
 
 ## Audio
 

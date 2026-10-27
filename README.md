@@ -194,7 +194,7 @@ Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketi
 
 ### Temporizador ([timer.html](timer.html))
 
-Installable timer PWA, open to everyone in the Menú (no access gate). When you create an alarm you pick its type: **Intervalos** (preparación + trabajo/descanso × N), **Pomodoro** (foco / descanso corto / descanso largo cada X × N) or **Cuenta atrás** (duración × N repeticiones). Each alarm has its own sounds (work start, rest start, end), optional 3-2-1 beeps and an end alarm that loops until dismissed. Alarms are stored in the device's IndexedDB. There are 9 built-in alarm sounds and 4 count-in ticks ([sounds/](sounds/)); users can add their own audio file, stored only on that device (nothing is sent to a server). The screen stays on while a timer runs (Wake Lock), and phase changes vibrate on Android.
+Installable timer PWA, open to everyone in the Menú (no access gate). When you create an alarm you pick its type: **Intervalos** (preparación + trabajo/descanso × N), **Pomodoro** (foco / descanso corto / descanso largo cada X × N) or **Cuenta atrás** (duración × N repeticiones). Each alarm has its own sounds (work start, rest start, end), optional 3-2-1 beeps; the end alarm plays once. Alarms are stored in the device's IndexedDB. There are 13 built-in alarm sounds (including tick-tock rhythms) and 4 count-in ticks ([sounds/](sounds/)); users can add their own audio file, stored only on that device (nothing is sent to a server). A "🗗 Ventana flotante" button puts the running timer in a Picture-in-Picture window over other apps, with pause/skip. The screen stays on while a timer runs (Wake Lock), and phase changes vibrate on Android.
 
 ### Generador de tareas ([teacher/tareas.html](teacher/tareas.html))
 

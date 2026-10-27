@@ -7049,6 +7049,28 @@ body.dark .cr-results-title { color: #ce93d8; }
 .tm-run-controls,
 #tm-run-done { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
 body.tm-running #navbar { display: none; }
+.tm-pip-btn { margin-top: 8px; }
+/* Not display:none: the video must stay rendered to be allowed into Picture-in-Picture. */
+.tm-pip-video { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.tm-hold {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    touch-action: none;
+}
+.tm-hold::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--accent) 35%, transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+}
+.tm-hold.holding::before { transform: scaleX(1); transition: transform var(--hold-ms, 1s) linear; }
 /* The fixed feedback FAB covers the ▶ preview buttons on a phone. */
 #page-timer #feedback-fab { display: none; }
 

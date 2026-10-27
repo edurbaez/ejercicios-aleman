@@ -1,6 +1,7 @@
-const CACHE = "timer-v2";
+const CACHE = "timer-v4";
 const SOUNDS = ["campana", "gong", "ding-dong", "fanfarria", "marimba", "digital",
-  "despertador", "pitido", "doble-pitido", "tick", "tick-grave", "tick-agudo", "tick-madera"].map((s) => "/sounds/" + s + ".mp3");
+  "despertador", "pitido", "doble-pitido", "tick", "tick-grave", "tick-agudo", "tick-madera",
+  "tick-tick-tock", "tick-tock-tick", "tick-tock", "tick-tick-tick-tock"].map((s) => "/sounds/" + s + ".mp3");
 const ASSETS = [
   "/timer.html",
   "/timer.js",

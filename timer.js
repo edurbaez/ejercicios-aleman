@@ -10,6 +10,8 @@
     ['campana', 'Campana'], ['gong', 'Gong'], ['ding-dong', 'Ding-dong'], ['fanfarria', 'Fanfarria'],
     ['marimba', 'Marimba'], ['digital', 'Digital'], ['despertador', 'Despertador'],
     ['pitido', 'Pitido'], ['doble-pitido', 'Doble pitido'],
+    ['tick-tick-tock', 'Tick tick tock'], ['tick-tock-tick', 'Tick tock tick'],
+    ['tick-tock', 'Tick tock (reloj)'], ['tick-tick-tick-tock', 'Tick tick tick tock'],
   ].map(builtin('b:'));
   const TICK_SOUNDS = [
     ['tick', 'Tick'], ['tick-grave', 'Tick grave'], ['tick-agudo', 'Tick agudo'], ['tick-madera', 'Tick madera'],
@@ -70,7 +72,6 @@
   // ── Audio ─────────────────────────────────────────────────
   let ctx = null;
   let gain = null;
-  let loopSource = null;
   const buffers = new Map();
 
   function volume() {
@@ -102,22 +103,14 @@
     return p;
   }
 
-  async function play(key, loop) {
+  async function playSound(id) {
     ensureAudio();
     let buf;
-    try { buf = await getBuffer(key); } catch (e) { buf = await getBuffer(FALLBACK_SOUND); }
+    try { buf = await getBuffer(soundById(id).id); } catch (e) { buf = await getBuffer(FALLBACK_SOUND); }
     const src = ctx.createBufferSource();
     src.buffer = buf;
-    src.loop = !!loop;
     src.connect(gain);
     src.start();
-    if (loop) { stopLoop(); loopSource = src; }
-    return src;
-  }
-  const playSound = (id, loop) => play(soundById(id).id, loop);
-
-  function stopLoop() {
-    if (loopSource) { try { loopSource.stop(); } catch (e) {} loopSource = null; }
   }
 
   function vibrate(pattern) {
@@ -177,6 +170,11 @@
     ['list', 'editor', 'run'].forEach((v) => { $('tm-' + v + '-view').hidden = v !== name; });
     document.body.classList.toggle('tm-running', name === 'run');
     window.scrollTo(0, 0);
+  }
+
+  // Most recently used first; a never-used preset ranks by when it was created, so a new one shows on top.
+  function sortPresets() {
+    presets.sort((a, b) => (b.lastUsedAt || b.createdAt) - (a.lastUsedAt || a.createdAt));
   }
 
   function renderPresets() {
@@ -275,7 +273,6 @@
       name: $('tm-ed-name').value.trim() || TYPE_NAMES[type],
       type, config, sounds,
       countIn: $('tm-ed-countin').checked,
-      loopEnd: $('tm-ed-loopend').checked,
     };
   }
 
@@ -295,7 +292,6 @@
     ['rounds', 'focus', 'short', 'long', 'longEvery', 'cycles', 'repeats'].forEach((k) => { numField(k).value = cfg[k]; });
     fillSoundSelects(p ? p.sounds : DEFAULT_SOUNDS);
     $('tm-ed-countin').checked = p ? p.countIn : true;
-    $('tm-ed-loopend').checked = p ? p.loopEnd : true;
     syncTypeFields();
     showView('editor');
   }
@@ -312,9 +308,10 @@
     e.preventDefault();
     const data = readEditor();
     const prev = presets.find((x) => x.id === editingId);
-    const p = Object.assign({ id: editingId || uid(), createdAt: prev ? prev.createdAt : Date.now() }, data, { updatedAt: Date.now() });
+    const p = Object.assign({ id: editingId || uid(), createdAt: prev ? prev.createdAt : Date.now(), lastUsedAt: prev ? prev.lastUsedAt : undefined }, data, { updatedAt: Date.now() });
     await idbPut('presets', p);
     presets = prev ? presets.map((x) => (x.id === p.id ? p : x)) : presets.concat(p);
+    sortPresets();
     renderPresets();
     showView('list');
   });
@@ -339,13 +336,20 @@
     [p.sounds.work, p.sounds.rest, p.sounds.end].forEach((id) => getBuffer(soundById(id).id).catch(() => {}));
     if (p.countIn) getBuffer(tickOf(p)).catch(() => {});
 
+    p.lastUsedAt = Date.now();
+    idbPut('presets', p).catch(() => {});
+    sortPresets();
+    renderPresets();
+
     run = { preset: p, phases, idx: 0, endAt: Date.now() + phases[0].secs * 1000, pausedLeft: null, lastTick: null, done: false };
     $('tm-run-name').textContent = p.name;
     $('tm-run-done').hidden = true;
     document.querySelector('.tm-run-controls').hidden = false;
+    document.querySelector('.tm-hold-hint').hidden = false;
     $('tm-run-pause').textContent = '❚❚ Pausa';
     showView('run');
     requestWakeLock();
+    setupMediaSession(p);
     if (phases[0].kind === 'work' && p.type !== 'countdown') playSound(p.sounds.work);
     run.timer = setInterval(tick, 200);
     tick();
@@ -390,6 +394,7 @@
     $('tm-run-next').textContent = next ? 'Siguiente: ' + next.label + ' · ' + fmt(next.secs) : 'Última fase';
     const totalLeft = leftMs / 1000 + run.phases.slice(run.idx + 1).reduce((a, x) => a + x.secs, 0);
     $('tm-run-total').textContent = 'Tiempo restante: ' + fmt(totalLeft);
+    drawPip({ label: run.pausedLeft !== null ? 'En pausa' : ph.label, time: fmt(Math.ceil(leftMs / 1000)), round: ph.of > 1 ? ph.round + ' / ' + ph.of : '', frac });
   }
 
   function finish() {
@@ -403,25 +408,25 @@
     $('tm-ring-bar').style.strokeDashoffset = RING_LEN;
     document.body.dataset.phase = 'done';
     document.querySelector('.tm-run-controls').hidden = true;
+    document.querySelector('.tm-hold-hint').hidden = true;
     $('tm-run-done').hidden = false;
-    playSound(run.preset.sounds.end, run.preset.loopEnd);
+    playSound(run.preset.sounds.end);
     vibrate([600, 200, 600, 200, 600]);
-    // A forgotten looping alarm shouldn't ring forever.
-    if (run.preset.loopEnd) run.autoStop = setTimeout(stopLoop, 60000);
+    drawPip({ label: '¡Terminado!', time: '00:00', round: '', frac: 0 });
   }
 
   function closeRun() {
     if (!run) return;
     clearInterval(run.timer);
-    clearTimeout(run.autoStop);
-    stopLoop();
     run = null;
+    closePip();
+    clearMediaSession();
     releaseWakeLock();
     delete document.body.dataset.phase;
     showView('list');
   }
 
-  $('tm-run-pause').addEventListener('click', () => {
+  function togglePause() {
     if (!run || run.done) return;
     ensureAudio();
     if (run.pausedLeft === null) {
@@ -432,17 +437,37 @@
       run.pausedLeft = null;
       $('tm-run-pause').textContent = '❚❚ Pausa';
     }
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = run.pausedLeft === null ? 'playing' : 'paused';
     renderRun(Date.now());
-  });
-  $('tm-run-skip').addEventListener('click', () => {
+  }
+  function skipPhase() {
     if (!run || run.done) return;
-    if (run.pausedLeft !== null) { run.pausedLeft = null; $('tm-run-pause').textContent = '❚❚ Pausa'; }
+    if (run.pausedLeft !== null) togglePause();
     run.endAt = Date.now();
     tick();
-  });
-  $('tm-run-stop').addEventListener('click', () => {
-    if (confirm('¿Parar el temporizador?')) closeRun();
-  });
+  }
+  $('tm-run-pause').addEventListener('click', togglePause);
+  $('tm-run-skip').addEventListener('click', skipPhase);
+  // Hold-to-stop instead of a confirm dialog: one second of continuous press, so a stray tap mid-workout does nothing.
+  const HOLD_MS = 1000;
+  const stopBtn = $('tm-run-stop');
+  let holdTimer = null;
+  function holdStart(e) {
+    if (holdTimer || (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ')) return;
+    e.preventDefault();
+    stopBtn.style.setProperty('--hold-ms', HOLD_MS + 'ms');
+    stopBtn.classList.add('holding');
+    holdTimer = setTimeout(() => { holdCancel(); closeRun(); }, HOLD_MS);
+  }
+  function holdCancel() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    stopBtn.classList.remove('holding');
+  }
+  stopBtn.addEventListener('pointerdown', holdStart);
+  stopBtn.addEventListener('keydown', holdStart);
+  ['pointerup', 'pointerleave', 'pointercancel', 'keyup', 'blur'].forEach((ev) => stopBtn.addEventListener(ev, holdCancel));
+  stopBtn.addEventListener('contextmenu', (e) => e.preventDefault());
   $('tm-run-dismiss').addEventListener('click', closeRun);
 
   document.addEventListener('visibilitychange', () => {
@@ -451,6 +476,94 @@
     ensureAudio();
     tick();
   });
+
+  // ── Floating window (video Picture-in-Picture) ───────────
+  // A PWA can't draw over other apps, but a <video> in PiP can: the timer is painted on a canvas
+  // whose stream feeds a hidden video, and that video goes into the system's floating window.
+  const pipCanvas = document.createElement('canvas');
+  pipCanvas.width = pipCanvas.height = 320;
+  const pipVideo = $('tm-pip-video');
+  const pipSupported = !!(document.pictureInPictureEnabled && pipCanvas.captureStream && pipVideo.requestPictureInPicture);
+  const isPipOpen = () => document.pictureInPictureElement === pipVideo;
+  $('tm-run-pip').hidden = !pipSupported;
+
+  function drawPip(f) {
+    if (!pipVideo.srcObject) return;
+    const c = pipCanvas.getContext('2d');
+    const W = pipCanvas.width, mid = W / 2, r = mid - 22;
+    const css = getComputedStyle(document.body);
+    const v = (name) => css.getPropertyValue(name).trim();
+    const font = (weight, size) => weight + ' ' + size + 'px "Source Sans 3", system-ui, sans-serif';
+    c.fillStyle = v('--paper');
+    c.fillRect(0, 0, W, W);
+    c.lineWidth = 16;
+    c.lineCap = 'round';
+    c.strokeStyle = v('--paper-sunk');
+    c.beginPath(); c.arc(mid, mid, r, 0, 2 * Math.PI); c.stroke();
+    if (f.frac > 0) {
+      c.strokeStyle = v('--tm-phase');
+      c.beginPath(); c.arc(mid, mid, r, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * f.frac); c.stroke();
+    }
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.fillStyle = v('--tm-phase');
+    c.font = font(700, 26);
+    c.fillText(f.label.toUpperCase(), mid, mid - 62);
+    let size = 84;
+    do { c.font = font(700, size); size -= 4; } while (c.measureText(f.time).width > W * 0.66);
+    c.fillStyle = v('--ink');
+    c.fillText(f.time, mid, mid + 4);
+    if (f.round) {
+      c.fillStyle = v('--ink-muted');
+      c.font = font(600, 24);
+      c.fillText(f.round, mid, mid + 66);
+    }
+  }
+
+  async function togglePip() {
+    if (!run) return;
+    try {
+      if (isPipOpen()) { await document.exitPictureInPicture(); return; }
+      if (!pipVideo.srcObject) pipVideo.srcObject = pipCanvas.captureStream();
+      if (run.done) drawPip({ label: '¡Terminado!', time: '00:00', round: '', frac: 0 });
+      else renderRun(Date.now());
+      await pipVideo.play();
+      await pipVideo.requestPictureInPicture();
+    } catch (e) {
+      console.warn('[timer] PiP failed:', e);
+    }
+  }
+
+  function closePip() {
+    if (isPipOpen()) document.exitPictureInPicture().catch(() => {});
+  }
+
+  pipVideo.addEventListener('enterpictureinpicture', () => { $('tm-run-pip').textContent = '🗗 Cerrar ventana flotante'; });
+  pipVideo.addEventListener('leavepictureinpicture', () => {
+    $('tm-run-pip').textContent = '🗗 Ventana flotante';
+    if (pipVideo.srcObject) pipVideo.srcObject.getTracks().forEach((t) => t.stop());
+    pipVideo.srcObject = null;
+  });
+  $('tm-run-pip').addEventListener('click', togglePip);
+
+  // The PiP window's play/pause and next buttons arrive as Media Session actions.
+  function setupMediaSession(p) {
+    if (!('mediaSession' in navigator)) return;
+    const ms = navigator.mediaSession;
+    if (window.MediaMetadata) ms.metadata = new MediaMetadata({ title: p.name, artist: 'Temporizador', artwork: [{ src: '/icon-timer.svg', sizes: '512x512', type: 'image/svg+xml' }] });
+    const set = (action, fn) => { try { ms.setActionHandler(action, fn); } catch (e) {} };
+    set('play', () => { if (run && run.pausedLeft !== null) togglePause(); });
+    set('pause', () => { if (run && run.pausedLeft === null) togglePause(); });
+    set('nexttrack', skipPhase);
+    ms.playbackState = 'playing';
+  }
+
+  function clearMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    ['play', 'pause', 'nexttrack'].forEach((a) => { try { navigator.mediaSession.setActionHandler(a, null); } catch (e) {} });
+    navigator.mediaSession.metadata = null;
+    navigator.mediaSession.playbackState = 'none';
+  }
 
   // ── Sounds panel ──────────────────────────────────────────
   function renderSoundList() {
@@ -526,11 +639,11 @@
         { name: 'HIIT 40/20', type: 'intervals', config: DEFAULT_CONFIG.intervals },
         { name: 'Pomodoro', type: 'pomodoro', config: DEFAULT_CONFIG.pomodoro },
         { name: '5 minutos', type: 'countdown', config: DEFAULT_CONFIG.countdown },
-      ].map((p, i) => Object.assign({ id: uid(), createdAt: Date.now() + i, updatedAt: Date.now(), sounds: DEFAULT_SOUNDS, countIn: true, loopEnd: true }, p));
+      ].map((p, i) => Object.assign({ id: uid(), createdAt: Date.now() - i, updatedAt: Date.now(), sounds: DEFAULT_SOUNDS, countIn: true }, p));
       await Promise.all(presets.map((p) => idbPut('presets', p)));
       try { localStorage.setItem('timer_seeded', '1'); } catch (e) {}
     }
-    presets.sort((a, b) => a.createdAt - b.createdAt);
+    sortPresets();
     renderPresets();
     refreshSounds();
   })();

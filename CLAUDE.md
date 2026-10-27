@@ -21,7 +21,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | Area | Detail lives in |
 |------|-----------------|
 | Quiz apps A1–C2, `shared-game.js`, their PWA files, B1/B2 notes | `docs/apps/vocab-quiz.md` |
-| One doc per root app (+ its JS/data and implementation notes) | `docs/apps/{lectura-veloz,mundliche,escritura,kasus,chat-voz,corrector,diccionario,chat-reformulaciones,gramatica,plan,landing}.md` |
+| One doc per root app (+ its JS/data and implementation notes) | `docs/apps/{lectura-veloz,mundliche,escritura,kasus,chat-voz,corrector,diccionario,chat-reformulaciones,gramatica,plan,landing,timer}.md` |
 | `auth.js`, `config.js`, `onboarding.js` | `docs/apps/auth.md` |
 | `styles.css` / `Data*.json` | `docs/styles.md` / `docs/data.md` |
 | `chatvoz2/`, `admin/`, `teacher/`, `marketing/`, `scripts/` | `<subdir>/CLAUDE.md` |
@@ -49,6 +49,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `gramatica.html` | Grammar rules SPA per level (accordion) with "🎯 Practicar" quiz and Modo Examen. Detail: `docs/apps/gramatica.md` |
 | `gramaticaA1.html` … `gramaticaC2.html` (6 files) | Static JS-free per-level grammar references, hand-transcribed from `GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
 | `plan.html` | 30-day study plan SPA, progress synced to `user_data.plan_progress`; installable PWA. Detail: `docs/apps/plan.md` |
+| `timer.html` | Installable interval / pomodoro / countdown timer, open to everyone (`data-access-free`), presets + own sounds only in IndexedDB. Detail: `docs/apps/timer.md` |
 | `admin/index.html` | Admin-only dashboard (stats, users, access control, reports). Detail: `admin/CLAUDE.md` |
 | `teacher/index.html` | Admin/teacher class planner per level (martes/jueves classes vs `GRAMMAR_DATA`). Detail: `teacher/CLAUDE.md` |
 | `teacher/tareas.html` | Admin/teacher worksheet generator: Lesen + Kasus + Reformulaciones from the banks → student/teacher PDF. Detail: `teacher/CLAUDE.md` |
@@ -148,6 +149,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `manifest.json` / `sw.js` / `icon.svg` | PWA manifest, Service Worker (cache + push) and icon for `B2.html`. Detail: `docs/apps/vocab-quiz.md` |
 | `manifest-{a1,a2,b1,c1,c2}.json` / `sw-{…}.js` / `icon-{…}.svg` | Same trio per quiz level. Detail: `docs/apps/vocab-quiz.md` |
 | `manifest-plan.json` / `sw-plan.js` / `icon-plan.svg` | PWA trio for `plan.html`. Detail: `docs/apps/plan.md` |
+| `manifest-timer.json` / `sw-timer.js` / `icon-timer.svg` / `sounds/*.mp3` | PWA trio (SW scoped to `/timer.html`) + built-in alarm sounds for `timer.html`. Detail: `docs/apps/timer.md` |
 | `index.html` | Landing page (app cards, navbar, SEO meta). Detail: `docs/apps/landing.md` |
 | `privacidad.html` | Public privacy policy, no `auth.js` on purpose. Detail: `docs/apps/landing.md` |
 | `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` e `includeFiles: grammar-data-*.js` (para `api/_practice.js`) (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
@@ -169,6 +171,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `corrector.js` | All JS for `corrector.html`. Detail: `docs/apps/corrector.md` |
 | `gramatica.js` | SPA logic for `gramatica.html` (Practicar quiz, Modo Examen). Detail: `docs/apps/gramatica.md` |
 | `plan.js` | `window.PLANS` data (a1–c2 × 30 days). Detail: `docs/apps/plan.md` |
+| `timer.js` | All JS for `timer.html` (phase engine, Web Audio, IndexedDB). Detail: `docs/apps/timer.md` |
 | `onboarding.js` | First-visit guided tour on `index.html`. Detail: `docs/apps/auth.md` |
 
 ### Shared styles
@@ -193,7 +196,7 @@ is_access_valid := profiles.status <> 'blocked'
 - **Enforcement, defense in depth**:
   1. Postgres function `public.is_access_valid(user_id)` — used by the RLS `WITH CHECK`/`USING` on INSERT/UPDATE (not SELECT/DELETE) of `word_lists`, `srs_progress`, `grammar_rule_progress`, `user_reading_seen`, `user_data`.
   2. `api/_lib.js` `checkAccess(userId)` — called right after `verifyJWT()` in every endpoint that costs money (`chat.js`, `whisper.js`, `vision.js`, `tts.js`, `image.js`, `deepseek-chat.js`, `finanzas.js`); returns `403` if invalid. Fails open (allows the request) if `SUPABASE_SERVICE_ROLE_KEY` is unset or the Supabase REST call errors — same convention as `whisper.js`'s daily-usage check.
-  3. `auth.js` `_isAccessValid()` — the universal gate: on every auth state change, `updateAuthUI()` shows a non-dismissable modal (`#access-blocked-modal`) blocking the whole page if the current user's profile fails the check. This is the only layer that covers apps with no serverless calls (B1–C2, `gramatica.html`, `plan.html`, …). Admins are always exempt, even from a stale row.
+  3. `auth.js` `_isAccessValid()` — the universal gate: on every auth state change, `updateAuthUI()` shows a non-dismissable modal (`#access-blocked-modal`) blocking the whole page if the current user's profile fails the check. This is the only layer that covers apps with no serverless calls (B1–C2, `gramatica.html`, `plan.html`, …). Admins are always exempt, even from a stale row. Pages with `<body data-access-free>` (only `timer.html`) skip the modal.
 - **Gotcha**: `profiles` was created directly in Supabase, not tracked in this repo's migrations (same as its `status` column, added by `supabase/migrations/legacy/add_user_status.sql`). Before adding new RLS policies on tables owned by a user, check `pg_policies` for pre-existing untracked policies — migration 009 found and removed one on `user_data` (`"own data" FOR ALL`, permissive with no access check) that would have silently bypassed the new gate.
 
 ## Voice-STT daily usage cap

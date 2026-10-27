@@ -683,6 +683,7 @@
     { href: 'mundliche.html', label: 'Mündliche Prüfung', bodyId: 'page-mp' },
     { href: 'diccionario.html', label: 'Diccionario', bodyId: 'page-dic' },
     { href: 'corrector.html', label: 'Corrector', bodyId: 'page-cor' },
+    { href: 'timer.html', label: 'Temporizador', bodyId: 'page-timer' },
   ];
 
   function _renderNavMenu() {
@@ -783,7 +784,7 @@
       if (role === 'admin') _addDashboardLink();
       await _claimDeviceTrial(profile);
       // Admins are never gated, even if their own row somehow had a stale status/expiry.
-      if (role !== 'admin' && profile && !_isAccessValid(profile)) {
+      if (role !== 'admin' && profile && !_isAccessValid(profile) && !document.body.hasAttribute('data-access-free')) {
         window.logEvent('auth', 'access_blocked_attempt', { status: profile.status, expires_at: profile.access_expires_at });
         window.showAccessBlockedModal(profile.status === 'blocked' ? 'blocked' : 'expired', profile.access_expires_at);
       } else {

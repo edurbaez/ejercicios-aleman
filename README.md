@@ -192,6 +192,10 @@ Admin-only editorial calendar for the `marketing_posts` pipeline. Month view (Mo
 
 Admin-only KPI dashboard fed by four SQL views ([supabase/migrations/005_marketing_views.sql](supabase/migrations/005_marketing_views.sql), all `security_invoker` so admin RLS applies): summary cards (total users, active last 7/30 days, simple retention — users active in ≥2 distinct weeks of the last 8), weekly signups and weekly active-users bar charts with a 8/12/26/52-week range selector (missing weeks shown as zero), and per-app usage (events + distinct users) with a 30-days/all-time toggle. It also correlates marketing with growth: weeks with published `marketing_posts` pieces get a 📣 marker on the weekly charts, and a "Publicaciones → registros" table shows how many users signed up within 3 days after each published piece. Pure-CSS bar charts, no external library.
 
+### Temporizador ([timer.html](timer.html))
+
+Installable timer PWA, open to everyone in the Menú (no access gate). When you create an alarm you pick its type: **Intervalos** (preparación + trabajo/descanso × N), **Pomodoro** (foco / descanso corto / descanso largo cada X × N) or **Cuenta atrás** (duración × N repeticiones). Each alarm has its own sounds (work start, rest start, end), optional 3-2-1 beeps and an end alarm that loops until dismissed. Alarms are stored in the device's IndexedDB. There are 9 built-in alarm sounds and 4 count-in ticks ([sounds/](sounds/)); users can add their own audio file, stored only on that device (nothing is sent to a server). The screen stays on while a timer runs (Wake Lock), and phase changes vibrate on Android.
+
 ### Generador de tareas ([teacher/tareas.html](teacher/tareas.html))
 
 Admin/teacher-only worksheet builder (linked from the class planner `teacher/index.html`: header "📝 Tareas" and a per-class "Generar tarea con estas reglas" deep link). Per level it combines up to three blocks from the existing banks: **Leseverstehen** (one `reading_texts` v2 text, chosen or random, with selectable Teile), **Kasus** (sentences from the `grammar_practice_exercises` `kasus:*` bank, optional "✨ Generar con IA" to top up the bank via `generate-kasus`) and **Reformulaciones** (`reformulaciones-data.json` rules + combos). "Preparar tarea" shows a preview with answers; the same selection downloads as a student PDF (no solutions) and a teacher PDF (answer key appended). PDFs are built client-side with jsPDF via the shared [pdf-worksheet.js](pdf-worksheet.js).
@@ -247,7 +251,7 @@ All pages share a fixed navbar. **Inicio** is always visible as a standalone lin
 
 ## Deployment
 
-`index.html` (landing) is served at `/`, deployed on Vercel; `vercel.json` only configures the functions (no rewrites). `.vercelignore` keeps internal files (docs, migrations, scripts, tests, `*.md`) out of the public deploy. Each PWA has its own Service Worker: `sw.js` (B2), `sw-b1.js` (B1), and `sw-plan.js` (Plan 30 días), each scoped to its own cache namespace so they don't interfere with each other.
+`index.html` (landing) is served at `/`, deployed on Vercel; `vercel.json` only configures the functions (no rewrites). `.vercelignore` keeps internal files (docs, migrations, scripts, tests, `*.md`) out of the public deploy. Each PWA has its own Service Worker: `sw.js` (B2), `sw-b1.js` (B1), `sw-plan.js` (Plan 30 días) and `sw-timer.js` (Temporizador, registered with `scope: '/timer.html'`), each scoped to its own cache namespace so they don't interfere with each other.
 
 Push to `main` → Vercel redeploys automatically.
 

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Temporizador</title>
+    <link rel="manifest" href="manifest-timer.json">
+    <link rel="apple-touch-icon" href="icon-timer.svg">
+    <meta name="theme-color" content="#E65100">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<!-- data-access-free: open to everyone, auth.js skips its expired/blocked-account modal here. -->
+<body id="page-timer" data-access-free>
+    <nav id="navbar">
+        <a href="/">Inicio</a>
+        <div class="nav-dropdown" id="navDropdown">
+            <button class="nav-menu-btn" type="button" onclick="this.closest('.nav-dropdown').classList.toggle('open');event.stopPropagation()">Menú ▾</button>
+            <div class="nav-dropdown-menu"></div>
+        </div>
+        <div class="spacer"></div>
+        <button id="auth-btn" title="Iniciar sesión" aria-label="Iniciar sesión"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
+        <button id="darkModeBtn" onclick="toggleDarkMode()" title="Modo oscuro" aria-label="Modo oscuro"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></button>
+    </nav>
+    <script>document.addEventListener('click',function(e){if(!e.target.closest('.nav-dropdown')){document.querySelectorAll('.nav-dropdown.open').forEach(function(d){d.classList.remove('open');});document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}else if(!e.target.closest('.nav-submenu')){document.querySelectorAll('.nav-submenu.open').forEach(function(s){s.classList.remove('open');});}});</script>
+
+    <main id="tm-main">
+        <div id="tm-app">
+            <!-- List -->
+            <section id="tm-list-view">
+                <div class="tm-head">
+                    <h1>Temporizador</h1>
+                    <button id="tm-new-btn" class="tm-btn tm-btn-primary" type="button">+ Nueva</button>
+                </div>
+                <div id="tm-presets"></div>
+
+                <details id="tm-sounds-panel" class="tm-card">
+                    <summary>🔊 Sonidos y volumen</summary>
+                    <label class="tm-field tm-volume">
+                        <span>Volumen</span>
+                        <input id="tm-volume" type="range" min="0" max="1" step="0.05">
+                    </label>
+                    <div id="tm-sound-list"></div>
+                    <form id="tm-upload-form" class="tm-upload">
+                        <h3>Añadir sonido</h3>
+                        <label class="tm-field"><span>Nombre</span><input id="tm-up-name" type="text" maxlength="60" required></label>
+                        <label class="tm-field"><span>Archivo de audio (máx. 1 MB)</span><input id="tm-up-file" type="file" accept="audio/*" required></label>
+                        <p class="tm-hint">En Android puedes elegir tonos del teléfono desde la carpeta <em>Ringtones</em>, <em>Alarms</em> o <em>Notifications</em>.</p>
+                        <button class="tm-btn tm-btn-primary" type="submit">Subir</button>
+                        <p id="tm-up-status" class="tm-hint" role="status"></p>
+                    </form>
+                </details>
+            </section>
+
+            <!-- Editor -->
+            <section id="tm-editor-view" hidden>
+                <div class="tm-head">
+                    <h1 id="tm-editor-title">Nueva alarma</h1>
+                </div>
+                <form id="tm-editor" class="tm-card">
+                    <label class="tm-field"><span>Nombre</span><input id="tm-ed-name" type="text" maxlength="40" required></label>
+
+                    <div class="tm-segmented" role="radiogroup" aria-label="Tipo">
+                        <label><input type="radio" name="tm-type" value="intervals" checked><span>Intervalos</span></label>
+                        <label><input type="radio" name="tm-type" value="pomodoro"><span>Pomodoro</span></label>
+                        <label><input type="radio" name="tm-type" value="countdown"><span>Cuenta atrás</span></label>
+                    </div>
+
+                    <div class="tm-type-fields" data-type="intervals">
+                        <div class="tm-field"><span>Preparación</span><div class="tm-dur" data-name="prep"></div></div>
+                        <div class="tm-field"><span>Trabajo</span><div class="tm-dur" data-name="work"></div></div>
+                        <div class="tm-field"><span>Descanso</span><div class="tm-dur" data-name="rest"></div></div>
+                        <label class="tm-field"><span>Número de intervalos</span><input name="rounds" type="number" min="1" max="99" inputmode="numeric"></label>
+                    </div>
+                    <div class="tm-type-fields" data-type="pomodoro" hidden>
+                        <label class="tm-field"><span>Foco (min)</span><input name="focus" type="number" min="1" max="180" inputmode="numeric"></label>
+                        <label class="tm-field"><span>Descanso corto (min)</span><input name="short" type="number" min="0" max="60" inputmode="numeric"></label>
+                        <label class="tm-field"><span>Descanso largo (min)</span><input name="long" type="number" min="0" max="120" inputmode="numeric"></label>
+                        <label class="tm-field"><span>Descanso largo cada… (pomodoros)</span><input name="longEvery" type="number" min="0" max="20" inputmode="numeric"></label>
+                        <label class="tm-field"><span>Número de pomodoros</span><input name="cycles" type="number" min="1" max="20" inputmode="numeric"></label>
+                    </div>
+                    <div class="tm-type-fields" data-type="countdown" hidden>
+                        <div class="tm-field"><span>Duración</span><div class="tm-dur" data-name="duration" data-hours="1"></div></div>
+                        <label class="tm-field"><span>Repeticiones</span><input name="repeats" type="number" min="1" max="99" inputmode="numeric"></label>
+                    </div>
+
+                    <h3>Sonidos</h3>
+                    <div class="tm-field tm-sound-pick" data-slot="work"><span data-label-for="work">Inicio de trabajo</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
+                    <div class="tm-field tm-sound-pick" data-slot="rest"><span data-label-for="rest">Inicio de descanso</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
+                    <div class="tm-field tm-sound-pick" data-slot="end"><span>Final</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
+                    <label class="tm-check"><input id="tm-ed-countin" type="checkbox"> Pitidos 3-2-1 antes de cada cambio</label>
+                    <div class="tm-field tm-sound-pick" data-slot="tick"><span>Sonido del 3-2-1</span><div><select></select><button type="button" class="tm-icon-btn" aria-label="Probar">▶</button></div></div>
+                    <label class="tm-check"><input id="tm-ed-loopend" type="checkbox"> Repetir la alarma final hasta detenerla</label>
+
+                    <p id="tm-ed-summary" class="tm-hint"></p>
+                    <div class="tm-actions">
+                        <button id="tm-ed-cancel" class="tm-btn" type="button">Cancelar</button>
+                        <button class="tm-btn tm-btn-primary" type="submit">Guardar</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Run -->
+            <section id="tm-run-view" hidden>
+                <p id="tm-run-name" class="tm-run-name"></p>
+                <div class="tm-ring-wrap">
+                    <svg class="tm-ring" viewBox="0 0 200 200" aria-hidden="true">
+                        <circle class="tm-ring-track" cx="100" cy="100" r="90"/>
+                        <circle id="tm-ring-bar" class="tm-ring-bar" cx="100" cy="100" r="90"/>
+                    </svg>
+                    <div class="tm-ring-center">
+                        <div id="tm-run-phase" class="tm-run-phase"></div>
+                        <div id="tm-run-time" class="tm-run-time" aria-live="off">00:00</div>
+                        <div id="tm-run-round" class="tm-run-round"></div>
+                    </div>
+                </div>
+                <p id="tm-run-next" class="tm-run-meta"></p>
+                <p id="tm-run-total" class="tm-run-meta"></p>
+                <p id="tm-run-warn" class="tm-warn" hidden>Este navegador no puede mantener la pantalla encendida: no la bloquees o la alarma podría no sonar.</p>
+                <div class="tm-run-controls">
+                    <button id="tm-run-stop" class="tm-btn" type="button">■ Parar</button>
+                    <button id="tm-run-pause" class="tm-btn tm-btn-primary tm-btn-big" type="button">❚❚ Pausa</button>
+                    <button id="tm-run-skip" class="tm-btn" type="button">⏭ Saltar</button>
+                </div>
+                <div id="tm-run-done" hidden>
+                    <button id="tm-run-dismiss" class="tm-btn tm-btn-primary tm-btn-big" type="button">Detener alarma</button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="timer.js"></script>
+</body>
+</html>

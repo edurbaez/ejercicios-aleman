@@ -1,0 +1,19 @@
+{
+  "name": "Temporizador",
+  "short_name": "Timer",
+  "description": "Temporizador de intervalos, pomodoro y cuenta atrás",
+  "start_url": "/timer.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#E65100",
+  "theme_color": "#E65100",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-timer.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -38,6 +38,7 @@ Loaded automatically by Claude Code when files in this directory are read. Split
 | `supabase/migrations/030_writing_submissions_server_insert.sql` | Quita la policy de INSERT de cliente de `writing_submissions` y revoca escrituras a `anon`/`authenticated`: desde entonces solo insertan `api/chat.js` (`evaluate-writing`) y `api/vision.js` (`type: escritura`) con el service role, recalculando la nota desde los subscores (auditoría S11). |
 | `supabase/migrations/031_push_notify_cron.sql` | Activa `pg_net` y programa con `pg_cron` el job `push-notify-hourly` (`0 * * * *`), que hace `net.http_post` a `https://ejercicios-aleman-sand.vercel.app/api/push-notify` con `Authorization: Bearer` leído de `vault.decrypted_secrets` (`name = 'push_cron_secret'`). Sustituye a cron-job.org. **Prerrequisito manual**: `select vault.create_secret('<CRON_SECRET>', 'push_cron_secret');` con el mismo valor que la env var de Vercel — el secreto nunca va en el repo. Resultados en `net._http_response`. Convive con el job previo `purge-usage-events` (no versionado). |
 | `supabase/migrations/032_push_interval_minutes.sql` | Añade `push_subscriptions.interval_minutes` (int NOT NULL default 60, CHECK 30–10080, backfill `interval_hours*60`), desprograma `push-notify-hourly` y programa `push-notify-30min` (`*/30 * * * *`, mismo `net.http_post` que 031). |
+| `supabase/migrations/033_reformulaciones_exercises.sql` | Crea `reformulaciones_exercises` (un ejercicio de Umformung por fila, todos los niveles en una sola tabla con `level`) y `user_reformulaciones_done` (ejercicios que cada alumno respondió con ✅). Mismo patrón que `reading_texts`/`user_reading_seen` (003) con `oculto` (020) de serie, pero el alumno solo deja de ver un ejercicio cuando lo acierta. `UNIQUE (rule_id, source)` evita duplicados si dos alumnos agotan la misma regla a la vez. Sembrada con `scripts/seed-reformulaciones.js` desde `reformulaciones-data.json`. |
 | `supabase/migrations/legacy/add_user_status.sql` | Pre-001, sin número: añade `profiles.status`, la primera versión de `handle_new_user()` y el trigger `on_auth_user_created`. Supersedido por 009/020/026. Solo referencia, ya aplicado — no volver a ejecutar. |
 | `supabase/migrations/legacy/finance_schema.sql` | Esquema de las tablas de finanzas que usa `finance/finanzas-dashboard.html` (antes `finance/schema.sql`). Solo referencia. |
 | `supabase/migrations/021_user_data_cv_scenarios.sql` | Añade `user_data.cv_scenarios` (jsonb, default `{}`) para sincronizar entre dispositivos los escenarios de rol personalizados de `chat-voz.html`, más cuál está seleccionado. Forma: `{ selected, custom: [...], deleted: [...] }`. A diferencia de `plan_progress` (013), el remoto **no** gana sin más: `custom` se fusiona por `key` porque son escenarios que escribió el alumno y un overwrite plano borraría el creado en otro dispositivo; `deleted` son tombstones para que un borrado se propague en vez de resucitar en ese mismo merge. Las personas generadas por IA (`cv_rol_cache_<key>` en localStorage) se quedan locales a propósito — si faltan, la app ya las regenera vía `/api/chat`. |
@@ -188,6 +189,30 @@ También guarda los sets de `kasus.html` (action `generate-kasus`): `rule_id` co
 | `seen_at` | timestamptz | Cuándo lo practicó el usuario |
 
 PK compuesta: `(user_id, exercise_id)`. RLS: cada usuario solo lee y escribe sus propias filas. Usado por `gramatica.js` para evitar repetir un set de oraciones ya practicado y decidir cuándo generar uno nuevo.
+
+### Supabase table: `reformulaciones_exercises`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | PK, auto-generado |
+| `level` | text | CEFR level: A1–C2 |
+| `rule_id` | text | Id de la regla en `GRAMMAR_DATA` (ej. `c1-01`); CHECK: debe empezar por `lower(level)-` |
+| `source` | text | Oración a transformar. `UNIQUE (rule_id, source)` |
+| `instruction` | text | Instrucción en español |
+| `solutions` | jsonb | Array no vacío de reformulaciones válidas; la primera es la canónica |
+| `explanation` | text | Explicación en español |
+| `oculto` | boolean | `NOT NULL DEFAULT false` — `true` = retirado por un admin; las lecturas de alumno deben filtrarlo |
+| `created_at` | timestamptz | Auto |
+
+RLS: SELECT público, sin filtrar `oculto`. UPDATE solo admins. INSERT solo vía service role (`scripts/seed-reformulaciones.js` y `/api/chat` action `generate-reformulaciones` al agotarse el banco de una regla). Sembrada el 2026-11-01 con los 1496 ejercicios de `reformulaciones-data.json`. Fuente de ejercicios del modo Reglas de `chat-reformulaciones.html` (los combos siguen en su JSON).
+
+### Supabase table: `user_reformulaciones_done`
+| Column | Type | Description |
+|--------|------|-------------|
+| `user_id` | uuid | FK → auth.users |
+| `exercise_id` | uuid | FK → reformulaciones_exercises (ON DELETE CASCADE) |
+| `completed_at` | timestamptz | Cuándo lo acertó |
+
+PK compuesta: `(user_id, exercise_id)`. Solo se registran respuestas ✅, así que los ejercicios con ⚠️/❌ vuelven a salir. RLS: cada usuario lee/borra sus filas; INSERT propio con `is_access_valid()`. Insertar con `ignoreDuplicates` (no hay policy de UPDATE, un upsert con merge fallaría).
 
 ### Supabase table: `daily_usage_time`
 | Column | Type | Description |

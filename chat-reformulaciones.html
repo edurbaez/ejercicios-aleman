@@ -10,6 +10,7 @@
     <script src="auth.js"></script>
     <script src="grammar-data.js"></script>
     <script src="reformulaciones-combos.js"></script>
+    <script src="reformulaciones-guias.js"></script>
 </head>
 <body id="page-cr">
 
@@ -332,7 +333,6 @@ function clearSelection() {
 
 // ── SESSION ───────────────────────────────────────────────────────────────────
 async function startSession() {
-    if (State.bank === null && State.bankPromise) State.bank = await State.bankPromise;
     if (State.comboBank === null && State.comboBankPromise) State.comboBank = await State.comboBankPromise;
     let rules;
     if (State.mode === 'combos') {
@@ -402,28 +402,119 @@ function loadRule(rule) {
     disableInput();
     updateScoreDisplay();
 
-    const bankExercises = (isCombo ? State.comboBank : State.bank)?.[rule.id];
+    if (!isCombo) {
+        loadRuleExercises(rule);
+        return;
+    }
+    const bankExercises = State.comboBank?.[rule.id];
     if (Array.isArray(bankExercises) && bankExercises.length > 0) {
-        State.exerciseQueue = [...bankExercises].sort((a, b) =>
-            a.source.trim().split(/\s+/).length - b.source.trim().split(/\s+/).length
-        );
-        State.exerciseIndex = 0;
-        showNextExercise();
-    } else if (isCombo) {
+        startExerciseQueue(bankExercises);
+    } else {
         // Combos only run from the curated bank — the plan rules out generating
         // uncurated combos on the fly until their quality is validated.
         State.currentExercise = null;
         document.getElementById('chatArea').innerHTML =
             '<div class="cv-empty" id="chatEmpty"><p>No se pudieron cargar los ejercicios de este combo. Revisa tu conexión y vuelve a intentarlo.</p></div>';
         setHint('Pasa al siguiente combo o finaliza la sesión');
+    }
+}
+
+function startExerciseQueue(exercises) {
+    State.exerciseQueue = [...exercises].sort((a, b) =>
+        a.source.trim().split(/\s+/).length - b.source.trim().split(/\s+/).length
+    );
+    State.exerciseIndex = 0;
+    showNextExercise();
+}
+
+// ── EXERCISE BANK (reformulaciones_exercises, shared by all users) ────────────
+// Exercises answered with ✅ are skipped; when none are left, levels with a teacher
+// guide (reformulaciones-guias.js) ask /api/chat for new ones, which are stored for
+// the next users. Other levels recycle the rule's exercises.
+async function fetchRuleExercises(rule) {
+    const { data, error } = await window.sb.from('reformulaciones_exercises')
+        .select('id, source, instruction, solutions, explanation')
+        .eq('rule_id', rule.id)
+        .eq('oculto', false);
+    if (error) throw error;
+    let done = new Set();
+    if (window.currentUser && data.length) {
+        const { data: rows, error: doneErr } = await window.sb.from('user_reformulaciones_done')
+            .select('exercise_id')
+            .eq('user_id', window.currentUser.id)
+            .in('exercise_id', data.map(e => e.id));
+        if (doneErr) throw doneErr;
+        done = new Set(rows.map(r => r.exercise_id));
+    }
+    return { all: data, pending: data.filter(e => !done.has(e.id)) };
+}
+
+async function generateRuleExercises(rule) {
+    const token = await window.getAuthToken?.();
+    const resp = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ action: 'generate-reformulaciones', ruleId: rule.id, level: rule.nivel }),
+    });
+    const raw = await resp.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch { throw new Error(`Respuesta inválida: ${raw.slice(0, 120)}`); }
+    if (!resp.ok) throw new Error(data.error || 'Error de red');
+    return Array.isArray(data.exercises) ? data.exercises : [];
+}
+
+async function loadRuleExercises(rule) {
+    let exercises = [];
+    try {
+        if (!window.sb) throw new Error('Supabase no disponible');
+        const { all, pending } = await fetchRuleExercises(rule);
+        exercises = pending;
+        if (!pending.length && window.currentUser && window.REFORMULACIONES_GUIAS?.[rule.nivel]) {
+            const genId = addBubble('ai', 'Has acertado todos los ejercicios de esta regla. Generando ejercicios nuevos (puede tardar ~15 s)...', true);
+            setHint('Generando ejercicios nuevos...');
+            disableInput();
+            try { exercises = await generateRuleExercises(rule); }
+            catch (e) { console.warn('generate-reformulaciones:', e.message); }
+            removeBubble(genId);
+        }
+        if (!exercises.length) exercises = all;
+    } catch (e) {
+        console.warn('reformulaciones_exercises:', e.message);
+        if (State.bank === null && State.bankPromise) State.bank = await State.bankPromise;
+        exercises = State.bank?.[rule.id] || [];
+    }
+    if (State.currentRule !== rule) return;
+
+    if (exercises.length) {
+        startExerciseQueue(exercises);
     } else {
         State.currentExercise = null;
         sendToAI(null);
     }
 }
 
-// ── EXERCISE BANK (local, no API cost) ────────────────────────────────────────
+function markExerciseDone(ex) {
+    if (!ex?.id || !window.currentUser || !window.sb) return;
+    window.sb.from('user_reformulaciones_done')
+        .upsert({ user_id: window.currentUser.id, exercise_id: ex.id },
+            { onConflict: 'user_id,exercise_id', ignoreDuplicates: true })
+        .then(({ error }) => { if (error) console.warn('user_reformulaciones_done:', error.message); });
+}
+
 function showNextExercise() {
+    // Table-backed rules refetch once the queue runs out: ✅ ones drop out and,
+    // if none are left, new ones get generated.
+    const fromTable = !State.currentRule.rules && State.exerciseQueue[0]?.id;
+    if (fromTable && State.exerciseIndex >= State.exerciseQueue.length) {
+        State.currentExercise = null;
+        disableInput();
+        loadRuleExercises(State.currentRule);
+        return;
+    }
     const ex = State.exerciseQueue[State.exerciseIndex % State.exerciseQueue.length];
     State.exerciseIndex++;
     State.currentExercise = ex;
@@ -460,6 +551,7 @@ async function evaluateAnswer(userText) {
         const feedback = `✅ ¡Correcto! ${ex.explanation}`;
         recordScore(feedback);
         unitRules(State.currentRule).forEach(r => updateRuleSRS(r.id, 'correct'));
+        if (!State.currentRule.rules) markExerciseDone(ex);
         State.sessionTurns.push({
             ruleId: State.currentRule.id, source: ex.source, instruction: ex.instruction,
             userAnswer: userText, symbol: '✅', explanation: ex.explanation,
@@ -523,6 +615,7 @@ Bewerte NUR die Antwort des Studenten. Antworte als JSON-Objekt mit genau diesen
             payload.porRegla.forEach(p => updateRuleSRS(p.rule.id, symbolToQuality(p.symbol)));
         } else {
             updateRuleSRS(State.currentRule.id, symbolToQuality(payload.symbol));
+            if (payload.symbol === '✅') markExerciseDone(ex);
         }
         State.sessionTurns.push({
             ruleId: State.currentRule.id, source: ex.source, instruction: ex.instruction,
@@ -1000,7 +1093,7 @@ function bankReportContext(ex, userText, symbol, evaluation) {
     const rule = State.currentRule;
     return {
         app: 'chat-reformulaciones', origen: rule.rules ? 'banco-combo' : 'banco',
-        rule_id: rule.id, nivel: rule.nivel,
+        rule_id: rule.id, nivel: rule.nivel, exercise_id: ex.id,
         source: ex.source, instruction: ex.instruction, solutions: ex.solutions,
         user_answer: userText, symbol, evaluacion: evaluation,
     };

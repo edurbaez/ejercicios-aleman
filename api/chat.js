@@ -2,6 +2,7 @@ import { verifyJWT, createRateLimiter, checkAccess, fetchWithRetry, validateProx
 import { KASUS_VERIFY_SYSTEM, buildKasusPrompt, normalizeKasusItem, validKasusItem, kasusVerified, validateKasusRequest, kasusRuleId } from './_kasus.js';
 import { normalizeTask, countWords, weightedScore, writingEvalSystem, writingEvalUser, saveSubmission } from './_writing.js';
 import { PRACTICE_SYSTEM_PROMPT, findRule, buildPracticePrompt, cleanSentence } from './_practice.js';
+import { GENERATION_SYSTEM as REFORMULACIONES_SYSTEM, levelGuide as reformulacionesGuide, buildGuidedPrompt, buildReviewPrompt, filterCandidates, applyReview } from './_reformulaciones.js';
 import { TEMAS, PERSONAS, LUGARES, TONOS, MOMENTOS, CONFLICTOS, READING_SPECS, READING_TEILE_SPECS, READING_CALIDAD, pick } from './_reading-topics.js';
 
 const isRateLimited = createRateLimiter(20, 60_000, 'rl:chat');
@@ -12,6 +13,7 @@ const DAY_MS = 86_400_000;
 const ACTIONS = {
     'generate-reading':  { run: (req, res) => generateReading(req, res),  perMin: createRateLimiter(3, 60_000, 'rl:reading'),  perDay: createRateLimiter(20, DAY_MS, 'rl:reading:day') },
     'generate-practice': { run: (req, res) => generatePractice(req, res), perMin: createRateLimiter(6, 60_000, 'rl:practice'), perDay: createRateLimiter(60, DAY_MS, 'rl:practice:day') },
+    'generate-reformulaciones': { run: (req, res, sub) => generateReformulaciones(req, res, sub), perMin: createRateLimiter(2, 60_000, 'rl:reformulaciones'), perDay: createRateLimiter(15, DAY_MS, 'rl:reformulaciones:day') },
     'generate-kasus':    { run: (req, res) => generateKasus(req, res),    perMin: createRateLimiter(6, 60_000, 'rl:kasus'),    perDay: createRateLimiter(60, DAY_MS, 'rl:kasus:day') },
     'generate-mitexto':  { run: (req, res) => generateMiTexto(req, res),  perMin: createRateLimiter(4, 60_000, 'rl:mitexto'),  perDay: createRateLimiter(30, DAY_MS, 'rl:mitexto:day') },
     'evaluate-writing':  { run: (req, res, sub) => evaluateWriting(req, res, sub),  perMin: createRateLimiter(6, 60_000, 'rl:writing'),  perDay: createRateLimiter(40, DAY_MS, 'rl:writing:day') },
@@ -435,6 +437,109 @@ async function generatePractice(req, res) {
         }
         const [row] = await insertRes.json();
         return res.status(200).json({ exercise: { id: row.id, oraciones: row.oraciones } });
+    } catch {
+        return res.status(500).json({ error: 'Error interno' });
+    }
+}
+
+// ── generate-reformulaciones: grows reformulaciones_exercises for one rule ────
+// Called by chat-reformulaciones.html when the user has answered every exercise of a
+// rule with ✅. Only levels with a teacher guide in reformulaciones-guias.js generate.
+// If the user still has pending exercises, those are returned instead of paying for new ones.
+const REFORMULACIONES_MODEL = 'gpt-4o';
+
+async function callReformulacionesGPT(prompt) {
+    const aiRes = await fetchWithRetry('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            model: REFORMULACIONES_MODEL,
+            temperature: 0.4,
+            max_tokens: 6000,
+            response_format: { type: 'json_object' },
+            messages: [
+                { role: 'system', content: REFORMULACIONES_SYSTEM },
+                { role: 'user', content: prompt },
+            ],
+        }),
+    }, { maxRetries: 1 });
+    if (!aiRes.ok) throw new Error('openai');
+    const data = await aiRes.json();
+    return JSON.parse(data.choices[0].message.content || '{}');
+}
+
+async function generateReformulaciones(req, res, userId) {
+    const ruleId = String(req.body.ruleId || '');
+    const level  = String(req.body.level || '').toUpperCase();
+    if (!['A1', 'A2', 'B1', 'B2', 'C1', 'C2'].includes(level)) {
+        return res.status(400).json({ error: 'level inválido (A1–C2)' });
+    }
+    let rule, cfg;
+    try { rule = findRule(level, ruleId); cfg = reformulacionesGuide(level); }
+    catch { return res.status(500).json({ error: 'Datos de gramática no disponibles' }); }
+    if (!rule) return res.status(400).json({ error: 'ruleId inválido' });
+    if (!cfg) return res.status(400).json({ error: 'Este nivel no genera ejercicios nuevos' });
+
+    if (!process.env.OPENAI_API_KEY) {
+        return res.status(500).json({ error: 'OPENAI_API_KEY no configurada en Vercel' });
+    }
+    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+        return res.status(500).json({ error: 'Supabase no configurado en Vercel' });
+    }
+    const sbHeaders = { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` };
+    const cols = 'id,source,instruction,solutions,explanation';
+
+    try {
+        const existingRes = await fetch(
+            `${process.env.SUPABASE_URL}/rest/v1/reformulaciones_exercises?rule_id=eq.${encodeURIComponent(ruleId)}&select=${cols},oculto&order=created_at.desc`,
+            { headers: sbHeaders }
+        );
+        if (!existingRes.ok) return res.status(502).json({ error: 'Error al leer el banco' });
+        const existing = await existingRes.json();
+
+        const visibleIds = existing.filter(e => !e.oculto).map(e => e.id);
+        if (visibleIds.length) {
+            const doneRes = await fetch(
+                `${process.env.SUPABASE_URL}/rest/v1/user_reformulaciones_done?user_id=eq.${encodeURIComponent(userId)}&exercise_id=in.(${visibleIds.join(',')})&select=exercise_id`,
+                { headers: sbHeaders }
+            );
+            if (!doneRes.ok) return res.status(502).json({ error: 'Error al leer el progreso' });
+            const done = new Set((await doneRes.json()).map(r => r.exercise_id));
+            const pending = existing.filter(e => !e.oculto && !done.has(e.id));
+            if (pending.length) {
+                return res.status(200).json({ exercises: pending.map(({ oculto, ...e }) => e), generated: false });
+            }
+        }
+
+        // Hidden ones count too: a rejected exercise must not be regenerated.
+        const usedSources = existing.map(e => e.source).slice(0, 40);
+        const data = await callReformulacionesGPT(buildGuidedPrompt(rule, level, cfg, usedSources));
+        if (!Array.isArray(data.exercises)) return res.status(502).json({ error: 'La IA devolvió un formato inesperado' });
+        const candidates = filterCandidates(data.exercises, cfg, usedSources);
+        if (!candidates.length) return res.status(502).json({ error: 'La IA no generó ejercicios válidos' });
+
+        const { reviews } = await callReformulacionesGPT(buildReviewPrompt(rule, level, cfg, candidates));
+        if (!Array.isArray(reviews)) return res.status(502).json({ error: 'La revisión devolvió un formato inesperado' });
+        const { kept } = applyReview(candidates, reviews, cfg);
+        const rows = kept.map(e => ({
+            level, rule_id: ruleId,
+            source: cleanSentence(e.source, 500),
+            instruction: cleanSentence(e.instruction, 300),
+            solutions: e.solutions.map(s => cleanSentence(s, 500)).filter(Boolean).slice(0, 8),
+            explanation: cleanSentence(e.explanation, 600),
+        })).filter(r => r.source && r.instruction && r.solutions.length && r.explanation);
+        if (!rows.length) return res.status(502).json({ error: 'Ningún ejercicio pasó la revisión. Inténtalo de nuevo.' });
+
+        const insertRes = await fetch(`${process.env.SUPABASE_URL}/rest/v1/reformulaciones_exercises?on_conflict=rule_id,source&select=${cols}`, {
+            method: 'POST',
+            headers: { ...sbHeaders, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates,return=representation' },
+            body: JSON.stringify(rows),
+        });
+        if (!insertRes.ok) {
+            const errText = await insertRes.text().catch(() => '');
+            return res.status(502).json({ error: 'Error al guardar los ejercicios: ' + errText.slice(0, 200) });
+        }
+        return res.status(200).json({ exercises: await insertRes.json(), generated: true });
     } catch {
         return res.status(500).json({ error: 'Error interno' });
     }

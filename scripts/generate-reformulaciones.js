@@ -37,8 +37,8 @@ for (const lvl of LEVELS) {
 const GRAMMAR_DATA = windowShim.GRAMMAR_DATA;
 new Function('window', fs.readFileSync(path.join(ROOT, 'reformulaciones-guias.js'), 'utf8'))(windowShim);
 const GUIAS = windowShim.REFORMULACIONES_GUIAS || {};
-// Ask for a couple of spare candidates: the review pass usually drops some.
-const GUIDED_SPARE = 5;
+// Guided prompt builders live in api/_reformulaciones.js (ESM), shared with generate-reformulaciones.
+let buildGuidedPrompt, buildReviewPrompt, filterCandidates, applyReview, isWellFormed, GENERATION_SYSTEM;
 
 async function callGPT(prompt, attempt = 0) {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -50,7 +50,7 @@ async function callGPT(prompt, attempt = 0) {
       max_tokens: 8192,
       response_format: { type: 'json_object' },
       messages: [
-        { role: 'system', content: 'You are a certified German language teacher creating exam-style transformation exercises (Umformungen). Return ONLY valid JSON. No markdown. No commentary.' },
+        { role: 'system', content: GENERATION_SYSTEM },
         { role: 'user', content: prompt },
       ],
     }),
@@ -99,103 +99,17 @@ Return this exact JSON:
 { "exercises": [ { "source": "...", "instruction": "...", "solutions": ["..."], "explanation": "..." } ] }`;
 }
 
-function buildGuidedPrompt(rule, nivel, cfg) {
-  const ejemplos = (rule.ejemplos || []).map(e => `  • ${e.de} — ${e.es}`).join('\n');
-  const g = cfg.reglas?.[rule.id];
-  const guide = g ? `
-RULE-SPECIFIC GUIDE (written by the teacher — follow it strictly):
-Transformation patterns (one per exercise, each used at least once if possible):
-${g.patrones.map(p => `  - ${p}`).join('\n')}
-Direction: ${g.direccion}
-Avoid: ${g.evitar}
-Model exercise (match this complexity, do not copy its topic):
-  source: ${g.modelo.source}
-  instruction: ${g.modelo.instruction}
-  solution: ${g.modelo.solution}
-` : '';
-  return `Create ${cfg.ejercicios + GUIDED_SPARE} German sentence-transformation exercises (Umformungsübungen) for this grammar rule.
-
-Grammar rule (CEFR ${nivel}):
-TITLE: ${rule.titulo} (${rule.subtitulo || ''})
-RULE: ${rule.regla_base || ''}
-NOTES: ${rule.excepciones || ''}
-TIP: ${rule.tip || ''}
-EXAMPLES:
-${ejemplos}
-${guide}
-CEFR ${nivel} complexity requirements:
-${cfg.requisitos.map(r => `- ${r}`).join('\n')}
-
-Each exercise MUST have:
-- "source": the German sentence to transform.
-- "instruction": a short, precise instruction in SPANISH stating exactly which transformation to apply.
-- "solutions": an array of ALL valid reformulations (1–4 German sentences), including equally correct word-order variants. The first one is canonical.
-- "explanation": 1–2 sentences in SPANISH naming what changed and why.
-
-The transformation must strictly REQUIRE applying the target rule — it cannot be solved without it.
-
-Return this exact JSON:
-{ "exercises": [ { "source": "...", "instruction": "...", "solutions": ["..."], "explanation": "..." } ] }`;
-}
-
-// Independent second pass, same approach as generate-reformulaciones-combos.js:
-// the generator's self-check lets trivial or already-transformed sources through.
-function buildReviewPrompt(rule, nivel, cfg, exercises) {
-  const items = exercises.map((e, i) =>
-    `${i}. SOURCE: ${e.source}\n   INSTRUCTION: ${e.instruction}\n   SOLUTIONS: ${e.solutions.join(' || ')}`
-  ).join('\n');
-  return `You are reviewing German transformation exercises (CEFR ${nivel}) for this grammar rule:
-${rule.titulo}: ${rule.regla_base || ''}
-
-For each item decide "ok": true only if ALL of these hold:
-1. The source is grammatical, natural German and does NOT already contain the target structure.
-2. The instruction plus the source lead to ONE answer (up to word-order variants); nothing in the answer is invented beyond the source.
-3. The target rule is really needed, and the transformation is not trivial (not solvable by adding or removing a single word).
-4. Every listed solution is grammatically correct, natural and keeps the meaning of the source.
-5. It meets these ${nivel} requirements:
-${cfg.requisitos.map(r => `   - ${r}`).join('\n')}
-When "ok" is true, list in "extra_solutions" any other equally correct answers missing from SOLUTIONS — or [] if none. When false, say why in "motivo" (Spanish, one sentence).
-
-Items:
-${items}
-
-Return JSON: { "reviews": [ { "index": 0, "ok": true, "extra_solutions": [], "motivo": "" } ] }`;
-}
-
-const norm = s => s.toLowerCase().replace(/[.!?…]+\s*$/, '').replace(/\s+/g, ' ').trim();
-
-const isWellFormed = e =>
-  e && typeof e.source === 'string' && typeof e.instruction === 'string' &&
-  Array.isArray(e.solutions) && e.solutions.length > 0 && e.solutions.every(s => typeof s === 'string') &&
-  typeof e.explanation === 'string';
-
 async function generateGuidedRule(rule, nivel, cfg) {
   const data = await callGPT(buildGuidedPrompt(rule, nivel, cfg));
   if (!Array.isArray(data.exercises)) throw new Error(`${rule.id}: missing exercises[]`);
-  // The model ignores the length requirement in the prompt, so enforce it locally.
-  const tooShort = e => cfg.minPalabras && e.source.trim().split(/\s+/).length < cfg.minPalabras;
-  const wellFormed = data.exercises.filter(e => {
-    if (!isWellFormed(e) || e.solutions.some(s => norm(s) === norm(e.source))) return false;
-    if (tooShort(e)) { console.log(`      ✗ too short: ${e.source}`); return false; }
-    return true;
-  });
+  const wellFormed = filterCandidates(data.exercises, cfg, [], (e, why) => console.log(`      ✗ ${why}: ${e.source}`));
 
   const { reviews } = await callGPT(buildReviewPrompt(rule, nivel, cfg, wellFormed));
   if (!Array.isArray(reviews)) throw new Error(`${rule.id}: review returned no reviews[]`);
-  const byIndex = new Map(reviews.map(r => [r.index, r]));
-  const valid = [];
-  wellFormed.forEach((e, i) => {
-    const r = byIndex.get(i);
-    if (!r?.ok) { console.log(`      ✗ dropped #${i}: ${r?.motivo || 'no review'} — ${e.source}`); return; }
-    const extra = (Array.isArray(r.extra_solutions) ? r.extra_solutions : [])
-      .filter(s => typeof s === 'string' && !e.solutions.some(x => norm(x) === norm(s)));
-    valid.push({ ...e, solutions: [...e.solutions, ...extra] });
-  });
-
-  const kept = valid.slice(0, cfg.ejercicios);
+  const { kept, passed } = applyReview(wellFormed, reviews, cfg, (e, why, i) => console.log(`      ✗ dropped #${i}: ${why} — ${e.source}`));
   if (kept.length < Math.ceil(cfg.ejercicios * 0.6))
     throw new Error(`${rule.id}: only ${kept.length} valid exercises after review`);
-  console.log(`    ${rule.id} (${rule.titulo}): ${kept.length} kept (${valid.length}/${wellFormed.length} passed review)`);
+  console.log(`    ${rule.id} (${rule.titulo}): ${kept.length} kept (${passed}/${wellFormed.length} passed review)`);
   return kept;
 }
 
@@ -211,6 +125,8 @@ async function generateRule(rule, nivel) {
 }
 
 async function main() {
+  ({ buildGuidedPrompt, buildReviewPrompt, filterCandidates, applyReview, isWellFormed, GENERATION_SYSTEM } =
+    await import('../api/_reformulaciones.js'));
   const args     = process.argv.slice(2);
   const force    = args.includes('--force');
   const dryRun   = args.includes('--dry-run');

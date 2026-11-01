@@ -2,7 +2,7 @@
   "functions": {
     "api/*.js": {
       "maxDuration": 60,
-      "includeFiles": "grammar-data-*.js"
+      "includeFiles": "{grammar-data-*.js,reformulaciones-guias.js}"
     }
   }
 }

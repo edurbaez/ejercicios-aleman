@@ -61,9 +61,10 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 
 | File | Purpose |
 |------|---------|
-| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-kasus`, `generate-mitexto`, `lookup-word`, `evaluate-writing`. |
+| `chat.js` | OpenAI `gpt-4o-mini` proxy + actions `generate-reading`, `generate-practice`, `generate-reformulaciones`, `generate-kasus`, `generate-mitexto`, `lookup-word`, `evaluate-writing`. |
 | `_kasus.js` | Level config + server-side prompt/validator for `generate-kasus` (`kasus.html`); not a function (`_` prefix). |
 | `_writing.js` | Shared escritura grading: task normalization, server-side weighted score, prompt, `writing_submissions` insert (service role); not a function. |
+| `_reformulaciones.js` | Guided Umformung prompts + review/filter helpers for `generate-reformulaciones` and `scripts/generate-reformulaciones.js`; not a function. |
 | `_practice.js` | Server-side prompt + `ruleId` whitelist for `generate-practice` (loads `grammar-data-*.js`); not a function (`_` prefix). |
 | `_reading-topics.js` | Shared data for `generate-reading` (`TEMAS`, `READING_SPECS`, `READING_TEILE_SPECS`…); not a function (`_` prefix). |
 | `whisper.js` | Audio transcription, model forced server-side to `gpt-4o-mini-transcribe`; enforces voice-STT daily cap. |
@@ -95,6 +96,7 @@ Files in `scripts/`. Detail: `scripts/CLAUDE.md`.
 | File | Purpose |
 |------|---------|
 | `seed-word-lists.js` | Upserts `Data{LEVEL}.json` into `word_lists` (optional level arg). |
+| `seed-reformulaciones.js` | Inserts `reformulaciones-data.json` into `reformulaciones_exercises`, skipping existing rows (optional level arg). |
 | `generate-vocab.js` | Generates `Data{LEVEL}.json` via GPT-4o (not for the hand-curated files). |
 | `generate-reformulaciones.js` | Generates `reformulaciones-data.json` (incremental; guided prompt + review pass for levels in `reformulaciones-guias.js`). |
 | `generate-reformulaciones-combos.js` | Generates `reformulaciones-combos-data.json` with review pass. |
@@ -139,6 +141,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `030_writing_submissions_server_insert.sql` | `writing_submissions` insert only from the server (`evaluate-writing`, `vision.js`). |
 | `031_push_notify_cron.sql` | pg_cron job `push-notify-hourly` → `/api/push-notify` via pg_net, `CRON_SECRET` from Vault (replaces cron-job.org). |
 | `032_push_interval_minutes.sql` | `push_subscriptions.interval_minutes` (allows 30 min) + replaces the hourly job with `push-notify-30min` (`*/30`). |
+| `033_reformulaciones_exercises.sql` | `reformulaciones_exercises` (one row per Umformung exercise, all levels) + `user_reformulaciones_done` (✅ answers only). |
 | `legacy/add_user_status.sql` | Pre-numbering: `profiles.status` + first `handle_new_user()` (superseded by 009/020/026). Reference only, already applied. |
 | `legacy/finance_schema.sql` | Schema of the finance tables (`finance/finanzas-dashboard.html`). Reference only. |
 
@@ -152,7 +155,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `manifest-timer.json` / `sw-timer.js` / `icon-timer.svg` / `sounds/*.mp3` | PWA trio (SW scoped to `/timer.html`) + built-in alarm sounds for `timer.html`. Detail: `docs/apps/timer.md` |
 | `index.html` | Landing page (app cards, navbar, SEO meta). Detail: `docs/apps/landing.md` |
 | `privacidad.html` | Public privacy policy, no `auth.js` on purpose. Detail: `docs/apps/landing.md` |
-| `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` e `includeFiles: grammar-data-*.js` (para `api/_practice.js`) (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
+| `vercel.json` | Configuración de Vercel: funciones serverless con `maxDuration: 60` e `includeFiles: {grammar-data-*.js,reformulaciones-guias.js}` (para `api/_practice.js` y `api/_reformulaciones.js`) (un solo patrón `api/*.js` — patrones superpuestos rompen el build). Sin rewrites (`/` sirve `index.html` directamente). |
 | `.vercelignore` | Keeps internal files out of the deploy (`*.md`, `supabase/`, `scripts/`, `tests/`, `docs/`, `.mcp.json`…). Keep runtime files out of it. |
 | `robots.txt` | Permite indexación completa (`Allow: /`) y referencia `sitemap.xml`. |
 | `sitemap.xml` | Sitemap con la landing (`/`) como única URL pública — las apps internas no se listan (requieren login/uso). |

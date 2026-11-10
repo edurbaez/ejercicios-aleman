@@ -12211,5 +12211,247 @@
       ],
       "explanation": "El 'es' Platzhalter se elimina cuando la oración subordinada ocupa el Vorfeld."
     }
+  ],
+  "c1-19": [
+    {
+      "source": "Wenn das Wetter gut ist, können wir die Veranstaltung im Freien abhalten.",
+      "instruction": "Sustituye la subordinada por un grupo preposicional con 'bei'.",
+      "solutions": [
+        "Bei gutem Wetter können wir die Veranstaltung im Freien abhalten."
+      ],
+      "explanation": "La subordinada 'wenn das Wetter gut ist' se transforma en 'bei gutem Wetter', nominalizando el verbo y usando dativo."
+    },
+    {
+      "source": "Indem er die Daten analysierte, konnte er die Ursache des Problems identifizieren.",
+      "instruction": "Sustituye la subordinada por un grupo preposicional con 'durch'.",
+      "solutions": [
+        "Durch die Analyse der Daten konnte er die Ursache des Problems identifizieren."
+      ],
+      "explanation": "La subordinada 'indem er die Daten analysierte' se transforma en 'durch die Analyse der Daten', usando acusativo."
+    },
+    {
+      "source": "Bevor die Konferenz begann, trafen sich die Teilnehmer zu einem informellen Gespräch.",
+      "instruction": "Sustituye la subordinada por un grupo preposicional con 'vor'.",
+      "solutions": [
+        "Vor Beginn der Konferenz trafen sich die Teilnehmer zu einem informellen Gespräch."
+      ],
+      "explanation": "La subordinada 'bevor die Konferenz begann' se transforma en 'vor Beginn der Konferenz', usando dativo."
+    }
+  ],
+  "c1-20": [
+    {
+      "source": "Der Wissenschaftler sagte: „Die Ergebnisse der Studie sind eindeutig und werden das Verständnis der Materie revolutionieren.“",
+      "instruction": "Pasa la cita a discurso indirecto sin 'dass', usando Konjunktiv I.",
+      "solutions": [
+        "Der Wissenschaftler sagte, die Ergebnisse der Studie seien eindeutig und würden das Verständnis der Materie revolutionieren."
+      ],
+      "explanation": "Se usó Konjunktiv I para 'seien' y 'würden revolutionieren' para expresar el futuro en discurso indirecto."
+    },
+    {
+      "source": "Die Ministerin versicherte: „Wir haben alle erforderlichen Maßnahmen ergriffen, um die Krise zu bewältigen.“",
+      "instruction": "Pasa la cita a discurso indirecto sin 'dass'; usa 'man' para 'wir' y 'habe' + Partizip II.",
+      "solutions": [
+        "Die Ministerin versicherte, man habe alle erforderlichen Maßnahmen ergriffen, um die Krise zu bewältigen.",
+        "Die Ministerin versicherte, die Regierung habe alle erforderlichen Maßnahmen ergriffen, um die Krise zu bewältigen."
+      ],
+      "explanation": "El pasado de la cita se expresa con 'habe' + Partizip II. Con 'sie' (plural) el Konjunktiv I 'haben' coincidiría con el indicativo; 'man habe' evita el problema y es la fórmula típica de la prensa."
+    },
+    {
+      "source": "Die Forscher betonten: „Wir haben die Risiken unterschätzt und müssen unsere Strategie ändern.“",
+      "instruction": "Pasa la cita a discurso indirecto usando Konjunktiv II.",
+      "solutions": [
+        "Die Forscher betonten, sie hätten die Risiken unterschätzt und müssten ihre Strategie ändern."
+      ],
+      "explanation": "Se usó Konjunktiv II 'hätten' y 'müssten' para evitar la coincidencia con el indicativo."
+    }
+  ],
+  "c1-21": [
+    {
+      "source": "Die Wirtschaftskrise hat sich im vergangenen Jahr deutlich verschärft, und deshalb sind zahlreiche Arbeitsplätze verloren gegangen.",
+      "instruction": "Reescribe la consecuencia con 'infolge'.",
+      "solutions": [
+        "Infolge der deutlichen Verschärfung der Wirtschaftskrise im vergangenen Jahr sind zahlreiche Arbeitsplätze verloren gegangen."
+      ],
+      "explanation": "'sich verschärfen' se nominaliza como 'die Verschärfung'; 'infolge' rige genitivo y el adverbio 'deutlich' pasa a adjetivo declinado."
+    },
+    {
+      "source": "Um die Effizienz der Produktion zu steigern, wurde eine neue Software implementiert.",
+      "instruction": "Reescribe la finalidad con \"zwecks\".",
+      "solutions": [
+        "Zwecks Steigerung der Effizienz der Produktion wurde eine neue Software implementiert."
+      ],
+      "explanation": "La estructura de finalidad 'um ... zu' se transformó en 'zwecks' para indicar el propósito administrativo."
+    },
+    {
+      "source": "Da die Nachfrage nach erneuerbaren Energien steigt, investieren viele Unternehmen in Solarprojekte.",
+      "instruction": "Reescribe la causa con \"aufgrund\".",
+      "solutions": [
+        "Aufgrund der steigenden Nachfrage nach erneuerbaren Energien investieren viele Unternehmen in Solarprojekte."
+      ],
+      "explanation": "La cláusula causal 'da' se sustituyó por 'aufgrund' para expresar la causa de la inversión."
+    },
+    {
+      "source": "Weil sich die Arbeitswelt durch neue Technologien stark verändert hat, sind heute ganz neue Kompetenzen erforderlich.",
+      "instruction": "Reescribe la causa con 'angesichts'.",
+      "solutions": [
+        "Angesichts der starken Veränderung der Arbeitswelt durch neue Technologien sind heute ganz neue Kompetenzen erforderlich."
+      ],
+      "explanation": "'sich verändern' → 'die Veränderung'; el sujeto 'die Arbeitswelt' pasa a genitivo, 'stark' a adjetivo, y 'angesichts' rige genitivo."
+    }
+  ],
+  "c1-22": [
+    {
+      "source": "Die Digitalisierung fördert die Effizienz in Unternehmen erheblich. Aber sie kann auch zu einer Entfremdung der Mitarbeiter führen.",
+      "instruction": "Une las dos frases con \"einerseits … andererseits\".",
+      "solutions": [
+        "Einerseits fördert die Digitalisierung die Effizienz in Unternehmen erheblich, andererseits kann sie auch zu einer Entfremdung der Mitarbeiter führen."
+      ],
+      "explanation": "Se usó 'einerseits ... andererseits' para contrastar dos efectos opuestos de la digitalización, con inversión del verbo en la segunda parte."
+    },
+    {
+      "source": "Die neue Regelung ist sinnvoll. Aber sie erfordert eine erhebliche Umstellung der Arbeitsabläufe.",
+      "instruction": "Transforma las frases usando \"zwar … aber\".",
+      "solutions": [
+        "Die neue Regelung ist zwar sinnvoll, aber sie erfordert eine erhebliche Umstellung der Arbeitsabläufe."
+      ],
+      "explanation": "Se usó 'zwar ... aber' para conceder un punto positivo pero oponer una dificultad, manteniendo el verbo en segunda posición en ambas partes."
+    },
+    {
+      "source": "Die Luftverschmutzung ist in Großstädten ein großes Problem. Auf dem Land ist die Luftqualität oft deutlich besser.",
+      "instruction": "Transforma las frases usando \"wohingegen\".",
+      "solutions": [
+        "Die Luftverschmutzung ist in Großstädten ein großes Problem, wohingegen die Luftqualität auf dem Land oft deutlich besser ist."
+      ],
+      "explanation": "Se usó 'wohingegen' para contrastar dos situaciones opuestas, con el verbo al final en la cláusula subordinada."
+    },
+    {
+      "source": "Das Projekt beginnt im Frühjahr oder erst im Herbst. Das hängt davon ab, ob die Förderung rechtzeitig bewilligt wird.",
+      "instruction": "Une las dos frases empezando con 'Je nachdem, ob'.",
+      "solutions": [
+        "Je nachdem, ob die Förderung rechtzeitig bewilligt wird, beginnt das Projekt im Frühjahr oder erst im Herbst."
+      ],
+      "explanation": "'je nachdem, ob' introduce una subordinada (verbo al final) y la principal empieza con el verbo conjugado ('beginnt')."
+    },
+    {
+      "source": "Die wirtschaftlichen Indikatoren zeigen eine positive Entwicklung. Die Arbeitslosigkeit bleibt jedoch hoch.",
+      "instruction": "Une las dos frases con \"jedoch\".",
+      "solutions": [
+        "Die wirtschaftlichen Indikatoren zeigen eine positive Entwicklung, die Arbeitslosigkeit bleibt jedoch hoch.",
+        "Die wirtschaftlichen Indikatoren zeigen eine positive Entwicklung, jedoch bleibt die Arbeitslosigkeit hoch."
+      ],
+      "explanation": "Se usó 'jedoch' para expresar una oposición, con dos posibles posiciones: sin inversión o con inversión del verbo."
+    }
+  ],
+  "c1-24": [
+    {
+      "source": "Es ist sehr wahrscheinlich, dass die neue Technologie den Energieverbrauch erheblich reduzieren wird.",
+      "instruction": "Expresa la suposición con un verbo modal subjetivo (muy probable).",
+      "solutions": [
+        "Die neue Technologie dürfte den Energieverbrauch erheblich reduzieren."
+      ],
+      "explanation": "Se utiliza 'dürfte' para expresar una suposición muy probable sobre el futuro."
+    },
+    {
+      "source": "Es ist möglich, dass die Verhandlungen zwischen den Ländern erfolgreich verlaufen sind.",
+      "instruction": "Expresa la suposición con un verbo modal subjetivo (posible).",
+      "solutions": [
+        "Die Verhandlungen zwischen den Ländern können erfolgreich verlaufen sein.",
+        "Die Verhandlungen zwischen den Ländern könnten erfolgreich verlaufen sein."
+      ],
+      "explanation": "Se emplea 'können' en Infinitiv Perfekt para expresar una posibilidad sobre el pasado."
+    },
+    {
+      "source": "Vermutlich wird die Regierung neue Maßnahmen zur Förderung der erneuerbaren Energien einführen.",
+      "instruction": "Expresa la suposición con un verbo modal subjetivo (probable).",
+      "solutions": [
+        "Die Regierung wird wohl neue Maßnahmen zur Förderung der erneuerbaren Energien einführen."
+      ],
+      "explanation": "Se usa 'wird wohl' para expresar una suposición probable sobre el futuro."
+    },
+    {
+      "source": "Es ist sehr wahrscheinlich, dass die Inflation im nächsten Jahr sinken wird.",
+      "instruction": "Expresa la suposición con un verbo modal subjetivo (muy probable).",
+      "solutions": [
+        "Die Inflation dürfte im nächsten Jahr sinken."
+      ],
+      "explanation": "Se usa 'dürfte' para expresar una suposición muy probable sobre el futuro."
+    },
+    {
+      "source": "Es ist möglich, dass die neue Software die Produktivität der Mitarbeiter gesteigert hat.",
+      "instruction": "Expresa la suposición con un verbo modal subjetivo (posible).",
+      "solutions": [
+        "Die neue Software kann die Produktivität der Mitarbeiter gesteigert haben.",
+        "Die neue Software könnte die Produktivität der Mitarbeiter gesteigert haben."
+      ],
+      "explanation": "Se utiliza 'kann' en Infinitiv Perfekt para expresar una posibilidad sobre el pasado."
+    }
+  ],
+  "c1-23": [
+    {
+      "source": "Ich gebe zu, dass die neue Technologie beeindruckend ist, aber wir müssen auch die Datenschutzprobleme in Betracht ziehen.",
+      "instruction": "Elimina 'Ich gebe zu, dass' y expresa la concesión con 'durchaus'.",
+      "solutions": [
+        "Die neue Technologie ist durchaus beeindruckend, aber wir müssen auch die Datenschutzprobleme in Betracht ziehen."
+      ],
+      "explanation": "Se eliminó la cláusula de concesión y se usó 'durchaus' en el Mittelfeld para expresar la concesión."
+    },
+    {
+      "source": "Man muss positiv sehen, dass die Arbeitslosigkeit gesunken ist, obwohl die Wirtschaft noch schwach ist.",
+      "instruction": "Elimina 'Man muss positiv sehen, dass' y usa 'immerhin'.",
+      "solutions": [
+        "Die Arbeitslosigkeit ist immerhin gesunken, obwohl die Wirtschaft noch schwach ist."
+      ],
+      "explanation": "La frase de relativización se eliminó y se usó 'immerhin' para expresar el matiz positivo."
+    },
+    {
+      "source": "Es ist zwar richtig, dass die kulturelle Vielfalt wichtig ist, aber die Integration darf nicht vernachlässigt werden.",
+      "instruction": "Elimina 'Es ist zwar richtig, dass' y usa 'schon'.",
+      "solutions": [
+        "Die kulturelle Vielfalt ist schon wichtig, aber die Integration darf nicht vernachlässigt werden."
+      ],
+      "explanation": "Se eliminó la cláusula de concesión y se usó 'schon' en el Mittelfeld para expresar la concesión."
+    },
+    {
+      "source": "Zumindest hat sich die Luftqualität in der Stadt verbessert, obwohl es noch viel zu tun gibt.",
+      "instruction": "Elimina 'Zumindest' y usa 'immerhin'.",
+      "solutions": [
+        "Die Luftqualität in der Stadt hat sich immerhin verbessert, obwohl es noch viel zu tun gibt."
+      ],
+      "explanation": "Se eliminó la frase de relativización y se usó 'immerhin' para expresar el matiz positivo."
+    }
+  ],
+  "c1-18": [
+    {
+      "source": "Die Regierung plant, die Steuern für Unternehmen zu senken, um die Wirtschaft anzukurbeln.",
+      "instruction": "Transforma la oración principal en un grupo nominal con 'die Senkung'.",
+      "solutions": [
+        "Die geplante Senkung der Steuern für Unternehmen durch die Regierung soll die Wirtschaft ankurbeln."
+      ],
+      "explanation": "El verbo 'senken' se convierte en el sustantivo 'die Senkung', y el sujeto 'die Regierung' se introduce con 'durch'."
+    },
+    {
+      "source": "Dass die Umweltverschmutzung weltweit zunimmt, ist ein großes Problem für zukünftige Generationen.",
+      "instruction": "Sustituye la subordinada con 'dass' por un grupo nominal con 'die Zunahme'.",
+      "solutions": [
+        "Die weltweite Zunahme der Umweltverschmutzung ist ein großes Problem für zukünftige Generationen."
+      ],
+      "explanation": "La cláusula 'dass ... zunimmt' se convierte en 'die Zunahme', y el adverbio 'weltweit' se convierte en el adjetivo 'weltweite'."
+    },
+    {
+      "source": "Die Experten rechnen damit, dass die Inflation in den kommenden Monaten weiter steigt.",
+      "instruction": "Sustituye la subordinada con 'dass' por un grupo nominal con 'der Anstieg' (rechnen mit + Dat.).",
+      "solutions": [
+        "Die Experten rechnen mit einem weiteren Anstieg der Inflation in den kommenden Monaten."
+      ],
+      "explanation": "'damit, dass … steigt' se convierte en 'mit einem Anstieg' (dativo por 'mit'); el sujeto 'die Inflation' pasa a genitivo y el adverbio 'weiter' a adjetivo declinado ('weiteren')."
+    },
+    {
+      "source": "Die Firma hat beschlossen, die Produktion zu erhöhen, um die Nachfrage zu decken.",
+      "instruction": "Transforma la oración principal en un grupo nominal con 'die Erhöhung'.",
+      "solutions": [
+        "Die beschlossene Erhöhung der Produktion durch die Firma soll die Nachfrage decken."
+      ],
+      "explanation": "El verbo 'erhöhen' se convierte en 'die Erhöhung', y el sujeto 'die Firma' se introduce con 'durch'."
+    }
   ]
 }

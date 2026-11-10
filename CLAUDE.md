@@ -21,7 +21,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | Area | Detail lives in |
 |------|-----------------|
 | Quiz apps A1–C2, `shared-game.js`, their PWA files, B1/B2 notes | `docs/apps/vocab-quiz.md` |
-| One doc per root app (+ its JS/data and implementation notes) | `docs/apps/{lectura-veloz,mundliche,escritura,kasus,chat-voz,corrector,diccionario,chat-reformulaciones,gramatica,plan,landing,timer}.md` |
+| One doc per root app (+ its JS/data and implementation notes) | `docs/apps/{lectura-veloz,mundliche,escritura,kasus,chat-voz,corrector,diccionario,chat-reformulaciones,gramatica,plan,landing,timer,aussprache}.md` |
 | `auth.js`, `config.js`, `onboarding.js` | `docs/apps/auth.md` |
 | `styles.css` / `Data*.json` | `docs/styles.md` / `docs/data.md` |
 | `chatvoz2/`, `admin/`, `teacher/`, `marketing/`, `scripts/` | `<subdir>/CLAUDE.md` |
@@ -50,6 +50,7 @@ Per-file detail is split out of this file. Subdir `CLAUDE.md` files load automat
 | `gramaticaA1.html` … `gramaticaC2.html` (6 files) | Static JS-free per-level grammar references, hand-transcribed from `GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
 | `plan.html` | 30-day study plan SPA, progress synced to `user_data.plan_progress`; installable PWA. Detail: `docs/apps/plan.md` |
 | `timer.html` | Installable interval / pomodoro / countdown timer, open to everyone (`data-access-free`), presets + own sounds only in IndexedDB. Detail: `docs/apps/timer.md` |
+| `aussprache.html` | Pronunciation reference (rules → Spanish-spelling approximations, examples with browser TTS 🔊), filter by category. Detail: `docs/apps/aussprache.md` |
 | `admin/index.html` | Admin-only dashboard (stats, users, access control, reports). Detail: `admin/CLAUDE.md` |
 | `teacher/index.html` | Admin/teacher class planner per level (martes/jueves classes vs `GRAMMAR_DATA`). Detail: `teacher/CLAUDE.md` |
 | `teacher/tareas.html` | Admin/teacher worksheet generator: Lesen + Kasus + Reformulaciones from the banks → student/teacher PDF. Detail: `teacher/CLAUDE.md` |
@@ -87,6 +88,7 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 | `reformulaciones-data.json` / `reformulaciones-guias.js` / `reformulaciones-combos.js` / `reformulaciones-combos-data.json` | Umformung exercise bank, per-rule generator guides (C1), combo catalog, combo bank. Detail: `docs/apps/chat-reformulaciones.md` |
 | `grammar-data.js` + `grammar-data-{a1..c2}.js` | Loader shim (plain blocking `<script>`) + per-level `window.GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
 | `teacher/clases-a1.js` / `-a2` / `-b1` / `-b2` | `window.TEACHER_CLASES[level]` 30-day class mapping. Detail: `teacher/CLAUDE.md` |
+| `aussprache-data.js` | `window.AUSSPRACHE` pronunciation rules + `AUSSPRACHE_CATEGORIAS`; `[brackets]` in example words mark the highlighted letters. Detail: `docs/apps/aussprache.md` |
 | `redemittel-data.js` | `window.REDEMITTEL[level][teilId]` (only B1 populated). Detail: `docs/apps/mundliche.md` |
 
 ### Scripts (offline tools)
@@ -175,6 +177,7 @@ Files in `supabase/migrations/`, run manually in the Supabase SQL editor. Full d
 | `gramatica.js` | SPA logic for `gramatica.html` (Practicar quiz, Modo Examen). Detail: `docs/apps/gramatica.md` |
 | `plan.js` | `window.PLANS` data (a1–c2 × 30 days). Detail: `docs/apps/plan.md` |
 | `timer.js` | All JS for `timer.html` (phase engine, Web Audio, IndexedDB). Detail: `docs/apps/timer.md` |
+| `aussprache.js` | All JS for `aussprache.html` (render, category filter, `speechSynthesis` de-DE). Detail: `docs/apps/aussprache.md` |
 | `onboarding.js` | First-visit guided tour on `index.html`. Detail: `docs/apps/auth.md` |
 
 ### Shared styles

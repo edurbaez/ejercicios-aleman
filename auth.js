@@ -679,6 +679,7 @@
     { href: 'escritura.html', label: 'Escritura', bodyId: 'page-esc' },
     { href: 'chat-reformulaciones.html', label: 'Reformulaciones', bodyId: 'page-cr' },
     { href: 'kasus.html', label: 'Kasus-Trainer', bodyId: 'page-kas' },
+    { href: 'aussprache.html', label: 'Pronunciación', bodyId: 'page-aus' },
     { href: 'chat-voz.html', label: 'Chat de Voz', bodyId: 'page-cv' },
     { href: 'mundliche.html', label: 'Mündliche Prüfung', bodyId: 'page-mp' },
     { href: 'diccionario.html', label: 'Diccionario', bodyId: 'page-dic' },
@@ -816,6 +817,7 @@
     'plan': 'Plan 30 días',
     'mundliche': 'Práctica Oral',
     'escritura': 'Escritura',
+    'aussprache': 'Pronunciación',
     'auth': 'Acceso / Autenticación',
   };
   const _INFRA_EVENTS = new Set(['session_start', 'session_end', 'mode_change', 'auto_session_end']);
@@ -1109,7 +1111,7 @@
     'page-gram': 'gramatica', 'page-lv': 'lectura-veloz', 'page-esc': 'escritura',
     'page-cr': 'chat-reformulaciones', 'page-kas': 'kasus', 'page-cv': 'chat-voz', 'page-cv2': 'chatvoz2',
     'page-mp': 'mundliche', 'page-dic': 'diccionario', 'page-cor': 'corrector', 'page-plan': 'plan',
-    'page-home': 'home',
+    'page-aus': 'aussprache', 'page-home': 'home',
   };
   const DT_PREFIX = 'ejaleman_daily_time_';
   const DT_TICK_MS = 15000;

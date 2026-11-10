@@ -357,14 +357,15 @@
             const currentIdx = getCurrentDayIndex(progress);
             if (selectedDay > currentIdx || progress[selectedDay]) return;
 
-            progress[selectedDay] = true;
+            const completedDay = selectedDay;
+            progress[completedDay] = true;
             saveProgress(activeLevel, progress);
             renderCalendar(activeLevel, progress);
             renderProgressBar(progress);
-            selectDay(selectedDay);
+            selectDay(Math.min(completedDay + 1, window.PLANS[activeLevel].length - 1));
 
             if (typeof window.logEvent === 'function') {
-                window.logEvent('plan', 'day_complete', { level: activeLevel, day: selectedDay + 1 });
+                window.logEvent('plan', 'day_complete', { level: activeLevel, day: completedDay + 1 });
             }
         }
 

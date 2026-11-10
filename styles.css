@@ -5412,7 +5412,7 @@ body.dark .cr-results-title { color: #ce93d8; }
 /* Layout: calendario + detalle */
 #plan-content {
     display: grid;
-    grid-template-columns: 1fr 280px;
+    grid-template-columns: 1fr;
     gap: 24px;
     align-items: start;
 }
@@ -5472,8 +5472,6 @@ body.dark .cr-results-title { color: #ce93d8; }
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 20px;
-    position: sticky;
-    top: 66px;
 }
 
 #plan-detail-day {
@@ -5574,16 +5572,8 @@ body.dark .cr-results-title { color: #ce93d8; }
 
 /* Responsive */
 @media (max-width: 700px) {
-    #plan-content {
-        grid-template-columns: 1fr;
-    }
-
     #plan-calendar {
         grid-template-columns: repeat(5, 1fr);
-    }
-
-    #plan-detail {
-        position: static;
     }
 }
 

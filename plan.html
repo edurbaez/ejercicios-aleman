@@ -46,8 +46,6 @@
         </div>
 
         <div id="plan-content">
-            <div id="plan-calendar"></div>
-
             <aside id="plan-detail">
                 <h2 id="plan-detail-day">Día 1</h2>
                 <p id="plan-detail-focus"></p>
@@ -55,6 +53,8 @@
                 <div id="plan-detail-markers" title="Actividades abiertas"></div>
                 <button id="plan-complete-btn">Marcar como completado</button>
             </aside>
+
+            <div id="plan-calendar"></div>
         </div>
     </main>
 
@@ -89,10 +89,40 @@
         // Opened-task markers live under the reserved `_opened` key of the same
         // jsonb ({ _opened: { c1: { "0": [true, null, true] } } }), so no migration.
         const OPENED_REMOTE_KEY = '_opened';
+        // Per-level reset timestamp ({ _reset: { a1: 1731234567890 } }). The opened
+        // markers are merged as a union across devices, so without this a device
+        // that still has old marks in localStorage would resurrect them after a reset.
+        const RESET_REMOTE_KEY = '_reset';
+
+        function getResetKey(level) {
+            return 'plan_reset_' + level;
+        }
+
+        function loadResetAt(level) {
+            return parseInt(localStorage.getItem(getResetKey(level)), 10) || 0;
+        }
+
+        // Fetches the row without touching localStorage, so a write never pushes a
+        // partial object that would wipe the other levels.
+        async function ensureRemoteRow() {
+            if (!window.currentUser || !window.sb) return false;
+            if (remotePlanProgress) return true;
+            try {
+                const { data, error } = await window.sb
+                    .from('user_data')
+                    .select('plan_progress')
+                    .eq('user_id', window.currentUser.id)
+                    .maybeSingle();
+                if (error) return false;
+                if (!remotePlanProgress) remotePlanProgress = (data && data.plan_progress) || {};
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
 
         async function persistRemoteProgress(level, progress) {
-            if (!window.currentUser || !window.sb) return;
-            if (!remotePlanProgress) remotePlanProgress = {};
+            if (!await ensureRemoteRow()) return;
             remotePlanProgress[level] = progress;
             await pushRemote();
         }
@@ -139,23 +169,40 @@
                     .maybeSingle();
                 remotePlanProgress = (data && data.plan_progress) || {};
                 const remoteOpened = remotePlanProgress[OPENED_REMOTE_KEY] || {};
-                let openedChanged = false;
-                Object.keys(remotePlanProgress).forEach(function(level) {
-                    if (level === OPENED_REMOTE_KEY) return;
-                    localStorage.setItem(getProgressKey(level), JSON.stringify(remotePlanProgress[level]));
-                });
+                const remoteReset = remotePlanProgress[RESET_REMOTE_KEY] || {};
+                let changed = false;
                 Object.keys(PLANS).forEach(function(level) {
+                    const localResetAt = loadResetAt(level);
+                    const remoteResetAt = remoteReset[level] || 0;
+                    if (localResetAt > remoteResetAt) {
+                        // Reset here never reached the server: local state wins.
+                        remotePlanProgress[level] = loadProgress(level);
+                        delete remoteOpened[level];
+                        remoteReset[level] = localResetAt;
+                        changed = true;
+                    } else {
+                        if (remoteResetAt > localResetAt) {
+                            // Reset on another device: drop this device's stale marks.
+                            localStorage.removeItem(getOpenedKey(level));
+                            localStorage.removeItem(getLastDayKey(level));
+                            localStorage.setItem(getResetKey(level), String(remoteResetAt));
+                        }
+                        if (remotePlanProgress[level]) {
+                            localStorage.setItem(getProgressKey(level), JSON.stringify(remotePlanProgress[level]));
+                        }
+                    }
                     const local = loadOpened(level);
                     const merged = mergeOpened(remoteOpened[level], local);
                     if (!Object.keys(merged).length) return;
                     localStorage.setItem(getOpenedKey(level), JSON.stringify(merged));
                     if (JSON.stringify(merged) !== JSON.stringify(mergeOpened(remoteOpened[level]))) {
                         remoteOpened[level] = merged;
-                        openedChanged = true;
+                        changed = true;
                     }
                 });
-                if (openedChanged) {
+                if (changed) {
                     remotePlanProgress[OPENED_REMOTE_KEY] = remoteOpened;
+                    remotePlanProgress[RESET_REMOTE_KEY] = remoteReset;
                     pushRemote();
                 }
                 switchLevel(activeLevel);
@@ -321,24 +368,31 @@
             }
         }
 
-        function resetProgress() {
-            if (!confirm('¿Reiniciar el progreso del nivel ' + activeLevel.toUpperCase() + '? Se borrarán los días completados.')) return;
+        async function resetProgress() {
+            const level = activeLevel;
+            if (!confirm('¿Reiniciar el progreso del nivel ' + level.toUpperCase() + '? Se borrarán los días completados y las actividades abiertas.')) return;
 
             const progress = new Array(30).fill(false);
-            if (remotePlanProgress && remotePlanProgress[OPENED_REMOTE_KEY]) {
-                delete remotePlanProgress[OPENED_REMOTE_KEY][activeLevel];
-            }
-            saveProgress(activeLevel, progress);
-            localStorage.removeItem(getOpenedKey(activeLevel));
-            localStorage.removeItem(getLastDayKey(activeLevel));
+            const resetAt = Date.now();
+            localStorage.setItem(getProgressKey(level), JSON.stringify(progress));
+            localStorage.setItem(getResetKey(level), String(resetAt));
+            localStorage.removeItem(getOpenedKey(level));
+            localStorage.removeItem(getLastDayKey(level));
 
-            renderCalendar(activeLevel, progress);
+            selectedDay = null;
+            renderCalendar(level, progress);
             renderProgressBar(progress);
             selectDay(0);
 
             if (typeof window.logEvent === 'function') {
-                window.logEvent('plan', 'progress_reset', { level: activeLevel });
+                window.logEvent('plan', 'progress_reset', { level: level });
             }
+
+            if (!await ensureRemoteRow()) return;
+            remotePlanProgress[level] = progress;
+            if (remotePlanProgress[OPENED_REMOTE_KEY]) delete remotePlanProgress[OPENED_REMOTE_KEY][level];
+            remotePlanProgress[RESET_REMOTE_KEY] = Object.assign({}, remotePlanProgress[RESET_REMOTE_KEY], { [level]: resetAt });
+            await pushRemote();
         }
 
         function switchLevel(level) {

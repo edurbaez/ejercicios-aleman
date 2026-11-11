@@ -89,7 +89,7 @@ Files in `api/`. All require Supabase JWT auth (except cron ones) and are rate l
 | `grammar-data.js` + `grammar-data-{a1..c2}.js` | Loader shim (plain blocking `<script>`) + per-level `window.GRAMMAR_DATA`. Detail: `docs/apps/gramatica.md` |
 | `teacher/clases-a1.js` / `-a2` / `-b1` / `-b2` | `window.TEACHER_CLASES[level]` 30-day class mapping. Detail: `teacher/CLAUDE.md` |
 | `aussprache-data.js` | `window.AUSSPRACHE` pronunciation rules + `AUSSPRACHE_CATEGORIAS`; `[brackets]` in example words mark the highlighted letters. Detail: `docs/apps/aussprache.md` |
-| `redemittel-data.js` | `window.REDEMITTEL[level][teilId]` (only B1 populated). Detail: `docs/apps/mundliche.md` |
+| `redemittel-data.js` | `window.REDEMITTEL[level][teilId]` (B1 and C1 populated). Detail: `docs/apps/mundliche.md` |
 
 ### Scripts (offline tools)
 

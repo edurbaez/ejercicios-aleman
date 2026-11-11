@@ -1471,151 +1471,152 @@ window.PLANS = {
   c1: [
     // B2 → C1 bridge aimed at Goethe C1. Each rule: introduced on day D (read + 🎯 Practicar),
     // reformulated on D+3 and D+7, then retested in the mixed Examen on days 14, 21, 27 and 30.
-    // Semana 1 (días 1-7): diagnóstico + puente B2→C1 (reglas que amplían B2)
+    // Days 7, 14 and 21 are recovery days (no new rules) so a missed day doesn't break the D+3/D+7 spacing.
+    // Day 1/2 diagnostics run under the same conditions as the final simulacros (55-min Teil 1, full oral) so they're comparable.
+    // Semana 1 (días 1-7): diagnóstico + lo que más pesa en la escritura (conectores, cohesión) + puente B2→C1
     {
       day: 1, week: 1,
-      focus: "Diagnóstico inicial: gramática B2, escritura y oral en condiciones de examen",
+      focus: "Diagnóstico inicial: gramática B2 y C1 + Schreiben Teil 1 en condiciones de examen",
       tasks: [
         { app: "gramatica.html#B2", label: "Diagnóstico: 📝 Examen de gramática B2 — anota las reglas en las que fallas", minutes: 15 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Diagnóstico: Stellungnahme cronometrada (30 min con timer.html) — guarda la nota", minutes: 30 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Diagnóstico oral: 🎓 Simulacro completo con 📝 Modo examen — guarda el veredicto", minutes: 20 }
+        { app: "gramatica.html#C1", label: "Diagnóstico: 📝 Examen C1 (aún no has visto las reglas) — guarda la nota como punto de partida", minutes: 15 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Diagnóstico: Stellungnahme (55 min con timer.html, sin diccionario, igual que en el simulacro) — guarda la nota", minutes: 55 }
       ]
     },
     {
       day: 2, week: 1,
-      focus: "Nominalstil ↔ Verbalstil + Nebensatz ↔ Präpositionalgruppe",
+      focus: "Konnektoren der Argumentation + Cohesión textual · diagnóstico oral",
       tasks: [
-        { app: "gramatica.html#c1-18", label: "Gramática: Nominalstil ↔ Verbalstil — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-19", label: "Gramática: Nebensatz ↔ Präpositionalgruppe — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-22", label: "Gramática: Konnektoren der Argumentation — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-15", label: "Gramática: Cohesión textual — lee y haz 🎯 Practicar", minutes: 10 },
         { app: "C1.html?set=esenciales", label: "Vocabulario: esenciales", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — usa ≥3 nominalizaciones y 2 grupos preposicionales (wegen, trotz, bei…)", minutes: 25 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Diagnóstico oral: 🎓 Simulacro completo con 📝 Modo examen — guarda el veredicto", minutes: 25 },
         { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
       day: 3, week: 1,
-      focus: "lassen + sich + sein + zu + Infinitivo (alternativas a la pasiva)",
+      focus: "Nominalstil ↔ Verbalstil + Nebensatz ↔ Präpositionalgruppe",
       tasks: [
-        { app: "gramatica.html#c1-01", label: "Gramática: lassen + sich — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-02", label: "Gramática: sein + zu + Infinitivo — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "C1.html?set=verbos-prep", label: "Vocabulario: verbos con preposición", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — usa al menos 2 veces «lässt sich» o «ist zu + Inf.»", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema del Vortrag", minutes: 10 },
+        { app: "gramatica.html#c1-18", label: "Gramática: Nominalstil ↔ Verbalstil — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-19", label: "Gramática: Nebensatz ↔ Präpositionalgruppe — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "C1.html?set=conectores", label: "Vocabulario: conectores", minutes: 10 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — estructura con einerseits/andererseits y zwar … aber, enlaza párrafos con darüber/dabei y usa ≥3 nominalizaciones", minutes: 25 },
         { app: "kasus.html?nivel=b2&relleno=adjetivo&modo=escribir", label: "Base B2: declinación de adjetivos (modo escribir)", minutes: 10 }
       ]
     },
     {
       day: 4, week: 1,
+      focus: "lassen + sich + sein + zu + Infinitivo (alternativas a la pasiva)",
+      tasks: [
+        { app: "gramatica.html#c1-01", label: "Gramática: lassen + sich — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-02", label: "Gramática: sein + zu + Infinitivo — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "C1.html?set=redemittel", label: "Vocabulario: Redemittel (Vortrag, Diskussion y carta formal)", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — sigue el panel 🗒️ Redemittel para la estructura y usa al menos 2 veces «lässt sich» o «ist zu + Inf.»", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema del Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+      ]
+    },
+    {
+      day: 5, week: 1,
       focus: "Gerundivum + Atributo participial extendido",
       tasks: [
         { app: "gramatica.html#c1-03", label: "Gramática: Gerundivum — lee y haz 🎯 Practicar", minutes: 10 },
         { app: "gramatica.html#c1-04", label: "Gramática: Atributo participial extendido — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-22,c1-15", label: "Reformulación (repaso día 2): Konnektoren + cohesión textual", minutes: 10 },
         { app: "C1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 10 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura (Teil 2): Carta formal — incluye un atributo participial extendido", minutes: 20 },
         { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
-      day: 5, week: 1,
+      day: 6, week: 1,
       focus: "Indirekte Rede completa + Wiedergabe von Aufforderungen und Gerüchten",
       tasks: [
         { app: "gramatica.html#c1-20", label: "Gramática: Indirekte Rede (Konjunktiv I completo) — lee y haz 🎯 Practicar", minutes: 10 },
         { app: "gramatica.html#c1-08", label: "Gramática: Wiedergabe von Aufforderungen und Gerüchten — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-18,c1-19", label: "Reformulación (repaso día 2): Nominalstil + Nebensatz ↔ Präposition", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-18,c1-19", label: "Reformulación (repaso día 3): Nominalstil + Nebensatz ↔ Präposition", minutes: 10 },
         { app: "C1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 10 },
         { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion — resume en Konjunktiv I lo que dijo tu interlocutor", minutes: 10 },
         { app: "chat-voz.html", label: "Comprensión auditiva: chat de voz C1 — intenta entender sin leer el texto", minutes: 15 }
       ]
     },
     {
-      day: 6, week: 1,
-      focus: "Irrealis del pasado con modales + Strukturen mit Ersatzinfinitiv",
-      tasks: [
-        { app: "gramatica.html#c1-05", label: "Gramática: Irrealis del pasado con modales — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-06", label: "Gramática: Strukturen mit Ersatzinfinitiv — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-01,c1-02", label: "Reformulación (repaso día 3): lassen + sich, sein + zu", minutes: 10 },
-        { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — cita una fuente en Konjunktiv I y usa un «hätte … müssen»", minutes: 25 }
-      ]
-    },
-    {
       day: 7, week: 1,
-      focus: "Konnektoren der Argumentation + Kausale Nebensätze: da und wobei",
+      focus: "Recuperación: sin reglas nuevas — ponte al día con la semana 1",
       tasks: [
-        { app: "gramatica.html#c1-22", label: "Gramática: Konnektoren der Argumentation — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-12", label: "Gramática: Kausale Nebensätze: da und wobei — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-03,c1-04", label: "Reformulación (repaso día 4): Gerundivum + Atributo participial", minutes: 10 },
-        { app: "C1.html?set=conectores", label: "Vocabulario: conectores", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — estructura con einerseits/andererseits, zwar … aber y folglich", minutes: 10 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+        { app: "chat-reformulaciones.html?rule=c1-01,c1-02", label: "Reformulación (repaso día 4): lassen + sich, sein + zu", minutes: 10 },
+        { app: "gramatica.html#C1", label: "Gramática: 🔁 repasa las reglas pendientes (SRS)", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Recuperación: haz hoy las tareas de los días 1–6 que se quedaron sin abrir (punto gris en el calendario); si vas al día, una Comprensión C1 extra", minutes: 20 }
       ]
     },
     // Semana 2 (días 8-14): reglas propias de C1 + primer control
     {
       day: 8, week: 2,
+      focus: "Irrealis del pasado con modales + Strukturen mit Ersatzinfinitiv",
+      tasks: [
+        { app: "gramatica.html#c1-05", label: "Gramática: Irrealis del pasado con modales — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-06", label: "Gramática: Strukturen mit Ersatzinfinitiv — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-03,c1-04", label: "Reformulación (repaso día 5): Gerundivum + Atributo participial", minutes: 10 },
+        { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 10 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — cita una fuente en Konjunktiv I y usa un «hätte … müssen»", minutes: 25 }
+      ]
+    },
+    {
+      day: 9, week: 2,
       focus: "Präpositionen mit Genitiv + Colocaciones verbonominales (Funktionsverbgefüge)",
       tasks: [
         { app: "gramatica.html#c1-21", label: "Gramática: Präpositionen mit Genitiv (ampliación) — lee y haz 🎯 Practicar", minutes: 10 },
         { app: "gramatica.html#c1-14", label: "Gramática: Colocaciones verbonominales — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-20,c1-08", label: "Reformulación (repaso día 5): Indirekte Rede + Aufforderungen", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-22,c1-15,c1-20,c1-08", label: "Reformulación (repaso días 2 y 6): Konnektoren, cohesión, Indirekte Rede, Aufforderungen", minutes: 15 },
         { app: "C1.html?set=nomen-verb", label: "Vocabulario: Nomen-Verb-Verbindungen", minutes: 10 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura (Teil 2): Carta formal — usa hinsichtlich/bezüglich y 2 Funktionsverbgefüge", minutes: 20 }
       ]
     },
     {
-      day: 9, week: 2,
-      focus: "Partículas de evidencialidad + Uso subjetivo de los modales",
-      tasks: [
-        { app: "gramatica.html#c1-07", label: "Gramática: Partículas de evidencialidad — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-24", label: "Gramática: Uso subjetivo de los modales — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-18,c1-19,c1-05,c1-06", label: "Reformulación (repaso días 2 y 6): Nominalstil, Präpositionalgruppe, Irrealis, Ersatzinfinitiv", minutes: 15 },
-        { app: "C1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion — matiza tus suposiciones con dürfte / könnte", minutes: 10 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
-      ]
-    },
-    {
       day: 10, week: 2,
-      focus: "Cohesión textual + Modale Nebensätze mit indem",
+      focus: "Matizar: partículas de evidencialidad + uso subjetivo de los modales + Modalpartikeln",
       tasks: [
-        { app: "gramatica.html#c1-15", label: "Gramática: Cohesión textual — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-13", label: "Gramática: Modale Nebensätze mit indem — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-01,c1-02,c1-22,c1-12", label: "Reformulación (repaso días 3 y 7): lassen/sein + zu, Konnektoren, da/wobei", minutes: 15 },
-        { app: "C1.html?set=tema%3A%20econom%C3%ADa", label: "Vocabulario: tema economía", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — enlaza párrafos con darüber/dabei/dazu y 3 conectores distintos", minutes: 25 }
+        { app: "gramatica.html#c1-07", label: "Gramática: Partículas de evidencialidad — lee y haz 🎯 Practicar", minutes: 8 },
+        { app: "gramatica.html#c1-24", label: "Gramática: Uso subjetivo de los modales — lee y haz 🎯 Practicar", minutes: 8 },
+        { app: "gramatica.html#c1-23", label: "Gramática: Modalpartikeln en la discusión — lee y haz 🎯 Practicar", minutes: 8 },
+        { app: "chat-reformulaciones.html?rule=c1-18,c1-19", label: "Reformulación (repaso día 3): Nominalstil + Präpositionalgruppe", minutes: 10 },
+        { app: "C1.html?set=adjetivos", label: "Vocabulario: adjetivos", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion — matiza con dürfte / könnte, concede con durchaus/schon antes de contradecir y usa 2 Redemittel de «Widersprechen» del panel", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
       day: 11, week: 2,
-      focus: "Inversión estilística + Es como placeholder",
+      focus: "Kausale Nebensätze: da und wobei + Modale Nebensätze mit indem",
       tasks: [
-        { app: "gramatica.html#c1-16", label: "Gramática: Inversión estilística — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-17", label: "Gramática: Es como placeholder — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-03,c1-04,c1-21,c1-14", label: "Reformulación (repaso días 4 y 8): Gerundivum, Partizipialattribut, Genitiv-Präp., FVG", minutes: 15 },
-        { app: "C1.html?set=verbos-prep", label: "Vocabulario: verbos con preposición", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag", minutes: 10 },
-        { app: "chat-voz.html", label: "Comprensión auditiva: chat de voz C1 — intenta entender sin leer el texto", minutes: 15 }
+        { app: "gramatica.html#c1-12", label: "Gramática: Kausale Nebensätze: da und wobei — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-13", label: "Gramática: Modale Nebensätze mit indem — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-01,c1-02,c1-05,c1-06", label: "Reformulación (repaso días 4 y 8): lassen/sein + zu, Irrealis, Ersatzinfinitiv", minutes: 15 },
+        { app: "C1.html?set=tema%3A%20econom%C3%ADa", label: "Vocabulario: tema economía", minutes: 10 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — justifica con da/wobei, explica el cómo con indem y usa 3 conectores distintos", minutes: 25 }
       ]
     },
     {
       day: 12, week: 2,
-      focus: "Modalpartikeln en la discusión + Compuestos con irgend-",
+      focus: "Inversión estilística + Es como placeholder",
       tasks: [
-        { app: "gramatica.html#c1-23", label: "Gramática: Modalpartikeln en la discusión — lee y haz 🎯 Practicar", minutes: 10 },
-        { app: "gramatica.html#c1-11", label: "Gramática: Compuestos con irgend- (repaso rápido) — 🎯 Practicar", minutes: 10 },
-        { app: "chat-reformulaciones.html?rule=c1-20,c1-08,c1-07,c1-24", label: "Reformulación (repaso días 5 y 9): Indirekte Rede, Aufforderungen, evidencialidad, modales subjetivos", minutes: 15 },
-        { app: "C1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion — concede con durchaus/schon antes de contradecir", minutes: 10 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+        { app: "gramatica.html#c1-16", label: "Gramática: Inversión estilística — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "gramatica.html#c1-17", label: "Gramática: Es como placeholder — lee y haz 🎯 Practicar", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-03,c1-04,c1-21,c1-14", label: "Reformulación (repaso días 5 y 9): Gerundivum, Partizipialattribut, Genitiv-Präp., FVG", minutes: 15 },
+        { app: "C1.html?set=verbos-prep", label: "Vocabulario: verbos con preposición", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — empieza con una inversión enfática (Nie zuvor …, Erst wenn …)", minutes: 10 },
+        { app: "chat-voz.html", label: "Comprensión auditiva: chat de voz C1 — intenta entender sin leer el texto", minutes: 15 }
       ]
     },
     {
       day: 13, week: 2,
-      focus: "Formación de palabras: compuestos + Trennbare und untrennbare Verben (repaso rápido)",
+      focus: "Repaso rápido: compuestos, trennbare/untrennbare Verben e irgend-",
       tasks: [
-        { app: "gramatica.html#c1-09", label: "Gramática: Formación de palabras: compuestos — 🎯 Practicar", minutes: 8 },
-        { app: "gramatica.html#c1-10", label: "Gramática: Trennbare und untrennbare Verben (repaso rápido) — 🎯 Practicar", minutes: 7 },
-        { app: "chat-reformulaciones.html?rule=c1-05,c1-06,c1-15,c1-13", label: "Reformulación (repaso días 6 y 10): Irrealis, Ersatzinfinitiv, cohesión, indem", minutes: 15 },
+        { app: "gramatica.html#c1-09", label: "Gramática: Formación de palabras: compuestos — 🎯 Practicar", minutes: 5 },
+        { app: "gramatica.html#c1-10", label: "Gramática: Trennbare und untrennbare Verben (repaso rápido) — 🎯 Practicar", minutes: 5 },
+        { app: "gramatica.html#c1-11", label: "Gramática: Compuestos con irgend- (repaso rápido) — 🎯 Practicar", minutes: 5 },
+        { app: "chat-reformulaciones.html?rule=c1-20,c1-08,c1-07,c1-24,c1-23", label: "Reformulación (repaso días 6 y 10): Indirekte Rede, Aufforderungen, evidencialidad, modales subjetivos, partículas", minutes: 15 },
         { app: "C1.html?set=sustantivos", label: "Vocabulario: sustantivos", minutes: 10 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura (Teil 2): Carta formal", minutes: 20 },
         { app: "kasus.html?nivel=b2&relleno=adjetivo&modo=escribir", label: "Base B2: declinación de adjetivos (modo escribir)", minutes: 10 }
@@ -1623,42 +1624,41 @@ window.PLANS = {
     },
     {
       day: 14, week: 2,
-      focus: "Control 1: examen de las reglas vistas + escritura sin repetir errores",
+      focus: "Control 1 + recuperación: sin reglas nuevas",
       tasks: [
-        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 — anota las reglas con fallos", minutes: 15 },
-        { app: "chat-reformulaciones.html?rule=c1-22,c1-12,c1-16,c1-17", label: "Reformulación (repaso días 7 y 11): Konnektoren, da/wobei, inversión, es", minutes: 15 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — antes de escribir, relee las correcciones de los días 2, 6 y 10 y evita esos errores", minutes: 25 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 — compara con el día 1 y anota las reglas con fallos", minutes: 15 },
+        { app: "chat-reformulaciones.html?rule=c1-12,c1-13", label: "Reformulación (repaso día 11): da/wobei + indem", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Recuperación: haz hoy las tareas de los días 8–13 que se quedaron sin abrir (punto gris en el calendario); si vas al día, una Comprensión C1 extra", minutes: 20 }
       ]
     },
     // Semana 3 (días 15-21): integración — reformulación espaciada, SRS y producción larga
     {
       day: 15, week: 3,
-      focus: "Integración: Genitiv-Präp., FVG, partículas + Vortrag y Diskussion encadenados",
+      focus: "Integración: Irrealis, inversión, es + Stellungnahme sin repetir errores",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-21,c1-14,c1-23,c1-11", label: "Reformulación (repaso días 8 y 12): Genitiv-Präp., FVG, partículas, irgend-", minutes: 15 },
+        { app: "chat-reformulaciones.html?rule=c1-05,c1-06,c1-16,c1-17", label: "Reformulación (repaso días 8 y 12): Irrealis, Ersatzinfinitiv, inversión, es", minutes: 15 },
         { app: "gramatica.html#C1", label: "Gramática: 🔁 repasa las reglas pendientes (SRS)", minutes: 10 },
         { app: "C1.html?set=nomen-verb", label: "Vocabulario: Nomen-Verb-Verbindungen", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema de tu Vortrag", minutes: 10 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — antes de escribir, relee las correcciones de los días 1, 3, 8 y 11 y evita esos errores", minutes: 25 },
         { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
       day: 16, week: 3,
-      focus: "Integración: evidencialidad, modales subjetivos, compuestos + Stellungnahme completa",
+      focus: "Integración: Genitiv-Präp., FVG, formación de palabras + Vortrag y Diskussion encadenados",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-07,c1-24,c1-09,c1-10", label: "Reformulación (repaso días 9 y 13): evidencialidad, modales subjetivos, compuestos, trennbar", minutes: 15 },
+        { app: "chat-reformulaciones.html?rule=c1-21,c1-14,c1-09,c1-10,c1-11", label: "Reformulación (repaso días 9 y 13): Genitiv-Präp., FVG, compuestos, trennbar, irgend-", minutes: 15 },
         { app: "C1.html?set=tema%3A%20derecho", label: "Vocabulario: tema derecho", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — incluye Nominalstil, Konjunktiv I, una preposición de genitivo y un conector de dos partes", minutes: 30 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema de tu Vortrag", minutes: 10 },
         { app: "chat-voz.html", label: "Comprensión auditiva: chat de voz C1 — intenta entender sin leer el texto", minutes: 15 }
       ]
     },
     {
       day: 17, week: 3,
-      focus: "Integración: cohesión + indem + carta formal",
+      focus: "Integración: matización (evidencialidad, modales, partículas) + carta formal",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-15,c1-13", label: "Reformulación (repaso día 10): cohesión textual + indem", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-07,c1-24,c1-23", label: "Reformulación (repaso día 10): evidencialidad, modales subjetivos, partículas", minutes: 10 },
         { app: "gramatica.html#C1", label: "Gramática: 🔁 repasa las reglas pendientes (SRS)", minutes: 10 },
         { app: "C1.html?set=conectores", label: "Vocabulario: conectores", minutes: 10 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura (Teil 2): Carta formal — registro formal: FVG + preposiciones de genitivo", minutes: 25 },
@@ -1667,46 +1667,43 @@ window.PLANS = {
     },
     {
       day: 18, week: 3,
-      focus: "Integración: inversión + es + Vortrag y Diskussion encadenados",
+      focus: "Integración: da/wobei + indem + Stellungnahme completa",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-16,c1-17", label: "Reformulación (repaso día 11): inversión estilística + es", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-12,c1-13", label: "Reformulación (repaso día 11): da/wobei + indem", minutes: 10 },
         { app: "C1.html?set=tema%3A%20trabajo", label: "Vocabulario: tema trabajo", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — empieza con una inversión enfática (Nie zuvor …, Erst wenn …)", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema de tu Vortrag", minutes: 10 },
-        { app: "kasus.html?nivel=b2&relleno=adjetivo&modo=escribir", label: "Base B2: declinación de adjetivos (modo escribir)", minutes: 10 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — incluye Nominalstil, Konjunktiv I, una preposición de genitivo y un conector de dos partes", minutes: 30 },
+        { app: "kasus.html?nivel=b2&relleno=adjetivo&modo=escribir", label: "Base B2: declinación de adjetivos (modo escribir)", minutes: 10 }
       ]
     },
     {
       day: 19, week: 3,
-      focus: "Integración: partículas + irgend- + Stellungnahme en dos versiones",
+      focus: "Integración: inversión + es + Vortrag y Diskussion encadenados",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-23,c1-11", label: "Reformulación (repaso día 12): partículas modales + irgend-", minutes: 10 },
+        { app: "chat-reformulaciones.html?rule=c1-16,c1-17", label: "Reformulación (repaso día 12): inversión estilística + es", minutes: 10 },
         { app: "gramatica.html#C1", label: "Gramática: 🔁 repasa las reglas pendientes (SRS)", minutes: 10 },
-        { app: "C1.html?set=verbos", label: "Vocabulario: verbos", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — escribe, lee la corrección y envía una 2.ª versión mejorada del mismo texto", minutes: 35 }
+        { app: "C1.html?set=redemittel", label: "Vocabulario: Redemittel", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag — abre con una inversión enfática y estructura con Konnektoren", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema de tu Vortrag", minutes: 10 },
+        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
       ]
     },
     {
       day: 20, week: 3,
-      focus: "Integración: compuestos, trennbar y el bloque Nominalstil + Indirekte Rede",
+      focus: "Integración: formación de palabras + bloque Nominalstil / Indirekte Rede + Stellungnahme en dos versiones",
       tasks: [
-        { app: "chat-reformulaciones.html?rule=c1-09,c1-10,c1-18,c1-19,c1-20", label: "Reformulación (repaso día 13 + bloque clave): compuestos, trennbar, Nominalstil, Präpositionalgruppe, Indirekte Rede", minutes: 15 },
+        { app: "chat-reformulaciones.html?rule=c1-09,c1-10,c1-11,c1-18,c1-20", label: "Reformulación (repaso día 13 + bloque clave): compuestos, trennbar, irgend-, Nominalstil, Indirekte Rede", minutes: 15 },
         { app: "C1.html?set=tema%3A%20salud", label: "Vocabulario: tema salud", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion sobre el tema de tu Vortrag", minutes: 10 },
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Escritura (Teil 1): Stellungnahme — escribe, lee la corrección y envía una 2.ª versión mejorada del mismo texto", minutes: 35 },
         { app: "chat-voz.html", label: "Comprensión auditiva: chat de voz C1 — intenta entender sin leer el texto", minutes: 15 }
       ]
     },
     {
       day: 21, week: 3,
-      focus: "Control 2: examen de las 24 reglas + carta formal",
+      focus: "Control 2 + recuperación: sin reglas nuevas",
       tasks: [
-        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 (todas las reglas) — compara con el día 14", minutes: 15 },
+        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 (todas las reglas) — compara con los días 1 y 14", minutes: 15 },
         { app: "chat-reformulaciones.html?rule=c1-21,c1-22,c1-24", label: "Reformulación: Genitiv-Präp., Konnektoren, modales subjetivos", minutes: 10 },
-        { app: "C1.html?set=nomen-verb", label: "Vocabulario: Nomen-Verb-Verbindungen", minutes: 10 },
-        { app: "escritura.html?level=C1&tipo=carta-formal", label: "Escritura (Teil 2): Carta formal", minutes: 25 },
-        { app: "lectura veloz.html?level=C1", label: "Lectura: Comprensión C1 (Leseverstehen)", minutes: 15 }
+        { app: "lectura veloz.html?level=C1", label: "Recuperación: haz hoy las tareas de los días 15–20 que se quedaron sin abrir (punto gris en el calendario); si vas al día, una Comprensión C1 extra", minutes: 20 }
       ]
     },
     // Semana 4 (días 22-30): formato Goethe C1, simulacros y refuerzo de puntos débiles
@@ -1715,8 +1712,8 @@ window.PLANS = {
       focus: "Formato de examen: Lesen completo + Sprechen en Modo examen",
       tasks: [
         { app: "lectura veloz.html?level=C1", label: "Lectura en formato examen: haz los Teile 1, 2 y 3 seguidos", minutes: 30 },
-        { app: "C1.html?set=conectores", label: "Vocabulario: conectores", minutes: 10 },
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag con 📝 Modo examen", minutes: 10 },
+        { app: "C1.html?set=redemittel", label: "Vocabulario: Redemittel — repásalos antes del oral", minutes: 10 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag con 📝 Modo examen — al final, revisa en la evaluación qué Redemittel usaste", minutes: 10 },
         { app: "mundliche.html?level=C1&teil=diskussion", label: "Mündliche (Teil 2): Diskussion con 📝 Modo examen", minutes: 10 },
         { app: "chat-reformulaciones.html?rule=c1-18,c1-19,c1-21", label: "Reformulación: Nominalstil, Präpositionalgruppe, Genitiv-Präp.", minutes: 10 }
       ]
@@ -1764,7 +1761,7 @@ window.PLANS = {
       day: 27, week: 4,
       focus: "Control 3: examen de gramática + oral",
       tasks: [
-        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 — compara con los días 14 y 21", minutes: 15 },
+        { app: "gramatica.html#C1", label: "Control: 📝 Examen C1 — compara con los días 1, 14 y 21", minutes: 15 },
         { app: "chat-reformulaciones.html?rule=c1-05,c1-06,c1-07,c1-08", label: "Reformulación: Irrealis, Ersatzinfinitiv, evidencialidad, Aufforderungen", minutes: 10 },
         { app: "C1.html?set=expresiones", label: "Vocabulario: expresiones", minutes: 10 },
         { app: "mundliche.html?level=C1&teil=vortrag", label: "Mündliche (Teil 1): Vortrag", minutes: 10 },
@@ -1787,16 +1784,16 @@ window.PLANS = {
       focus: "Simulacro final (1/2): Lesen + Schreiben Teil 1",
       tasks: [
         { app: "lectura veloz.html?level=C1", label: "Simulacro Lesen: Teile 1, 2 y 3 seguidos, sin pausas", minutes: 30 },
-        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Simulacro Schreiben Teil 1: Stellungnahme (50 min con timer.html) — compara la nota con el día 1", minutes: 50 }
+        { app: "escritura.html?level=C1&tipo=stellungnahme", label: "Simulacro Schreiben Teil 1: Stellungnahme (55 min con timer.html, sin diccionario) — compara la nota con el día 1", minutes: 55 }
       ]
     },
     {
       day: 30, week: 4,
-      focus: "Simulacro final (2/2): Sprechen + Schreiben Teil 2 + gramática — compara con el día 1",
+      focus: "Simulacro final (2/2): Sprechen + Schreiben Teil 2 + gramática — compara con los días 1 y 2",
       tasks: [
-        { app: "mundliche.html?level=C1&teil=vortrag", label: "Simulacro final oral: 🎓 Simulacro completo con 📝 Modo examen — compara con el día 1", minutes: 25 },
+        { app: "mundliche.html?level=C1&teil=vortrag", label: "Simulacro final oral: 🎓 Simulacro completo con 📝 Modo examen — compara con el día 2", minutes: 25 },
         { app: "escritura.html?level=C1&tipo=carta-formal", label: "Simulacro Schreiben Teil 2: Carta formal (25 min con timer.html)", minutes: 25 },
-        { app: "gramatica.html#C1", label: "Control final: 📝 Examen C1 — compara con los días 14, 21 y 27", minutes: 15 }
+        { app: "gramatica.html#C1", label: "Control final: 📝 Examen C1 — compara con los días 1, 14, 21 y 27", minutes: 15 }
       ]
     }
   ],
